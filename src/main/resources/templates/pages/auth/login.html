@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<p th:if="${param.register_success}">Registered successfully</p>
+<p th:if="${param.logout}">You have been logged out</p>
+<p th:if="${param.incorrect_username_or_password}">Incorrect username or password</p>
+<p th:if="${param.account_disabled}">Your account is disabled</p>
+<p th:if="${param.invalid_captcha}">Invalid captcha</p>
+<p th:if="${param.unknown_error}">Unknown error</p>
+
+<form th:action="@{/login}" method="post">
+    <label>
+        Username<input type="text" name="username" required/>
+    </label>
+    <label>
+        Password<input type="password" name="password" required/>
+    </label>
+    <label>
+        Remember me<input type="checkbox" name="remember-me"/>
+    </label>
+    <div class="g-recaptcha" th:attr="data-sitekey=${siteKey}"></div>
+    <button type="submit">Login</button>
+</form>
+
+<a th:href="@{/forgot-password}">Forgot password</a>
+<a th:href="@{/register}">Register</a>
+<a th:href="@{/oauth2/authorization/google}">Login with Google</a>
+
+
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</body>
+</html>
