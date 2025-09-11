@@ -1,7 +1,7 @@
 package com.swp.project.service.user;
 
 import com.swp.project.entity.Role;
-import com.swp.project.repository.auth.RoleRepository;
+import com.swp.project.repository.user.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -22,7 +22,7 @@ public record RoleRedirectFilter(SecurityUtils securityUtils) implements Filter 
                     .anyMatch(a -> a
                             .getAuthority().equals("Admin")) &&
                     !req.getRequestURI().startsWith("/admin")) {
-                res.sendRedirect("/admin/dashboard");
+                res.sendRedirect("/admin");
                 return;
             }
         }

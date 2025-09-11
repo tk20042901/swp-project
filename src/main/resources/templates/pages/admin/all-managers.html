@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form th:action="@{/admin/all-managers}" method="get">
+    <label>
+        <input type="text" name="search" placeholder="Search by username or email..."/>
+    </label>
+    <button type="submit">Search</button>
+</form>
+<table>
+    <tr>
+        <th>User ID</th>
+        <th>Email</th>
+    </tr>
+    <tr th:if="${pages.isEmpty()}">
+        <td colspan="5" style="text-align:center;">No users found</td>
+    </tr>
+    <tr th:each="user : ${pages}">
+        <td th:text="${user.id}">id</td>
+        <td th:text="${user.email}">email</td>
+    </tr>
+</table>
+</body>
+</html>
