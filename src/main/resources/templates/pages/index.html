@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body th:with="isAuthenticated = ${#authorization.expression('isAuthenticated()')}">
+
+<form th:if="${isAuthenticated}" th:action="@{/logout}" method="post">
+    <button type="submit" class="btn">Logout</button>
+</form>
+
+</body>
+</html>

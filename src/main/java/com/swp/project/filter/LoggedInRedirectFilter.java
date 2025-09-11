@@ -12,7 +12,7 @@ public record LoggedInRedirectFilter(SecurityUtils securityUtils) implements Fil
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletResponse res = (HttpServletResponse) servletResponse;
         if (securityUtils.getCurrentUser() != null) {
-            res.sendRedirect("/home");
+            res.sendRedirect("/");
             return;
         }
 
