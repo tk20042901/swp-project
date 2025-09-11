@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body th:with="isAuthenticated = ${#authorization.expression('isAuthenticated()')}">
+
+<p> dell co gi ca</p>
+
+<a th:if="${!isAuthenticated}" th:href="@{/login}">Login</a>
+
+<a th:if="${isAuthenticated}" th:href="@{/customer/account-manager}">Account manager</a>
+
+</body>
+</html>
