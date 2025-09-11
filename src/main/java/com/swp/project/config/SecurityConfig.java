@@ -1,7 +1,7 @@
 package com.swp.project.config;
 
 import com.swp.project.filter.CaptchaValidationFilter;
-import com.swp.project.security.service.CustomOAuth2UserService;
+import com.swp.project.service.security.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,7 +30,7 @@ public class SecurityConfig {
 
     // Đường dẫn không yêu cầu đăng nhập
     private static final String[] PUBLIC_MATCHERS = {
-            "/register/**", "/login/**", "/css/**", "/js/**", "/forgot-password/**"
+            "/register/**", "/login/**", "/css/**", "/js/**", "/forgot-password/**","/verify-otp/**"
     };
 
     // Đường dẫn dành riêng cho vai trò Admin
@@ -55,6 +55,7 @@ public class SecurityConfig {
                 )
                 .formLogin(i -> i
                         .loginPage(LOGIN_PAGE)
+                        .usernameParameter("email")
                         .failureHandler(loginFailureHandler())
                         .defaultSuccessUrl(HOME_URL,true)
                 )
@@ -77,7 +78,7 @@ public class SecurityConfig {
         return (request, response, exception) -> {
             if (exception instanceof BadCredentialsException
                     || exception instanceof UsernameNotFoundException) {
-                response.sendRedirect("/login?incorrect_username_or_password");
+                response.sendRedirect("/login?incorrect_email_or_password");
             } else if (exception instanceof DisabledException){
                 response.sendRedirect("/login?account_disabled");
             } else {
@@ -90,9 +91,7 @@ public class SecurityConfig {
         return (request, response, exception) -> {
             if (exception instanceof OAuth2AuthenticationException authEx) {
                 String error = authEx.getError().getErrorCode();
-                if (error.equals("account_already_linked")) {
-                    response.sendRedirect("/?account_already_linked");
-                } else if (error.equals("account_disabled")) {
+                if (error.equals("account_disabled")) {
                     response.sendRedirect("/login?account_disabled");
                 } else {
                     response.sendRedirect("/login?unknown_error");

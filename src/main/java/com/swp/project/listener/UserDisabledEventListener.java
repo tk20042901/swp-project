@@ -16,8 +16,7 @@ public class UserDisabledEventListener {
 
     @EventListener
     public void onUserDisabledEvent(UserDisabledEvent event) {
-        String username = event.username();
-        sessionRepository.findByPrincipalName(username).values()
+        sessionRepository.findByPrincipalName(event.email()).values()
                 .forEach(session -> sessionRepository.deleteById(session.getId()));
     }
 }

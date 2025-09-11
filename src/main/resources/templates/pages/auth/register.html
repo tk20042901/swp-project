@@ -10,8 +10,8 @@
 
 <form th:action="@{/register}" th:object="${registerDto}" method="post">
     <label>
-        Username<input type="text" th:field="*{username}" required/>
-        <span th:errors="*{username}">Validate username</span>
+        Email:<input type="text" th:field="*{email}" required/>
+        <span th:errors="*{email}">Validate email</span>
     </label>
     <label>
         Password<input type="password" th:field="*{password}" required/>
