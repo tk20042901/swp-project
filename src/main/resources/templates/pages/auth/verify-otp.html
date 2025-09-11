@@ -5,11 +5,11 @@
     <title>Title</title>
 </head>
 <body>
-<p th:if="${error}" th:text="@{error}"></p>
+<p th:if="${error}" th:text="${error}"></p>
 <form th:action="@{/verify-otp}" method="post">
     <input type="hidden" name="email" th:value="${email}"/>
     <label>
-        Enter OTP <input type="text" name="otp"/>
+        Enter OTP<input type="text" name="otp"/>
     </label>
     <button type="submit">Verify OTP</button>
 </form>
