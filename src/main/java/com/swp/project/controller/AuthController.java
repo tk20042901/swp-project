@@ -1,7 +1,7 @@
 package com.swp.project.controller;
 
 import com.swp.project.dto.RegisterDto;
-import com.swp.project.service.UserService;
+import com.swp.project.service.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,16 +43,39 @@ public class AuthController {
             model.addAttribute("siteKey", recaptchaSite);
             return "/pages/auth/register";
         }
-
         try {
             userService.register(registerDto);
-            return "redirect:/login?register_success";
+            redirectAttributes.addFlashAttribute("email", registerDto.getEmail());
+            return "redirect:/verify-otp";
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/register";
         }
     }
 
+    @GetMapping("/verify-otp")
+    public String showVerifyOtpForm(@ModelAttribute("email") String email,
+                                    Model model) {
+        if(email == null || email.isEmpty()){
+            return "redirect:/register";
+        }
+        model.addAttribute("email", email);
+        return "/pages/auth/verify-otp";
+    }
+
+    @PostMapping("/verify-otp")
+    public String verifyOtp(@RequestParam String email,
+                            @RequestParam String otp,
+                            Model model) {
+        try {
+            userService.verifyOtp(email, otp);
+            return "redirect:/login?register_success";
+        } catch (RuntimeException e) {
+            model.addAttribute("email", email);
+            model.addAttribute("error", e.getMessage());
+            return "pages/auth/verify-otp";
+        }
+    }
 
     @GetMapping("/forgot-password")
     public String showForgotPasswordForm(Model model) {
