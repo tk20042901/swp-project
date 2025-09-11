@@ -191,10 +191,9 @@ public class UserService {
 
     @Transactional
     public void initDefaultUser() {
-        save(User.builder()
+        createAdminIfNotExists(User.builder()
                 .email(adminEmail)
                 .password(adminPassword)
-                .role(roleService.getAdminRole())
                 .build());
         createCustomerIfNotExists(User.builder()
                 .email("default@default.com")
@@ -239,6 +238,22 @@ public class UserService {
         }
     }
 
+    private void createAdminIfNotExists(User user) {
+        if (!userRepository.existsByEmail(user.getEmail())) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setRole(roleService.getAdminRole());
+            save(user);
+        }
+    }
+
+    private void createManagerIfNotExists(User user) {
+        if (!userRepository.existsByEmail(user.getEmail())) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setRole(roleService.getManagerRole());
+            save(user);
+        }
+    }
+
     private void createCustomerIfNotExists(User user) {
         if (!userRepository.existsByEmail(user.getEmail())) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -252,14 +267,6 @@ public class UserService {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             user.setRole(roleService.getCustomerRole());
             user.setEnabled(random.nextBoolean());
-            save(user);
-        }
-    }
-
-    private void createManagerIfNotExists(User user) {
-        if (!userRepository.existsByEmail(user.getEmail())) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-            user.setRole(roleService.getManagerRole());
             save(user);
         }
     }
