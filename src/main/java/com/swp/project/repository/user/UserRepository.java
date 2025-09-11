@@ -1,4 +1,4 @@
-package com.swp.project.repository.auth;
+package com.swp.project.repository.user;
 
 import com.swp.project.entity.User;
 import org.springframework.data.domain.Page;
