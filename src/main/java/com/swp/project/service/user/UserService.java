@@ -3,7 +3,6 @@ package com.swp.project.service.user;
 import com.swp.project.dto.ChangePasswordDto;
 import com.swp.project.dto.RegisterDto;
 import com.swp.project.entity.PendingRegister;
-import com.swp.project.entity.Role;
 import com.swp.project.entity.User;
 import com.swp.project.listener.event.UserDisabledEvent;
 import com.swp.project.repository.user.UserRepository;
@@ -116,7 +115,7 @@ public class UserService {
         User user = User.builder()
                 .email(pendingRegister.getEmail())
                 .password(pendingRegister.getPasswordHash())
-                .role(roleService.getUserRole())
+                .role(roleService.getCustomerRole())
                 .build();
         save(user);
         pendingRegisterRepository.delete(pendingRegister);
@@ -179,7 +178,7 @@ public class UserService {
     public User registerWithGoogle(String email) {
         User user = User.builder()
                 .email(email)
-                .role(roleService.getUserRole())
+                .role(roleService.getCustomerRole())
                 .build();
         save(user);
         return user;
@@ -192,29 +191,75 @@ public class UserService {
 
     @Transactional
     public void initDefaultUser() {
-        createUserIfNotExists(User.builder()
+        save(User.builder()
                 .email(adminEmail)
                 .password(adminPassword)
-                .build(), roleService.getAdminRole());
-        createUserIfNotExists(User.builder()
+                .role(roleService.getAdminRole())
+                .build());
+        createCustomerIfNotExists(User.builder()
                 .email("default@default.com")
                 .password("default")
-                .build(), roleService.getUserRole());
-        createUserIfNotExists(User.builder()
+                .build());
+        createCustomerIfNotExists(User.builder()
                 .email("enabled@enabled.com")
                 .password("enabled")
-                .build(), roleService.getUserRole());
-        createUserIfNotExists(User.builder()
+                .build());
+        createCustomerIfNotExists(User.builder()
                 .email("disabled@disabled.com")
                 .password("disabled")
                 .enabled(false)
-                .build(), roleService.getUserRole());
+                .build());
+
+        String[] customers = {
+                "alice", "bob", "charlie", "david", "emma", "frank", "grace", "henry",
+                "isabella", "jack", "kate", "leo", "mia", "nathan", "olivia", "peter",
+                "quinn", "ruby", "sam", "tina", "ursula", "victor", "wendy", "xander",
+                "yara", "zane", "aaron", "bella", "carl", "diana", "elias", "fiona",
+                "george", "hannah", "ivan", "julia"
+        };
+        Random random = new Random();
+        for (String customer : customers) {
+            String email = customer + "@customer.com";
+            createCustomerIfNotExistsWithRandomEnable(User.builder()
+                            .email(email)
+                            .password(customer)
+                            .build(),
+                    random);
+        }
+
+        String[] managers = {
+                "manager01", "manager02", "manager03", "manager04"
+        };
+        for (String manager : managers) {
+            String email = manager + "@manager.com";
+            createManagerIfNotExists(User.builder()
+                    .email(email)
+                    .password(manager)
+                    .build());
+        }
     }
 
-    private void createUserIfNotExists(User user, Role role) {
+    private void createCustomerIfNotExists(User user) {
         if (!userRepository.existsByEmail(user.getEmail())) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
-            user.setRole(role);
+            user.setRole(roleService.getCustomerRole());
+            save(user);
+        }
+    }
+
+    private void createCustomerIfNotExistsWithRandomEnable(User user, Random random) {
+        if (!userRepository.existsByEmail(user.getEmail())) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setRole(roleService.getCustomerRole());
+            user.setEnabled(random.nextBoolean());
+            save(user);
+        }
+    }
+
+    private void createManagerIfNotExists(User user) {
+        if (!userRepository.existsByEmail(user.getEmail())) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setRole(roleService.getManagerRole());
             save(user);
         }
     }
