@@ -7,14 +7,14 @@
 <body>
 <p th:if="${param.register_success}">Registered successfully</p>
 <p th:if="${param.logout}">You have been logged out</p>
-<p th:if="${param.incorrect_username_or_password}">Incorrect username or password</p>
+<p th:if="${param.incorrect_email_or_password}">Incorrect email or password</p>
 <p th:if="${param.account_disabled}">Your account is disabled</p>
 <p th:if="${param.invalid_captcha}">Invalid captcha</p>
 <p th:if="${param.unknown_error}">Unknown error</p>
 
 <form th:action="@{/login}" method="post">
     <label>
-        Username<input type="text" name="username" required/>
+        Email<input type="email" name="email" required/>
     </label>
     <label>
         Password<input type="password" name="password" required/>
