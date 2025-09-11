@@ -2,16 +2,14 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Admin • AI Support</title>
-    <link rel="stylesheet" th:href="@{/css/ai.css}"/>
+    <title>Title</title>
 </head>
 <body>
 <form th:action="@{/admin/ai}" method="post">
     <input type="hidden" name="conversationId" th:value="${conversationId}">
     <ul>
         <li th:each="message : ${conversation}">
-            <span th:text="${message.text}"></span>
+            <span th:text="${message.messageType + ':' + message.text}"></span>
         </li>
     </ul>
     <label>
@@ -20,11 +18,5 @@
     <button type="submit">Ask</button>
     <div th:if="${error}" th:text="${error}"></div>
 </form>
-<script>
-    window.onload = function () {
-        const box = document.querySelector(".conversation-list");
-        box.scrollTop = box.scrollHeight;
-    };
-</script>
 </body>
 </html>
