@@ -1,7 +1,6 @@
-package com.swp.project.service.security;
+package com.swp.project.security;
 
 import com.swp.project.entity.User;
-import com.swp.project.security.CustomUserDetails;
 import com.swp.project.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
