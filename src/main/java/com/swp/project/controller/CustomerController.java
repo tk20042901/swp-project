@@ -21,6 +21,11 @@ public class CustomerController {
 
     private final UserService userService;
 
+    @GetMapping("/account-manager")
+    public String accountManager() {
+        return "/pages/customer/account-manager";
+    }
+
     @GetMapping("/change-password")
     public String changePasswordForm(Model model) {
         model.addAttribute("changePasswordDto", new ChangePasswordDto());

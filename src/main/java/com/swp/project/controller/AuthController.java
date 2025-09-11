@@ -96,7 +96,7 @@ public class AuthController {
 
     @GetMapping({"/"})
     public String home() {
-        return "pages/index";
+        return "pages/customer/index";
     }
 
     @GetMapping("/access-denied")
