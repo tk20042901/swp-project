@@ -30,7 +30,13 @@ public class SecurityConfig {
 
     // Đường dẫn không yêu cầu đăng nhập
     private static final String[] PUBLIC_MATCHERS = {
-            "/register/**", "/login/**", "/css/**", "/js/**", "/forgot-password/**","/verify-otp/**"
+            "/",
+            "/register/**",
+            "/login/**",
+            "/css/**",
+            "/js/**",
+            "/forgot-password/**",
+            "/verify-otp/**"
     };
 
     // Đường dẫn dành riêng cho vai trò Admin

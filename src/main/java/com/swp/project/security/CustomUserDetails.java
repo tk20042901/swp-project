@@ -16,20 +16,15 @@ public record CustomUserDetails(User user, Map<String, Object> attributes) imple
         this(user, Collections.emptyMap());
     }
 
-    //Custom getter
-    public Long getId() {
-        return user.getId();
-    }
-
+    // Custom methods
     public String getEmail() {
         return user.getEmail();
     }
 
     //UserDetails override
-
     @Override
     public String getUsername() {
-        return user.getUsername();
+        return user.getEmail();
     }
 
     @Override
@@ -49,7 +44,7 @@ public record CustomUserDetails(User user, Map<String, Object> attributes) imple
     }
 
     public String getName() {
-        return user.getUsername();
+        return user.getEmail();
     }
 
     //Authority override

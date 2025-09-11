@@ -1,7 +1,7 @@
 package com.swp.project.initializer;
 
-import com.swp.project.service.RoleService;
-import com.swp.project.service.UserService;
+import com.swp.project.service.auth.RoleService;
+import com.swp.project.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;

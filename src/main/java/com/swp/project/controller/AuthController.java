@@ -5,7 +5,6 @@ import com.swp.project.service.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -96,12 +95,8 @@ public class AuthController {
     }
 
     @GetMapping({"/"})
-    public String home(Authentication auth) {
-        if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("Admin"))) {
-            return "pages/admin/dashboard";
-        } else {
-            return "pages/home";
-        }
+    public String home() {
+        return "pages/index";
     }
 
     @GetMapping("/access-denied")
