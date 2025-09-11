@@ -8,6 +8,7 @@ import com.swp.project.listener.event.UserDisabledEvent;
 import com.swp.project.repository.user.UserRepository;
 import com.swp.project.repository.user.PendingRegisterRepository;
 import com.swp.project.service.EmailService;
+import com.swp.project.service.ai.UserAiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
