@@ -1,7 +1,7 @@
 package com.swp.project.config;
 
 import com.swp.project.filter.CaptchaValidationFilter;
-import com.swp.project.service.security.CustomOAuth2UserService;
+import com.swp.project.security.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
