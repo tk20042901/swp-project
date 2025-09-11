@@ -1,6 +1,6 @@
 package com.swp.project.controller;
 
-import com.swp.project.service.user.UserAiService;
+import com.swp.project.service.ai.UserAiService;
 import com.swp.project.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
