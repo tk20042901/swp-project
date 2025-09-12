@@ -1,6 +1,5 @@
 package com.swp.project.service.ai;
 
-import com.swp.project.entity.User;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -14,17 +13,12 @@ import org.springframework.ai.rag.preretrieval.query.transformation.CompressionQ
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.template.st.StTemplateRenderer;
 import org.springframework.ai.vectorstore.VectorStore;
-import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class UserAiService {
-
-    private final static String type = "user";
-
-    private final static int topK = 69;
+public class CustomerAiService {
 
     private final static String systemPrompt = """
             You are a professional and helpful admin assistant. Your main purpose is to assist the admin with managing user information.
@@ -46,17 +40,12 @@ public class UserAiService {
             3. NEVER mention the context or the information provided. Avoid phrases like "Based on the context..." or "According to the information...".
             """;
 
-    private String vectorStoreContent(User user) {
-        return "This document describes a user account. " +
-                "The user's unique identifier is " + user.getId() + ". " +
-                "Email address: " + user.getEmail() + ". " +
-                "The account is " +
-                (user.isEnabled() ? "active and enabled" : "disabled") + ". " +
-                "The user has the role: " + user.getRole().getName() + ". ";
+    private String vectorStoreContent(Object object) {
+        return "content";
     }
 
-    public void saveUserToVectorStore(User user) {
-        vectorStoreService.saveToVectorStore(vectorStoreContent(user), type);
+    public void saveUserToVectorStore(Object object) {
+        vectorStoreService.saveToVectorStore(vectorStoreContent(object));
     }
 
     private final ChatMemory chatMemory = MessageWindowChatMemory.builder()
@@ -66,9 +55,9 @@ public class UserAiService {
     private final ChatClient chatClient;
     private final VectorStoreService vectorStoreService;
 
-    public UserAiService(ChatModel chatModel,
-                         VectorStore vectorStore,
-                         VectorStoreService vectorStoreService) {
+    public CustomerAiService(ChatModel chatModel,
+                             VectorStore vectorStore,
+                             VectorStoreService vectorStoreService) {
         this.vectorStoreService = vectorStoreService;
 
         ChatClient.Builder chatClientBuilder = ChatClient.builder(chatModel);
@@ -90,12 +79,9 @@ public class UserAiService {
                                         .chatClientBuilder(chatClientBuilder.build().mutate())
                                         .build())
                                 .documentRetriever(VectorStoreDocumentRetriever.builder()
-                                        .topK(topK)
+                                        .topK(10)
                                         .similarityThreshold(0.75)
                                         .vectorStore(vectorStore)
-                                        .filterExpression(new FilterExpressionBuilder()
-                                                .eq("type", type)
-                                                .build())
                                         .build())
                                 .queryAugmenter(ContextualQueryAugmenter.builder()
                                         .promptTemplate(pt)

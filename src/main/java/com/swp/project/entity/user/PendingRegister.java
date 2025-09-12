@@ -1,4 +1,4 @@
-package com.swp.project.entity;
+package com.swp.project.entity.user;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

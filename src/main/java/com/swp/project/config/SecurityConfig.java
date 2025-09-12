@@ -22,13 +22,10 @@ public class SecurityConfig {
     private final CaptchaValidationFilter captchaValidationFilter;
     private final CustomOAuth2UserService customOAuth2UserService;
 
-    // Đường dẫn đến trang đăng nhập
-    private static final String LOGIN_PAGE = "/login";
+    private static final String LOGIN_URL = "/login";
 
-    // Trang chủ
     private static final String HOME_URL = "/";
 
-    // Đường dẫn không yêu cầu đăng nhập
     private static final String[] PUBLIC_MATCHERS = {
             "/",
             "/register/**",
@@ -39,9 +36,20 @@ public class SecurityConfig {
             "/verify-otp/**"
     };
 
-    // Đường dẫn dành riêng cho vai trò Admin
     private static final String[] ADMIN_MATCHERS = {
             "/admin/**"
+    };
+
+    private static final  String[] MANAGER_MATCHERS = {
+            "/manager/**"
+    };
+
+    private static final  String[] SELLER_MATCHERS = {
+            "/seller/**"
+    };
+
+    private static final  String[] SHIPPER_MATCHERS = {
+            "/shipper/**"
     };
 
     // Thời gian remember-me (s)
@@ -54,19 +62,22 @@ public class SecurityConfig {
                 .authorizeHttpRequests(i -> i
                         .requestMatchers(PUBLIC_MATCHERS).permitAll()
                         .requestMatchers(ADMIN_MATCHERS).hasAuthority("Admin")
+                        .requestMatchers(MANAGER_MATCHERS).hasAuthority("Manager")
+                        .requestMatchers(SELLER_MATCHERS).hasAuthority("Seller")
+                        .requestMatchers(SHIPPER_MATCHERS).hasAuthority("Shipper")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(i -> i
                                 .accessDeniedPage("/access-denied")
                 )
                 .formLogin(i -> i
-                        .loginPage(LOGIN_PAGE)
+                        .loginPage(LOGIN_URL)
                         .usernameParameter("email")
                         .failureHandler(loginFailureHandler())
                         .defaultSuccessUrl(HOME_URL,true)
                 )
                 .oauth2Login(i -> i
-                        .loginPage(LOGIN_PAGE)
+                        .loginPage(LOGIN_URL)
                         .failureHandler(oauth2FailureHandler())
                         .defaultSuccessUrl(HOME_URL, true)
                         .userInfoEndpoint(userInfo -> userInfo

@@ -1,7 +1,7 @@
 package com.swp.project.controller;
 
 import com.swp.project.dto.RegisterDto;
-import com.swp.project.service.user.UserService;
+import com.swp.project.service.user.CustomerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class AuthController {
 
-    private final UserService userService;
+    private final CustomerService customerService;
 
     @Value("${recaptcha.site-key}")
     private String recaptchaSite;
@@ -43,7 +43,7 @@ public class AuthController {
             return "/pages/auth/register";
         }
         try {
-            userService.register(registerDto);
+            customerService.register(registerDto);
             redirectAttributes.addFlashAttribute("email", registerDto.getEmail());
             return "redirect:/verify-otp";
         } catch (RuntimeException e) {
@@ -67,7 +67,7 @@ public class AuthController {
                             @RequestParam String otp,
                             Model model) {
         try {
-            userService.verifyOtp(email, otp);
+            customerService.verifyOtp(email, otp);
             return "redirect:/login?register_success";
         } catch (RuntimeException e) {
             model.addAttribute("email", email);
@@ -85,7 +85,7 @@ public class AuthController {
     @PostMapping("/forgot-password")
     public String processForgotPassword(@RequestParam String email, RedirectAttributes redirectAttributes) {
         try {
-            userService.forgotPassword(email);
+            customerService.forgotPassword(email);
             redirectAttributes.addFlashAttribute("success",
                     "New password sent to " + email);
         } catch (RuntimeException e) {
