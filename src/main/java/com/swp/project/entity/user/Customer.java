@@ -18,7 +18,7 @@ import java.util.Collections;
 @SuperBuilder
 @Entity
 @Table
-@PrimaryKeyJoinColumn(name = "user_id")
+@PrimaryKeyJoinColumn(name = "id")
 public class Customer extends User {
     private String fullName;
     private String phoneNumber;

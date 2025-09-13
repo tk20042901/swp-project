@@ -23,7 +23,7 @@ public class ManagerService {
     @Transactional
     public void setManagerStatus(Long id, boolean status) {
         Manager manager = getManagerById(id);
-        manager.setStatus(status);
+        manager.setEnabled(status);
 
         if (!status) {
             eventPublisher.publishEvent(new UserDisabledEvent(manager.getEmail()));
@@ -43,7 +43,7 @@ public class ManagerService {
         createManagerIfNotExists(Manager.builder()
                 .email("disabled@manager.com")
                 .password("disabled")
-                .status(false)
+                .enabled(false)
                 .build());
     }
 

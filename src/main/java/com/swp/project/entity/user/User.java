@@ -20,16 +20,14 @@ import java.util.Map;
 public abstract class User implements Serializable, OAuth2User, UserDetails {
 
     @Id
-    @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
     private String email;
     private String password;
 
     @Builder.Default
-    private boolean status = true;
+    private boolean enabled = true;
 
     @Override
     public String getUsername() {
@@ -54,6 +52,6 @@ public abstract class User implements Serializable, OAuth2User, UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return status;
+        return enabled;
     }
 }
