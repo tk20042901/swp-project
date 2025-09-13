@@ -20,6 +20,7 @@ import java.util.Map;
 public abstract class User implements Serializable, OAuth2User, UserDetails {
 
     @Id
+    @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

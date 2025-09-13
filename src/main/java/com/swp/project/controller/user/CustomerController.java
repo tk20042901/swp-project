@@ -1,7 +1,6 @@
 package com.swp.project.controller.user;
 
 import com.swp.project.dto.ChangePasswordDto;
-import com.swp.project.service.ai.CustomerAiService;
 import com.swp.project.service.user.CustomerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +10,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.UUID;
 
 @RequiredArgsConstructor
 @Controller
@@ -19,7 +17,6 @@ import java.util.UUID;
 public class CustomerController {
 
     private final CustomerService customerService;
-    private final CustomerAiService customerAiService;
 
     @GetMapping("/account-manager")
     public String accountManager() {
@@ -49,24 +46,6 @@ public class CustomerController {
             model.addAttribute("error", e.getMessage());
         }
         return "/pages/customer/change-password";
-    }
-
-
-    @GetMapping("/ai")
-    public String ask(Model model) {
-        model.addAttribute("conversationId", UUID.randomUUID().toString());
-        return "pages/customer/ai-assistant";
-    }
-
-    @PostMapping("/ai")
-    public String ask(@RequestParam String conversationId, @RequestParam String q, Model model) {
-        try {
-            model.addAttribute("conversationId", conversationId);
-            model.addAttribute("conversation", customerAiService.ask(conversationId, q));
-        } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
-        }
-        return "pages/customer/ai-assistant";
     }
 
 }
