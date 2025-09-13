@@ -34,11 +34,10 @@ public class ManagerService {
 
     @Transactional
     public void initManager() {
-        String[] managers = {"manager1", "manager2", "manager3"};
-        for (String manager : managers) {
+        for (int i = 1; i <= 36; i++) {
             createManagerIfNotExists(Manager.builder()
-                    .email(manager + "@manager.com")
-                    .password(manager)
+                    .email("manager" + i + "@manager.com")
+                    .password("manager")
                     .build());
         }
         createManagerIfNotExists(Manager.builder()

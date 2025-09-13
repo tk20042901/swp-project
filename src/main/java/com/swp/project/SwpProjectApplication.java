@@ -11,7 +11,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableScheduling
 public class SwpProjectApplication {
 
-    // Bean này để mã hóa mật khẩu
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
