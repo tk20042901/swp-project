@@ -26,7 +26,7 @@ public class ShipperService {
         createShipperIfNotExists(Shipper.builder()
                 .email("disabled@shipper.com")
                 .password("disabled")
-                .status(false)
+                .enabled(false)
                 .build());
     }
 

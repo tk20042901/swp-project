@@ -25,7 +25,7 @@ public class SellerService {
         createSellerIfNotExists(Seller.builder()
                 .email("disabled@seller.com")
                 .password("disabled")
-                .status(false)
+                .enabled(false)
                 .build());
     }
 
