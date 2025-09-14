@@ -2,7 +2,7 @@ package com.swp.project.service.user;
 
 import com.swp.project.dto.ChangePasswordDto;
 import com.swp.project.dto.RegisterDto;
-import com.swp.project.entity.user.PendingRegister;
+import com.swp.project.entity.PendingRegister;
 import com.swp.project.entity.user.Customer;
 import com.swp.project.repository.user.CustomerRepository;
 import com.swp.project.repository.user.PendingRegisterRepository;
