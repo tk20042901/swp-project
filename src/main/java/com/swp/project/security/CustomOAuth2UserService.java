@@ -18,11 +18,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest request) throws OAuth2AuthenticationException {
-        OAuth2User oauth2User = super.loadUser(request);
-        String email = oauth2User.getAttribute("email");
-        Customer customer;
-        if(customerService.isCustomerExistsByEmail(email)) {
-            customer = customerService.getCustomerByEmail(email);
+        String email = super.loadUser(request).getAttribute("email");
+        Customer customer = customerService.getCustomerByEmail(email);
+        if(customer != null) {
             if (!customer.isEnabled()) {
                 throw new OAuth2AuthenticationException(new OAuth2Error("account_disabled"));
             }

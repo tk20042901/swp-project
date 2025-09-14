@@ -5,7 +5,7 @@ import com.swp.project.dto.RegisterDto;
 import com.swp.project.entity.PendingRegister;
 import com.swp.project.entity.user.Customer;
 import com.swp.project.repository.user.CustomerRepository;
-import com.swp.project.repository.user.PendingRegisterRepository;
+import com.swp.project.repository.PendingRegisterRepository;
 import com.swp.project.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -26,10 +26,6 @@ public class CustomerService {
     private final PendingRegisterRepository pendingRegisterRepository;
     private final EmailService emailService;
     private final SecureRandom secureRandom = new SecureRandom();
-
-    public boolean isCustomerExistsByEmail(String email) {
-        return customerRepository.existsByEmail(email);
-    }
 
     public Customer getCustomerByEmail(String email) {
         return customerRepository.getByEmail(email);
@@ -143,8 +139,8 @@ public class CustomerService {
     @Transactional
     public void initCustomer() {
         createCustomerIfNotExists(Customer.builder()
-                .email("default@customer.com")
-                .password("default")
+                .email("default-customer@shop.com")
+                .password("customer")
                 .build());
         String[] customers = {
                 "alice", "bob", "charlie", "david", "emma", "frank", "grace", "henry",
