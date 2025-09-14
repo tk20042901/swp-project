@@ -1,5 +1,6 @@
 package com.swp.project.initializer;
 
+import com.swp.project.service.product.ProductUnitService;
 import com.swp.project.service.user.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -14,6 +15,8 @@ public class DataInitializer implements CommandLineRunner {
     private final ManagerService managerService;
     private final SellerService sellerService;
     private final ShipperService shipperService;
+    private final CustomerSupportService customerSupportService;
+    private final ProductUnitService productUnitService;
 
     @Override
     public void run(String... args) {
@@ -22,5 +25,7 @@ public class DataInitializer implements CommandLineRunner {
         managerService.initManager();
         sellerService.initSeller();
         shipperService.initShipper();
+        customerSupportService.initCustomerSupport();
+        productUnitService.initProductUnit();
     }
 }

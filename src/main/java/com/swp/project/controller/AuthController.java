@@ -87,7 +87,7 @@ public class AuthController {
         try {
             customerService.forgotPassword(email);
             redirectAttributes.addFlashAttribute("success",
-                    "New password sent to " + email);
+                     "Mật khẩu mới vừa được gửi tới " + email);
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }

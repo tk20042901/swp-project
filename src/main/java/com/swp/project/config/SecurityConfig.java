@@ -52,6 +52,10 @@ public class SecurityConfig {
             "/shipper/**"
     };
 
+    private static final String[] CUSTOMER_SUPPORT_MATCHERS = {
+            "/customer-support/**",
+    };
+
     // Thời gian remember-me (s)
     private static final int REMEMBER_ME_VALIDITY = Integer.MAX_VALUE;
 
@@ -65,6 +69,7 @@ public class SecurityConfig {
                         .requestMatchers(MANAGER_MATCHERS).hasAuthority("Manager")
                         .requestMatchers(SELLER_MATCHERS).hasAuthority("Seller")
                         .requestMatchers(SHIPPER_MATCHERS).hasAuthority("Shipper")
+                        .requestMatchers(CUSTOMER_SUPPORT_MATCHERS).hasAuthority("Customer Support")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(i -> i

@@ -17,7 +17,7 @@ import java.util.Collections;
 @SuperBuilder
 @Entity
 @Table
-@PrimaryKeyJoinColumn(name = "user_id")
+@PrimaryKeyJoinColumn(name = "id")
 public class Manager extends User {
 
     @Override

@@ -18,14 +18,14 @@ public class SellerService {
     public void initSeller() {
         for (int i = 1; i <= 36; i++) {
             createSellerIfNotExists(Seller.builder()
-                    .email("seller" + i + "@seller.com")
+                    .email("seller" + i + "@shop.com")
                     .password("seller")
                     .build());
         }
         createSellerIfNotExists(Seller.builder()
-                .email("disabled@seller.com")
-                .password("disabled")
-                .status(false)
+                .email("disabled-seller@shop.com")
+                .password("seller")
+                .enabled(false)
                 .build());
     }
 

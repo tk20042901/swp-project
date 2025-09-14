@@ -23,7 +23,7 @@ public class ManagerService {
     @Transactional
     public void setManagerStatus(Long id, boolean status) {
         Manager manager = getManagerById(id);
-        manager.setStatus(status);
+        manager.setEnabled(status);
 
         if (!status) {
             eventPublisher.publishEvent(new UserDisabledEvent(manager.getEmail()));
@@ -36,14 +36,14 @@ public class ManagerService {
     public void initManager() {
         for (int i = 1; i <= 36; i++) {
             createManagerIfNotExists(Manager.builder()
-                    .email("manager" + i + "@manager.com")
+                    .email("manager" + i + "@shop.com")
                     .password("manager")
                     .build());
         }
         createManagerIfNotExists(Manager.builder()
-                .email("disabled@manager.com")
-                .password("disabled")
-                .status(false)
+                .email("disabled-manager@shop.com")
+                .password("manager")
+                .enabled(false)
                 .build());
     }
 

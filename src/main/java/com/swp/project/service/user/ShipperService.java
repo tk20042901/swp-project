@@ -19,14 +19,14 @@ public class ShipperService {
     public void initShipper() {
         for (int i = 1; i <= 18; i++) {
             createShipperIfNotExists(Shipper.builder()
-                    .email("shipper" + i + "@shipper.com")
+                    .email("shipper" + i + "@shop.com")
                     .password("shipper")
                     .build());
         }
         createShipperIfNotExists(Shipper.builder()
-                .email("disabled@shipper.com")
-                .password("disabled")
-                .status(false)
+                .email("disabled-shipper@shop.com")
+                .password("shipper")
+                .enabled(false)
                 .build());
     }
 
