@@ -25,4 +25,7 @@ public class ProductBatch {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Product product;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Supplier suppliers;
 }

@@ -18,6 +18,6 @@ public class Supplier {
 
     private String name;
 
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "suppliers")
-    private List<Product> products;
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "suppliers")
+    private List<ProductBatch> productBatches;
 }

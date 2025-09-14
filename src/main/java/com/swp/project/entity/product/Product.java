@@ -34,9 +34,6 @@ public class Product {
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Category> categories;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    private List<Supplier> suppliers;
-
     @OneToMany(mappedBy = "product")
     private List<ProductBatch> productBatches;
 }
