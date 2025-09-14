@@ -41,7 +41,7 @@ public class CustomerController {
 
         try {
             customerService.changePassword(principal.getName(), changePasswordDto);
-            model.addAttribute("success", "Password changed successfully");
+            model.addAttribute("success", "Thay đổi mật khẩu thành công");
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
         }

@@ -11,8 +11,8 @@ public class ChangePasswordDto {
 
     private String oldPassword;
 
-    @NotBlank(message = "New password cannot be blank")
-    @Size(min = 6, max = 100, message = "Password must be between 6 and 100 characters")
+    @NotBlank(message = "Mật khẩu mới không được để trống")
+    @Size(min = 6, max = 100, message = "Mật khẩu mới phải có độ dài từ 6 đến 100 ký tự")
     private String newPassword;
 
     private String confirmNewPassword;
