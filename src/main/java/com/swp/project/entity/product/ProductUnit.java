@@ -16,5 +16,5 @@ public class ProductUnit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private int name;
+    private String name;
 }
