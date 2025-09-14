@@ -6,10 +6,10 @@
 </head>
 <body th:with="isAuthenticated = ${#authorization.expression('isAuthenticated()')}">
 
-<a href="/customer/change-password">Change password</a>
+<a href="/customer/change-password">Đổi mật khẩu</a>
 
 <form th:if="${isAuthenticated}" th:action="@{/logout}" method="post">
-    <button type="submit" class="btn">Logout</button>
+    <button type="submit" class="btn">Đăng xuất</button>
 </form>
 
 </body>

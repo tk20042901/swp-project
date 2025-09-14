@@ -5,7 +5,7 @@
     <title>Title</title>
 </head>
 <body>
-<p th:if="${param.invalid_captcha}">Invalid captcha</p>
+<p th:if="${param.invalid_captcha}">Captcha không hợp lệ</p>
 <p th:if="${error}" th:text="${error}"></p>
 
 <form th:action="@{/register}" th:object="${registerDto}" method="post">
@@ -14,17 +14,17 @@
         <span th:errors="*{email}">Validate email</span>
     </label>
     <label>
-        Password<input type="password" th:field="*{password}" required/>
+        Mật khẩu<input type="password" th:field="*{password}" required/>
         <span th:errors="*{password}">Validate password</span>
     </label>
     <label>
-        Confirm password<input type="password" th:field="*{confirmPassword}" required/>
+        Xác nhận mật khẩu<input type="password" th:field="*{confirmPassword}" required/>
     </label>
     <div class="g-recaptcha" th:attr="data-sitekey=${siteKey}"></div>
     <button type="submit">Register</button>
 </form>
 
-<a th:href="@{/login}">Login</a>
+<a th:href="@{/login}">Đăng nhập</a>
 
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </body>

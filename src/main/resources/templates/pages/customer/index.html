@@ -6,11 +6,9 @@
 </head>
 <body th:with="isAuthenticated = ${#authorization.expression('isAuthenticated()')}">
 
-<p> dell co gi ca</p>
+<a th:if="${!isAuthenticated}" th:href="@{/login}">Đăng nhập</a>
 
-<a th:if="${!isAuthenticated}" th:href="@{/login}">Login</a>
-
-<a th:if="${isAuthenticated}" th:href="@{/customer/account-manager}">Account manager</a>
+<a th:if="${isAuthenticated}" th:href="@{/customer/account-manager}">Quản lí tài khoản</a>
 
 </body>
 </html>
