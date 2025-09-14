@@ -36,13 +36,13 @@ public class ManagerService {
     public void initManager() {
         for (int i = 1; i <= 36; i++) {
             createManagerIfNotExists(Manager.builder()
-                    .email("manager" + i + "@manager.com")
+                    .email("manager" + i + "@shop.com")
                     .password("manager")
                     .build());
         }
         createManagerIfNotExists(Manager.builder()
-                .email("disabled@manager.com")
-                .password("disabled")
+                .email("disabled-manager@shop.com")
+                .password("manager")
                 .enabled(false)
                 .build());
     }

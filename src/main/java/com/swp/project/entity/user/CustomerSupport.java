@@ -25,6 +25,6 @@ public class CustomerSupport extends User {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("CustomerService"));
+        return Collections.singletonList(new SimpleGrantedAuthority("Customer Support"));
     }
 }

@@ -1,4 +1,4 @@
-package com.swp.project.repository.user;
+package com.swp.project.repository;
 
 import com.swp.project.entity.PendingRegister;
 import org.springframework.data.jpa.repository.JpaRepository;
