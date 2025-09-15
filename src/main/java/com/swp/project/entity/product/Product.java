@@ -37,7 +37,7 @@ public class Product {
     private boolean enabled = true;
 
     @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
-    private List<SubImage>  sub_images;
+    private List<SubImage> sub_images;
 
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Category> categories;
