@@ -20,10 +20,10 @@ public class ProductBatch {
     private Instant expiredDate;
     private int quantity;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Seller seller;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Product product;
 
     @ManyToOne(fetch = FetchType.EAGER)
