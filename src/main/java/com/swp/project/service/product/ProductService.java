@@ -43,16 +43,9 @@ public class ProductService {
                 {"Dâu tây", "Dâu tây Đà Lạt siêu ngọt, tươi ngon, mọng nước, giàu vitamin C và chất chống oxy hóa. Lý tưởng cho ăn trực tiếp, salad hoặc làm mứt.", 70000L, "Hộp", "Trái cây đang mùa"},
                 {"Nho tím", "Nho tím không hạt, mọng, ngọt, giàu chất chống oxy hóa và vitamin. Thích hợp ăn trực tiếp, làm salad hoặc rượu vang tại nhà.", 80000L, "Hộp", "Trái cây nhập khẩu"},
                 {"Xoài cát", "Xoài cát Hòa Lộc, vàng ươm, thơm ngọt, thịt mềm, giàu vitamin A và C. Phù hợp ăn trực tiếp hoặc làm sinh tố, kem trái cây.", 60000L, "Kg", "Trái cây Việt Nam"},
-                {"Cà chua", "Cà chua tươi ngon, mọng nước, giàu lycopene, tốt cho tim mạch và làn da. Dùng chế biến món ăn hoặc salad đều tuyệt vời.", 20000L, "Kg", "Rau củ quả"},
                 {"Dưa leo", "Dưa leo giòn mát, mọng nước, giàu vitamin K và chất xơ. Thích hợp ăn sống, làm salad, hoặc làm nước detox thanh mát.", 15000L, "Kg", "Rau củ quả"},
-                {"Cà rốt", "Cà rốt giàu beta-carotene, vitamin A, tốt cho mắt và hệ miễn dịch. Dùng chế biến món xào, nấu canh hoặc làm nước ép đều ngon.", 25000L, "Kg", "Rau củ quả"},
-                {"Khoai tây", "Khoai tây vàng ngon, dẻo mềm khi nấu, giàu carbohydrate và năng lượng. Phù hợp chế biến chiên, nướng, luộc hoặc hầm canh.", 30000L, "Kg", "Rau củ quả"},
                 {"Bông cải xanh", "Bông cải xanh tươi, xanh mướt, giàu vitamin C và chất xơ, tốt cho hệ tiêu hóa. Dùng hấp, xào hoặc làm salad đều tốt.", 35000L, "Kg", "Rau củ quả"},
-                {"Hành tây", "Hành tây đỏ ngọt, thơm nồng tự nhiên, giàu chất chống oxy hóa. Dùng nấu canh, xào, hoặc làm gia vị cho món ăn thêm ngon.", 22000L, "Kg", "Rau củ quả"},
-                {"Tỏi", "Tỏi cô đơn thơm ngon, giàu allicin giúp tăng cường miễn dịch và tốt cho tim mạch. Dùng làm gia vị nấu ăn hoặc chế biến thực phẩm chức năng.", 40000L, "Kg", "Rau củ quả"},
-                {"Ớt chuông đỏ", "Ớt chuông đỏ giòn ngọt, giàu vitamin C và chất chống oxy hóa, tốt cho da và miễn dịch. Dùng ăn sống, xào hoặc làm salad đều ngon.", 45000L, "Kg", "Rau củ quả"},
                 {"Bắp cải tím", "Bắp cải tím giàu chất xơ, vitamin C và anthocyanin, tốt cho tiêu hóa và chống oxy hóa. Thích hợp làm salad, xào hoặc nấu canh.", 30000L, "Kg", "Rau củ quả"},
-                {"Măng tây xanh", "Măng tây xanh tươi ngon, giòn, giàu folate và chất chống oxy hóa. Dùng hấp, xào hoặc nấu canh đều rất bổ dưỡng.", 90000L, "Kg", "Rau củ quả"},
                 {"Dứa (thơm)", "Dứa chín mọng nước, vàng ươm, ngọt thanh, giàu vitamin C và bromelain giúp tiêu hóa tốt. Thích hợp ăn trực tiếp hoặc làm nước ép.", 35000L, "Quả", "Trái cây Việt Nam"},
                 {"Quýt hồng", "Quýt hồng ngọt lịm, mọng nước, giàu vitamin C và chất xơ. Phù hợp ăn trực tiếp hoặc làm nước ép giải khát.", 40000L, "Kg", "Trái cây Việt Nam"},
                 {"Bưởi da xanh", "Bưởi da xanh đặc sản miền Tây, múi mọng, ngọt thanh, giàu vitamin C và chất chống oxy hóa. Ăn trực tiếp hoặc làm nước ép đều thơm ngon.", 60000L, "Quả", "Trái cây Việt Nam"},
@@ -85,14 +78,8 @@ public class ProductService {
                 {"Dưa gang", "Dưa gang ngọt mát, thơm nhẹ, giàu nước và vitamin A. Ăn trực tiếp làm tráng miệng hoặc làm sinh tố.", 30000L, "Kg", "Trái cây Việt Nam"},
                 {"Mãng cầu", "Mãng cầu chín mềm, vị ngọt đặc biệt, giàu vitamin C và chất xơ. Ăn trực tiếp hoặc làm kem, sinh tố.", 70000L, "Kg", "Trái cây Việt Nam"},
                 {"Cam canh", "Cam canh vỏ mỏng, múi to, ngọt đậm, ít hạt, giàu vitamin C. Vắt nước hoặc ăn trực tiếp đều ngon.", 38000L, "Kg", "Trái cây Việt Nam"},
-                {"Su hào", "Su hào giòn ngọt, thơm nhẹ, giàu vitamin C và chất xơ. Dùng làm salad, xào hoặc ăn sống kèm nước chấm.", 18000L, "Kg", "Rau củ quả"},
-                {"Củ dền", "Củ dền đỏ tím, ngọt đất, giàu nitrate và folate, tốt cho tim mạch. Nấu canh, hầm hoặc làm nước ép detox.", 35000L, "Kg", "Rau củ quả"},
-                {"Atiso", "Atiso tươi xanh, vị đắng nhẹ, giàu cynarin tốt cho gan. Nấu trà, hầm canh hoặc chế biến món ăn thanh nhiệt.", 80000L, "Kg", "Rau củ quả"},
                 {"Dưa lưới", "Dưa lưới vàng ngọt, thơm đặc trưng, mọng nước, giàu beta-carotene. Ăn trực tiếp làm tráng miệng hoặc sinh tố.", 45000L, "Kg", "Trái cây nhập khẩu"},
-                {"Táo tàu", "Táo tàu (jujube) ngọt thanh, giòn, giàu vitamin C và chất chống stress. Ăn trực tiếp hoặc sấy khô bảo quản.", 65000L, "Kg", "Trái cây nhập khẩu"},
-                {"Quả sung", "Quả sung chín tím, ngọt đậm, mềm, giàu chất xơ và khoáng chất. Ăn trực tiếp hoặc làm mứt, bánh kẹo.", 90000L, "Kg", "Trái cây nhập khẩu"},
-                {"Dừa xiêm", "Dừa xiêm nước ngọt mát, cơm dừa mềm thơm, giàu electrolyte tự nhiên. Uống nước dừa hoặc làm bánh, chè.", 25000L, "Quả", "Trái cây Việt Nam"},
-                {"Roi", "Roi chín vàng, ngọt thanh, thơm nhẹ, giàu vitamin A và C. Ăn trực tiếp hoặc làm salad trái cây, nước ép.", 55000L, "Kg", "Trái cây Việt Nam"}
+                {"Táo tàu", "Táo tàu (jujube) ngọt thanh, giòn, giàu vitamin C và chất chống stress. Ăn trực tiếp hoặc sấy khô bảo quản.", 65000L, "Kg", "Trái cây nhập khẩu"}
         };
 
         for (Object[] data : productsData) {
@@ -101,6 +88,7 @@ public class ProductService {
             Long price = (Long) data[2];
             String unitName = (String) data[3];
             String categoryName = (String) data[4];
+            String mainImageUrl = (String) data[5];
 
             if (productRepository.existsByName(name)) continue;
 
@@ -125,7 +113,7 @@ public class ProductService {
                     .unit(unit)
                     .enabled(true)
                     .categories(List.of(category))
-                    .main_image_url("https://www.google.com.vn/search?q=h%E1%BB%93ng+t%E1%BB%B7&udm=2#vhid=B6w1zb7HM6e-AM&vssid=mosaic")
+                    .main_image_url(mainImageUrl)
                     .build();
 
             productRepository.save(product);
