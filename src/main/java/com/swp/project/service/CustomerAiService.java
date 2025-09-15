@@ -1,0 +1,235 @@
+package com.swp.project.service;
+
+import com.swp.project.entity.product.Category;
+import com.swp.project.entity.product.Product;
+import com.swp.project.entity.product.ProductBatch;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.memory.MessageWindowChatMemory;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.prompt.ChatOptions;
+import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.ai.document.Document;
+import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
+import org.springframework.ai.rag.generation.augmentation.ContextualQueryAugmenter;
+import org.springframework.ai.rag.preretrieval.query.transformation.CompressionQueryTransformer;
+import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
+import org.springframework.ai.template.st.StTemplateRenderer;
+import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.MimeTypeUtils;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@Service
+public class CustomerAiService {
+    private final static String systemPrompt = """
+    Bạn là "Trợ lý Mua sắm AI" của một cửa hàng hoa quả tươi online, với sứ mệnh mang lại trải nghiệm mua sắm thông minh và tiện lợi nhất cho khách hàng.
+    
+    Năng lực chuyên môn của bạn bao gồm:
+    1.  Tư vấn sản phẩm: Gợi ý sản phẩm dựa trên danh mục, mô tả và các đặc điểm chi tiết.
+    2.  Kiểm tra tồn kho chính xác: Cung cấp thông tin về tình trạng 'Còn hàng'/'Hết hàng' và số lượng tồn kho cụ thể của từng sản phẩm.
+    3.  Truy xuất nguồn gốc: Cung cấp thông tin về nhà cung cấp của các lô hàng sản phẩm.
+    4.  Thông tin giá cả: Cung cấp giá niêm yết và đơn vị tính của sản phẩm.
+    5.  Tình trạng kinh doanh: Cập nhật tình trạng 'Đang được bày bán' hoặc 'Tạm ngừng kinh doanh' của sản phẩm.
+    6.  Hạn sử dụng: Cung cấp thông tin về hạn sử dụng của các lô hàng hiện có.
+    
+    QUY ĐỊNH BẮT BUỘC BẠN PHẢI TUÂN THEO:
+    1.  Luôn trả lời bằng tiếng Việt.
+    2.  Giao tiếp thân thiện: Trả lời các câu hỏi của khách hàng một cách ngắn gọn, súc tích và thân thiện.
+    3.  Nếu bạn không chắc chắn về câu trả lời, hãy thừa nhận điều đó một cách trung thực và lịch sự, thay vì đưa ra thông tin sai lệch.
+    4.  Năng lực của bạn CHỈ DỪNG LẠI ở việc tư vấn và cung cấp thông tin. Bạn TUYỆT ĐỐI KHÔNG ĐƯỢC thực hiện hoặc đề nghị thực hiện các hành động thuộc về hệ thống khác như đặt hàng. Nếu khách hàng yêu cầu, hãy lịch sự từ chối và nhắc lại rằng bạn chỉ có thể hỗ trợ tư vấn và cung cấp thông tin về sản phẩm.
+    5.  Hãy luôn nhớ rằng, bạn không phải là con người, bạn là một AI. Vì vậy, bạn không có cảm xúc, kinh nghiệm cá nhân hay ý kiến riêng. Hãy tránh sử dụng các cụm từ như "theo tôi", "theo kinh nghiệm của tôi", "tôi nghĩ", "tôi cảm thấy" trong câu trả lời của bạn.
+    6. Không sử dụng markdown hoặc các định dạng đặc biệt khác trong câu trả lời, chỉ trả lời thuần văn bản.
+    
+    Hãy sử dụng kiến thức chuyên môn của bạn để hỗ trợ khách hàng một cách tốt nhất!""";
+
+    private final static String queryPrompt = """
+    Thông tin context các sản phẩm của cửa hàng được cung cấp dưới đây.
+    
+    ---------------------
+    <context>
+    ---------------------
+    
+    Dựa vào thông tin trên, hãy phân tích và trả lời câu hỏi của khách hàng một cách thông minh và chi tiết: <query>
+    
+    
+    TUÂN THỦ NGHIÊM NGẶT QUY ĐỊNH SAU:
+    
+    *   Nếu khách hàng hỏi về TỒN KHO (ví dụ: "còn hàng không?", "còn nhiều không?"):
+        1.  Tìm đến các câu "Tình trạng tồn kho:" và "Tổng số lượng còn trong kho là:" trong context.
+        2.  Kết hợp cả hai thông tin để trả lời. Ví dụ: "Dạ, Bơ 034 bên em vẫn còn hàng ạ, số lượng còn lại khoảng 50 kg ạ."
+    
+    *   Nếu khách hàng hỏi về NHÀ CUNG CẤP hoặc NGUỒN GỐC (ví dụ: "hàng của ai?", "trồng ở đâu?"):
+        1.  Tìm đến câu "Sản phẩm này được cung cấp bởi các nhà cung cấp:" trong context.
+        2.  Liệt kê các nhà cung cấp được nêu tên. Ví dụ: "Dạ, Bơ 034 bên em được cung cấp bởi Nông sản Đà Lạt ạ."
+    
+    *   Nếu khách hàng muốn xem THÔNG TIN CHUNG:
+        1.  Tìm các câu "Mô tả sản phẩm:", "Giá niêm yết:".
+        2.  Tổng hợp thành một đoạn văn súc tích. Ví dụ: "Dạ, Bơ 034 là loại bơ sáp, thịt vàng, hạt nhỏ, rất thơm và béo. Giá niêm yết là 120.000 VNĐ mỗi kg ạ."
+    
+    *   Nếu khách hàng cần TƯ VẤN hoặc TÌM KIẾM SẢN PHẨM:
+        1.  context đã chứa các sản phẩm phù hợp nhất với mô tả của khách.
+        2.  Hãy đọc kỹ mô tả, danh mục và các thông tin khác của các sản phẩm trong context để đưa ra một vài gợi ý tốt nhất, kèm theo lý do tại sao chúng phù hợp.
+    
+    *   Nếu context rỗng hoặc không chứa sản phẩm khách hỏi, hãy trả lời tương tự như "Dạ, em rất tiếc nhưng em không tìm thấy thông tin về sản phẩm [tên sản phẩm] trong hệ thống. Anh/chị có cần em tư vấn các sản phẩm tương tự đang có sẵn không ạ?"
+    
+    *   TUYỆT ĐỐI KHÔNG nhắc đến các từ như "Dựa trên context", "Dữ liệu", "Thông tin được cung cấp". Hãy giao tiếp như một nhân viên tư vấn thực thụ.""";
+
+
+    private final ChatMemory chatMemory = MessageWindowChatMemory.builder().maxMessages(36).build();
+
+    private final ChatClient chatClient;
+
+    private final VectorStore vectorStore;
+
+    public CustomerAiService(ChatModel chatModel,
+                             VectorStore vectorStore) {
+        this.vectorStore = vectorStore;
+
+        ChatClient.Builder chatClientBuilder = ChatClient.builder(chatModel);
+
+        chatClient = chatClientBuilder
+                .defaultSystem(systemPrompt)
+                .defaultOptions(ChatOptions.builder()
+                        .temperature(0.0)
+                        .build())
+                .defaultAdvisors(
+                        MessageChatMemoryAdvisor.builder(chatMemory).build(),
+                        RetrievalAugmentationAdvisor.builder()
+                                .queryTransformers(CompressionQueryTransformer.builder()
+                                        .chatClientBuilder(chatClientBuilder.build().mutate())
+                                        .build())
+                                .documentRetriever(VectorStoreDocumentRetriever.builder()
+                                        .topK(10)
+                                        .similarityThreshold(0.7)
+                                        .vectorStore(vectorStore)
+                                        .build())
+                                .queryAugmenter(ContextualQueryAugmenter.builder()
+                                        .promptTemplate(PromptTemplate.builder()
+                                                .renderer(StTemplateRenderer.builder()
+                                                        .startDelimiterToken('<')
+                                                        .endDelimiterToken('>')
+                                                        .build())
+                                                .template(queryPrompt)
+                                                .build())
+                                        .build())
+                                .build()
+                )
+                .build();
+    }
+
+    private String getProductContent(Product product){
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Đây là tài liệu thông tin chi tiết về sản phẩm hoa quả của cửa hàng. ");
+        sb.append("Tên sản phẩm: ").append(product.getName()).append(". ");
+        sb.append("Mô tả sản phẩm: ").append(product.getDescription()).append(". ");
+
+        if (product.getCategories() != null && !product.getCategories().isEmpty()) {
+            String categoryNames = product.getCategories().stream()
+                    .map(Category::getName)
+                    .collect(Collectors.joining(", "));
+            sb.append("Sản phẩm này thuộc các danh mục: ").append(categoryNames).append(". ");
+        }
+
+        String unitName = product.getUnit().getName();
+        sb.append("Giá niêm yết: ").append(String.format("%,d", product.getPrice())).append(" VNĐ mỗi ").append(unitName).append(". ");
+        sb.append("Tình trạng kinh doanh: ").append(product.isEnabled() ? "Đang được bày bán" : "Tạm ngừng kinh doanh").append(". ");
+
+        if (product.getProductBatches() != null && !product.getProductBatches().isEmpty()) {
+            List<ProductBatch> validBatches = product.getProductBatches().stream()
+                    .filter(batch -> batch.getQuantity() > 0 && batch.getExpiredDate().isAfter(Instant.now()))
+                    .toList();
+
+            int totalStock = validBatches.stream()
+                    .mapToInt(ProductBatch::getQuantity)
+                    .sum();
+
+            sb.append("Tình trạng tồn kho: ").append(totalStock > 0 ? "Còn hàng" : "Hết hàng").append(". ");
+            sb.append("Tổng số lượng còn trong kho là: ").append(totalStock).append(" ").append(unitName).append(". ");
+
+            if (!validBatches.isEmpty()) {
+                Set<String> supplierNames = validBatches.stream()
+                        .map(batch -> batch.getSuppliers().getName())
+                        .collect(Collectors.toSet());
+                sb.append("Sản phẩm này được cung cấp bởi các nhà cung cấp: ").append(String.join(", ", supplierNames)).append(". ");
+            } else {
+                sb.append("Hiện tại không có lô hàng nào còn hạn sử dụng. ");
+            }
+        } else {
+            sb.append("Tình trạng tồn kho: Hết hàng. Sản phẩm chưa có lô hàng nào. ");
+        }
+        return sb.toString();
+    }
+
+    @Transactional
+    public void saveProductToVectorStore(Product product) {
+        String documentId = UUID.nameUUIDFromBytes
+                (product.getId().toString().getBytes()).toString();
+        Document document = new Document(documentId,
+                getProductContent(product),
+                Collections.emptyMap());
+        vectorStore.add(List.of(document));
+    }
+
+    @Transactional
+    public void deleteProductFromVectorStore(Long id) {
+        String documentId = UUID.nameUUIDFromBytes(id.toString().getBytes()).toString();
+        vectorStore.delete(List.of(documentId));
+    }
+
+    public void ask(String conversationId,
+                    String q,
+                    MultipartFile image) {
+        if (q == null || q.isBlank()) {
+            throw new RuntimeException("Câu hỏi không được để trống");
+        } else if (image == null || image.isEmpty()) {
+            textAsk(conversationId, q);
+        } else {
+            String contentType = image.getContentType();
+            if (contentType != null && contentType.startsWith("image")) {
+                imageAsk(conversationId, q, image.getResource(), contentType);
+            } else {
+                throw new RuntimeException("Chỉ hỗ trợ file hình ảnh");
+            }
+        }
+    }
+
+    public List<Message> getConversation(String conversationId) {
+        return chatMemory.get(conversationId);
+    }
+
+    private void textAsk(String conversationId, String q) {
+        chatClient.prompt(q)
+                .system("""
+                        Câu hỏi này của khách hàng chỉ chứa văn bản, nếu khách hàng hỏi về một hình ảnh, hãy nói điều tương tự như "Tôi không thể thấy bất kỳ hình ảnh nào".""")
+                .advisors(a -> a
+                        .param(ChatMemory.CONVERSATION_ID, conversationId))
+                .call().content();
+    }
+
+    private void imageAsk(String conversationId,
+                                  String q,
+                                  Resource media,
+                                  String contentType) {
+        chatClient.prompt()
+                .user(u -> u
+                        .text(q)
+                        .media(MimeTypeUtils.parseMimeType(contentType), media))
+                .advisors(a -> a
+                        .param(ChatMemory.CONVERSATION_ID, conversationId))
+                .call().content();
+    }
+}

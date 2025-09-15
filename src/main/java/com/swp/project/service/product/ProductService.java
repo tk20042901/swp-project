@@ -19,6 +19,10 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final ProductUnitRepository productUnitRepository;
 
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
+    }
+
     @Transactional
     public void initProducts() {
 
