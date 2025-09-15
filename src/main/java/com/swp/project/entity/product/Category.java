@@ -2,6 +2,7 @@ package com.swp.project.entity.product;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Nationalized;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ public class Category {
     private Long id;
 
     @Column(nullable = false, unique = true, length = 20)
+    @Nationalized
     private String name;
 
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "categories")

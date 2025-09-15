@@ -6,6 +6,7 @@ import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Nationalized;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -21,14 +22,14 @@ import java.util.Collections;
 @Table
 @PrimaryKeyJoinColumn(name = "id")
 public class Customer extends User {
-
-    @Column(nullable = false, unique = true)
+    @Nationalized
     private String fullName;
 
     @Column(nullable = false, unique = true)
     private String phoneNumber;
 
-    @Column(nullable = false, length = 100)
+    @Column(length = 100)
+    @Nationalized
     private String address;
 
     @Override
