@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
 </head>
 <body>
 <p th:if="${error}" th:text="${error}"></p>
@@ -13,5 +14,6 @@
     </label>
     <button type="submit">Xác thực</button>
 </form>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

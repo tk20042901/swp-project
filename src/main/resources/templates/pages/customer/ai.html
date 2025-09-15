@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
 </head>
 <body>
     <form th:action="@{/customer/ai}" method="post" enctype="multipart/form-data">
@@ -21,5 +22,6 @@
         <button type="submit">Gửi</button>
         <span th:text="${error}"></span>
     </form>
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>
