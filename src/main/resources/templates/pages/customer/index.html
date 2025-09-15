@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
 </head>
 <body th:with="isAuthenticated = ${#authorization.expression('isAuthenticated()')}">
 
@@ -10,5 +11,6 @@
 
 <a th:if="${isAuthenticated}" th:href="@{/customer/account-manager}">Quản lí tài khoản</a>
 
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>
