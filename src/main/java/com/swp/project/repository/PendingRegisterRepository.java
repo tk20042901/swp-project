@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.time.Instant;
 
 @Repository
-public interface PendingRegisterRepository extends JpaRepository<PendingRegister, Long> {
+public interface PendingRegisterRepository extends JpaRepository<PendingRegister, String> {
     PendingRegister findByEmail(String email);
     void deleteByOtpExpiryTimeBefore(Instant otpExpiryTimeBefore);
 }
