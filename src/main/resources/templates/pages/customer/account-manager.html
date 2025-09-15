@@ -5,13 +5,15 @@
     <title>Title</title>
     <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
 </head>
-<body th:with="isAuthenticated = ${#authorization.expression('isAuthenticated()')}">
+<body>
 
 <a href="/customer/change-password">Đổi mật khẩu</a>
 
-<form th:if="${isAuthenticated}" th:action="@{/logout}" method="post">
+<form th:action="@{/logout}" method="post">
     <button type="submit" class="btn">Đăng xuất</button>
 </form>
+
+<a th:href="@{/customer/delivery-info}">Thông tin giao hàng</a>
 
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
