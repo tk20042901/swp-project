@@ -2,6 +2,7 @@ package com.swp.project.entity.product;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Nationalized;
 
 @Getter
 @Setter
@@ -15,5 +16,6 @@ public class ProductUnit {
     private int id;
 
     @Column(nullable = false, unique = true, length = 10)
+    @Nationalized
     private String name;
 }
