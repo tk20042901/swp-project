@@ -28,7 +28,7 @@ public class Customer extends User {
     @Column(nullable = false, unique = true)
     private String phoneNumber;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String address;
 
     @Override

@@ -30,6 +30,9 @@ public class ComplaintForm {
     @ManyToOne(cascade = CascadeType.ALL)
     private CustomerSupport customerSupport;
 
+    @Column(nullable = false)
     private String content;
+
+    @Column(nullable = false, length = 100)
     private String contact;
 }

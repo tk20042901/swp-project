@@ -22,9 +22,10 @@ public abstract class User implements OAuth2User, UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 50)
     private String email;
 
+    @Column(nullable = false, length = 50)
     private String password;
 
     @Builder.Default
