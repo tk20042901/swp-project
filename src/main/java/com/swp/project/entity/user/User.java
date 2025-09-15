@@ -6,7 +6,6 @@ import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import java.io.Serializable;
 import java.util.Map;
 
 @Getter
@@ -17,7 +16,7 @@ import java.util.Map;
 @Entity
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class User implements Serializable, OAuth2User, UserDetails {
+public abstract class User implements OAuth2User, UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
