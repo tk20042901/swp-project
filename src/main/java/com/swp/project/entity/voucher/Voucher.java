@@ -18,6 +18,6 @@ public class Voucher {
     private String name;
     private double discount;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private VoucherType voucherType;
 }

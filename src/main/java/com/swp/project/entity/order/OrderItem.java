@@ -2,10 +2,7 @@ package com.swp.project.entity.order;
 
 
 import com.swp.project.entity.product.Product;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapsId;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Getter
@@ -18,11 +15,11 @@ public class OrderItem {
     @EmbeddedId
     private OrderItemId id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("orderId")
     private Order order;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("productId")
     private Product product;
 

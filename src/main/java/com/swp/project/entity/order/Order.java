@@ -21,16 +21,16 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private Customer customer;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private Shipper shipper;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private Seller seller;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private OrderStatus orderStatus;
 
     private Instant orderDate;

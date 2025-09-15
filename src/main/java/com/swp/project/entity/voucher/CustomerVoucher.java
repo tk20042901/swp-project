@@ -17,11 +17,11 @@ public class CustomerVoucher {
     @EmbeddedId
     private CustomerVoucherId customerVoucherId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("customerId")
     private Customer customer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("voucherId")
     private Voucher voucher;
 
