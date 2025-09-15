@@ -1,6 +1,7 @@
 package com.swp.project.controller.user;
 
 import com.swp.project.dto.ChangePasswordDto;
+import com.swp.project.service.CustomerAiService;
 import com.swp.project.service.user.CustomerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -8,8 +9,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Controller
@@ -17,6 +20,7 @@ import java.security.Principal;
 public class CustomerController {
 
     private final CustomerService customerService;
+    private final CustomerAiService customerAiService;
 
     @GetMapping("/account-manager")
     public String accountManager() {
@@ -34,7 +38,7 @@ public class CustomerController {
                                         BindingResult bindingResult,
                                         Model model,
                                         Principal principal) {
-        if(bindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()) {
             model.addAttribute("changePasswordRequest", changePasswordDto);
             return "/pages/customer/change-password";
         }
@@ -46,6 +50,27 @@ public class CustomerController {
             model.addAttribute("error", e.getMessage());
         }
         return "/pages/customer/change-password";
+    }
+
+    @GetMapping("/ai")
+    public String ask(Model model) {
+        model.addAttribute("conversationId", UUID.randomUUID().toString());
+        return "pages/customer/ai";
+    }
+
+    @PostMapping("/ai")
+    public String ask(@RequestParam String conversationId,
+                      @RequestParam String q,
+                      @RequestParam MultipartFile image,
+                      Model model) {
+        try {
+            customerAiService.ask(conversationId, q, image);
+        } catch (RuntimeException e) {
+            model.addAttribute("error", e.getMessage());
+        }
+        model.addAttribute("conversationId", conversationId);
+        model.addAttribute("conversation", customerAiService.getConversation(conversationId));
+        return "pages/customer/ai";
     }
 
 }

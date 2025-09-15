@@ -19,7 +19,7 @@ public class Product {
     private String description;
     private Long price;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "unit_id")
     private ProductUnit unit;
 
@@ -28,12 +28,12 @@ public class Product {
     @Builder.Default
     private boolean enabled = true;
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
     private List<SubImage>  sub_images;
 
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Category> categories;
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
     private List<ProductBatch> productBatches;
 }

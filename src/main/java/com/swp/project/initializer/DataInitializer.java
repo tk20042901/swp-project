@@ -1,6 +1,8 @@
 package com.swp.project.initializer;
 
-import com.swp.project.service.product.ProductUnitService;
+
+import com.swp.project.service.CustomerAiService;
+import com.swp.project.service.product.*;
 import com.swp.project.service.user.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -17,6 +19,13 @@ public class DataInitializer implements CommandLineRunner {
     private final ShipperService shipperService;
     private final CustomerSupportService customerSupportService;
     private final ProductUnitService productUnitService;
+    private final ProductBatchService productBatchService;
+    private final CategoryService categoryService;
+    private final SubImageService subImageService;
+    private final ProductService productService;
+    private final SupplierService supplierService;
+    private final CustomerAiService customerAiService;
+
 
     @Override
     public void run(String... args) {
@@ -27,5 +36,12 @@ public class DataInitializer implements CommandLineRunner {
         shipperService.initShipper();
         customerSupportService.initCustomerSupport();
         productUnitService.initProductUnit();
+        supplierService.initSupplier();
+        categoryService.initCategory();
+        productService.initProducts();
+        productBatchService.initProductBatches();
+        subImageService.initSubImages();
+
+        productService.getAllProducts().forEach(customerAiService::saveProductToVectorStore);
     }
 }
