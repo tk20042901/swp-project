@@ -15,11 +15,11 @@ public class ShoppingCartItem {
     @EmbeddedId
     private ShoppingCartItemId id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("customerId")
     private Customer customer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("productId")
     private Product product;
 
