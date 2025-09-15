@@ -13,7 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
+
+import java.util.Random;
 
 @RequiredArgsConstructor
 @Service
@@ -30,40 +31,26 @@ public class ProductBatchService {
         List<Product> products = productRepository.findAll();
         List<Supplier> suppliers = supplierRepository.findAll();
 
-        if (products.isEmpty() || suppliers.isEmpty()) {
-            return;
-        }
+        if (products.isEmpty() || suppliers.isEmpty()) return;
 
-        // Map tên sản phẩm -> tên supplier
-        Map<String, String> supplyMap = Map.of(
-                "Táo đỏ", "Công ty Nông sản Thanh Hóa",
-                "Cam vàng", "Công ty FPFruit",
-                "Chuối sứ", "Công ty cổ phần 36",
-                "Dâu tây", "Công ty Nông sản Raumania",
-                "Nho tím", "Công ty Hiệu Nhẫn Giả",
-                "Xoài cát", "Công ty Nông sản Thanh Hóa"
-        );
+        Random random = new Random();
 
         for (Product product : products) {
-            String supplierName = supplyMap.get(product.getName());
-            if (supplierName == null) continue; // Nếu sản phẩm chưa map thì bỏ qua
+            // tạo 2–5 batch cho mỗi product
+            int batchCount = 2 + random.nextInt(4); // 2,3,4,5 batch
+            for (int i = 0; i < batchCount; i++) {
+                Supplier supplier = suppliers.get(random.nextInt(suppliers.size()));
 
-            Supplier supplier = suppliers.stream()
-                    .filter(s -> s.getName().equals(supplierName))
-                    .findFirst()
-                    .orElse(null);
+                ProductBatch batch = ProductBatch.builder()
+                        .product(product)
+                        .suppliers(supplier)
+                        .seller(sellerRepository.findByEmail("seller1@shop.com"))
+                        .quantity(50 + random.nextInt(101)) // số lượng 50–150
+                        .expiredDate(Instant.now().plusSeconds(86400L * (30 + random.nextInt(31)))) // 30–60 ngày
+                        .build();
 
-            if (supplier == null) continue; // Nếu không tìm thấy supplier thì bỏ qua
-
-            ProductBatch batch = ProductBatch.builder()
-                    .product(product)
-                    .suppliers(supplier)
-                    .seller(sellerRepository.findByEmail("seller1@shop.com"))
-                    .quantity(100)
-                    .expiredDate(Instant.now().plusSeconds(86400L * 30)) // 30 ngày
-                    .build();
-
-            productBatchRepository.save(batch);
+                productBatchRepository.save(batch);
+            }
         }
     }
 }

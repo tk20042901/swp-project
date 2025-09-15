@@ -17,7 +17,10 @@ public class ProductBatch {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private Instant expiredDate;
+
+    @Column(nullable = false)
     private int quantity;
 
     @ManyToOne(fetch = FetchType.EAGER)

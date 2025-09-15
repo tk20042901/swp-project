@@ -14,7 +14,7 @@ public class ProductUnitService {
 
     @Transactional
     public void initProductUnit() {
-        String[] units = {"Kg", "Quả", "Hộp"};
+        String[] units = {"Kg", "Quả", "Hộp","Giỏ"};
         for (String unit : units) {
             if (!productUnitRepository.existsByName(unit)) {
                 productUnitRepository.save(ProductUnit.builder()

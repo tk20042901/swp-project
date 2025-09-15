@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
 </head>
 <body>
 <p th:if="${param.invalid_captcha}">Captcha không hợp lệ</p>
@@ -27,5 +28,6 @@
 <a th:href="@{/login}">Đăng nhập</a>
 
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

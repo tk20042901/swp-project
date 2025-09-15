@@ -25,6 +25,6 @@ public class CustomerVoucher {
     @MapsId("voucherId")
     private Voucher voucher;
 
-
+    @Column(nullable = false)
     private Instant expiredDate;
 }

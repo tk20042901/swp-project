@@ -2,6 +2,7 @@ package com.swp.project.entity.product;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Nationalized;
 
 import java.util.List;
 
@@ -15,21 +16,31 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, unique = true, length = 50)
+    @Nationalized
     private String name;
+
+    @Column(nullable = false)
+    @Nationalized
     private String description;
+
+    @Column(nullable = false)
     private Long price;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "unit_id")
     private ProductUnit unit;
 
+    @Column(nullable = false)
     private String main_image_url;
 
     @Builder.Default
+    @Column(nullable = false)
     private boolean enabled = true;
 
     @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
-    private List<SubImage>  sub_images;
+    private List<SubImage> sub_images;
 
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Category> categories;

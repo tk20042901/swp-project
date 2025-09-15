@@ -1,10 +1,8 @@
 package com.swp.project.entity.complaint;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Nationalized;
 
 @Getter
 @Setter
@@ -17,5 +15,7 @@ public class ComplaintFormType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true, length = 50)
+    @Nationalized
     private String name;
 }

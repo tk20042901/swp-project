@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
 </head>
 <body>
 <p th:if="${param.register_success}">Đăng kí tài khoản thành công</p>
@@ -32,5 +33,6 @@
 
 
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

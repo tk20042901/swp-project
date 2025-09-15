@@ -1,10 +1,8 @@
 package com.swp.project.entity.product;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Nationalized;
 
 @Getter
 @Setter
@@ -16,5 +14,8 @@ public class ProductUnit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @Column(nullable = false, unique = true, length = 10)
+    @Nationalized
     private String name;
 }

@@ -35,6 +35,11 @@ public class ProductService {
         }
 
 
+        if (categories.isEmpty() || units.isEmpty()) {
+            throw new RuntimeException("Chưa có Category hoặc ProductUnit trong DB");
+        }
+
+
 
         Object[][] productsData = {
                 {"Táo đỏ", "Táo đỏ nhập khẩu, quả to đều, mọng nước, vị ngọt thanh, giàu vitamin C và chất xơ. Thích hợp ăn trực tiếp, làm salad hoặc nước ép.", 50000L, "Kg", "Trái cây nhập khẩu","images/products/tao-do.jpg"},
