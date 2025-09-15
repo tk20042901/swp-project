@@ -1,6 +1,7 @@
 package com.swp.project.service.user;
 
 import com.swp.project.dto.ChangePasswordDto;
+import com.swp.project.dto.DeliveryInfoDto;
 import com.swp.project.dto.RegisterDto;
 import com.swp.project.entity.PendingRegister;
 import com.swp.project.entity.user.Customer;
@@ -136,6 +137,16 @@ public class CustomerService {
                 .build();
         customerRepository.save(customer);
         return customer;
+    }
+
+    @Transactional
+    public void updateDeliveryInfo(String email, DeliveryInfoDto deliveryInfoDto) {
+        Customer customer = customerRepository.getByEmail(email);
+        customer.setFullName(deliveryInfoDto.getFullName());
+        customer.setPhoneNumber(deliveryInfoDto.getPhone());
+        customer.setWard(deliveryInfoDto.getWard());
+        customer.setAddress(deliveryInfoDto.getAddress());
+        customerRepository.save(customer);
     }
 
     @Transactional
