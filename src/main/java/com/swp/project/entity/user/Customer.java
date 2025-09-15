@@ -22,10 +22,11 @@ import java.util.Collections;
 @Table
 @PrimaryKeyJoinColumn(name = "id")
 public class Customer extends User {
+    @Column(length = 50)
     @Nationalized
     private String fullName;
 
-    @Column(nullable = false, unique = true)
+    @Column(length = 15)
     private String phoneNumber;
 
     @Column(length = 100)
