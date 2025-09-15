@@ -15,7 +15,7 @@ public class ProductUnit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(nullable = false, unique = true, length = 10)
+    @Column(nullable = false, unique = true, length = 20)
     @Nationalized
     private String name;
 }
