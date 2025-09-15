@@ -1,6 +1,7 @@
 package com.swp.project.initializer;
 
 
+import com.swp.project.service.CustomerAiService;
 import com.swp.project.service.product.*;
 import com.swp.project.service.user.*;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,9 @@ public class DataInitializer implements CommandLineRunner {
     private final SubImageService subImageService;
     private final ProductService productService;
     private final SupplierService supplierService;
+    private final CustomerAiService customerAiService;
+
+
     @Override
     public void run(String... args) {
         adminService.initAdmin();
@@ -37,5 +41,7 @@ public class DataInitializer implements CommandLineRunner {
         productService.initProducts();
         productBatchService.initProductBatches();
         subImageService.initSubImages();
+
+        productService.getAllProducts().forEach(customerAiService::saveProductToVectorStore);
     }
 }
