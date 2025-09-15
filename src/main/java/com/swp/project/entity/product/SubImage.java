@@ -19,5 +19,6 @@ public class SubImage {
     @JoinColumn(name = "product_id")
     private Product product;
 
+    @Column(nullable = false)
     private String sub_image_url;
 }

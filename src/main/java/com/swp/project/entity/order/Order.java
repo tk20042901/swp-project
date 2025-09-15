@@ -33,5 +33,6 @@ public class Order {
     @ManyToOne(fetch = FetchType.EAGER)
     private OrderStatus orderStatus;
 
+    @Column(nullable = false)
     private Instant orderDate;
 }

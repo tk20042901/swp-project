@@ -23,6 +23,7 @@ public class ShoppingCartItem {
     @MapsId("productId")
     private Product product;
 
+    @Column(nullable = false)
     private int quantity;
 
 }

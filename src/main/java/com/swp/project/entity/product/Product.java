@@ -15,17 +15,25 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, unique = true, length = 50)
     private String name;
+
+    @Column(nullable = false)
     private String description;
+
+    @Column(nullable = false)
     private Long price;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "unit_id")
     private ProductUnit unit;
 
+    @Column(nullable = false)
     private String main_image_url;
 
     @Builder.Default
+    @Column(nullable = false)
     private boolean enabled = true;
 
     @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
