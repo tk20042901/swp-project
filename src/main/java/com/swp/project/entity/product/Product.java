@@ -2,7 +2,6 @@ package com.swp.project.entity.product;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Nationalized;
 
 import java.util.List;
 
@@ -18,11 +17,9 @@ public class Product {
     private Long id;
 
     @Column(nullable = false, unique = true, length = 50)
-    @Nationalized
     private String name;
 
     @Column(nullable = false)
-    @Nationalized
     private String description;
 
     @Column(nullable = false)

@@ -7,6 +7,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Service
 public class SellerService {
@@ -35,5 +37,9 @@ public class SellerService {
             seller.setPassword(passwordEncoder.encode(seller.getPassword()));
             sellerRepository.save(seller);
         }
+    }
+
+    public List<Seller> getAllSellers() {
+        return sellerRepository.findAll();
     }
 }

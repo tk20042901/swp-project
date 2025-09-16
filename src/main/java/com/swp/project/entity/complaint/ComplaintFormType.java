@@ -2,7 +2,6 @@ package com.swp.project.entity.complaint;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Nationalized;
 
 @Getter
 @Setter
@@ -16,6 +15,5 @@ public class ComplaintFormType {
     private Long id;
 
     @Column(nullable = false, unique = true, length = 50)
-    @Nationalized
     private String name;
 }

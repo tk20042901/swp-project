@@ -8,6 +8,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Service
 public class ShipperService {
@@ -36,5 +38,9 @@ public class ShipperService {
             shipper.setPassword(passwordEncoder.encode(shipper.getPassword()));
             shipperRepository.save(shipper);
         }
+    }
+
+    public List<Shipper> getAllShippers() {
+        return shipperRepository.findAll();
     }
 }
