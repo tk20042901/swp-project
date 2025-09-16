@@ -1,6 +1,7 @@
 package com.swp.project.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +15,7 @@ public class DeliveryInfoDto {
     private String fullName;
 
     @NotBlank(message = "Số điện thoại không được để trống")
-    @Size(max = 15, message = "Số điện thoại không được vượt quá 15 ký tự")
+    @Pattern(regexp = "^\\d{6,12}$", message = "Số điện thoại không hợp lệ")
     private String phone;
 
     @NotBlank(message = "Địa chỉ chi tiết không được để trống")
