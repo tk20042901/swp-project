@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.*;
-import org.hibernate.annotations.Nationalized;
 
 @Getter
 @Setter
@@ -17,6 +16,5 @@ public class WardAddress {
     @Id
     private String code;
 
-    @Nationalized
     private String name;
 }

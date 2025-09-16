@@ -2,7 +2,6 @@ package com.swp.project.entity.product;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Nationalized;
 
 import java.util.List;
 
@@ -18,7 +17,6 @@ public class Supplier {
     private Long id;
 
     @Column(nullable = false, unique = true,  length = 100)
-    @Nationalized
     private String name;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "suppliers")

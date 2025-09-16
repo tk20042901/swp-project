@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Nationalized;
 
 @Getter
 @Setter
@@ -32,10 +31,8 @@ public class ComplaintForm {
     private CustomerSupport customerSupport;
 
     @Column(nullable = false)
-    @Nationalized
     private String content;
 
     @Column(nullable = false, length = 100)
-    @Nationalized
     private String contact;
 }
