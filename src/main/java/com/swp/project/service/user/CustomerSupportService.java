@@ -16,7 +16,7 @@ public class CustomerSupportService {
 
     @Transactional
     public void initCustomerSupport() {
-        for (int i = 1; i <= 36; i++) {
+        for (int i = 1; i <= 9; i++) {
             createCustomerSupportIfNotExists(CustomerSupport.builder()
                     .email("customer-support" + i + "@shop.com")
                     .password("customer-support")
