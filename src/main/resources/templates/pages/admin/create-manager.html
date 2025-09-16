@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create Manager</title>
+</head>
+<body>
+    <h1>Create New Manager</h1>
+    <form th:action="@{/admin/manage-manager}" method="post">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required/>
+        <br/>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required/>
+        <br/>
+        <button type="submit">Create Manager</button>
+    </form>
+</body>
+</html>
