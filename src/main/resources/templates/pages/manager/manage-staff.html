@@ -6,12 +6,14 @@
 </head>
 <body>
 <h1>Quản lí nhân viên</h1>
-<h5 th:text="${msg}"></h5>
-<form action="/manager/manage-staff" method="get">
+<h5 style="color: green" th:text="${msg}">Chưa có thông báo</h5>
+<form th:action="@{/manager/manage-staff}" method="get">
     <button type="submit" name="clickedButton" value="seller">Người bán</button>
     <button type="submit" name="clickedButton" value="shipper">Người giao hàng</button>
-    <button type="submit" name="clickedButton" value="newSeller">Thêm người bán</button>
-    <button type="submit" name="clickedButton" value="newShipper">THêm người giao hàng</button>
+</form>
+<form th:action="@{/manager/edit-staff}" method="get">
+    <button type="submit" name="clickedButton" value="seller">Thêm người bán</button>
+    <button type="submit" name="clickedButton" value="shipper">Thêm người giao hàng</button>
 </form>
 <table border="3">
     <tr>
@@ -31,7 +33,13 @@
         <td th:text="${item.getId()}"></td>
         <td th:text="${item.getEmail()}"></td>
         <td th:text="${(item.isEnabled() == true) ? 'Có' : 'Không'}"></td>
-        <td><a th:href="@{/manager/edit-staff/{email}(email=${item.email})}">Edit Staff</a></td>
+        <td>
+            <form th:action="@{/manager/manage-staff}" method="post">
+                <input name="className" th:value="${session.className}" hidden>
+                <input name="email" th:value="${item.email}" hidden>
+                <button type="submit" value="true">Hữu / Vô hiệu hóa</button>
+            </form>
+        </td>
     </tr>
 </table>
 </body>

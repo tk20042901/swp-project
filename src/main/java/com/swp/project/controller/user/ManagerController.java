@@ -1,5 +1,7 @@
 package com.swp.project.controller.user;
 
+import com.swp.project.entity.user.Seller;
+import com.swp.project.entity.user.Shipper;
 import com.swp.project.entity.user.User;
 import com.swp.project.repository.user.UserRepository;
 import com.swp.project.service.user.SellerService;
@@ -14,42 +16,25 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("/manager")
 public class ManagerController {
-//    @Autowired
-//    private final ManagerService managerService;
     @Autowired
     private SellerService sellerService;
 
     @Autowired
     private ShipperService shipperService;
 
-    @Autowired
-    private UserService userService;
-
-//    @Autowired
-//    private ShipperController shipperController;
-
-    @Autowired
-    private UserRepository userRepository;
-
     @GetMapping("")
     public String index() {
         return "pages/manager/index";
     }
 
-//    private int k = 1;
-//
-//    @Autowired
-//    private List<?> list;
-
     @GetMapping("manage-staff")
-    public String manageStaff(@RequestParam(value = "clickedButton", required = false) String clickedButton, Model model, HttpSession  session) {
+    public String manageStaff(@RequestParam(value = "clickedButton", required = false) String clickedButton, Model model, HttpSession session) {
         int k = 1;
         List<?> list = new ArrayList<>();
 
@@ -64,8 +49,9 @@ public class ManagerController {
         list = (List<?>) session.getAttribute("list");
 
         if (clickedButton == null || clickedButton.isEmpty()) {
-
             model.addAttribute("filteredResults", sellerService.getAllSellers());
+            session.setAttribute("k", k);
+            session.setAttribute("className", "Seller");
         } else {
             final int newK = -k;
             k = newK;
@@ -73,9 +59,11 @@ public class ManagerController {
             switch (clickedButton) {
                 case "seller":
                     list = sellerService.getAllSellers();
+                    session.setAttribute("className", "Seller");
                     break;
                 case "shipper":
                     list = shipperService.getAllShippers();
+                    session.setAttribute("className", "Shipper");
                     break;
                 case "id":
                     list.sort((o1, o2) -> {
@@ -106,33 +94,103 @@ public class ManagerController {
         }
         session.setAttribute("list", list);
         session.setAttribute("k", k);
-        System.out.println("Chương trình đã chạy đến đây (get)");
+//        System.out.println("Chương trình đã chạy đến đây (get)");
         return "pages/manager/manage-staff";
     }
 
 
-    @GetMapping("/edit-staff/{email}")
-    public String editStaff(@PathVariable("email") String email, Model model) {
-        model.addAttribute("user", userService.findUserByEmail(email));
+    @PostMapping("/manage-staff")
+    public String manageStaff(  @RequestParam("className") String className,
+                                @RequestParam("email") String email,
+                                RedirectAttributes redirectAttributes,
+                                HttpSession session) {
+//        System.out.println("Chương trình đã chạy đến đây (post)");
+
+        boolean isEnabled = false;
+
+        if (className != null && !className.isEmpty()) {
+            if (className.equals("Seller")) {
+                Seller seller = sellerService.getByEmail(email);
+
+                System.out.println(seller.getEmail());
+
+                isEnabled = !seller.isEnabled();
+                seller.setEnabled(isEnabled);
+                sellerService.save(seller);
+                List<Seller> list = (List<Seller>) session.getAttribute("list");
+                list.add(seller);
+
+                sellerService.setSellerStatus(seller.getId(), isEnabled);
+
+
+            } else if (className.equals("Shipper")) {
+                Shipper shipper = shipperService.getByEmail(email);
+                isEnabled = !shipper.isEnabled();
+                shipper.setEnabled(isEnabled);
+                shipperService.save(shipper);
+                List<Shipper> list = (List<Shipper>) session.getAttribute("list");
+                list.add(shipper);
+
+                shipperService.setSellerStatus(shipper.getId(), isEnabled);
+            }
+            redirectAttributes.addFlashAttribute("msg", (isEnabled ? "Hữu hiệu hóa" : "Vô hiệu hóa") + email + " thành công");
+
+        }
+        return  "redirect:/manager/manage-staff";
+    }
+
+
+    @GetMapping("/edit-staff")
+    public String editStaff(@RequestParam("clickedButton") String clickedButton, Model model, HttpSession  session) {
+        if (clickedButton != null && !clickedButton.isEmpty()) {
+            switch (clickedButton) {
+                case "seller":
+                    session.setAttribute("className", "Seller");
+                    model.addAttribute("user", new Seller());
+                    break;
+                case "shipper":
+                    session.setAttribute("className", "Shipper");
+                    model.addAttribute("user", new Shipper());
+                    break;
+            }
+        }
         return "pages/manager/edit-staff";
     }
 
     @PostMapping("/edit-staff")
-    public String editStaffPost(@ModelAttribute("user") User user,
-                                @RequestParam("saveButton") String saveButton,
-                                @RequestParam("email") String email,
-                                RedirectAttributes redirectAttributes) {
-        if (saveButton != null) {
-            User tempUser = userService.findUserByEmail(user.getEmail());
-            if (tempUser != null) {
-                tempUser.setPassword(user.getPassword());
-                tempUser.setEnabled(user.isEnabled());
-                userRepository.save(tempUser);
-                redirectAttributes.addFlashAttribute("msg", "Cập nhật thông tin cho " + tempUser.getName() + " thành công");
+    public String editStaff(@RequestParam("email") String email,
+                            @RequestParam("password") String password,
+                            @RequestParam(defaultValue = "false") String enabled,
+                            @RequestParam("className") String className,
+                            RedirectAttributes redirectAttributes,
+                            HttpSession  session) {
+        if (className != null && !className.isEmpty()) {
+            switch (className) {
+                case "Seller":
+                    Seller seller = new Seller();
+                    seller.setEmail(email);
+                    seller.setPassword(password);
+                    seller.setEnabled(enabled.equals("true"));
+                    sellerService.save(seller);
 
+                    List<Seller> list = (List<Seller>) session.getAttribute("list");
+                    list.add(seller);
+                    session.setAttribute("list", list);
+                    break;
+                case "Shipper":
+                    Shipper shipper = new Shipper();
+                    shipper.setEmail(email);
+                    shipper.setPassword(password);
+                    shipper.setEnabled(enabled.equals("true"));
+                    shipperService.save(shipper);
+
+                    List<Shipper> list2 = (List<Shipper>) session.getAttribute("list");
+                    list2.add(shipper);
+                    session.setAttribute("list", list2);
+                    break;
             }
+            redirectAttributes.addFlashAttribute("msg", "Thêm tài khoản thành công");
         }
-        System.out.println("Chương trình đã chạy đến đây");
-        return  "redirect:/manager/manage-staff";
+        return "redirect:/manager/manage-staff";
     }
 }
