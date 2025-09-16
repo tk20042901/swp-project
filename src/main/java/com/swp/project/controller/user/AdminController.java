@@ -4,8 +4,8 @@ import com.swp.project.entity.user.Manager;
 import com.swp.project.service.user.ManagerService;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 
-import org.springframework.data.domain.Page;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,8 +29,12 @@ public class AdminController {
         return "pages/admin/create-manager";
     }
     @GetMapping("/edit-manager/{id}")
-    public String getEditManagerPage(@PathVariable Long id, Model model) {
+    public String getEditManagerPage(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         Manager manager = managerService.getManagerById(id);
+        if (manager == null) {
+            redirectAttributes.addFlashAttribute("failed", "Manager not found.");
+            return "redirect:/admin/manage-manager";
+        }
         model.addAttribute("manager", manager);
         return "pages/admin/edit-manager";
     }
@@ -55,15 +59,9 @@ public class AdminController {
 
     @GetMapping("/manage-manager")
         public String showManageManagersPage(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size,
             Model model) {
-        Page<Manager> managerPage = managerService.getAllManagers(page, size);
-        model.addAttribute("managers", managerPage.getContent());
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", managerPage.getTotalPages());
-        model.addAttribute("totalItems", managerPage.getTotalElements());
-
+        List<Manager> managers = managerService.getAllManagers();
+        model.addAttribute("managers", managers);
         return "pages/admin/manage-manager";
     }
 

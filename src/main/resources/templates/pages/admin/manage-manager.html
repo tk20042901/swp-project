@@ -18,7 +18,7 @@
             <th>ID</th>
             <!--<th>Username</th>-->
             <th>Email</th>
-            <th>IsEnabled</th>
+            <th>Enabled</th>
             <th>Actions</th>
         </tr>
         <tr th:each="manager : ${managers}">
@@ -28,24 +28,14 @@
             <td th:text="${manager.enabled}"></td>
             <td>
                 <a th:href="@{/admin/edit-manager/{id}(id=${manager.id})}" th:text="'Edit'"></a>
-                <form th:action="@{/admin/configure-manager}" method="post" style="display:inline;">
+                <form th:action="@{/admin/configure-manager}" method="post" style="display:inline;"
+                      th:onsubmit="${manager.enabled} ? 'return confirm(\'Are you sure you want to disable this manager?\')' : 'return confirm(\'Are you sure you want to enable this manager?\')'">
                     <input type="hidden" name="id" th:value="${manager.id}">
-                        <a href="#" th:if="${manager.enabled}" th:onclick="'if(confirm(\'Are you sure you want to disable this manager?\')) { this.closest(\'form\').submit(); } return false;'" th:text="'Disable'"></a>
-                        <a href="#" th:if="${!manager.enabled}" th:onclick="'if(confirm(\'Are you sure you want to enable this manager?\')) { this.closest(\'form\').submit(); } return false;'" th:text="'Enable'"></a>
+                    <button type="submit" th:if="${manager.enabled}" th:text="'Disable'"></button>
+                    <button type="submit" th:if="${!manager.enabled}" th:text="'Enable'"></button>
                 </form>
             </td>
         </tr>
     </table>
-    <div>
-        <span>Page [[${currentPage}+1]] of [[${totalPages}]]</span>
-    </div>
-
-    <div>
-        <a th:if="${currentPage > 0}"
-        th:href="@{manage-manager(page=${currentPage-1})}">Previous</a>
-
-        <a th:if="${currentPage < totalPages-1}"
-           th:href="@{manage-manager(page=${currentPage+1})}">Next</a>
-    </div>
 </body>
 </html>
