@@ -5,8 +5,6 @@ import com.swp.project.listener.event.UserDisabledEvent;
 import com.swp.project.repository.user.ManagerRepository;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,7 +38,7 @@ public class ManagerService {
 
     @Transactional
     public void initManager() {
-        for (int i = 1; i <= 36; i++) {
+        for (int i = 1; i <= 4; i++) {
             createManagerIfNotExists(Manager.builder()
                     .email("manager" + i + "@shop.com")
                     .password("manager")
