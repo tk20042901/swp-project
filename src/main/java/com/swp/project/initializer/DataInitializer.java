@@ -2,6 +2,7 @@ package com.swp.project.initializer;
 
 
 import com.swp.project.service.CustomerAiService;
+import com.swp.project.service.WardAddressService;
 import com.swp.project.service.product.*;
 import com.swp.project.service.user.*;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class DataInitializer implements CommandLineRunner {
     private final ProductService productService;
     private final SupplierService supplierService;
     private final CustomerAiService customerAiService;
+    private final WardAddressService wardAddressService;
 
 
     @Override
@@ -41,7 +43,8 @@ public class DataInitializer implements CommandLineRunner {
         productService.initProducts();
         productBatchService.initProductBatches();
         subImageService.initSubImages();
+        wardAddressService.initWard();
 
-        productService.getAllProducts().forEach(customerAiService::saveProductToVectorStore);
+        //productService.getAllProducts().forEach(customerAiService::saveProductToVectorStore);
     }
 }

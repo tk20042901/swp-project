@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<p th:if="${success}" th:text="${success}"></p>
+
+<form th:action="@{/customer/delivery-info}" th:object="${deliveryInfoDto}" method="post">
+    <label>
+        Họ và tên<input type="text" th:field="*{fullName}" required/>
+        <span th:errors="*{fullName}" class="error-inline"> Error</span>
+    </label>
+    <label>
+        Số điện thoại<input type="text" th:field="*{phone}" required/>
+        <span th:errors="*{phone}" class="error-inline"> Error</span>
+    </label>
+
+    <label>
+        Thành phố<input type="text" value="Thành phố Hà Nội" readonly/>
+    </label>
+
+    <label>
+        Xã/Phường
+        <select th:field="*{ward}" required>
+            <option value="">Chọn Xã/Phường</option>
+            <option th:each="ward : ${wards}"
+                    th:value="${ward.getName()}"
+                    th:text="${ward.getName()}">
+                Xã/Phường
+            </option>
+        </select>
+    </label>
+
+    <label>
+        Địa chỉ chi tiết<input type="text" th:field="*{address}" required/>
+        <span th:errors="*{address}" class="error-inline"> Error</span>
+    </label>
+
+    <p>Chỉ hỗ trợ giao hàng trong nội thành Hà Nội</p>
+
+    <button type="submit">Cập nhật</button>
+</form>
+</body>
+</html>
