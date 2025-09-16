@@ -8,29 +8,30 @@
 <h1>Quản lí nhân viên</h1>
 <h5 th:text="${msg}"></h5>
 <form action="/manager/manage-staff" method="get">
-    <input type="submit" name="clickedButton" value="seller">Người bán</input>
-    <input type="submit" name="clickedButton" value="shipper">Người giao hàng</input>
+    <button type="submit" name="clickedButton" value="seller">Người bán</button>
+    <button type="submit" name="clickedButton" value="shipper">Người giao hàng</button>
+    <button type="submit" name="clickedButton" value="newSeller">Thêm người bán</button>
+    <button type="submit" name="clickedButton" value="newShipper">THêm người giao hàng</button>
 </form>
 <table border="3">
     <tr>
-        <th>ID</th>
-        <th>Tên</th>
-        <th>Mật khẩu</th>
-        <th>Được mở khóa</th>
-        <th></th>
+        <form action="/manager/manage-staff" method="get">
+            <th>
+                <button type="submit" name="clickedButton" value="id">ID</button>
+            </th>
+            <th>
+                <button type="submit" name="clickedButton" value="username">Tên</button>
+            </th>
+            <th>
+                <button type="submit" name="clickedButton" value="enabled">Được mở khóa</button>
+            </th>
+        </form>
     </tr>
     <tr th:each="item : ${filteredResults}">
         <td th:text="${item.getId()}"></td>
         <td th:text="${item.getEmail()}"></td>
-        <td th:text="${item.getPassword()}"></td>
         <td th:text="${(item.isEnabled() == true) ? 'Có' : 'Không'}"></td>
         <td><a th:href="@{/manager/edit-staff/{email}(email=${item.email})}">Edit Staff</a></td>
-        <td>
-            <form action="/manager/edit-staff" method="post">
-                <input type="text" name="email" th:value="${item.getEmail()}">
-                <input type="submit" name="deleteButton">
-            </form>
-        </td>
     </tr>
 </table>
 </body>
