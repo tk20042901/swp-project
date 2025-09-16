@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sửa nhân viên</title>
+</head>
+<body>
+<h1 th:text="${user.getEmail()}"></h1>
+<form action="/manager/edit-staff" method="post" th:object="${user}">
+    <label for="email">Email</label>
+    <input type="text" id="email" name="email" th:value="*{email}">
+    <br>
+    <label for="password">Mật khẩu</label>
+    <input type="text" id="password" name="password" th:value="*{password}">
+    <br>
+    <label for="enabled">Mở khóa</label>
+    <input type="checkbox" id="enabled" name="enabled" th:checked="*{enabled}">
+    <br>
+    <input type="submit" name="saveButton" value="Lưu">
+</form>
+</body>
+</html>
