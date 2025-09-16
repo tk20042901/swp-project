@@ -4,7 +4,13 @@ import com.swp.project.entity.user.Manager;
 import com.swp.project.listener.event.UserDisabledEvent;
 import com.swp.project.repository.user.ManagerRepository;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,11 +53,39 @@ public class ManagerService {
                 .build());
     }
 
-
     private void createManagerIfNotExists(Manager manager) {
         if (!managerRepository.existsByEmail(manager.getEmail())) {
             manager.setPassword(passwordEncoder.encode(manager.getPassword()));
             managerRepository.save(manager);
         }
     }
+
+    public void updateManager(Long id, Manager updatedManager) {
+        Manager existingManager = getManagerById(id);
+        if(existingManager == null) {
+            throw new IllegalArgumentException("Manager not found.");
+        }
+        if (!existingManager.getEmail().equals(updatedManager.getEmail()) && managerRepository.existsByEmail(updatedManager.getEmail())) {
+            throw new IllegalArgumentException("Email already in use.");
+        }
+        existingManager.setEmail(updatedManager.getEmail());
+        if(updatedManager.getPassword() != null && !updatedManager.getPassword().isEmpty() && !existingManager.getPassword().equals(updatedManager.getPassword())) {
+            existingManager.setPassword(passwordEncoder.encode(updatedManager.getPassword()));
+        }
+        managerRepository.save(existingManager);
+    }
+
+    public void createManager(Manager manager) {
+        if (managerRepository.existsByEmail(manager.getEmail())) {
+            throw new IllegalArgumentException("Email already in use.");
+        }
+        manager.setPassword(passwordEncoder.encode(manager.getPassword()));
+        managerRepository.save(manager);
+    }
+
+    public Page<Manager> getAllManagers(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return managerRepository.findAll(pageable);
+    }
+    
 }
