@@ -29,9 +29,16 @@ public class Customer extends User {
     @Column(length = 15)
     private String phoneNumber;
 
+    @Column(length = 50)
+    @Nationalized
+    private String ward;
+
     @Column(length = 100)
     @Nationalized
     private String address;
+
+    @Builder.Default
+    private Long loyaltyPoints = 0L;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

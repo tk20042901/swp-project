@@ -1,7 +1,10 @@
 package com.swp.project.controller.user;
 
 import com.swp.project.dto.ChangePasswordDto;
+import com.swp.project.dto.DeliveryInfoDto;
+import com.swp.project.entity.user.Customer;
 import com.swp.project.service.CustomerAiService;
+import com.swp.project.service.WardAddressService;
 import com.swp.project.service.user.CustomerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.UUID;
@@ -21,6 +25,7 @@ public class CustomerController {
 
     private final CustomerService customerService;
     private final CustomerAiService customerAiService;
+    private final WardAddressService wardAddressService;
 
     @GetMapping("/account-manager")
     public String accountManager() {
@@ -50,6 +55,40 @@ public class CustomerController {
             model.addAttribute("error", e.getMessage());
         }
         return "/pages/customer/change-password";
+    }
+
+    @GetMapping("/delivery-info")
+    public String deliveryInfo(Model model, Principal principal) {
+        Customer customer = customerService.getCustomerByEmail(principal.getName());
+        DeliveryInfoDto deliveryInfoDto = new DeliveryInfoDto();
+        deliveryInfoDto.setFullName(customer.getFullName());
+        deliveryInfoDto.setPhone(customer.getPhoneNumber());
+        deliveryInfoDto.setWard(customer.getWard());
+        deliveryInfoDto.setAddress(customer.getAddress());
+        model.addAttribute("deliveryInfoDto", deliveryInfoDto);
+        model.addAttribute("wards", wardAddressService.getAllWard());
+        return "/pages/customer/delivery-info";
+    }
+
+    @PostMapping("/delivery-info")
+    public String processDeliveryInfo(@Valid @ModelAttribute DeliveryInfoDto deliveryInfoDto,
+                                      BindingResult bindingResult,
+                                      Model model,
+                                      RedirectAttributes redirectAttributes,
+                                      Principal principal) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("deliveryInfoDto", deliveryInfoDto);
+            return "/pages/customer/delivery-info";
+        }
+
+        customerService.updateDeliveryInfo(principal.getName(), deliveryInfoDto);
+        redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin giao hàng thành công");
+        return "redirect:/customer/delivery-info";
+    }
+
+    @GetMapping("/shopping-cart")
+    public String shoppingCart() {
+        return "/pages/customer/shopping-cart";
     }
 
     @GetMapping("/ai")
