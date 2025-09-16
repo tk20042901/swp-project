@@ -13,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -21,38 +22,35 @@ public class CaptchaValidationFilter extends OncePerRequestFilter {
     @Value("${recaptcha.secret-key}")
     private String recaptchaSecret;
 
-    private static final String VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify";
-
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException {
-        boolean isPostMethod = "POST".equalsIgnoreCase(request.getMethod());
-        String captchaResponse = request.getParameter("g-recaptcha-response");
-        boolean isVerifiedCaptcha = captchaResponse != null && verifyCaptcha(captchaResponse);
         String servletPath = request.getServletPath();
-        String[] needToCheckCaptchaPaths = {
+        List<String> needToCheckCaptchaPaths = List.of(
                 "/login",
                 "/register",
                 "/forgot-password"
-        };
-        for(String path : needToCheckCaptchaPaths)
-            if (path.equals(servletPath) && isPostMethod)
-                if (!isVerifiedCaptcha) {
-                    response.sendRedirect(path + "?invalid_captcha");
-                    return;
-                }
+        );
+        if ("POST".equalsIgnoreCase(request.getMethod())
+                && needToCheckCaptchaPaths.contains(servletPath)) {
+            if (!verifyCaptcha(request.getParameter("g-recaptcha-response"))) {
+                response.sendRedirect(servletPath + "?invalid_captcha");
+                return;
+            }
+        }
         filterChain.doFilter(request, response);
     }
 
-    private boolean verifyCaptcha(String responseToken) {
-        RestTemplate restTemplate = new RestTemplate();
+    private boolean verifyCaptcha(String recaptchaResponse) {
+        if(recaptchaResponse == null) {
+            return false;
+        }
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("secret", recaptchaSecret);
-        params.add("response", responseToken);
-
-        var body = restTemplate.postForObject(VERIFY_URL, params, Map.class);
+        params.add("response", recaptchaResponse);
+        var body = new RestTemplate().postForObject("https://www.google.com/recaptcha/api/siteverify", params, Map.class);
         return body != null && Boolean.TRUE.equals(body.get("success"));
     }
 }

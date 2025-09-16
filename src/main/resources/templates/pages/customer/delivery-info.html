@@ -13,10 +13,6 @@
         Họ và tên<input type="text" th:field="*{fullName}" required/>
         <span th:errors="*{fullName}" class="error-inline"> Error</span>
     </label>
-    <label>
-        Số điện thoại<input type="text" th:field="*{phone}" required/>
-        <span th:errors="*{phone}" class="error-inline"> Error</span>
-    </label>
 
     <label>
         Thành phố<input type="text" value="Thành phố Hà Nội" readonly/>
@@ -27,8 +23,8 @@
         <select th:field="*{ward}" required>
             <option value="">Chọn Xã/Phường</option>
             <option th:each="ward : ${wards}"
-                    th:value="${ward.getName()}"
-                    th:text="${ward.getName()}">
+                    th:value="${ward.name}"
+                    th:text="${ward.name}">
                 Xã/Phường
             </option>
         </select>
@@ -37,6 +33,11 @@
     <label>
         Địa chỉ chi tiết<input type="text" th:field="*{address}" required/>
         <span th:errors="*{address}" class="error-inline"> Error</span>
+    </label>
+
+    <label>
+        Số điện thoại<input type="tel" th:field="*{phone}" required/>
+        <span th:errors="*{phone}" class="error-inline"> Error</span>
     </label>
 
     <p>Chỉ hỗ trợ giao hàng trong nội thành Hà Nội</p>
