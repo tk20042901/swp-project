@@ -2,6 +2,7 @@ package com.swp.project.controller.user;
 
 import com.swp.project.dto.ChangePasswordDto;
 import com.swp.project.dto.DeliveryInfoDto;
+import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.entity.user.Customer;
 import com.swp.project.service.CustomerAiService;
 import com.swp.project.service.WardAddressService;
@@ -16,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -87,8 +89,26 @@ public class CustomerController {
     }
 
     @GetMapping("/shopping-cart")
-    public String shoppingCart() {
-        return "/pages/customer/shopping-cart";
+    public String viewShoppingCart(Model model, Principal principal) {
+        Customer customer = customerService.getCustomerByEmail(principal.getName());
+        List<ShoppingCartItem> cartItems = customerService.getCart(customer);
+        long totalAmmount = customerService.TotalAmountInCart(principal.getName());
+        model.addAttribute("totalAmmount", totalAmmount);
+        model.addAttribute("cartItems", cartItems);
+        return "pages/customer/shopping-cart";
+    }
+
+    @PostMapping("/shopping-cart/remove")
+    public String removeFromCart(@RequestParam Long productId, Principal principal) {
+        customerService.removeItem(principal.getName(), productId);
+    return "redirect:/customer/shopping-cart";
+    }
+    @PostMapping("/shopping-cart/update")
+    public String updateCartItem(@RequestParam Long productId,
+                                 @RequestParam int quantity,
+                                 Principal principal) {
+        customerService.updateCartQuantity(principal.getName(), productId, quantity);
+        return "redirect:/customer/shopping-cart";
     }
 
     @GetMapping("/ai")

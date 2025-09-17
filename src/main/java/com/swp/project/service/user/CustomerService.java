@@ -4,10 +4,14 @@ import com.swp.project.dto.ChangePasswordDto;
 import com.swp.project.dto.DeliveryInfoDto;
 import com.swp.project.dto.RegisterDto;
 import com.swp.project.entity.PendingRegister;
+import com.swp.project.entity.shopping_cart.ShoppingCartItem;
+import com.swp.project.entity.shopping_cart.ShoppingCartItemId;
 import com.swp.project.entity.user.Customer;
+import com.swp.project.repository.shopping_cart.ShoppingCartItemRepository;
 import com.swp.project.repository.user.CustomerRepository;
 import com.swp.project.repository.PendingRegisterRepository;
 import com.swp.project.service.EmailService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,6 +31,7 @@ public class CustomerService {
     private final PendingRegisterRepository pendingRegisterRepository;
     private final EmailService emailService;
     private final SecureRandom secureRandom = new SecureRandom();
+    private final ShoppingCartItemRepository shoppingCartItemRepository;
 
     public Customer getCustomerByEmail(String email) {
         return customerRepository.getByEmail(email);
@@ -175,5 +180,43 @@ public class CustomerService {
             customer.setPassword(passwordEncoder.encode(customer.getPassword()));
             customerRepository.save(customer);
         }
+    }
+
+    public List<ShoppingCartItem> getCart(Customer customer) {
+       return shoppingCartItemRepository.findByCustomer(customer);
+    }
+    public void removeItem(String email,Long productId){
+            Customer customer = customerRepository.getCustomerByEmail(email);
+        ShoppingCartItemId id= new ShoppingCartItemId();
+        id.setCustomerId(customer.getId());
+        id.setProductId(productId);
+        shoppingCartItemRepository.deleteById(id);
+    }
+    public void updateCartQuantity(String email, Long productId, int quantity) {
+        Customer customer = customerRepository.getCustomerByEmail(email);
+        if (customer == null) {
+            throw new RuntimeException("Customer not found with email: " + email);
+        }
+
+        ShoppingCartItemId id = new ShoppingCartItemId();
+        id.setCustomerId(customer.getId());
+        id.setProductId(productId);
+
+        ShoppingCartItem item = shoppingCartItemRepository.findShoppingCartItemById(id);
+        if (item == null) {
+            throw new RuntimeException("Shopping cart item not found for customer: "
+                    + customer.getId() + ", product: " + productId);
+        }
+
+        item.setQuantity(quantity);
+        shoppingCartItemRepository.save(item);
+    }
+    public Long TotalAmountInCart(String email){
+        Customer customer = customerRepository.getCustomerByEmail(email);
+        long total =0;
+        for(ShoppingCartItem item: shoppingCartItemRepository.findByCustomer(customer)){
+            total += item.getProduct().getPrice() * item.getQuantity();
+        }
+        return total;
     }
 }
