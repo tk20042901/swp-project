@@ -1,16 +1,20 @@
 package com.swp.project.service.user;
 
 import com.swp.project.entity.user.Shipper;
+import com.swp.project.entity.user.User;
 import com.swp.project.listener.event.UserDisabledEvent;
 import com.swp.project.repository.user.ShipperRepository;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 @RequiredArgsConstructor
 @Service
 public class ShipperService {
@@ -18,6 +22,8 @@ public class ShipperService {
     private final ShipperRepository shipperRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final PasswordEncoder passwordEncoder;
+
+    private List<Shipper> results = new ArrayList<>();
 
     public Shipper getByEmail(String email) { return shipperRepository.findByEmail(email);
     }
@@ -45,8 +51,8 @@ public class ShipperService {
         }
     }
 
-    public List<Shipper> getAllShippers() {
-        return shipperRepository.findAll();
+    public void findAllShippers() {
+        results = shipperRepository.findAll();
     }
 
     public void save(Shipper shipper) { shipperRepository.save(shipper);
@@ -58,7 +64,7 @@ public class ShipperService {
     }
 
     @Transactional
-    public void setSellerStatus(Long id, boolean status) {
+    public void setShipperStatus(Long id, boolean status) {
         Shipper shipper = getShipperById(id);
         shipper.setEnabled(status);
 
@@ -67,5 +73,33 @@ public class ShipperService {
         }
 
         shipperRepository.save(shipper);
+    }
+
+    public void sortBy(String columnName, int k) {
+        switch (columnName) {
+            case "id":
+                results.sort((o1, o2) -> {
+                    User tempO1 = (User) o1;
+                    User tempO2 = (User) o2;
+                    return k * tempO1.getId().compareTo(tempO2.getId());
+                });
+                break;
+            case "username":
+                results.sort((o1, o2) -> {
+                    User tempO1 = (User) o1;
+                    User tempO2 = (User) o2;
+                    return k * tempO1.getUsername().compareTo(tempO2.getUsername());
+                });
+                break;
+            case "enabled":
+                results.sort((o1, o2) -> {
+                    User tempO1 = (User) o1;
+                    User tempO2 = (User) o2;
+                    int tempO1IsEnabled = tempO1.isEnabled() ? 1 : 0;
+                    int tempO2IsEnabled = tempO2.isEnabled() ? 1 : 0;
+                    return k * (tempO1IsEnabled - tempO2IsEnabled);
+                });
+                break;
+        }
     }
 }

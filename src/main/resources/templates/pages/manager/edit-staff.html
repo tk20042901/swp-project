@@ -5,8 +5,10 @@
     <title>Sửa nhân viên</title>
 </head>
 <body>
-<h1 th:text="${user.getEmail()}"></h1>
-<form action="/manager/edit-staff" method="post" th:object="${user}">
+<h1>Thêm tài khoản</h1>
+<form th:action="@{/manager/edit-staff}" method="post" th:object="${user}">
+    <input type="text" name="className" th:value="${session.className}" hidden>
+
     <label for="email">Email</label>
     <input type="text" id="email" name="email" th:value="*{email}">
     <br>
