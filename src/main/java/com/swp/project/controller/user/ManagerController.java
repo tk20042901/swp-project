@@ -2,11 +2,8 @@ package com.swp.project.controller.user;
 
 import com.swp.project.entity.user.Seller;
 import com.swp.project.entity.user.Shipper;
-import com.swp.project.entity.user.User;
-import com.swp.project.repository.user.UserRepository;
 import com.swp.project.service.user.SellerService;
 import com.swp.project.service.user.ShipperService;
-import com.swp.project.service.user.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +12,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -34,66 +30,60 @@ public class ManagerController {
     }
 
     @GetMapping("manage-staff")
-    public String manageStaff(@RequestParam(value = "clickedButton", required = false) String clickedButton, Model model, HttpSession session) {
-        int k = 1;
-        List<?> list = new ArrayList<>();
+    public String manageStaff(@RequestParam(value = "clickedButton", required = false) String clickedButton, HttpSession session) {
+//        List<?> list = new ArrayList<>();
 
         if (session.getAttribute("k") == null) {
             session.setAttribute("k", 1);
         }
         if (session.getAttribute("list") == null) {
-            session.setAttribute("list", new ArrayList<>());
+            sellerService.findAllSellers();
+            session.setAttribute("list", sellerService.getResults());
+        }
+        if (session.getAttribute("className") == null) {
+            session.setAttribute("className", "Seller");
+        }
+        if (session.getAttribute("sortCriteria") == null) {
+            session.setAttribute("sortCriteria", "id");
         }
 
-        k = (Integer) session.getAttribute("k");
-        list = (List<?>) session.getAttribute("list");
-
-        if (clickedButton == null || clickedButton.isEmpty()) {
-            model.addAttribute("filteredResults", sellerService.getAllSellers());
-            session.setAttribute("k", k);
-            session.setAttribute("className", "Seller");
-        } else {
-            final int newK = -k;
-            k = newK;
-
+        if (clickedButton != null && !clickedButton.isEmpty()) {
             switch (clickedButton) {
                 case "seller":
-                    list = sellerService.getAllSellers();
                     session.setAttribute("className", "Seller");
+                    sellerService.findAllSellers();
+                    session.setAttribute("list", sellerService.getResults());
                     break;
                 case "shipper":
-                    list = shipperService.getAllShippers();
                     session.setAttribute("className", "Shipper");
+                    shipperService.findAllShippers();
+                    session.setAttribute("list", shipperService.getResults());
                     break;
                 case "id":
-                    list.sort((o1, o2) -> {
-                        User tempO1 = (User) o1;
-                        User tempO2 = (User) o2;
-                        return newK * tempO1.getId().compareTo(tempO2.getId());
-                    });
-                    break;
                 case "username":
-                    list.sort((o1, o2) -> {
-                        User tempO1 = (User) o1;
-                        User tempO2 = (User) o2;
-                        return newK * tempO1.getUsername().compareTo(tempO2.getUsername());
-                    });
-                    break;
                 case "enabled":
-                    list.sort((o1, o2) -> {
-                        User tempO1 = (User) o1;
-                        User tempO2 = (User) o2;
-                        int tempO1IsEnabled = tempO1.isEnabled() ? 1 : 0;
-                        int tempO2IsEnabled = tempO2.isEnabled() ? 1 : 0;
-                        return newK * (tempO1IsEnabled - tempO2IsEnabled);
-                    });
+                    session.setAttribute("sortCriteria", clickedButton);
+                    int k = (int) session.getAttribute("k");
+                    k = -k;
+                    session.setAttribute("k", k);
+                    String className = session.getAttribute("className").toString();
+                    if (className.equals("Seller")) {
+                        sellerService.findAllSellers();
+                        sellerService.sortBy(clickedButton, k);
+                        session.setAttribute("list", sellerService.getResults());
+                    } else if (className.equals("Shipper")) {
+                        shipperService.findAllShippers();
+                        shipperService.sortBy(clickedButton, k);
+                        session.setAttribute("list", shipperService.getResults());
+                    }
                     break;
             }
 
-            model.addAttribute("filteredResults", list);
+
         }
-        session.setAttribute("list", list);
-        session.setAttribute("k", k);
+//        model.addAttribute("list", list);
+//        session.setAttribute("list", list);
+
 //        System.out.println("Chương trình đã chạy đến đây (get)");
         return "pages/manager/manage-staff";
     }
@@ -107,36 +97,43 @@ public class ManagerController {
 //        System.out.println("Chương trình đã chạy đến đây (post)");
 
         boolean isEnabled = false;
-
         if (className != null && !className.isEmpty()) {
+            session.setAttribute("className", className);
             if (className.equals("Seller")) {
+                sellerService.findAllSellers();
                 Seller seller = sellerService.getByEmail(email);
-
-                System.out.println(seller.getEmail());
 
                 isEnabled = !seller.isEnabled();
                 seller.setEnabled(isEnabled);
                 sellerService.save(seller);
-                List<Seller> list = (List<Seller>) session.getAttribute("list");
-                list.add(seller);
+
+                sellerService.findAllSellers();
+                sellerService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
+                session.setAttribute("list", sellerService.getResults());
 
                 sellerService.setSellerStatus(seller.getId(), isEnabled);
 
 
             } else if (className.equals("Shipper")) {
+                shipperService.findAllShippers();
                 Shipper shipper = shipperService.getByEmail(email);
+
                 isEnabled = !shipper.isEnabled();
                 shipper.setEnabled(isEnabled);
                 shipperService.save(shipper);
-                List<Shipper> list = (List<Shipper>) session.getAttribute("list");
-                list.add(shipper);
 
-                shipperService.setSellerStatus(shipper.getId(), isEnabled);
+                shipperService.findAllShippers();
+                shipperService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
+                session.setAttribute("list", shipperService.getResults());
+
+                shipperService.setShipperStatus(shipper.getId(), isEnabled);
+
             }
-            redirectAttributes.addFlashAttribute("msg", (isEnabled ? "Hữu hiệu hóa" : "Vô hiệu hóa") + email + " thành công");
+            redirectAttributes.addFlashAttribute("msg", (isEnabled ? "Hữu hiệu hóa " : "Vô hiệu hóa ") + email + " thành công");
 
         }
-        return  "redirect:/manager/manage-staff";
+        redirectAttributes.addFlashAttribute("list", session.getAttribute("list"));
+        return "redirect:/manager/manage-staff";
     }
 
 
@@ -189,8 +186,9 @@ public class ManagerController {
                     session.setAttribute("list", list2);
                     break;
             }
-            redirectAttributes.addFlashAttribute("msg", "Thêm tài khoản thành công");
+            redirectAttributes.addFlashAttribute("msg", "Thêm tài khoản " + email + " thành công");
         }
+        redirectAttributes.addFlashAttribute("list", session.getAttribute("list"));
         return "redirect:/manager/manage-staff";
     }
 }

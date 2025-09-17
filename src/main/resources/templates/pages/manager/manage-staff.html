@@ -3,38 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.slim.min.js"></script>
+
+    <!-- Popper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 </head>
-<body>
-<h1>Quản lí nhân viên</h1>
-<h5 style="color: green" th:text="${msg}">Chưa có thông báo</h5>
-<form th:action="@{/manager/manage-staff}" method="get">
-    <button type="submit" name="clickedButton" value="seller">Người bán</button>
-    <button type="submit" name="clickedButton" value="shipper">Người giao hàng</button>
-</form>
-<form th:action="@{/manager/edit-staff}" method="get">
-    <button type="submit" name="clickedButton" value="seller">Thêm người bán</button>
-    <button type="submit" name="clickedButton" value="shipper">Thêm người giao hàng</button>
-</form>
-<table border="3">
+<body class="container-fluid">
+<div style="display: grid; grid-template-columns: 2fr 8fr; height: 100px">
+    <h1>Quản lí nhân viên</h1>
+    <div class="alert alert-success fade show" th:hidden="${msg == null}">
+        <button type="button" class="close" data-dismiss="alert"> &times; </button>
+        <p th:text="${msg}"></p>
+    </div>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr">
+    <form th:action="@{/manager/manage-staff}" method="get">
+        <button type="submit" name="clickedButton" value="seller">Người bán</button>
+        <button type="submit" name="clickedButton" value="shipper">Người giao hàng</button>
+    </form>
+    <form th:action="@{/manager/edit-staff}" method="get">
+        <button type="submit" name="clickedButton" value="seller">Thêm người bán</button>
+        <button type="submit" name="clickedButton" value="shipper">Thêm người giao hàng</button>
+    </form>
+</div>
+<table class="table-striped col-md-12">
     <tr>
-        <form action="/manager/manage-staff" method="get">
+        <form th:action="@{/manager/manage-staff}" method="get">
             <th>
-                <button type="submit" name="clickedButton" value="id">ID</button>
+                <button type="submit" name="clickedButton" value="id" style="width: 100%">ID</button>
             </th>
             <th>
-                <button type="submit" name="clickedButton" value="username">Tên</button>
+                <button type="submit" name="clickedButton" value="username" style="width: 100%">Tên</button>
             </th>
             <th>
-                <button type="submit" name="clickedButton" value="enabled">Được mở khóa</button>
+                <button type="submit" name="clickedButton" value="enabled" style="width: 100%">Được mở khóa</button>
             </th>
         </form>
     </tr>
-    <tr th:each="item : ${filteredResults}">
-        <td th:text="${item.getId()}"></td>
-        <td th:text="${item.getEmail()}"></td>
-        <td th:text="${(item.isEnabled() == true) ? 'Có' : 'Không'}"></td>
-        <td>
-            <form th:action="@{/manager/manage-staff}" method="post">
+    <tr th:each="item : ${session.list}">
+        <td class=".col-1" th:text="${item.getId()}"></td>
+        <td class=".col-7" th:text="${item.getEmail()}"></td>
+        <td class=".col-1" th:text="${(item.isEnabled() == true) ? 'Có' : 'Không'}"></td>
+        <td class=".col-1">
+            <form style="width: 100%" th:action="@{/manager/manage-staff}" method="post">
                 <input name="className" th:value="${session.className}" hidden>
                 <input name="email" th:value="${item.email}" hidden>
                 <button type="submit" value="true">Hữu / Vô hiệu hóa</button>
