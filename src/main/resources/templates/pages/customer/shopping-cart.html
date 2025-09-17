@@ -6,7 +6,56 @@
     <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
 </head>
 <body>
-<p>Gio hang</p>
+<h1>Giỏ hàng của tôi</h1>
+<table class="table">
+    <thead>
+    <tr>
+        <th>Sản phẩm</th>
+        <th>Đơn giá</th>
+        <th>Số lượng</th>
+        <th>Thao tác</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="item : ${cartItems}">
+        <td>
+            <img th:src="@{${item.product.main_image_url}}" alt="Product Image" />
+            <span th:text="${item.product.name}"></span>
+        </td>
+        <td>
+            <span th:text="${item.product.price+'/'+item.product.unit.name}"></span>
+        </td>
+        <td>
+            <form th:action="@{/customer/shopping-cart/update}" method="post">
+                <input type="hidden" name="productId" th:value="${item.product.id}" />
+                <input type="number"
+                       name="quantity"
+                       th:value="${item.quantity}"
+                       min="1"
+                       required
+                       aria-label="Số lượng sản phẩm"
+                       onchange="this.form.submit()" />
+            </form>
+        </td>
+        <td>
+            <form th:action="@{/customer/shopping-cart/remove}" method="post">
+                <input type="hidden" name="productId" th:value="${item.product.id}" />
+                <button type="submit">Xóa</button>
+            </form>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <span>Tổng tiền:</span>
+        </td>
+        <td >
+            <span th:text="${totalAmmount+'VND'}"></span>
+
+        </td>
+    </tr>
+
+    </tbody>
+</table>
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>
