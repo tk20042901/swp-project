@@ -12,6 +12,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -157,37 +160,57 @@ public class ManagerController {
     @PostMapping("/edit-staff")
     public String editStaff(@RequestParam("email") String email,
                             @RequestParam("password") String password,
+                            @RequestParam("fullName") String fullName,
+                            @RequestParam("birthDate") String birthDate,
+                            @RequestParam("cId") String cId,
+                            @RequestParam("address") String address,
                             @RequestParam(defaultValue = "false") String enabled,
                             @RequestParam("className") String className,
                             RedirectAttributes redirectAttributes,
                             HttpSession  session) {
-        if (className != null && !className.isEmpty()) {
-            switch (className) {
-                case "Seller":
-                    Seller seller = new Seller();
-                    seller.setEmail(email);
-                    seller.setPassword(password);
-                    seller.setEnabled(enabled.equals("true"));
-                    sellerService.save(seller);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            if (className != null && !className.isEmpty()) {
+                switch (className) {
+                    case "Seller":
+                        Seller seller = Seller.builder()
+                                .email(email)
+                                .password(password)
+                                .fullName(fullName)
+                                .birthDate(sdf.parse(birthDate))
+                                .cId(cId)
+                                .address(address)
+                                .enabled(Boolean.parseBoolean(enabled))
+                                .build();
+                        sellerService.save(seller);
 
-                    List<Seller> list = (List<Seller>) session.getAttribute("list");
-                    list.add(seller);
-                    session.setAttribute("list", list);
-                    break;
-                case "Shipper":
-                    Shipper shipper = new Shipper();
-                    shipper.setEmail(email);
-                    shipper.setPassword(password);
-                    shipper.setEnabled(enabled.equals("true"));
-                    shipperService.save(shipper);
+                        List<Seller> list = (List<Seller>) session.getAttribute("list");
+                        list.add(seller);
+                        session.setAttribute("list", list);
+                        break;
+                    case "Shipper":
+                        Shipper shipper = Shipper.builder()
+                                .email(email)
+                                .password(password)
+                                .fullName(fullName)
+                                .birthDate(sdf.parse(birthDate))
+                                .cId(cId)
+                                .address(address)
+                                .enabled(Boolean.parseBoolean(enabled))
+                                .build();
+                        shipperService.save(shipper);
 
-                    List<Shipper> list2 = (List<Shipper>) session.getAttribute("list");
-                    list2.add(shipper);
-                    session.setAttribute("list", list2);
-                    break;
+                        List<Shipper> list2 = (List<Shipper>) session.getAttribute("list");
+                        list2.add(shipper);
+                        session.setAttribute("list", list2);
+                        break;
+                }
+                redirectAttributes.addFlashAttribute("msg", "Thêm tài khoản " + email + " thành công");
             }
-            redirectAttributes.addFlashAttribute("msg", "Thêm tài khoản " + email + " thành công");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
         redirectAttributes.addFlashAttribute("list", session.getAttribute("list"));
         return "redirect:/manager/manage-staff";
     }

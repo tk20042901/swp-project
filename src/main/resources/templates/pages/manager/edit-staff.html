@@ -13,7 +13,19 @@
     <input type="text" id="email" name="email" th:value="*{email}">
     <br>
     <label for="password">Mật khẩu</label>
-    <input type="text" id="password" name="password" th:value="*{password}">
+    <input type="password" id="password" name="password" th:value="*{password}">
+    <br>
+    <label for="fullName">Họ tên</label>
+    <input type="text" id="fullName" name="fullName" th:value="*{fullName}">
+    <br>
+    <label for="birthDate">Ngày tháng năm sinh</label>
+    <input type="date" id="birthDate" name="birthDate" th:value="*{birthDate}">
+    <br>
+    <label for="cId">Số căn cước công dân</label>
+    <input type="text" id="cId" name="cId" th:value="*{cId}">
+    <br>
+    <label for="address">Địa chỉ</label>
+    <input type="text" id="address" name="address" th:value="*{address}">
     <br>
     <label for="enabled">Mở khóa</label>
     <input type="checkbox" id="enabled" name="enabled" th:checked="*{enabled}">

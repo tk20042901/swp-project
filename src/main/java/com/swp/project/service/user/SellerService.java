@@ -11,8 +11,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @RequiredArgsConstructor
@@ -27,17 +31,32 @@ public class SellerService {
 
     @Transactional
     public void initSeller() {
-        for (int i = 1; i <= 36; i++) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            for (int i = 1; i <= 36; i++) {
+                createSellerIfNotExists(Seller.builder()
+                        .email("seller" + i + "@shop.com")
+                        .password("seller")
+                        .fullName("seller" + i + "@shop.com")
+                        .birthDate(sdf.parse("2001-09-11"))
+                        .cId(UUID.randomUUID().toString())
+                        .address("Pakistan")
+                        .build());
+            }
             createSellerIfNotExists(Seller.builder()
-                    .email("seller" + i + "@shop.com")
+                    .email("disabled-seller@shop.com")
                     .password("seller")
+                    .fullName("seller" + 999 + "@shop.com")
+                    .birthDate(sdf.parse("2001-09-11"))
+                    .cId(UUID.randomUUID().toString())
+                    .address("Pakistan")
+                    .enabled(false)
                     .build());
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        createSellerIfNotExists(Seller.builder()
-                .email("disabled-seller@shop.com")
-                .password("seller")
-                .enabled(false)
-                .build());
+
     }
 
 

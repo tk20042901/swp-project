@@ -11,8 +11,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @RequiredArgsConstructor
@@ -30,17 +34,30 @@ public class ShipperService {
 
     @Transactional
     public void initShipper() {
-        for (int i = 1; i <= 18; i++) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            for (int i = 1; i <= 18; i++) {
+                createShipperIfNotExists(Shipper.builder()
+                        .email("shipper" + i + "@shop.com")
+                        .password("shipper")
+                        .fullName("shipper" + i + "@shop.com")
+                        .birthDate(sdf.parse("2001-09-11"))
+                        .cId(UUID.randomUUID().toString())
+                        .address("Pakistan")
+                        .build());
+            }
             createShipperIfNotExists(Shipper.builder()
-                    .email("shipper" + i + "@shop.com")
+                    .email("disabled-shipper@shop.com")
                     .password("shipper")
+                    .fullName("seller" + 999 + "@shop.com")
+                    .birthDate(sdf.parse("2001-09-11"))
+                    .cId(UUID.randomUUID().toString())
+                    .address("Pakistan")
+                    .enabled(false)
                     .build());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        createShipperIfNotExists(Shipper.builder()
-                .email("disabled-shipper@shop.com")
-                .password("shipper")
-                .enabled(false)
-                .build());
     }
 
 
