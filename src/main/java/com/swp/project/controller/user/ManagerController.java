@@ -63,7 +63,10 @@ public class ManagerController {
                     session.setAttribute("list", shipperService.getResults());
                     break;
                 case "id":
-                case "username":
+                case "email":
+                case "fullname":
+                case "cId":
+                case "address":
                 case "enabled":
                     session.setAttribute("sortCriteria", clickedButton);
                     int k = (int) session.getAttribute("k");
@@ -132,7 +135,7 @@ public class ManagerController {
                 shipperService.setShipperStatus(shipper.getId(), isEnabled);
 
             }
-            redirectAttributes.addFlashAttribute("msg", (isEnabled ? "Hữu hiệu hóa " : "Vô hiệu hóa ") + email + " thành công");
+            redirectAttributes.addFlashAttribute("msg", (isEnabled ? "Mở khóa " : "Khóa ") + email + " thành công");
 
         }
         redirectAttributes.addFlashAttribute("list", session.getAttribute("list"));
@@ -160,7 +163,7 @@ public class ManagerController {
     @PostMapping("/edit-staff")
     public String editStaff(@RequestParam("email") String email,
                             @RequestParam("password") String password,
-                            @RequestParam("fullName") String fullName,
+                            @RequestParam("fullname") String fullname,
                             @RequestParam("birthDate") String birthDate,
                             @RequestParam("cId") String cId,
                             @RequestParam("address") String address,
@@ -176,7 +179,7 @@ public class ManagerController {
                         Seller seller = Seller.builder()
                                 .email(email)
                                 .password(password)
-                                .fullName(fullName)
+                                .fullname(fullname)
                                 .birthDate(sdf.parse(birthDate))
                                 .cId(cId)
                                 .address(address)
@@ -192,7 +195,7 @@ public class ManagerController {
                         Shipper shipper = Shipper.builder()
                                 .email(email)
                                 .password(password)
-                                .fullName(fullName)
+                                .fullname(fullname)
                                 .birthDate(sdf.parse(birthDate))
                                 .cId(cId)
                                 .address(address)
