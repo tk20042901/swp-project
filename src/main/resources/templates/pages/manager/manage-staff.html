@@ -28,7 +28,7 @@
         <button type="submit" name="clickedButton" value="seller">Người bán</button>
         <button type="submit" name="clickedButton" value="shipper">Người giao hàng</button>
     </form>
-    <form th:action="@{/manager/edit-staff}" method="get">
+    <form th:action="@{/manager/edit-staff}" method="get" style="display: flex; justify-content: end">
         <button type="submit" name="clickedButton" value="seller">Thêm người bán</button>
         <button type="submit" name="clickedButton" value="shipper">Thêm người giao hàng</button>
     </form>
@@ -40,22 +40,34 @@
                 <button type="submit" name="clickedButton" value="id" style="width: 100%">ID</button>
             </th>
             <th>
-                <button type="submit" name="clickedButton" value="username" style="width: 100%">Tên</button>
+                <button type="submit" name="clickedButton" value="email" style="width: 100%">Email</button>
             </th>
             <th>
-                <button type="submit" name="clickedButton" value="enabled" style="width: 100%">Được mở khóa</button>
+                <button type="submit" name="clickedButton" value="fullname" style="width: 100%">Họ tên</button>
+            </th>
+            <th>
+                <button type="submit" name="clickedButton" value="cId" style="width: 100%">Số CCCD</button>
+            </th>
+            <th>
+                <button type="submit" name="clickedButton" value="address" style="width: 100%">Địa chỉ</button>
+            </th>
+            <th>
+                <button type="submit" name="clickedButton" value="enabled" style="width: 100%">Mở khóa?</button>
             </th>
         </form>
     </tr>
     <tr th:each="item : ${session.list}">
         <td class=".col-1" th:text="${item.getId()}"></td>
-        <td class=".col-7" th:text="${item.getEmail()}"></td>
+        <td class=".col-2" th:text="${item.getEmail()}"></td>
+        <td class=".col-2" th:text="${item.getFullname()}"></td>
+        <td class=".col-2" th:text="${item.getCId()}"></td>
+        <td class=".col-3" th:text="${item.getAddress()}"></td>
         <td class=".col-1" th:text="${(item.isEnabled() == true) ? 'Có' : 'Không'}"></td>
         <td class=".col-1">
             <form style="width: 100%" th:action="@{/manager/manage-staff}" method="post">
                 <input name="className" th:value="${session.className}" hidden>
                 <input name="email" th:value="${item.email}" hidden>
-                <button type="submit" value="true">Hữu / Vô hiệu hóa</button>
+                <button type="submit" value="true">Khóa / Mở</button>
             </form>
         </td>
     </tr>

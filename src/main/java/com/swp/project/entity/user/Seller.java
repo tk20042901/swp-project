@@ -23,7 +23,7 @@ import java.util.Date;
 public class Seller extends User{
 
     @Column(length = 100, nullable = false)
-    private String fullName;
+    private String fullname;
 
     @Column(nullable = false)
     @Temporal(TemporalType.DATE)

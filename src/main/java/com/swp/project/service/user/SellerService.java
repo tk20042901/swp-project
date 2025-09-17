@@ -37,7 +37,7 @@ public class SellerService {
                 createSellerIfNotExists(Seller.builder()
                         .email("seller" + i + "@shop.com")
                         .password("seller")
-                        .fullName("seller" + i + "@shop.com")
+                        .fullname("seller" + i + "@shop.com")
                         .birthDate(sdf.parse("2001-09-11"))
                         .cId(UUID.randomUUID().toString())
                         .address("Pakistan")
@@ -46,7 +46,7 @@ public class SellerService {
             createSellerIfNotExists(Seller.builder()
                     .email("disabled-seller@shop.com")
                     .password("seller")
-                    .fullName("seller" + 999 + "@shop.com")
+                    .fullname("seller" + 999 + "@shop.com")
                     .birthDate(sdf.parse("2001-09-11"))
                     .cId(UUID.randomUUID().toString())
                     .address("Pakistan")
@@ -97,24 +97,33 @@ public class SellerService {
         switch (columnName) {
             case "id":
                 results.sort((o1, o2) -> {
-                    User tempO1 = (User) o1;
-                    User tempO2 = (User) o2;
-                    return k * tempO1.getId().compareTo(tempO2.getId());
+                    return k * o1.getId().compareTo(o2.getId());
                 });
                 break;
-            case "username":
+            case "email":
                 results.sort((o1, o2) -> {
-                    User tempO1 = (User) o1;
-                    User tempO2 = (User) o2;
-                    return k * tempO1.getUsername().compareTo(tempO2.getUsername());
+                    return k * o1.getUsername().compareTo(o2.getUsername());
+                });
+                break;
+            case "fullname":
+                results.sort((o1, o2) -> {
+                    return k * o1.getFullname().compareTo(o2.getFullname());
+                });
+                break;
+            case "cId":
+                results.sort((o1, o2) -> {
+                    return k * o1.getCId().compareTo(o2.getCId());
+                });
+                break;
+            case "address":
+                results.sort((o1, o2) -> {
+                    return k * o1.getAddress().compareTo(o2.getAddress());
                 });
                 break;
             case "enabled":
                 results.sort((o1, o2) -> {
-                    User tempO1 = (User) o1;
-                    User tempO2 = (User) o2;
-                    int tempO1IsEnabled = tempO1.isEnabled() ? 1 : 0;
-                    int tempO2IsEnabled = tempO2.isEnabled() ? 1 : 0;
+                    int tempO1IsEnabled = o1.isEnabled() ? 1 : 0;
+                    int tempO2IsEnabled = o2.isEnabled() ? 1 : 0;
                     return k * (tempO1IsEnabled - tempO2IsEnabled);
                 });
                 break;
