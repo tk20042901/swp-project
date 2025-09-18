@@ -14,7 +14,7 @@
     </li>
 </ul>
 
-<form th:action="@{order/order-info}"  th:object="${deliveryInfoDto}" method="post">
+<form th:action="@{/order/order-info}"  th:object="${deliveryInfoDto}" method="post">
     <label>
         Họ và tên<input type="text" th:field="*{fullName}" required/>
         <span th:errors="*{fullName}"> Error</span>
@@ -29,6 +29,7 @@
                     th:text="${province.name}">
             </option>
         </select>
+        <span th:errors="*{provinceCityCode}"> Error</span>
     </label>
 
     <label>
@@ -56,16 +57,17 @@
     <p>Chọn Voucher (fake)</p>
 
     <label>
-        Thanh toán khi nhận hàng<input type="radio" th:name="payment_method" th:value="cod" required/>
+        Chuyển khoản VietQR<input type="radio" th:name="payment_method" th:value="qr" checked required/>
     </label>
 
     <label>
-        Chuyển khoản VietQR<input type="radio" th:name="payment_method" th:value="qr" required/>
+        Thanh toán khi nhận hàng<input type="radio" th:name="payment_method" th:value="cod" required/>
     </label>
 
-    <p th:text="'Tổng:' ${totalAmount}"></p>
 
-    <button type="submit" th:name="confirm">Xác nhận mua hàng</button>
+    <p th:text="${'Tổng:' + totalAmount}"></p>
+
+    <button type="submit" name="confirm">Xác nhận mua hàng</button>
 </form>
 </body>
 </html>

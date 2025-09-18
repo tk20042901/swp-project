@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -29,7 +30,7 @@ public class Order {
     private Shipper shipper;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "order")
-    private List<OrderItem> orderItem;
+    private List<OrderItem> orderItem = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.EAGER)
     private OrderStatus orderStatus;

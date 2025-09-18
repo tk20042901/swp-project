@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
@@ -22,7 +22,9 @@
     <tbody>
     <tr th:each="item : ${cartItems}">
         <td>
-        <input type="checkbox" name="cartIds" th:value="${item.product.id}" />
+            <label>
+                <input th:type="checkbox" th:name="cartIds" th:value="${item.product.id}" />
+            </label>
         </td>
         <td>
             <img th:src="@{${item.product.main_image_url}}" alt="Product Image" />

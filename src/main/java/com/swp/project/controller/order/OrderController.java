@@ -21,7 +21,8 @@ import java.util.List;
 
 @SessionAttributes("shoppingCartItems")
 @RequiredArgsConstructor
-@Controller("/order")
+@Controller
+@RequestMapping("/order")
 public class OrderController {
 
     private final OrderService orderService;
@@ -30,7 +31,7 @@ public class OrderController {
     private final AddressService addressService;
 
     @GetMapping("/order-info")
-    public String showOrderInfoForm(@ModelAttribute List<ShoppingCartItem> shoppingCartItems,
+    public String showOrderInfoForm(@ModelAttribute("shoppingCartItems") List<ShoppingCartItem> shoppingCartItems,
                                     Model model,
                                     Principal principal) {
         Customer customer = customerService.getCustomerByEmail(principal.getName());
@@ -48,24 +49,24 @@ public class OrderController {
             }
             model.addAttribute("deliveryInfoDto", deliveryInfoDto);
         }
+        model.addAttribute("provinceCities", addressService.getAllProvinceCity());
         model.addAttribute("shoppingCartItems", shoppingCartItems);
         model.addAttribute("totalAmount",
                 shoppingCartItems.stream().mapToInt(item ->
                         item.getProduct().getPrice() * item.getQuantity()).sum());
-        model.addAttribute("provinceCities", addressService.getAllProvinceCity());
         return "pages/order/order-info";
     }
 
     @PostMapping("/order-info")
     public String processOrder(@Valid @ModelAttribute DeliveryInfoDto deliveryInfoDto,
-                               @ModelAttribute List<ShoppingCartItem> shoppingCartItems,
+                               BindingResult bindingResult,
+                               @ModelAttribute("shoppingCartItems") List<ShoppingCartItem> shoppingCartItems,
                                @RequestParam(name = "payment_method") String paymentMethod,
                                @RequestParam(required = false) String confirm,
-                               BindingResult bindingResult,
                                Model model,
                                RedirectAttributes redirectAttributes,
                                Principal principal) {
-        if(confirm == null){
+        if (confirm == null) {
             redirectAttributes.addFlashAttribute("deliveryInfoDto", deliveryInfoDto);
             redirectAttributes.addFlashAttribute("wards",
                     addressService.getAllCommuneWardByProvinceCityCode(
@@ -89,7 +90,7 @@ public class OrderController {
                 addressService.getCommuneWardByCode(deliveryInfoDto.getCommuneWardCode()),
                 deliveryInfoDto.getSpecificAddress());
 
-        if(paymentMethod.equals("cod")){
+        if (paymentMethod.equals("cod")) {
             orderService.setOrderStatus(order.getId(),
                     orderStatusService.getPendingConfirmationStatus());
             return "redirect:/order/success";
@@ -97,7 +98,7 @@ public class OrderController {
             redirectAttributes.addFlashAttribute("orderId", order.getId());
             orderService.setOrderStatus(order.getId(),
                     orderStatusService.getPendingPaymentStatus());
-            return "redirect:/payment/checkout";
+            return "redirect:/checkout";
         }
     }
 

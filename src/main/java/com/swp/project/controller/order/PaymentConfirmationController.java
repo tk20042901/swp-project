@@ -24,7 +24,7 @@ public class PaymentConfirmationController {
     private void orderFulfilled(WebhookData data) {
         System.out.println("Payment successful");
         orderService.pickProductForOrder(data.getOrderCode());
-        orderService.setOrderStatus(data.getOrderCode(),orderStatusService.getShippingStatus());
+        orderService.setOrderStatus(data.getOrderCode(),orderStatusService.getProcessingStatus());
     }
 
     @PostMapping("/webhook")

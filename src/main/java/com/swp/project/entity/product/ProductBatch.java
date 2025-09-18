@@ -4,6 +4,7 @@ import com.swp.project.entity.user.Seller;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
 import java.time.Instant;
 
 @Getter
@@ -12,7 +13,7 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 @Entity
-public class ProductBatch {
+public class ProductBatch implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
