@@ -7,6 +7,8 @@ import com.swp.project.entity.order.OrderStatus;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.repository.order.OrderRepository;
 import com.swp.project.repository.user.CustomerRepository;
+import com.swp.project.repository.voucher.CustomerVoucherRepository;
+import com.swp.project.repository.voucher.VoucherRepository;
 import com.swp.project.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,8 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
     private final ProductService productService;
+    private final VoucherRepository voucherRepository;
+    private final CustomerVoucherRepository customerVoucherRepository;
 
     public Order getOrderById(Long orderId) {
         return orderRepository.findById(orderId).orElse(null);
@@ -42,7 +46,8 @@ public class OrderService {
                                  String fullName,
                                  String phoneNumber,
                                  CommuneWard communeWard,
-                                 String specificAddress) {
+                                 String specificAddress,
+                                 Long voucherId) {
         Order order = orderRepository.save(Order.builder()
                 .orderDate(Instant.now())
                 .fullName(fullName)
@@ -50,6 +55,7 @@ public class OrderService {
                 .communeWard(communeWard)
                 .specificAddress(specificAddress)
                 .customer(customerRepository.getByEmail(customerEmail))
+                .voucher(voucherRepository.findById(voucherId).orElse(null))
                 .build());
         List<OrderItem> orderItems = shoppingCartItems.stream()
                 .map(cartItem -> OrderItem.builder()
@@ -62,10 +68,22 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-    public void pickProductForOrder(Long orderId) {
+    public void doWhenOrderConfirmed(Long orderId) {
+        pickProductForOrder(orderId);
+        pickVoucherForOrder(orderId);
+    }
+
+    private void pickProductForOrder(Long orderId) {
         Order order = getOrderById(orderId);
         order.getOrderItem().forEach(item ->
                 productService.pickProductInProductBatch(item.getProduct().getId(), item.getQuantity()));
+    }
+
+    private void pickVoucherForOrder(Long orderId) {
+        Order order = getOrderById(orderId);
+        if(order.getVoucher() != null) {
+            customerVoucherRepository.deleteById(order.getVoucher().getId());
+        }
     }
 
     public int totalAmount(Long orderId) {

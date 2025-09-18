@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestParam;
 import vn.payos.PayOS;
 import vn.payos.type.CheckoutResponseData;
 import vn.payos.type.ItemData;
@@ -28,7 +28,7 @@ public class PaymentController {
     private static final String cancelUrl = "http://swp-project.loca.lt/order/cancel";
 
     @GetMapping("/checkout")
-    public void checkout(@ModelAttribute("orderId") Long orderId,
+    public void checkout(@RequestParam Long orderId,
                          HttpServletResponse httpServletResponse) {
         try {
             Order order = orderService.getOrderById(orderId);

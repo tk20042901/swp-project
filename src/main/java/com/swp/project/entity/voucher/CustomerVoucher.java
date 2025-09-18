@@ -14,15 +14,14 @@ import java.time.Instant;
 @Builder
 @Entity
 public class CustomerVoucher {
-    @EmbeddedId
-    private CustomerVoucherId customerVoucherId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @MapsId("customerId")
     private Customer customer;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @MapsId("voucherId")
     private Voucher voucher;
 
     @Column(nullable = false)
