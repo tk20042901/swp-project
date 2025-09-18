@@ -83,7 +83,7 @@ public class SellerService {
 
     public void add(StaffDto staffDto) {
         if (staffDto != null) {
-            if (sellerRepository.findByCId(staffDto.getCId()) != null) {
+            if (sellerRepository.findBycId(staffDto.getCId()) != null) {
                 throw new RuntimeException("Mã căn cước công dân đã được dùng");
             }
             if (sellerRepository.findByEmail(staffDto.getEmail()) != null) {

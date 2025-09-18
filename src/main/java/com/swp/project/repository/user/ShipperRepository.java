@@ -10,5 +10,5 @@ public interface ShipperRepository extends JpaRepository<Shipper,Long> {
 
     Shipper findByEmail(String email);
 
-    Shipper findByCId(String cId);
+    Shipper findBycId(String cId);
 }
