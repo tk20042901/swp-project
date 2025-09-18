@@ -7,10 +7,11 @@
 </head>
 <body>
 <h1>Giỏ hàng của tôi</h1>
+<form th:action="@{/customer/shopping-cart/check-out}" method="post">
+
 <table class="table">
     <thead>
     <tr>
-        <th>Chọn</th>
         <th>Sản phẩm</th>
         <th>Đơn giá</th>
         <th>Số lượng</th>
@@ -18,11 +19,8 @@
     </tr>
     </thead>
     <tbody>
-
     <tr th:each="item : ${cartItems}">
-        <td>
-            <input type="checkbox" name ="selected-product" th:value="${item.product.id}" />
-        </td>
+        <input type="checkbox" name="cartIds" th:value="${item.product.id}" />
         <td>
             <img th:src="@{${item.product.main_image_url}}" alt="Product Image" />
             <span th:text="${item.product.name}"></span>
@@ -37,7 +35,6 @@
                        name="quantity"
                        th:value="${item.quantity}"
                        min="1"
-                       th:attr="max=${@productService.getAvailableQuantity(item.product)}"
                        required
                        aria-label="Số lượng sản phẩm"
                        onchange="this.form.submit()" />
@@ -53,6 +50,8 @@
     <tr>
         <td>
             <span>Tổng tiền:</span>
+
+
         </td>
         <td >
             <span th:text="${totalAmmount+'VND'}"></span>
@@ -60,12 +59,14 @@
         </td>
     </tr>
 <tr>
-    <td colspan="4">
-        <a th:href="@{/customer/checkout}" class="btn btn-primary">Tiến hành thanh toán</a>
+    <td>
+        <button type="submit" >Thanh toán</button>
     </td>
 </tr>
     </tbody>
+
 </table>
+</form>
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

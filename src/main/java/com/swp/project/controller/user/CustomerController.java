@@ -6,6 +6,7 @@ import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.entity.user.Customer;
 import com.swp.project.service.CustomerAiService;
 import com.swp.project.service.AddressService;
+import com.swp.project.service.product.ProductService;
 import com.swp.project.service.user.CustomerService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,6 +31,7 @@ public class CustomerController {
     private final CustomerService customerService;
     private final CustomerAiService customerAiService;
     private final AddressService addressService;
+    private final ProductService productService;
 
     @GetMapping("/account-manager")
     public String accountManager() {
@@ -134,6 +137,14 @@ public class CustomerController {
         return "redirect:/customer/shopping-cart";
     }
 
+    @PostMapping("/shopping-cart/check-out")
+    public String checkOut(@RequestParam List<Long>cartIds,RedirectAttributes redirectAttributes,Principal principal) {
+        List<ShoppingCartItem> shoppingCartItems= new ArrayList<>();
+    cartIds.forEach(i-> shoppingCartItems.add(productService.getAllShoppingCartItemByCustomerIdAndProductId(principal.getName(),i)));
+        redirectAttributes.addFlashAttribute("shoppingCartItems", shoppingCartItems);
+        return "redirect:/order/order-info";
+    }
+
     @GetMapping("/ai")
     public String ask(Model model) {
         model.addAttribute("conversationId", UUID.randomUUID().toString());
@@ -154,6 +165,7 @@ public class CustomerController {
         model.addAttribute("conversation", customerAiService.getConversation(conversationId));
         return "pages/customer/ai";
     }
+
 
 }
 
