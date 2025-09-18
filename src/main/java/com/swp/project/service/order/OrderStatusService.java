@@ -19,10 +19,6 @@ public class OrderStatusService {
         return orderStatusRepository.findByName("Chờ Thanh Toán");
     }
 
-    public OrderStatus getProcessingStatus() {
-        return orderStatusRepository.findByName("Đang Chuẩn Bị Hàng");
-    }
-
     public OrderStatus getAwaitingShipmentStatus() {
         return orderStatusRepository.findByName("Chờ Giao Hàng");
     }
