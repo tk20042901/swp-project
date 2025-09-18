@@ -1,8 +1,12 @@
 package com.swp.project.service.user;
 
+import com.swp.project.dto.EditManagerDto;
+import com.swp.project.dto.ManagerRegisterDto;
+import com.swp.project.dto.ViewManagerDto;
 import com.swp.project.entity.user.Manager;
 import com.swp.project.listener.event.UserDisabledEvent;
 import com.swp.project.repository.user.ManagerRepository;
+
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -57,7 +61,7 @@ public class ManagerService {
         }
     }
 
-    public void updateManager(Long id, Manager updatedManager) {
+    public void updateManager(Long id, EditManagerDto updatedManager) {
         Manager existingManager = getManagerById(id);
         if(existingManager == null) {
             throw new IllegalArgumentException("Manager not found.");
@@ -66,22 +70,36 @@ public class ManagerService {
             throw new IllegalArgumentException("Email already in use.");
         }
         existingManager.setEmail(updatedManager.getEmail());
-        if(updatedManager.getPassword() != null && !updatedManager.getPassword().isEmpty() && !existingManager.getPassword().equals(updatedManager.getPassword())) {
-            existingManager.setPassword(passwordEncoder.encode(updatedManager.getPassword()));
-        }
+        existingManager.setFullname(updatedManager.getFullname());
+        existingManager.setBirthDate(updatedManager.getBirthDate());
+        existingManager.setCId(updatedManager.getCId());
+        existingManager.setAddress(updatedManager.getAddress());
         managerRepository.save(existingManager);
     }
 
-    public void createManager(Manager manager) {
-        if (managerRepository.existsByEmail(manager.getEmail())) {
+    public void createManager(ManagerRegisterDto registerDto) {
+        if (!registerDto.getConfirmPassword().equals(registerDto.getPassword())) {
+            throw new RuntimeException("Mật khẩu và xác nhận mật khẩu không khớp");
+        }
+        if (managerRepository.existsByEmail(registerDto.getEmail())) {
             throw new IllegalArgumentException("Email already in use.");
         }
-        manager.setPassword(passwordEncoder.encode(manager.getPassword()));
+        Manager manager = Manager.builder()
+            .email(registerDto.getEmail())
+            .password(passwordEncoder.encode(registerDto.getPassword()))
+            .build();
         managerRepository.save(manager);
     }
 
     public List<Manager> getAllManagers() {
         return managerRepository.findAll();
+    }
+
+
+    public List<ViewManagerDto> getAllViewManager(){
+        return managerRepository.findAll().stream()
+            .map(m -> new ViewManagerDto(m.getId(), m.getEmail(),m.isEnabled()))
+            .toList();
     }
     
 }

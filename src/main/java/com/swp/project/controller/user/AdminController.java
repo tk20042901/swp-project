@@ -1,7 +1,13 @@
 package com.swp.project.controller.user;
 
+import com.swp.project.dto.EditManagerDto;
+import com.swp.project.dto.ManagerRegisterDto;
+import com.swp.project.dto.RegisterDto;
+import com.swp.project.dto.ViewManagerDto;
 import com.swp.project.entity.user.Manager;
 import com.swp.project.service.user.ManagerService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -9,6 +15,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -25,9 +32,11 @@ public class AdminController {
     }
     
     @GetMapping("/create-manager")
-    public String getCreateManagerPage() {
+    public String getCreateManagerPage(Model model) {
+        model.addAttribute("registerDto", new RegisterDto());
         return "pages/admin/create-manager";
     }
+    
     @GetMapping("/edit-manager/{id}")
     public String getEditManagerPage(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         Manager manager = managerService.getManagerById(id);
@@ -35,7 +44,10 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("failed", "Manager not found.");
             return "redirect:/admin/manage-manager";
         }
-        model.addAttribute("manager", manager);
+        EditManagerDto editManagerDto = new EditManagerDto();
+        editManagerDto.setId(manager.getId());
+        editManagerDto.setEmail(manager.getEmail());
+        model.addAttribute("editManagerDto", editManagerDto);
         return "pages/admin/edit-manager";
     }
     @PostMapping("/configure-manager")
@@ -60,39 +72,36 @@ public class AdminController {
     @GetMapping("/manage-manager")
         public String showManageManagersPage(
             Model model) {
-        List<Manager> managers = managerService.getAllManagers();
+        List<ViewManagerDto> managers = managerService.getAllViewManager();
         model.addAttribute("managers", managers);
         return "pages/admin/manage-manager";
     }
 
     @PostMapping("/manage-manager")
-    public String createManager(@RequestParam String email,
-                                @RequestParam String password,
-                                RedirectAttributes redirectAttributes) {
+    public String createManager(
+        @Valid @ModelAttribute ManagerRegisterDto registerDto,
+        BindingResult bindingResult,
+        RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            return "pages/admin/create-manager";
+        }
         try {
-            Manager manager = new Manager();
-            manager.setEmail(email);
-            manager.setPassword(password);
-            managerService.createManager(manager);
+            managerService.createManager(registerDto);
             redirectAttributes.addFlashAttribute("success", "Manager created successfully.");
-        } catch (RuntimeException e) {
+        } 
+        catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("failed", e.getMessage());
+            return "redirect:/admin/create-manager";
         }
         return "redirect:/admin/manage-manager";
     }
 
     @PostMapping("/manage-manager/{id}")
     public String editManager(@PathVariable Long id,
-                              //@RequestParam String username,
-                              @RequestParam String email,
-                              @RequestParam String password,
+                              @Valid @ModelAttribute EditManagerDto editManagerDto,
                               RedirectAttributes redirectAttributes) {
         try {
-            Manager updatedManager = new Manager();
-            //updatedManager.setUsername(username);
-            updatedManager.setEmail(email);
-            updatedManager.setPassword(password);
-            managerService.updateManager(id, updatedManager);
+            managerService.updateManager(id, editManagerDto);
             redirectAttributes.addFlashAttribute("success", "Manager updated successfully.");
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("failed", e.getMessage());

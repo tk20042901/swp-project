@@ -16,18 +16,18 @@
     <table border="1">
         <tr>
             <th>ID</th>
-            <!--<th>Username</th>-->
             <th>Email</th>
             <th>Enabled</th>
             <th>Actions</th>
         </tr>
         <tr th:each="manager : ${managers}">
             <td th:text="${manager.id}"></td>
-            <!--<td th:text="${manager.username}"></td>-->
             <td th:text="${manager.email}"></td>
             <td th:text="${manager.enabled}"></td>
             <td>
-                <a th:href="@{/admin/edit-manager/{id}(id=${manager.id})}" th:text="'Edit'"></a>
+                <form th:action="@{/admin/edit-manager/{id}(id=${manager.id})}" method="get" style="display:inline;">
+                    <button type="submit">Edit</button>
+                </form>
                 <form th:action="@{/admin/configure-manager}" method="post" style="display:inline;"
                       th:onsubmit="${manager.enabled} ? 'return confirm(\'Are you sure you want to disable this manager?\')' : 'return confirm(\'Are you sure you want to enable this manager?\')'">
                     <input type="hidden" name="id" th:value="${manager.id}">
