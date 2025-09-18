@@ -7,6 +7,8 @@
 </head>
 <body>
 <h1>Giỏ hàng của tôi</h1>
+<form th:action="@{/customer/shopping-cart/check-out}" method="post">
+
 <table class="table">
     <thead>
     <tr>
@@ -18,6 +20,7 @@
     </thead>
     <tbody>
     <tr th:each="item : ${cartItems}">
+        <input type="checkbox" name="cartIds" th:value="${item.product.id}" />
         <td>
             <img th:src="@{${item.product.main_image_url}}" alt="Product Image" />
             <span th:text="${item.product.name}"></span>
@@ -53,9 +56,15 @@
 
         </td>
     </tr>
-
+<tr>
+    <td>
+        <button type="submit" >Thanh toán</button>
+    </td>
+</tr>
     </tbody>
+
 </table>
+</form>
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>
