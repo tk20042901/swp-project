@@ -3,9 +3,11 @@ package com.swp.project.controller.user;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import com.swp.project.dto.StaffDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -163,11 +165,11 @@ public class ManagerController {
             switch (clickedButton) {
                 case "seller":
                     session.setAttribute("newClassName", "Seller");
-                    model.addAttribute("user", new Seller());
+                    model.addAttribute("user", new StaffDto());
                     break;
                 case "shipper":
                     session.setAttribute("newClassName", "Shipper");
-                    model.addAttribute("user", new Shipper());
+                    model.addAttribute("user", new StaffDto());
                     break;
             }
         }
@@ -175,31 +177,41 @@ public class ManagerController {
     }
 
     @PostMapping("/edit-staff")
-    public String editStaff(@RequestParam("email") String email,
-                            @RequestParam("password") String password,
-                            @RequestParam("fullname") String fullname,
-                            @RequestParam("birthDate") String birthDate,
-                            @RequestParam("cId") String cId,
-                            @RequestParam("address") String address,
-                            @RequestParam(defaultValue = "false") String enabled,
+    public String editStaff(
+//                            @RequestParam("email") String email,
+//                            @RequestParam("password") String password,
+//                            @RequestParam("fullname") String fullname,
+//                            @RequestParam("birthDate") String birthDate,
+//                            @RequestParam("cId") String cId,
+//                            @RequestParam("province") String province,
+//                            @RequestParam("ward") String ward,
+//                            @RequestParam(defaultValue = "false") String enabled,
+                            @ModelAttribute("staffDto") StaffDto staffDto,
                             @RequestParam("className") String className,
                             RedirectAttributes redirectAttributes,
-                            HttpSession  session) {
+                            HttpSession session,
+                            BindingResult bindingResult
+                            ) {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("staffDto", staffDto);
+            return "/manager/edit-staff";
+        }
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         try {
             if (className != null && !className.isEmpty()) {
                 switch (className) {
                     case "Seller":
-                        Seller seller = Seller.builder()
-                                .email(email)
-                                .password(password)
-                                .fullname(fullname)
-                                .birthDate(sdf.parse(birthDate))
-                                .cId(cId)
-                                .address(address)
-                                .enabled(Boolean.parseBoolean(enabled))
-                                .build();
-                        sellerService.save(seller);
+//                        Seller seller = Seller.builder()
+//                                .email(email)
+//                                .password(password)
+//                                .fullname(fullname)
+//                                .birthDate(sdf.parse(birthDate))
+//                                .cId(cId)
+//                                .address(null)
+//                                .enabled(Boolean.parseBoolean(enabled))
+//                                .build();
+                        sellerService.add(staffDto);
 
                         sellerService.findAllSellers();
                         sellerService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
@@ -207,16 +219,16 @@ public class ManagerController {
                         session.setAttribute("list", sellerService.getResults());
                         break;
                     case "Shipper":
-                        Shipper shipper = Shipper.builder()
-                                .email(email)
-                                .password(password)
-                                .fullname(fullname)
-                                .birthDate(sdf.parse(birthDate))
-                                .cId(cId)
-                                .address(address)
-                                .enabled(Boolean.parseBoolean(enabled))
-                                .build();
-                        shipperService.save(shipper);
+//                        Shipper shipper = Shipper.builder()
+//                                .email(email)
+//                                .password(password)
+//                                .fullname(fullname)
+//                                .birthDate(sdf.parse(birthDate))
+//                                .cId(cId)
+//                                .address(null)
+//                                .enabled(Boolean.parseBoolean(enabled))
+//                                .build();
+                        shipperService.add(staffDto);
 
                         shipperService.findAllShippers();
                         shipperService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
@@ -224,7 +236,7 @@ public class ManagerController {
                         session.setAttribute("list", shipperService.getResults());
                         break;
                 }
-                redirectAttributes.addFlashAttribute("msg", "Thêm tài khoản " + email + " thành công");
+                redirectAttributes.addFlashAttribute("msg", "Thêm tài khoản " + staffDto.getEmail() + " thành công");
             }
         } catch (Exception e) {
             e.printStackTrace();
