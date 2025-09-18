@@ -23,7 +23,7 @@ public class Product {
     private String description;
 
     @Column(nullable = false)
-    private Long price;
+    private Integer price;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "unit_id")

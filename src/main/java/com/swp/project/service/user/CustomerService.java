@@ -157,29 +157,44 @@ public class CustomerService {
         customerRepository.save(customer);
     }
 
+    public String getAddressString(String customerEmail) {
+        Customer customer = customerRepository.getByEmail(customerEmail);
+        return customer.getSpecificAddress() + ", "
+                + customer.getCommuneWard().getName() + ", "
+                + customer.getCommuneWard().getProvinceCity().getName();
+    }
+
     @Transactional
     public void initCustomer() {
-        if(!customerRepository.existsByEmail("default-customer@shop.com")){
+        if (!customerRepository.existsByEmail("default-customer@shop.com")) {
             customerRepository.save(Customer.builder()
                     .email("default-customer@shop.com")
                     .password(passwordEncoder.encode("customer"))
+                    .fullName("Hoa Thanh Quế")
+                    .phoneNumber("0363636363")
+                    .communeWard(addressService.getCommuneWardByCode("16279"))
+                    .specificAddress("Thủ đô linh thiêng")
+                    .loyaltyPoints(3600L)
                     .build());
         }
 
     }
 
-    public List<ShoppingCartItem> getCart(Customer customer) {
-       return shoppingCartItemRepository.findByCustomer(customer);
+    public List<ShoppingCartItem> getCart(String customerEmail) {
+        return shoppingCartItemRepository.findByCustomer(
+                customerRepository.getByEmail(customerEmail));
     }
-    public void removeItem(String email,Long productId){
-            Customer customer = customerRepository.getCustomerByEmail(email);
-        ShoppingCartItemId id= new ShoppingCartItemId();
+
+    public void removeItem(String email, Long productId) {
+        Customer customer = customerRepository.getByEmail(email);
+        ShoppingCartItemId id = new ShoppingCartItemId();
         id.setCustomerId(customer.getId());
         id.setProductId(productId);
         shoppingCartItemRepository.deleteById(id);
     }
+
     public void updateCartQuantity(String email, Long productId, int quantity) {
-        Customer customer = customerRepository.getCustomerByEmail(email);
+        Customer customer = customerRepository.getByEmail(email);
         if (customer == null) {
             throw new RuntimeException("Customer not found with email: " + email);
         }
@@ -197,10 +212,11 @@ public class CustomerService {
         item.setQuantity(quantity);
         shoppingCartItemRepository.save(item);
     }
-    public Long TotalAmountInCart(String email){
-        Customer customer = customerRepository.getCustomerByEmail(email);
-        long total =0;
-        for(ShoppingCartItem item: shoppingCartItemRepository.findByCustomer(customer)){
+
+    public int TotalAmountInCart(String email) {
+        Customer customer = customerRepository.getByEmail(email);
+        int total = 0;
+        for (ShoppingCartItem item : shoppingCartItemRepository.findByCustomer(customer)) {
             total += item.getProduct().getPrice() * item.getQuantity();
         }
         return total;

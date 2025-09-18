@@ -25,7 +25,7 @@ public class Customer extends User {
     @Column(length = 15)
     private String phoneNumber;
 
-    @OneToOne(fetch =  FetchType.EAGER)
+    @ManyToOne(fetch =  FetchType.EAGER)
     private CommuneWard communeWard;
 
     @Column(length = 100)

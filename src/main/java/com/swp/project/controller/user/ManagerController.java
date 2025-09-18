@@ -162,11 +162,11 @@ public class ManagerController {
         if (clickedButton != null && !clickedButton.isEmpty()) {
             switch (clickedButton) {
                 case "seller":
-                    session.setAttribute("className", "Seller");
+                    session.setAttribute("newClassName", "Seller");
                     model.addAttribute("user", new Seller());
                     break;
                 case "shipper":
-                    session.setAttribute("className", "Shipper");
+                    session.setAttribute("newClassName", "Shipper");
                     model.addAttribute("user", new Shipper());
                     break;
             }

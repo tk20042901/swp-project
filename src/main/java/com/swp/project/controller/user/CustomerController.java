@@ -99,11 +99,9 @@ public class CustomerController {
         if (bindingResult.hasErrors()) {
             model.addAttribute("deliveryInfoDto", deliveryInfoDto);
             model.addAttribute("provinceCities", addressService.getAllProvinceCity());
-            if(request.getParameter("provinceCityCode") != null) {
-                model.addAttribute("wards",
-                        addressService.getAllCommuneWardByProvinceCityCode(
-                                request.getParameter("provinceCityCode")));
-            }
+            model.addAttribute("wards",
+                    addressService.getAllCommuneWardByProvinceCityCode(
+                            deliveryInfoDto.getProvinceCityCode()));
             return "/pages/customer/delivery-info";
         }
 
@@ -114,8 +112,7 @@ public class CustomerController {
 
     @GetMapping("/shopping-cart")
     public String viewShoppingCart(Model model, Principal principal) {
-        Customer customer = customerService.getCustomerByEmail(principal.getName());
-        List<ShoppingCartItem> cartItems = customerService.getCart(customer);
+        List<ShoppingCartItem> cartItems = customerService.getCart(principal.getName());
         long totalAmmount = customerService.TotalAmountInCart(principal.getName());
         model.addAttribute("totalAmmount", totalAmmount);
         model.addAttribute("cartItems", cartItems);
