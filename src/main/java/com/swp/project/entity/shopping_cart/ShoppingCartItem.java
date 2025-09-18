@@ -5,13 +5,15 @@ import com.swp.project.entity.user.Customer;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Entity
-public class ShoppingCartItem {
+public class ShoppingCartItem implements Serializable {
     @EmbeddedId
     private ShoppingCartItemId id;
 

@@ -13,7 +13,7 @@ import lombok.*;
 @Entity
 public class OrderItem {
     @EmbeddedId
-    private OrderItemId id;
+    private OrderItemId id = new OrderItemId();
 
     @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("orderId")

@@ -8,7 +8,6 @@ import com.swp.project.service.CustomerAiService;
 import com.swp.project.service.AddressService;
 import com.swp.project.service.product.ProductService;
 import com.swp.project.service.user.CustomerService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -71,7 +70,7 @@ public class CustomerController {
             deliveryInfoDto.setFullName(customer.getFullName());
             deliveryInfoDto.setPhone(customer.getPhoneNumber());
             deliveryInfoDto.setSpecificAddress(customer.getSpecificAddress());
-            if(customer.getCommuneWard() != null){
+            if (customer.getCommuneWard() != null) {
                 deliveryInfoDto.setProvinceCityCode(customer.getCommuneWard().getProvinceCity().getCode());
                 deliveryInfoDto.setCommuneWardCode(customer.getCommuneWard().getCode());
                 model.addAttribute("wards",
@@ -87,15 +86,15 @@ public class CustomerController {
     @PostMapping("/delivery-info")
     public String processDeliveryInfo(@Valid @ModelAttribute DeliveryInfoDto deliveryInfoDto,
                                       BindingResult bindingResult,
+                                      @RequestParam(required = false) String update,
                                       Model model,
-                                      HttpServletRequest request,
                                       RedirectAttributes redirectAttributes,
                                       Principal principal) {
-        if(request.getParameter("update") == null){
+        if (update == null) {
             redirectAttributes.addFlashAttribute("deliveryInfoDto", deliveryInfoDto);
             redirectAttributes.addFlashAttribute("wards",
-                            addressService.getAllCommuneWardByProvinceCityCode(
-                                    deliveryInfoDto.getProvinceCityCode()));
+                    addressService.getAllCommuneWardByProvinceCityCode(
+                            deliveryInfoDto.getProvinceCityCode()));
             return "redirect:/customer/delivery-info";
         }
 
@@ -125,12 +124,12 @@ public class CustomerController {
     @PostMapping("/shopping-cart/remove")
     public String removeFromCart(@RequestParam Long productId, Principal principal) {
         customerService.removeItem(principal.getName(), productId);
-    return "redirect:/customer/shopping-cart";
+        return "redirect:/customer/shopping-cart";
     }
+
     @PostMapping("/shopping-cart/update")
     public String updateCartItem(@RequestParam Long productId,
                                  @RequestParam int quantity,
-                                 @RequestParam(required = false, name="selected-product") List<String> selectedProducts,
                                  Principal principal) {
 
         customerService.updateCartQuantity(principal.getName(), productId, quantity);
@@ -138,9 +137,11 @@ public class CustomerController {
     }
 
     @PostMapping("/shopping-cart/check-out")
-    public String checkOut(@RequestParam List<Long>cartIds,RedirectAttributes redirectAttributes,Principal principal) {
-        List<ShoppingCartItem> shoppingCartItems= new ArrayList<>();
-    cartIds.forEach(i-> shoppingCartItems.add(productService.getAllShoppingCartItemByCustomerIdAndProductId(principal.getName(),i)));
+    public String checkOut(@RequestParam List<Long> cartIds,
+                           RedirectAttributes redirectAttributes,
+                           Principal principal) {
+        List<ShoppingCartItem> shoppingCartItems = new ArrayList<>();
+        cartIds.forEach(i -> shoppingCartItems.add(productService.getAllShoppingCartItemByCustomerIdAndProductId(principal.getName(), i)));
         redirectAttributes.addFlashAttribute("shoppingCartItems", shoppingCartItems);
         return "redirect:/order/order-info";
     }

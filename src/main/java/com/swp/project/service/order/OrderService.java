@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -23,7 +24,7 @@ public class OrderService {
     private final CustomerRepository customerRepository;
     private final ProductService productService;
 
-    public Order getOrderById(Long orderId){
+    public Order getOrderById(Long orderId) {
         return orderRepository.findById(orderId).orElse(null);
     }
 
@@ -41,32 +42,33 @@ public class OrderService {
                                  String fullName,
                                  String phoneNumber,
                                  CommuneWard communeWard,
-                                 String specificAddress){
-        Order order = Order.builder()
+                                 String specificAddress) {
+        Order order = orderRepository.save(Order.builder()
                 .orderDate(Instant.now())
-                .orderItem(
-                        shoppingCartItems.stream().
-                                map(cartItem -> OrderItem.builder()
-                                        .product(cartItem.getProduct())
-                                        .quantity(cartItem.getQuantity())
-                                        .build())
-                                .toList())
                 .fullName(fullName)
                 .phoneNumber(phoneNumber)
                 .communeWard(communeWard)
                 .specificAddress(specificAddress)
                 .customer(customerRepository.getByEmail(customerEmail))
-                .build();
+                .build());
+        List<OrderItem> orderItems = shoppingCartItems.stream()
+                .map(cartItem -> OrderItem.builder()
+                        .order(order)
+                        .product(cartItem.getProduct())
+                        .quantity(cartItem.getQuantity())
+                        .build())
+                .collect(Collectors.toList());
+        order.setOrderItem(orderItems);
         return orderRepository.save(order);
     }
 
-    public void pickProductForOrder(Long orderId){
+    public void pickProductForOrder(Long orderId) {
         Order order = getOrderById(orderId);
         order.getOrderItem().forEach(item ->
                 productService.pickProductInProductBatch(item.getProduct().getId(), item.getQuantity()));
     }
 
-    public int totalAmount(Long orderId){
+    public int totalAmount(Long orderId) {
         Order order = getOrderById(orderId);
         return order.getOrderItem().stream()
                 .mapToInt(od -> od.getProduct().getPrice() * od.getQuantity()).sum();

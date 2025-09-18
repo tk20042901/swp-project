@@ -7,8 +7,8 @@ import com.swp.project.service.user.CustomerService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
 import vn.payos.PayOS;
 import vn.payos.type.CheckoutResponseData;
 import vn.payos.type.ItemData;
@@ -17,18 +17,18 @@ import vn.payos.type.PaymentData;
 import java.util.List;
 
 @RequiredArgsConstructor
-@Controller("/payment")
+@Controller
 public class PaymentController {
 
     private final PayOS payOS;
     private final OrderService orderService;
     private final CustomerService customerService;
 
-    private static final String returnUrl = "http://swp-project.loca.lt/success";
-    private static final String cancelUrl = "http://swp-project.loca.lt/cancel";
+    private static final String returnUrl = "http://swp-project.loca.lt/order/success";
+    private static final String cancelUrl = "http://swp-project.loca.lt/order/cancel";
 
-    @PostMapping(value = "/checkout")
-    public void checkout(@ModelAttribute Long orderId,
+    @GetMapping("/checkout")
+    public void checkout(@ModelAttribute("orderId") Long orderId,
                          HttpServletResponse httpServletResponse) {
         try {
             Order order = orderService.getOrderById(orderId);
@@ -45,7 +45,7 @@ public class PaymentController {
                     .buyerPhone(order.getCustomer().getPhoneNumber())
                     .buyerAddress(customerService.getAddressString(order.getCustomer().getEmail()))
                     .amount(orderService.totalAmount(orderId))
-                    .description("Thanh toan cho don hang " + order.getId())
+                    .description("Don hang" + order.getId())
                     .returnUrl(returnUrl)
                     .cancelUrl(cancelUrl)
                     .items(items)

@@ -23,6 +23,7 @@
                     th:text="${province.name}">
             </option>
         </select>
+        <span th:errors="*{provinceCityCode}"> Error</span>
     </label>
 
     <label>
