@@ -12,6 +12,7 @@
 <table class="table">
     <thead>
     <tr>
+        <th>Chọn</th>
         <th>Sản phẩm</th>
         <th>Đơn giá</th>
         <th>Số lượng</th>
@@ -20,7 +21,9 @@
     </thead>
     <tbody>
     <tr th:each="item : ${cartItems}">
+        <td>
         <input type="checkbox" name="cartIds" th:value="${item.product.id}" />
+        </td>
         <td>
             <img th:src="@{${item.product.main_image_url}}" alt="Product Image" />
             <span th:text="${item.product.name}"></span>
