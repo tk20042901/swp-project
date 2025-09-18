@@ -1,9 +1,13 @@
-package com.swp.project.entity;
+package com.swp.project.entity.address;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import lombok.*;
+
+import java.io.Serializable;
 
 @Getter
 @Setter
@@ -12,9 +16,12 @@ import lombok.*;
 @Builder
 @Entity
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class WardAddress {
+public class CommuneWard implements Serializable {
     @Id
     private String code;
 
     private String name;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private ProvinceCity provinceCity;
 }

@@ -11,38 +11,43 @@
 <form th:action="@{/customer/delivery-info}" th:object="${deliveryInfoDto}" method="post">
     <label>
         Họ và tên<input type="text" th:field="*{fullName}" required/>
-        <span th:errors="*{fullName}" class="error-inline"> Error</span>
+        <span th:errors="*{fullName}"> Error</span>
     </label>
 
     <label>
-        Thành phố<input type="text" value="Thành phố Hà Nội" readonly/>
-    </label>
-
-    <label>
-        Xã/Phường
-        <select th:field="*{ward}" required>
-            <option value="">Chọn Xã/Phường</option>
-            <option th:each="ward : ${wards}"
-                    th:value="${ward.name}"
-                    th:text="${ward.name}">
-                Xã/Phường
+        Tỉnh/Thành phố
+        <select required onchange="this.form.submit()" th:field="*{provinceCityCode}">
+            <option value="">Chọn Tỉnh/Thành phố</option>
+            <option th:each="province : ${provinceCities}"
+                    th:value="${province.code}"
+                    th:text="${province.name}">
             </option>
         </select>
     </label>
 
     <label>
-        Địa chỉ chi tiết<input type="text" th:field="*{address}" required/>
-        <span th:errors="*{address}" class="error-inline"> Error</span>
+        Xã/Phường
+        <select th:field="*{communeWardCode}" required>
+            <option value="">Chọn Xã/Phường</option>
+            <option th:each="ward : ${wards}"
+                    th:value="${ward.code}"
+                    th:text="${ward.name}">
+            </option>
+        </select>
+        <span th:errors="*{communeWardCode}"> Error</span>
+    </label>
+
+    <label>
+        Địa chỉ chi tiết<input type="text" th:field="*{specificAddress}" required/>
+        <span th:errors="*{specificAddress}" > Error</span>
     </label>
 
     <label>
         Số điện thoại<input type="tel" th:field="*{phone}" required/>
-        <span th:errors="*{phone}" class="error-inline"> Error</span>
+        <span th:errors="*{phone}"> Error</span>
     </label>
 
-    <p>Chỉ hỗ trợ giao hàng trong nội thành Hà Nội</p>
-
-    <button type="submit">Cập nhật</button>
+    <button type="submit" name="update">Cập nhật</button>
 </form>
 </body>
 </html>

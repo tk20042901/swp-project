@@ -5,8 +5,9 @@ import com.swp.project.dto.DeliveryInfoDto;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.entity.user.Customer;
 import com.swp.project.service.CustomerAiService;
-import com.swp.project.service.WardAddressService;
+import com.swp.project.service.AddressService;
 import com.swp.project.service.user.CustomerService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -27,7 +28,7 @@ public class CustomerController {
 
     private final CustomerService customerService;
     private final CustomerAiService customerAiService;
-    private final WardAddressService wardAddressService;
+    private final AddressService addressService;
 
     @GetMapping("/account-manager")
     public String accountManager() {
@@ -62,13 +63,21 @@ public class CustomerController {
     @GetMapping("/delivery-info")
     public String deliveryInfo(Model model, Principal principal) {
         Customer customer = customerService.getCustomerByEmail(principal.getName());
-        DeliveryInfoDto deliveryInfoDto = new DeliveryInfoDto();
-        deliveryInfoDto.setFullName(customer.getFullName());
-        deliveryInfoDto.setPhone(customer.getPhoneNumber());
-        deliveryInfoDto.setWard(customer.getWard());
-        deliveryInfoDto.setAddress(customer.getAddress());
-        model.addAttribute("deliveryInfoDto", deliveryInfoDto);
-        model.addAttribute("wards", wardAddressService.getAllWard());
+        if (!model.containsAttribute("deliveryInfoDto")) {
+            DeliveryInfoDto deliveryInfoDto = new DeliveryInfoDto();
+            deliveryInfoDto.setFullName(customer.getFullName());
+            deliveryInfoDto.setPhone(customer.getPhoneNumber());
+            deliveryInfoDto.setSpecificAddress(customer.getSpecificAddress());
+            if(customer.getCommuneWard() != null){
+                deliveryInfoDto.setProvinceCityCode(customer.getCommuneWard().getProvinceCity().getCode());
+                deliveryInfoDto.setCommuneWardCode(customer.getCommuneWard().getCode());
+                model.addAttribute("wards",
+                        addressService.getAllCommuneWardByProvinceCityCode(
+                                customer.getCommuneWard().getProvinceCity().getCode()));
+            }
+            model.addAttribute("deliveryInfoDto", deliveryInfoDto);
+        }
+        model.addAttribute("provinceCities", addressService.getAllProvinceCity());
         return "/pages/customer/delivery-info";
     }
 
@@ -76,10 +85,25 @@ public class CustomerController {
     public String processDeliveryInfo(@Valid @ModelAttribute DeliveryInfoDto deliveryInfoDto,
                                       BindingResult bindingResult,
                                       Model model,
+                                      HttpServletRequest request,
                                       RedirectAttributes redirectAttributes,
                                       Principal principal) {
+        if(request.getParameter("update") == null){
+            redirectAttributes.addFlashAttribute("deliveryInfoDto", deliveryInfoDto);
+            redirectAttributes.addFlashAttribute("wards",
+                            addressService.getAllCommuneWardByProvinceCityCode(
+                                    deliveryInfoDto.getProvinceCityCode()));
+            return "redirect:/customer/delivery-info";
+        }
+
         if (bindingResult.hasErrors()) {
             model.addAttribute("deliveryInfoDto", deliveryInfoDto);
+            model.addAttribute("provinceCities", addressService.getAllProvinceCity());
+            if(request.getParameter("provinceCityCode") != null) {
+                model.addAttribute("wards",
+                        addressService.getAllCommuneWardByProvinceCityCode(
+                                request.getParameter("provinceCityCode")));
+            }
             return "/pages/customer/delivery-info";
         }
 

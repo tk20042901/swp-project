@@ -10,6 +10,7 @@ import com.swp.project.entity.user.Customer;
 import com.swp.project.repository.shopping_cart.ShoppingCartItemRepository;
 import com.swp.project.repository.user.CustomerRepository;
 import com.swp.project.repository.PendingRegisterRepository;
+import com.swp.project.service.AddressService;
 import com.swp.project.service.EmailService;
 
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class CustomerService {
     private final PasswordEncoder passwordEncoder;
     private final PendingRegisterRepository pendingRegisterRepository;
     private final EmailService emailService;
+    private final AddressService addressService;
     private final SecureRandom secureRandom = new SecureRandom();
     private final ShoppingCartItemRepository shoppingCartItemRepository;
 
@@ -149,37 +151,21 @@ public class CustomerService {
         Customer customer = customerRepository.getByEmail(email);
         customer.setFullName(deliveryInfoDto.getFullName());
         customer.setPhoneNumber(deliveryInfoDto.getPhone());
-        customer.setWard(deliveryInfoDto.getWard());
-        customer.setAddress(deliveryInfoDto.getAddress());
+        customer.setCommuneWard(
+                addressService.getCommuneWardByCode(deliveryInfoDto.getCommuneWardCode()));
+        customer.setSpecificAddress(deliveryInfoDto.getSpecificAddress());
         customerRepository.save(customer);
     }
 
     @Transactional
     public void initCustomer() {
-        createCustomerIfNotExists(Customer.builder()
-                .email("default-customer@shop.com")
-                .password("customer")
-                .build());
-        String[] customers = {
-                "alice", "bob", "charlie", "david", "emma", "frank", "grace", "henry",
-                "isabella", "jack", "kate", "leo", "mia", "nathan", "olivia", "peter",
-                "quinn", "ruby", "sam", "tina", "ursula", "victor", "wendy", "xander",
-                "yara", "zane", "aaron", "bella", "carl", "diana", "elias", "fiona",
-                "george", "hannah", "ivan", "julia"
-        };
-        for (String customer : customers) {
-            createCustomerIfNotExists(Customer.builder()
-                    .email(customer + "@customer.com")
-                    .password(customer)
+        if(!customerRepository.existsByEmail("default-customer@shop.com")){
+            customerRepository.save(Customer.builder()
+                    .email("default-customer@shop.com")
+                    .password(passwordEncoder.encode("customer"))
                     .build());
         }
-    }
 
-    private void createCustomerIfNotExists(Customer customer) {
-        if (!customerRepository.existsByEmail(customer.getEmail())) {
-            customer.setPassword(passwordEncoder.encode(customer.getPassword()));
-            customerRepository.save(customer);
-        }
     }
 
     public List<ShoppingCartItem> getCart(Customer customer) {
