@@ -7,7 +7,7 @@ import com.swp.project.service.user.CustomerService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import vn.payos.PayOS;
 import vn.payos.type.CheckoutResponseData;
@@ -17,20 +17,19 @@ import vn.payos.type.PaymentData;
 import java.util.List;
 
 @RequiredArgsConstructor
-@Controller("/order")
+@Controller("/payment")
 public class PaymentController {
 
     private final PayOS payOS;
     private final OrderService orderService;
     private final CustomerService customerService;
 
-
     private static final String returnUrl = "http://swp-project.loca.lt/success";
     private static final String cancelUrl = "http://swp-project.loca.lt/cancel";
 
-    @PostMapping(value = "/{orderId}/checkout")
-    public void checkout(HttpServletResponse httpServletResponse,
-                         @PathVariable Long orderId) {
+    @PostMapping(value = "/checkout")
+    public void checkout(@ModelAttribute Long orderId,
+                         HttpServletResponse httpServletResponse) {
         try {
             Order order = orderService.getOrderById(orderId);
             List<ItemData> items =
