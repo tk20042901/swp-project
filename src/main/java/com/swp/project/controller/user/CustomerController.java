@@ -114,8 +114,7 @@ public class CustomerController {
 
     @GetMapping("/shopping-cart")
     public String viewShoppingCart(Model model, Principal principal) {
-        Customer customer = customerService.getCustomerByEmail(principal.getName());
-        List<ShoppingCartItem> cartItems = customerService.getCart(customer);
+        List<ShoppingCartItem> cartItems = customerService.getCart(principal.getName());
         long totalAmmount = customerService.TotalAmountInCart(principal.getName());
         model.addAttribute("totalAmmount", totalAmmount);
         model.addAttribute("cartItems", cartItems);

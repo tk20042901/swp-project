@@ -7,8 +7,6 @@ import com.swp.project.service.user.CustomerService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import vn.payos.PayOS;
@@ -26,23 +24,6 @@ public class PaymentController {
     private final OrderService orderService;
     private final CustomerService customerService;
 
-    @GetMapping("/{orderId}/delivery-info")
-    public String showDeliveryInfoForm(@PathVariable Long orderId) {
-
-        return "pages/order/delivery-info";
-    }
-
-    @GetMapping(value = "/{orderId}/success")
-    public String success(@PathVariable Long orderId, Model model) {
-
-        return "pages/order/success";
-    }
-
-    @GetMapping(value = "/{orderId}/cancel")
-    public String cancel(@PathVariable Long orderId, Model model) {
-
-        return "pages/order/cancel";
-    }
 
     private static final String returnUrl = "http://swp-project.loca.lt/success";
     private static final String cancelUrl = "http://swp-project.loca.lt/cancel";
