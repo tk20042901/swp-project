@@ -16,66 +16,40 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
-<h1>Thêm tài khoản</h1>
+<h1 th:text="${'Thêm tài khoản' + (session.newClassName.equals('Seller') ? ' người bán' : ' người giao hàng')}"></h1>
 <form  th:action="@{/manager/edit-staff}" method="post" th:object="${user}">
-    <input type="text" name="className" th:value="${session.className}" hidden>
+    <input type="text" name="newClassName" th:value="${session.newClassName}" hidden>
     <div class="form-group">
         <label for="email">Email</label>
-        <input type="text" id="email" name="email" th:value="*{email}">
+        <input type="text" class="form-control" id="email" name="email" th:value="*{email}">
     </div>
     <div class="form-group">
         <label for="password">Mật khẩu</label>
-        <input type="password" id="password" name="password" th:value="*{password}">
+        <input type="password" class="form-control" id="password" name="password" th:value="*{password}">
     </div>
     <div class="form-group">
         <label for="fullName">Họ tên</label>
-        <input type="text" id="fullname" name="fullname" th:value="*{fullname}">
+        <input type="text" class="form-control" id="fullname" name="fullname" th:value="*{fullname}">
     </div>
     <div class="form-group">
         <label for="birthDate">Ngày tháng năm sinh</label>
-        <input type="date" id="birthDate" name="birthDate" th:value="*{birthDate}">
+        <input type="date" class="form-control" id="birthDate" name="birthDate" th:value="*{birthDate}">
     </div>
     <div class="form-group">
         <label for="cId">Số căn cước công dân</label>
-        <input type="text" id="cId" name="cId" th:value="*{cId}">
+        <input type="text" class="form-control" id="cId" name="cId" th:value="*{cId}">
     </div>
     <div class="form-group">
         <label for="address">Địa chỉ</label>
-        <input type="text" id="address" name="address" th:value="*{address}">
+        <input type="text" class="form-control" id="address" name="address" th:value="*{address}">
     </div>
     <div class="form-group form-check">
         <label class="form-check-label">
-            <input type="checkbox" id="enabled" name="enabled" th:checked="*{enabled}"> Mở khóa
+            <input type="checkbox" class="form-control" id="enabled" name="enabled" th:checked="*{enabled}"> Mở khóa
         </label>
     </div>
     <button type="submit" name="saveButton" class="btn btn-primary">Lưu</button>
 </form>
 
-<!--<form th:action="@{/manager/edit-staff}" method="post" th:object="${user}">-->
-<!--    <input type="text" name="className" th:value="${session.className}" hidden>-->
-
-<!--    <label for="email">Email</label>-->
-<!--    <input type="text" id="email" name="email" th:value="*{email}">-->
-<!--    <br>-->
-<!--    <label for="password">Mật khẩu</label>-->
-<!--    <input type="password" id="password" name="password" th:value="*{password}">-->
-<!--    <br>-->
-<!--    <label for="fullName">Họ tên</label>-->
-<!--    <input type="text" id="fullname" name="fullname" th:value="*{fullname}">-->
-<!--    <br>-->
-<!--    <label for="birthDate">Ngày tháng năm sinh</label>-->
-<!--    <input type="date" id="birthDate" name="birthDate" th:value="*{birthDate}">-->
-<!--    <br>-->
-<!--    <label for="cId">Số căn cước công dân</label>-->
-<!--    <input type="text" id="cId" name="cId" th:value="*{cId}">-->
-<!--    <br>-->
-<!--    <label for="address">Địa chỉ</label>-->
-<!--    <input type="text" id="address" name="address" th:value="*{address}">-->
-<!--    <br>-->
-<!--    <label for="enabled">Khóa</label>-->
-<!--    <input type="checkbox" id="enabled" name="enabled" th:checked="*{enabled}">-->
-<!--    <br>-->
-<!--    <input type="submit" name="saveButton" value="Lưu">-->
-<!--</form>-->
 </body>
 </html>
