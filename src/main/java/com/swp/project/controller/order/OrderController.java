@@ -61,6 +61,7 @@ public class OrderController {
     public String processOrder(@Valid @ModelAttribute DeliveryInfoDto deliveryInfoDto,
                                BindingResult bindingResult,
                                @ModelAttribute("shoppingCartItems") List<ShoppingCartItem> shoppingCartItems,
+                               @RequestParam(name = "voucherId", required = false) Long voucherId,
                                @RequestParam(name = "payment_method") String paymentMethod,
                                @RequestParam(required = false) String confirm,
                                Model model,
@@ -88,17 +89,17 @@ public class OrderController {
                 deliveryInfoDto.getFullName(),
                 deliveryInfoDto.getPhone(),
                 addressService.getCommuneWardByCode(deliveryInfoDto.getCommuneWardCode()),
-                deliveryInfoDto.getSpecificAddress());
+                deliveryInfoDto.getSpecificAddress(),
+                voucherId);
 
         if (paymentMethod.equals("cod")) {
             orderService.setOrderStatus(order.getId(),
                     orderStatusService.getPendingConfirmationStatus());
             return "redirect:/order/success";
         } else {
-            redirectAttributes.addFlashAttribute("orderId", order.getId());
             orderService.setOrderStatus(order.getId(),
                     orderStatusService.getPendingPaymentStatus());
-            return "redirect:/checkout";
+            return "redirect:/checkout?orderId=" + order.getId();
         }
     }
 

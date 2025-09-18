@@ -23,7 +23,7 @@ public class PaymentConfirmationController {
     // Xử lý đơn hàng khi thanh toán thành công
     private void orderFulfilled(WebhookData data) {
         System.out.println("Payment successful");
-        orderService.pickProductForOrder(data.getOrderCode());
+        orderService.doWhenOrderConfirmed(data.getOrderCode());
         orderService.setOrderStatus(data.getOrderCode(),orderStatusService.getProcessingStatus());
     }
 
