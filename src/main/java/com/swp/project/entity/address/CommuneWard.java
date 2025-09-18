@@ -24,4 +24,9 @@ public class CommuneWard implements Serializable {
 
     @ManyToOne(fetch = FetchType.EAGER)
     private ProvinceCity provinceCity;
+
+    @Override
+    public String toString() {
+        return name + ", " + provinceCity.getName();
+    }
 }

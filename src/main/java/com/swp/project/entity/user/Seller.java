@@ -1,6 +1,7 @@
 package com.swp.project.entity.user;
 
 
+import com.swp.project.entity.address.CommuneWard;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -31,8 +32,8 @@ public class Seller extends User{
     @Column(length = 50, unique = true, nullable = false)
     private String cId;
 
-    @Column(length = 100, nullable = false)
-    private String address;
+    @ManyToOne(fetch =  FetchType.EAGER)
+    private CommuneWard address;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

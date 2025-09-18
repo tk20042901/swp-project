@@ -1,8 +1,11 @@
 package com.swp.project.service.user;
 
+import com.swp.project.dto.StaffDto;
+import com.swp.project.entity.user.Seller;
 import com.swp.project.entity.user.Shipper;
 import com.swp.project.listener.event.UserDisabledEvent;
 import com.swp.project.repository.user.ShipperRepository;
+import com.swp.project.service.AddressService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -10,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +27,8 @@ public class ShipperService {
     private final ShipperRepository shipperRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final PasswordEncoder passwordEncoder;
+    private final AddressService addressService;
+    private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     private List<Shipper> results = new ArrayList<>();
 
@@ -31,7 +37,6 @@ public class ShipperService {
 
     @Transactional
     public void initShipper() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         try {
             for (int i = 1; i <= 6; i++) {
                 createShipperIfNotExists(Shipper.builder()
@@ -40,7 +45,7 @@ public class ShipperService {
                         .fullname("shipper" + i + "@shop.com")
                         .birthDate(sdf.parse("2001-09-11"))
                         .cId(UUID.randomUUID().toString())
-                        .address("Pakistan")
+                        .address(addressService.getCommuneWardByCode("16279"))
                         .build());
             }
             createShipperIfNotExists(Shipper.builder()
@@ -49,7 +54,7 @@ public class ShipperService {
                     .fullname("seller" + 999 + "@shop.com")
                     .birthDate(sdf.parse("2001-09-11"))
                     .cId(UUID.randomUUID().toString())
-                    .address("Pakistan")
+                    .address(addressService.getCommuneWardByCode("16279"))
                     .enabled(false)
                     .build());
         } catch (Exception e) {
@@ -104,7 +109,7 @@ public class ShipperService {
                 results.sort((o1, o2) -> k * o1.getCId().compareTo(o2.getCId()));
                 break;
             case "address":
-                results.sort((o1, o2) -> k * o1.getAddress().compareTo(o2.getAddress()));
+                results.sort((o1, o2) -> k * o1.getAddress().getCode().compareTo(o2.getAddress().getCode()));
                 break;
             case "enabled":
                 results.sort((o1, o2) -> {
@@ -113,6 +118,37 @@ public class ShipperService {
                     return k * (tempO1IsEnabled - tempO2IsEnabled);
                 });
                 break;
+        }
+    }
+
+    public void add(StaffDto staffDto) {
+        if (staffDto != null) {
+            if (shipperRepository.findByCId(staffDto.getCId()) != null) {
+                throw new RuntimeException("Mã căn cước công dân đã được dùng");
+            }
+            if (shipperRepository.findByEmail(staffDto.getEmail()) != null) {
+                throw new RuntimeException("Email đã được dùng");
+            }
+            if (staffDto.getEnabled().toLowerCase().matches("(true)|(false)")) {
+                throw new RuntimeException("Trạng thái mở / khóa bất thường");
+            }
+            Shipper shipper = null;
+            try {
+                shipper = Shipper.builder()
+                        .email(staffDto.getEmail())
+                        .password(staffDto.getPassword())
+                        .fullname(staffDto.getFullname())
+                        .birthDate(sdf.parse(staffDto.getBirthDate()))
+                        .cId(staffDto.getCId())
+                        .address(addressService.getCommuneWardByCode(staffDto.getWard()))
+                        .enabled(Boolean.parseBoolean(staffDto.getEnabled()))
+                        .build();
+            } catch (ParseException e) {
+                throw new RuntimeException("Định dạng ngày tháng năm bất thường");
+            }
+
+            shipperRepository.save(shipper);
+
         }
     }
 }
