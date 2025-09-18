@@ -92,7 +92,7 @@ public class CustomerController {
             redirectAttributes.addFlashAttribute("deliveryInfoDto", deliveryInfoDto);
             redirectAttributes.addFlashAttribute("wards",
                             addressService.getAllCommuneWardByProvinceCityCode(
-                                    request.getParameter("provinceCityCode")));
+                                    deliveryInfoDto.getProvinceCityCode()));
             return "redirect:/customer/delivery-info";
         }
 

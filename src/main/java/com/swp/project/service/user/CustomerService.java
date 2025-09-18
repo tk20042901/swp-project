@@ -159,10 +159,13 @@ public class CustomerService {
 
     @Transactional
     public void initCustomer() {
-        customerRepository.save(Customer.builder()
-                .email("default-customer@shop.com")
-                .password(passwordEncoder.encode("customer"))
-                .build());
+        if(!customerRepository.existsByEmail("default-customer@shop.com")){
+            customerRepository.save(Customer.builder()
+                    .email("default-customer@shop.com")
+                    .password(passwordEncoder.encode("customer"))
+                    .build());
+        }
+
     }
 
     public List<ShoppingCartItem> getCart(Customer customer) {

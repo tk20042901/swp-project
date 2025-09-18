@@ -16,12 +16,11 @@
 
     <label>
         Tỉnh/Thành phố
-        <select required onchange="this.form.submit()" name="provinceCityCode">
+        <select required onchange="this.form.submit()" th:field="*{provinceCityCode}">
             <option value="">Chọn Tỉnh/Thành phố</option>
             <option th:each="province : ${provinceCities}"
                     th:value="${province.code}"
-                    th:text="${province.name}"
-                    th:selected="${province.code == deliveryInfoDto.provinceCityCode}">
+                    th:text="${province.name}">
             </option>
         </select>
     </label>
