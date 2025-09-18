@@ -6,9 +6,11 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
-public class DeliveryInfoDto {
+public class DeliveryInfoDto implements Serializable {
 
     @NotBlank(message = "Tên không được để trống")
     @Size(max = 50, message = "Tên không được vượt quá 50 ký tự")
@@ -18,11 +20,14 @@ public class DeliveryInfoDto {
     @Pattern(regexp = "^\\d{6,12}$", message = "Số điện thoại không hợp lệ")
     private String phone;
 
-    @NotBlank(message = "Địa chỉ chi tiết không được để trống")
-    @Size(max = 100, message = "Địa chỉ chi tiết không được vượt quá 100 ký tự")
-    private String address;
+    @NotBlank(message = "Bạn chưa chọn tỉnh/thành phố")
+    private String provinceCityCode;
 
     @NotBlank(message = "Bạn chưa chọn xã/phường")
-    private String ward;
+    private String communeWardCode;
+
+    @NotBlank(message = "Địa chỉ chi tiết không được để trống")
+    @Size(max = 100, message = "Địa chỉ chi tiết không được vượt quá 100 ký tự")
+    private String specificAddress;
 
 }

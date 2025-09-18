@@ -10,6 +10,7 @@ import com.swp.project.entity.user.Customer;
 import com.swp.project.repository.shopping_cart.ShoppingCartItemRepository;
 import com.swp.project.repository.user.CustomerRepository;
 import com.swp.project.repository.PendingRegisterRepository;
+import com.swp.project.service.AddressService;
 import com.swp.project.service.EmailService;
 
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class CustomerService {
     private final PasswordEncoder passwordEncoder;
     private final PendingRegisterRepository pendingRegisterRepository;
     private final EmailService emailService;
+    private final AddressService addressService;
     private final SecureRandom secureRandom = new SecureRandom();
     private final ShoppingCartItemRepository shoppingCartItemRepository;
 
@@ -149,8 +151,9 @@ public class CustomerService {
         Customer customer = customerRepository.getByEmail(email);
         customer.setFullName(deliveryInfoDto.getFullName());
         customer.setPhoneNumber(deliveryInfoDto.getPhone());
-        customer.setWard(deliveryInfoDto.getWard());
-        customer.setAddress(deliveryInfoDto.getAddress());
+        customer.setCommuneWard(
+                addressService.getCommuneWardByCode(deliveryInfoDto.getCommuneWardCode()));
+        customer.setSpecificAddress(deliveryInfoDto.getSpecificAddress());
         customerRepository.save(customer);
     }
 

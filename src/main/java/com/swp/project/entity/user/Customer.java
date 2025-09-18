@@ -1,9 +1,7 @@
 package com.swp.project.entity.user;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.PrimaryKeyJoinColumn;
-import jakarta.persistence.Table;
+import com.swp.project.entity.address.CommuneWard;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,11 +25,11 @@ public class Customer extends User {
     @Column(length = 15)
     private String phoneNumber;
 
-    @Column(length = 50)
-    private String ward;
+    @OneToOne(fetch =  FetchType.EAGER)
+    private CommuneWard communeWard;
 
     @Column(length = 100)
-    private String address;
+    private String specificAddress;
 
     @Builder.Default
     private Long loyaltyPoints = 0L;
