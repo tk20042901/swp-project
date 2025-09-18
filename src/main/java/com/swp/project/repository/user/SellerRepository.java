@@ -10,5 +10,5 @@ public interface SellerRepository extends JpaRepository<Seller,Long> {
 
     Seller findByEmail(String email);
 
-    Seller findByCId(String cId);
+    Seller findBycId(String cId);
 }

@@ -123,7 +123,7 @@ public class ShipperService {
 
     public void add(StaffDto staffDto) {
         if (staffDto != null) {
-            if (shipperRepository.findByCId(staffDto.getCId()) != null) {
+            if (shipperRepository.findBycId(staffDto.getCId()) != null) {
                 throw new RuntimeException("Mã căn cước công dân đã được dùng");
             }
             if (shipperRepository.findByEmail(staffDto.getEmail()) != null) {
