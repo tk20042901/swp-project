@@ -159,30 +159,10 @@ public class CustomerService {
 
     @Transactional
     public void initCustomer() {
-        createCustomerIfNotExists(Customer.builder()
+        customerRepository.save(Customer.builder()
                 .email("default-customer@shop.com")
-                .password("customer")
+                .password(passwordEncoder.encode("customer"))
                 .build());
-        String[] customers = {
-                "alice", "bob", "charlie", "david", "emma", "frank", "grace", "henry",
-                "isabella", "jack", "kate", "leo", "mia", "nathan", "olivia", "peter",
-                "quinn", "ruby", "sam", "tina", "ursula", "victor", "wendy", "xander",
-                "yara", "zane", "aaron", "bella", "carl", "diana", "elias", "fiona",
-                "george", "hannah", "ivan", "julia"
-        };
-        for (String customer : customers) {
-            createCustomerIfNotExists(Customer.builder()
-                    .email(customer + "@customer.com")
-                    .password(customer)
-                    .build());
-        }
-    }
-
-    private void createCustomerIfNotExists(Customer customer) {
-        if (!customerRepository.existsByEmail(customer.getEmail())) {
-            customer.setPassword(passwordEncoder.encode(customer.getPassword()));
-            customerRepository.save(customer);
-        }
     }
 
     public List<ShoppingCartItem> getCart(Customer customer) {
