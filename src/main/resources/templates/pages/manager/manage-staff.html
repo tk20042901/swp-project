@@ -29,7 +29,7 @@
         <button type="submit" name="clickedButton" value="shipper" th:class="${'btn' + (session.className.equals('Shipper') ? ' btn-primary' : '')}">Người giao hàng</button>
     </form>
     <form th:action="@{/manager/manage-staff}" method="get" style="display: flex; justify-content: center;">
-    <div th:each="index : ${#numbers.sequence(1, (session.list.size() / 10) + (session.list.size() % 10 == 0 ? 0 : 1))}">
+    <div th:each="index : ${#numbers.sequence(1, (session.list.size() / 15) + (session.list.size() % 15 == 0 ? 0 : 1))}">
         <input type="submit" name="subpageIndex" th:value="${index}" th:class="'btn' + ${session.subpageIndex == index ? ' btn-primary' : ''}">
     </div>
     </form>
@@ -62,7 +62,7 @@
             <th>Hành động</th>
         </form>
     </tr>
-    <tr th:each="index : ${#numbers.sequence(10 * (session.subpageIndex - 1), ((10 * session.subpageIndex - 1) < session.list.size() ? (10 * session.subpageIndex - 1) : (session.list.size() - 1)))}" th:object="${session.list[index]}">
+    <tr th:each="index : ${#numbers.sequence(15 * (session.subpageIndex - 1), ((15 * session.subpageIndex - 1) < session.list.size() ? (15 * session.subpageIndex - 1) : (session.list.size() - 1)))}" th:object="${session.list[index]}">
         <td class=".col-1" th:text="*{id}"></td>
         <td class=".col-2" th:text="*{email}"></td>
         <td class=".col-2" th:text="*{fullname}"></td>
