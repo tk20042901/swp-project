@@ -180,12 +180,13 @@ public class CustomerService {
 
     }
 
-    public List<ShoppingCartItem> getCart(Customer customer) {
-        return shoppingCartItemRepository.findByCustomer(customer);
+    public List<ShoppingCartItem> getCart(String customerEmail) {
+        return shoppingCartItemRepository.findByCustomer(
+                customerRepository.getByEmail(customerEmail));
     }
 
     public void removeItem(String email, Long productId) {
-        Customer customer = customerRepository.getCustomerByEmail(email);
+        Customer customer = customerRepository.getByEmail(email);
         ShoppingCartItemId id = new ShoppingCartItemId();
         id.setCustomerId(customer.getId());
         id.setProductId(productId);
@@ -193,7 +194,7 @@ public class CustomerService {
     }
 
     public void updateCartQuantity(String email, Long productId, int quantity) {
-        Customer customer = customerRepository.getCustomerByEmail(email);
+        Customer customer = customerRepository.getByEmail(email);
         if (customer == null) {
             throw new RuntimeException("Customer not found with email: " + email);
         }
@@ -213,7 +214,7 @@ public class CustomerService {
     }
 
     public int TotalAmountInCart(String email) {
-        Customer customer = customerRepository.getCustomerByEmail(email);
+        Customer customer = customerRepository.getByEmail(email);
         int total = 0;
         for (ShoppingCartItem item : shoppingCartItemRepository.findByCustomer(customer)) {
             total += item.getProduct().getPrice() * item.getQuantity();
