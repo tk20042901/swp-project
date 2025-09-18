@@ -3,7 +3,6 @@ package com.swp.project.entity.order;
 
 import com.swp.project.entity.address.CommuneWard;
 import com.swp.project.entity.user.Customer;
-import com.swp.project.entity.user.Seller;
 import com.swp.project.entity.user.Shipper;
 import jakarta.persistence.*;
 import lombok.*;
@@ -31,9 +30,6 @@ public class Order {
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "order")
     private List<OrderItem> orderItem;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    private Seller seller;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private OrderStatus orderStatus;

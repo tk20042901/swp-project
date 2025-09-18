@@ -9,4 +9,6 @@ public interface ShipperRepository extends JpaRepository<Shipper,Long> {
     boolean existsByEmail(String email);
 
     Shipper findByEmail(String email);
+
+    Shipper findBycId(String cId);
 }

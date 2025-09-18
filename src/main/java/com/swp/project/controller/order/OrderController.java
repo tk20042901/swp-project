@@ -7,7 +7,6 @@ import com.swp.project.entity.user.Customer;
 import com.swp.project.service.AddressService;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.order.OrderStatusService;
-import com.swp.project.service.product.ProductService;
 import com.swp.project.service.user.CustomerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -83,7 +82,7 @@ public class OrderController {
             return "/pages/order/order-info";
         }
 
-        Order order = orderService.createOrder(principal.getName(),
+        Order order = orderService.createTempOrder(principal.getName(),
                 shoppingCartItems,
                 deliveryInfoDto.getFullName(),
                 deliveryInfoDto.getPhone(),

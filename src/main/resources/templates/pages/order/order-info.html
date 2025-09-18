@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<ul>
+    <li th:each="item : ${shoppingCartItems}">
+        <span th:text="${item.product.name}">Product Name</span> -
+        <span th:text="${item.quantity}">Quantity</span> -
+        <span th:text="${item.product.price} + ' VND'">Price</span>
+    </li>
+</ul>
+
+<form th:action="@{order/order-info}"  th:object="${deliveryInfoDto}" method="post">
+    <label>
+        Họ và tên<input type="text" th:field="*{fullName}" required/>
+        <span th:errors="*{fullName}"> Error</span>
+    </label>
+
+    <label>
+        Tỉnh/Thành phố
+        <select required onchange="this.form.submit()" th:field="*{provinceCityCode}">
+            <option value="">Chọn Tỉnh/Thành phố</option>
+            <option th:each="province : ${provinceCities}"
+                    th:value="${province.code}"
+                    th:text="${province.name}">
+            </option>
+        </select>
+    </label>
+
+    <label>
+        Xã/Phường
+        <select th:field="*{communeWardCode}" required>
+            <option value="">Chọn Xã/Phường</option>
+            <option th:each="ward : ${wards}"
+                    th:value="${ward.code}"
+                    th:text="${ward.name}">
+            </option>
+        </select>
+        <span th:errors="*{communeWardCode}"> Error</span>
+    </label>
+
+    <label>
+        Địa chỉ chi tiết<input type="text" th:field="*{specificAddress}" required/>
+        <span th:errors="*{specificAddress}" > Error</span>
+    </label>
+
+    <label>
+        Số điện thoại<input type="tel" th:field="*{phone}" required/>
+        <span th:errors="*{phone}"> Error</span>
+    </label>
+
+    <p>Chọn Voucher (fake)</p>
+
+    <label>
+        Thanh toán khi nhận hàng<input type="radio" th:name="payment_method" th:value="cod" required/>
+    </label>
+
+    <label>
+        Chuyển khoản VietQR<input type="radio" th:name="payment_method" th:value="qr" required/>
+    </label>
+
+    <p th:text="'Tổng:' ${totalAmount}"></p>
+
+    <button type="submit" th:name="confirm">Xác nhận mua hàng</button>
+</form>
+</body>
+</html>
