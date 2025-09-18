@@ -1,6 +1,6 @@
 package com.swp.project.dto;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -25,7 +25,7 @@ public class EditManagerDto {
 
     @NotNull(message = "Ngày sinh không được để trống")
     @Past(message = "Ngày sinh phải là ngày trong quá khứ")
-    private Date birthDate;
+    private LocalDate birthDate;
 
     @NotBlank(message = "CMND/CCCD không được để trống")
     @Size(max = 50, message = "CMND/CCCD không được vượt quá 50 ký tự")

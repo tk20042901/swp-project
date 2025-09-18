@@ -9,6 +9,8 @@ import com.swp.project.repository.user.ManagerRepository;
 
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -43,15 +45,14 @@ public class ManagerService {
     public void initManager() {
         for (int i = 1; i <= 4; i++) {
             createManagerIfNotExists(Manager.builder()
+                    .fullname("Manager " + i)
                     .email("manager" + i + "@shop.com")
                     .password("manager")
+                    .address("123 Manager St, City, Country")
+                    .birthDate(LocalDate.of(2000, 1, i))
+                    .cId("ID" + i)  
                     .build());
         }
-        createManagerIfNotExists(Manager.builder()
-                .email("disabled-manager@shop.com")
-                .password("manager")
-                .enabled(false)
-                .build());
     }
 
     private void createManagerIfNotExists(Manager manager) {
@@ -87,7 +88,17 @@ public class ManagerService {
         Manager manager = Manager.builder()
             .email(registerDto.getEmail())
             .password(passwordEncoder.encode(registerDto.getPassword()))
+            .fullname(registerDto.getFullname())
             .build();
+        if(!registerDto.getBirthDate().toString().isBlank()){
+            manager.setBirthDate(registerDto.getBirthDate());
+        }
+        if(!registerDto.getCId().isBlank()){
+            manager.setCId(registerDto.getCId());
+        }
+        if(!registerDto.getAddress().isBlank()){
+            manager.setAddress(registerDto.getAddress());
+        }
         managerRepository.save(manager);
     }
 

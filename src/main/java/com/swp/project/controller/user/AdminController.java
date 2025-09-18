@@ -2,7 +2,7 @@ package com.swp.project.controller.user;
 
 import com.swp.project.dto.EditManagerDto;
 import com.swp.project.dto.ManagerRegisterDto;
-import com.swp.project.dto.RegisterDto;
+
 import com.swp.project.dto.ViewManagerDto;
 import com.swp.project.entity.user.Manager;
 import com.swp.project.service.user.ManagerService;
@@ -27,13 +27,13 @@ public class AdminController {
     private final ManagerService managerService;
 
     @GetMapping("")
-    public String showAdminMainPage() {
+    public String showAdminMainPage(Model model) {
         return "pages/admin/index";
     }
     
     @GetMapping("/create-manager")
     public String getCreateManagerPage(Model model) {
-        model.addAttribute("registerDto", new RegisterDto());
+        model.addAttribute("registerDto", new ManagerRegisterDto());
         return "pages/admin/create-manager";
     }
     
@@ -77,12 +77,15 @@ public class AdminController {
         return "pages/admin/manage-manager";
     }
 
-    @PostMapping("/manage-manager")
+    @PostMapping("/create-manager")
     public String createManager(
-        @Valid @ModelAttribute ManagerRegisterDto registerDto,
+        @Valid @ModelAttribute("registerDto") ManagerRegisterDto registerDto,
         BindingResult bindingResult,
-        RedirectAttributes redirectAttributes) {
+        RedirectAttributes redirectAttributes,
+        Model model) {
+
         if (bindingResult.hasErrors()) {
+            model.addAttribute("registerDto", registerDto);
             return "pages/admin/create-manager";
         }
         try {
