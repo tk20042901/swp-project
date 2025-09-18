@@ -36,12 +36,12 @@ public class OrderService {
     }
 
     @Transactional
-    public Order createOrder(String customerEmail,
-                             List<ShoppingCartItem> shoppingCartItems,
-                             String fullName,
-                             String phoneNumber,
-                             CommuneWard communeWard,
-                             String specificAddress){
+    public Order createTempOrder(String customerEmail,
+                                 List<ShoppingCartItem> shoppingCartItems,
+                                 String fullName,
+                                 String phoneNumber,
+                                 CommuneWard communeWard,
+                                 String specificAddress){
         Order order = Order.builder()
                 .orderDate(Instant.now())
                 .orderItem(
@@ -57,10 +57,13 @@ public class OrderService {
                 .specificAddress(specificAddress)
                 .customer(customerRepository.getByEmail(customerEmail))
                 .build();
-
-        shoppingCartItems.forEach(item -> productService.pickProductInProductBatch(item.getProduct().getId(), item.getQuantity()));
-
         return orderRepository.save(order);
+    }
+
+    public void pickProductForOrder(Long orderId){
+        Order order = getOrderById(orderId);
+        order.getOrderItem().forEach(item ->
+                productService.pickProductInProductBatch(item.getProduct().getId(), item.getQuantity()));
     }
 
     public int totalAmount(Long orderId){

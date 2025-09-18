@@ -33,4 +33,12 @@ public class ProductService {
             productBatchRepository.save(productBatch);
         }
     }
+
+    public int getAvailableQuantity(Long productId) {
+        productBatchRepository.getByProduct_Id(productId);
+        return productBatchRepository.getByProduct_Id(productId)
+                .stream()
+                .mapToInt(ProductBatch::getQuantity)
+                .sum();
+    }
 }
