@@ -1,7 +1,6 @@
 package com.swp.project.service.user;
 
 import com.swp.project.entity.user.Seller;
-import com.swp.project.entity.user.User;
 import com.swp.project.listener.event.UserDisabledEvent;
 import com.swp.project.repository.user.SellerRepository;
 import lombok.Getter;
@@ -12,9 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,7 +30,7 @@ public class SellerService {
     public void initSeller() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         try {
-            for (int i = 1; i <= 36; i++) {
+            for (int i = 1; i <= 8; i++) {
                 createSellerIfNotExists(Seller.builder()
                         .email("seller" + i + "@shop.com")
                         .password("seller")
@@ -96,29 +93,19 @@ public class SellerService {
     public void sortBy(String columnName, int k) {
         switch (columnName) {
             case "id":
-                results.sort((o1, o2) -> {
-                    return k * o1.getId().compareTo(o2.getId());
-                });
+                results.sort((o1, o2) -> k * o1.getId().compareTo(o2.getId()));
                 break;
             case "email":
-                results.sort((o1, o2) -> {
-                    return k * o1.getUsername().compareTo(o2.getUsername());
-                });
+                results.sort((o1, o2) -> k * o1.getUsername().compareTo(o2.getUsername()));
                 break;
             case "fullname":
-                results.sort((o1, o2) -> {
-                    return k * o1.getFullname().compareTo(o2.getFullname());
-                });
+                results.sort((o1, o2) -> k * o1.getFullname().compareTo(o2.getFullname()));
                 break;
             case "cId":
-                results.sort((o1, o2) -> {
-                    return k * o1.getCId().compareTo(o2.getCId());
-                });
+                results.sort((o1, o2) -> k * o1.getCId().compareTo(o2.getCId()));
                 break;
             case "address":
-                results.sort((o1, o2) -> {
-                    return k * o1.getAddress().compareTo(o2.getAddress());
-                });
+                results.sort((o1, o2) -> k * o1.getAddress().compareTo(o2.getAddress()));
                 break;
             case "enabled":
                 results.sort((o1, o2) -> {
