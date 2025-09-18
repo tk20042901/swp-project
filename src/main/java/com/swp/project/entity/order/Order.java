@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.List;
 
 @Getter
 @Setter
@@ -26,6 +27,9 @@ public class Order {
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Shipper shipper;
+
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "order")
+    private List<OrderItem> orderItem;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Seller seller;
