@@ -99,11 +99,9 @@ public class CustomerController {
         if (bindingResult.hasErrors()) {
             model.addAttribute("deliveryInfoDto", deliveryInfoDto);
             model.addAttribute("provinceCities", addressService.getAllProvinceCity());
-            if(request.getParameter("provinceCityCode") != null) {
-                model.addAttribute("wards",
-                        addressService.getAllCommuneWardByProvinceCityCode(
-                                request.getParameter("provinceCityCode")));
-            }
+            model.addAttribute("wards",
+                    addressService.getAllCommuneWardByProvinceCityCode(
+                            deliveryInfoDto.getProvinceCityCode()));
             return "/pages/customer/delivery-info";
         }
 
