@@ -10,11 +10,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class StaffDto {
+public class StaffDto implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @NotBlank(message = "Email không được để trống")
     @Email(message = "Email không hợp lệ")
@@ -38,7 +41,7 @@ public class StaffDto {
 //    private String province;
 
     @NotEqualTo(value = "", message = "Phường / xã không để trống")
-    private String ward;
+    private String address;
 
     private String enabled;
 }

@@ -33,7 +33,8 @@ public class Seller extends User{
     private String cId;
 
     @ManyToOne(fetch =  FetchType.EAGER)
-    private CommuneWard address;
+    @JoinColumn(name = "commune_ward_code", referencedColumnName = "code", nullable = false)
+    private CommuneWard communeWard;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

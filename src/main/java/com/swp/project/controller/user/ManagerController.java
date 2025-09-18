@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import com.swp.project.dto.StaffDto;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -160,16 +161,16 @@ public class ManagerController {
 
 
     @GetMapping("/edit-staff")
-    public String editStaff(@RequestParam("clickedButton") String clickedButton, Model model, HttpSession  session) {
+    public String editStaff(@RequestParam(value = "clickedButton", required = false) String clickedButton, Model model, HttpSession  session) {
         if (clickedButton != null && !clickedButton.isEmpty()) {
             switch (clickedButton) {
                 case "seller":
                     session.setAttribute("newClassName", "Seller");
-                    model.addAttribute("user", new StaffDto());
+                    model.addAttribute("staffDto", new StaffDto());
                     break;
                 case "shipper":
                     session.setAttribute("newClassName", "Shipper");
-                    model.addAttribute("user", new StaffDto());
+                    model.addAttribute("staffDto", new StaffDto());
                     break;
             }
         }
@@ -178,40 +179,26 @@ public class ManagerController {
 
     @PostMapping("/edit-staff")
     public String editStaff(
-//                            @RequestParam("email") String email,
-//                            @RequestParam("password") String password,
-//                            @RequestParam("fullname") String fullname,
-//                            @RequestParam("birthDate") String birthDate,
-//                            @RequestParam("cId") String cId,
-//                            @RequestParam("province") String province,
-//                            @RequestParam("ward") String ward,
-//                            @RequestParam(defaultValue = "false") String enabled,
+                            @Valid
                             @ModelAttribute("staffDto") StaffDto staffDto,
-                            @RequestParam("className") String className,
+                            BindingResult bindingResult,
+                            @RequestParam(value = "enabled", defaultValue = "false") String enabled,
+                            @RequestParam("newClassName") String newClassName,
                             RedirectAttributes redirectAttributes,
-                            HttpSession session,
-                            BindingResult bindingResult
+                            HttpSession session
                             ) {
         redirectAttributes.addFlashAttribute("staffDto", staffDto);
         if (bindingResult.hasErrors()) {
-            return "/manager/edit-staff";
+            return "pages/manager/edit-staff";
         }
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         try {
-            if (className != null && !className.isEmpty()) {
-                switch (className) {
+            if (newClassName != null && !newClassName.isEmpty()) {
+                switch (newClassName) {
                     case "Seller":
-//                        Seller seller = Seller.builder()
-//                                .email(email)
-//                                .password(password)
-//                                .fullname(fullname)
-//                                .birthDate(sdf.parse(birthDate))
-//                                .cId(cId)
-//                                .address(null)
-//                                .enabled(Boolean.parseBoolean(enabled))
-//                                .build();
                         try {
+                            staffDto.setEnabled(enabled);
                             sellerService.add(staffDto);
                         } catch (Exception e) {
                             redirectAttributes.addFlashAttribute("error", e.getMessage());
@@ -224,16 +211,6 @@ public class ManagerController {
                         session.setAttribute("list", sellerService.getResults());
                         break;
                     case "Shipper":
-//                        Shipper shipper = Shipper.builder()
-//                                .email(email)
-//                                .password(password)
-//                                .fullname(fullname)
-//                                .birthDate(sdf.parse(birthDate))
-//                                .cId(cId)
-//                                .address(null)
-//                                .enabled(Boolean.parseBoolean(enabled))
-//                                .build();
-
                         try {
                             shipperService.add(staffDto);
                         } catch (Exception e) {
