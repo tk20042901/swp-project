@@ -10,6 +10,7 @@
 <table class="table">
     <thead>
     <tr>
+        <th>Chọn</th>
         <th>Sản phẩm</th>
         <th>Đơn giá</th>
         <th>Số lượng</th>
@@ -17,7 +18,11 @@
     </tr>
     </thead>
     <tbody>
+
     <tr th:each="item : ${cartItems}">
+        <td>
+            <input type="checkbox" name ="selected-product" th:value="${item.product.id}" />
+        </td>
         <td>
             <img th:src="@{${item.product.main_image_url}}" alt="Product Image" />
             <span th:text="${item.product.name}"></span>
@@ -32,6 +37,7 @@
                        name="quantity"
                        th:value="${item.quantity}"
                        min="1"
+                       th:attr="max=${@productService.getAvailableQuantity(item.product)}"
                        required
                        aria-label="Số lượng sản phẩm"
                        onchange="this.form.submit()" />
@@ -53,7 +59,11 @@
 
         </td>
     </tr>
-
+<tr>
+    <td colspan="4">
+        <a th:href="@{/customer/checkout}" class="btn btn-primary">Tiến hành thanh toán</a>
+    </td>
+</tr>
     </tbody>
 </table>
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>

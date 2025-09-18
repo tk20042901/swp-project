@@ -1,7 +1,6 @@
 package com.swp.project.service.product;
 
-import com.swp.project.entity.product.ProductBatch;
-import com.swp.project.repository.product.ProductBatchRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,11 +33,5 @@ public class ProductService {
         }
     }
 
-    public int getAvailableQuantity(Long productId) {
-        productBatchRepository.getByProduct_Id(productId);
-        return productBatchRepository.getByProduct_Id(productId)
-                .stream()
-                .mapToInt(ProductBatch::getQuantity)
-                .sum();
     }
 }

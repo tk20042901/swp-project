@@ -127,7 +127,9 @@ public class CustomerController {
     @PostMapping("/shopping-cart/update")
     public String updateCartItem(@RequestParam Long productId,
                                  @RequestParam int quantity,
+                                 @RequestParam(required = false, name="selected-product") List<String> selectedProducts,
                                  Principal principal) {
+
         customerService.updateCartQuantity(principal.getName(), productId, quantity);
         return "redirect:/customer/shopping-cart";
     }
