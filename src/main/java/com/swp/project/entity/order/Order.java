@@ -1,6 +1,7 @@
 package com.swp.project.entity.order;
 
 
+import com.swp.project.entity.address.CommuneWard;
 import com.swp.project.entity.user.Customer;
 import com.swp.project.entity.user.Seller;
 import com.swp.project.entity.user.Shipper;
@@ -39,4 +40,16 @@ public class Order {
 
     @Column(nullable = false)
     private Instant orderDate;
+
+    @Column(length = 50)
+    private String fullName;
+
+    @Column(length = 15)
+    private String phoneNumber;
+
+    @ManyToOne(fetch =  FetchType.EAGER)
+    private CommuneWard communeWard;
+
+    @Column(length = 100)
+    private String specificAddress;
 }
