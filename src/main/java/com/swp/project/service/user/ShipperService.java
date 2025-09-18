@@ -1,9 +1,13 @@
 package com.swp.project.service.user;
 
 import com.swp.project.dto.StaffDto;
+import com.swp.project.entity.address.CommuneWard;
+import com.swp.project.entity.address.ProvinceCity;
 import com.swp.project.entity.user.Seller;
 import com.swp.project.entity.user.Shipper;
 import com.swp.project.listener.event.UserDisabledEvent;
+import com.swp.project.repository.address.CommuneWardRepository;
+import com.swp.project.repository.address.ProvinceCityRepository;
 import com.swp.project.repository.user.ShipperRepository;
 import com.swp.project.service.AddressService;
 import lombok.Getter;
@@ -29,6 +33,9 @@ public class ShipperService {
     private final PasswordEncoder passwordEncoder;
     private final AddressService addressService;
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    private final CommuneWardRepository communeWardRepository;
+    private final ProvinceCityRepository provinceCityRepository;
+
 
     private List<Shipper> results = new ArrayList<>();
 
@@ -45,7 +52,7 @@ public class ShipperService {
                         .fullname("shipper" + i + "@shop.com")
                         .birthDate(sdf.parse("2001-09-11"))
                         .cId(UUID.randomUUID().toString())
-                        .address(addressService.getCommuneWardByCode("16279"))
+                        .communeWard(addressService.getCommuneWardByCode("16279"))
                         .build());
             }
             createShipperIfNotExists(Shipper.builder()
@@ -54,7 +61,7 @@ public class ShipperService {
                     .fullname("seller" + 999 + "@shop.com")
                     .birthDate(sdf.parse("2001-09-11"))
                     .cId(UUID.randomUUID().toString())
-                    .address(addressService.getCommuneWardByCode("16279"))
+                    .communeWard(addressService.getCommuneWardByCode("16279"))
                     .enabled(false)
                     .build());
         } catch (Exception e) {
@@ -67,6 +74,13 @@ public class ShipperService {
         if (!shipperRepository.existsByEmail(shipper.getEmail())) {
             shipper.setPassword(passwordEncoder.encode(shipper.getPassword()));
             shipperRepository.save(shipper);
+//            CommuneWard address = communeWardRepository.getByCode(shipper.getAddress().getCode());
+//            address.getShippers().add(shipper);
+//            communeWardRepository.save(address);
+//            ProvinceCity provinceCity = provinceCityRepository.getReferenceById(address.getProvinceCity().getCode());
+//            provinceCity.getCommuneWards().add(address);
+//            provinceCityRepository.save(address.getProvinceCity());
+
         }
     }
 
@@ -109,7 +123,7 @@ public class ShipperService {
                 results.sort((o1, o2) -> k * o1.getCId().compareTo(o2.getCId()));
                 break;
             case "address":
-                results.sort((o1, o2) -> k * o1.getAddress().getCode().compareTo(o2.getAddress().getCode()));
+                results.sort((o1, o2) -> k * o1.getCommuneWard().toString().compareTo(o2.getCommuneWard().toString()));
                 break;
             case "enabled":
                 results.sort((o1, o2) -> {
@@ -140,7 +154,7 @@ public class ShipperService {
                         .fullname(staffDto.getFullname())
                         .birthDate(sdf.parse(staffDto.getBirthDate()))
                         .cId(staffDto.getCId())
-                        .address(addressService.getCommuneWardByCode(staffDto.getWard()))
+                        .communeWard(addressService.getCommuneWardByCode(staffDto.getAddress()))
                         .enabled(Boolean.parseBoolean(staffDto.getEnabled()))
                         .build();
             } catch (ParseException e) {

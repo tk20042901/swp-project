@@ -1,8 +1,12 @@
 package com.swp.project.service.user;
 
 import com.swp.project.dto.StaffDto;
+import com.swp.project.entity.address.CommuneWard;
+import com.swp.project.entity.address.ProvinceCity;
 import com.swp.project.entity.user.Seller;
 import com.swp.project.listener.event.UserDisabledEvent;
+import com.swp.project.repository.address.CommuneWardRepository;
+import com.swp.project.repository.address.ProvinceCityRepository;
 import com.swp.project.repository.user.SellerRepository;
 import com.swp.project.service.AddressService;
 import lombok.Getter;
@@ -29,6 +33,8 @@ public class SellerService {
     private final PasswordEncoder passwordEncoder;
     private final AddressService addressService;
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    private final CommuneWardRepository communeWardRepository;
+    private final ProvinceCityRepository  provinceCityRepository;
 
     private List<Seller> results = new ArrayList<>();
 
@@ -36,6 +42,10 @@ public class SellerService {
     public void initSeller() {
 
         try {
+            CommuneWard cw = addressService.getCommuneWardByCode("16279");
+            if (cw == null) {
+                throw new IllegalStateException("Không tìm thấy CommuneWard với code=16279");
+            }
             for (int i = 1; i <= 8; i++) {
                 createSellerIfNotExists(Seller.builder()
                         .email("seller" + i + "@shop.com")
@@ -43,7 +53,7 @@ public class SellerService {
                         .fullname("seller" + i + "@shop.com")
                         .birthDate(sdf.parse("2001-09-11"))
                         .cId(UUID.randomUUID().toString())
-                        .address(addressService.getCommuneWardByCode("16279"))
+                        .communeWard(addressService.getCommuneWardByCode("16279"))
                         .build());
             }
             createSellerIfNotExists(Seller.builder()
@@ -52,7 +62,7 @@ public class SellerService {
                     .fullname("seller" + 999 + "@shop.com")
                     .birthDate(sdf.parse("2001-09-11"))
                     .cId(UUID.randomUUID().toString())
-                    .address(addressService.getCommuneWardByCode("16279"))
+                    .communeWard(addressService.getCommuneWardByCode("16279"))
                     .enabled(false)
                     .build());
 
@@ -67,6 +77,13 @@ public class SellerService {
         if (!sellerRepository.existsByEmail(seller.getEmail())) {
             seller.setPassword(passwordEncoder.encode(seller.getPassword()));
             sellerRepository.save(seller);
+//            CommuneWard address = communeWardRepository.getByCode(seller.getAddress().getCode());
+//            address.getSellers().add(seller);
+//            communeWardRepository.save(address);
+//            communeWardRepository.save(address);
+//            ProvinceCity provinceCity = provinceCityRepository.getReferenceById(address.getProvinceCity().getCode());
+//            provinceCity.getCommuneWards().add(address);
+//            provinceCityRepository.save(address.getProvinceCity());
         }
     }
 
@@ -89,7 +106,7 @@ public class SellerService {
             if (sellerRepository.findByEmail(staffDto.getEmail()) != null) {
                 throw new RuntimeException("Email đã được dùng");
             }
-            if (staffDto.getEnabled().toLowerCase().matches("(true)|(false)")) {
+            if (!staffDto.getEnabled().toLowerCase().matches("(true)|(false)")) {
                 throw new RuntimeException("Trạng thái mở / khóa bất thường");
             }
             Seller seller = null;
@@ -100,7 +117,7 @@ public class SellerService {
                         .fullname(staffDto.getFullname())
                         .birthDate(sdf.parse(staffDto.getBirthDate()))
                         .cId(staffDto.getCId())
-                        .address(addressService.getCommuneWardByCode(staffDto.getWard()))
+                        .communeWard(addressService.getCommuneWardByCode(staffDto.getAddress()))
                         .enabled(Boolean.parseBoolean(staffDto.getEnabled()))
                         .build();
             } catch (ParseException e) {
@@ -143,7 +160,7 @@ public class SellerService {
                 results.sort((o1, o2) -> k * o1.getCId().compareTo(o2.getCId()));
                 break;
             case "address":
-                results.sort((o1, o2) -> k * o1.getAddress().getCode().compareTo(o2.getAddress().getCode()));
+                results.sort((o1, o2) -> k * o1.getCommuneWard().toString().compareTo(o2.getCommuneWard().toString()));
                 break;
             case "enabled":
                 results.sort((o1, o2) -> {

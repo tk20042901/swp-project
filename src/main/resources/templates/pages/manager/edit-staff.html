@@ -13,40 +13,40 @@
         <p th:text="${error}"></p>
     </div>
 </div>
-<form  th:action="@{/manager/edit-staff}" method="post" th:object="${staffDto}">
+<form th:action="@{/manager/edit-staff}" method="post" th:object="${staffDto}">
     <input type="text" name="newClassName" th:value="${session.newClassName}" hidden>
     <div class="form-group">
         <label for="email">Email</label>
-        <input type="text" class="form-control" id="email" name="email" th:field="*{email}">
+        <input type="text" class="form-control" th:field="*{email}">
         <p th:errors="*{email}"></p>
     </div>
     <div class="form-group">
         <label for="password">Mật khẩu</label>
-        <input type="password" class="form-control" id="password" name="password" th:value="*{password}">
+        <input type="password" class="form-control" th:field="*{password}">
         <p th:errors="*{password}"></p>
     </div>
     <div class="form-group">
         <label for="fullName">Họ tên</label>
-        <input type="text" class="form-control" id="fullname" name="fullname" th:value="*{fullname}">
+        <input type="text" class="form-control" th:field="*{fullname}">
         <p th:errors="*{fullname}"></p>
     </div>
     <div class="form-group">
         <label for="birthDate">Ngày tháng năm sinh</label>
-        <input type="date" class="form-control" id="birthDate" name="birthDate" th:value="*{birthDate}">
+        <input type="date" class="form-control" th:field="*{birthDate}">
         <p th:errors="*{birthDate}"></p>
     </div>
     <div class="form-group">
         <label for="cId">Số căn cước công dân</label>
-        <input type="text" class="form-control" id="cId" name="cId" th:value="*{cId}">
+        <input type="text" class="form-control" th:field="*{cId}">
         <p th:errors="*{cId}"></p>
     </div>
     <div class="form-group">
         <label for="address">Địa chỉ</label>
-        <input type="text" class="form-control" id="address" name="address" th:value="*{address}">
+        <input type="text" class="form-control" th:field="*{address}">
     </div>
     <div class="form-group form-check">
         <label class="form-check-label">
-            <input type="checkbox" class="form-control" id="enabled" name="enabled" th:checked="*{enabled}"> Mở khóa
+            <input type="checkbox" class="form-control" id="enabled" name="enabled" th:checked="*{enabled}" value="true"> Mở khóa
         </label>
     </div>
     <button type="submit" name="saveButton" class="btn btn-primary">Lưu</button>
