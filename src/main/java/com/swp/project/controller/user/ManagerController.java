@@ -192,8 +192,8 @@ public class ManagerController {
                             HttpSession session,
                             BindingResult bindingResult
                             ) {
+        redirectAttributes.addFlashAttribute("staffDto", staffDto);
         if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute("staffDto", staffDto);
             return "/manager/edit-staff";
         }
 
@@ -211,7 +211,12 @@ public class ManagerController {
 //                                .address(null)
 //                                .enabled(Boolean.parseBoolean(enabled))
 //                                .build();
-                        sellerService.add(staffDto);
+                        try {
+                            sellerService.add(staffDto);
+                        } catch (Exception e) {
+                            redirectAttributes.addFlashAttribute("error", e.getMessage());
+                            return "redirect:/manager/edit-staff";
+                        }
 
                         sellerService.findAllSellers();
                         sellerService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
@@ -228,7 +233,13 @@ public class ManagerController {
 //                                .address(null)
 //                                .enabled(Boolean.parseBoolean(enabled))
 //                                .build();
-                        shipperService.add(staffDto);
+
+                        try {
+                            shipperService.add(staffDto);
+                        } catch (Exception e) {
+                            redirectAttributes.addFlashAttribute("error", e.getMessage());
+                            return "redirect:/manager/edit-staff";
+                        }
 
                         shipperService.findAllShippers();
                         shipperService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
