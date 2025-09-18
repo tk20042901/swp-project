@@ -7,7 +7,6 @@ import com.swp.project.entity.user.Customer;
 import com.swp.project.service.AddressService;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.order.OrderStatusService;
-import com.swp.project.service.product.ProductService;
 import com.swp.project.service.user.CustomerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
