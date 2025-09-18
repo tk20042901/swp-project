@@ -1,10 +1,16 @@
 package com.swp.project.service.user;
 
+import com.swp.project.dto.EditManagerDto;
+import com.swp.project.dto.ManagerRegisterDto;
+import com.swp.project.dto.ViewManagerDto;
 import com.swp.project.entity.user.Manager;
 import com.swp.project.listener.event.UserDisabledEvent;
 import com.swp.project.repository.user.ManagerRepository;
+
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -39,15 +45,14 @@ public class ManagerService {
     public void initManager() {
         for (int i = 1; i <= 4; i++) {
             createManagerIfNotExists(Manager.builder()
+                    .fullname("Manager " + i)
                     .email("manager" + i + "@shop.com")
                     .password("manager")
+                    .address("123 Manager St, City, Country")
+                    .birthDate(LocalDate.of(2000, 1, i))
+                    .cId("ID" + i)  
                     .build());
         }
-        createManagerIfNotExists(Manager.builder()
-                .email("disabled-manager@shop.com")
-                .password("manager")
-                .enabled(false)
-                .build());
     }
 
     private void createManagerIfNotExists(Manager manager) {
@@ -57,7 +62,7 @@ public class ManagerService {
         }
     }
 
-    public void updateManager(Long id, Manager updatedManager) {
+    public void updateManager(Long id, EditManagerDto updatedManager) {
         Manager existingManager = getManagerById(id);
         if(existingManager == null) {
             throw new IllegalArgumentException("Manager not found.");
@@ -66,22 +71,46 @@ public class ManagerService {
             throw new IllegalArgumentException("Email already in use.");
         }
         existingManager.setEmail(updatedManager.getEmail());
-        if(updatedManager.getPassword() != null && !updatedManager.getPassword().isEmpty() && !existingManager.getPassword().equals(updatedManager.getPassword())) {
-            existingManager.setPassword(passwordEncoder.encode(updatedManager.getPassword()));
-        }
+        existingManager.setFullname(updatedManager.getFullname());
+        existingManager.setBirthDate(updatedManager.getBirthDate());
+        existingManager.setCId(updatedManager.getCId());
+        existingManager.setAddress(updatedManager.getAddress());
         managerRepository.save(existingManager);
     }
 
-    public void createManager(Manager manager) {
-        if (managerRepository.existsByEmail(manager.getEmail())) {
+    public void createManager(ManagerRegisterDto registerDto) {
+        if (!registerDto.getConfirmPassword().equals(registerDto.getPassword())) {
+            throw new RuntimeException("Mật khẩu và xác nhận mật khẩu không khớp");
+        }
+        if (managerRepository.existsByEmail(registerDto.getEmail())) {
             throw new IllegalArgumentException("Email already in use.");
         }
-        manager.setPassword(passwordEncoder.encode(manager.getPassword()));
+        Manager manager = Manager.builder()
+            .email(registerDto.getEmail())
+            .password(passwordEncoder.encode(registerDto.getPassword()))
+            .fullname(registerDto.getFullname())
+            .build();
+        if(!registerDto.getBirthDate().toString().isBlank()){
+            manager.setBirthDate(registerDto.getBirthDate());
+        }
+        if(!registerDto.getCId().isBlank()){
+            manager.setCId(registerDto.getCId());
+        }
+        if(!registerDto.getAddress().isBlank()){
+            manager.setAddress(registerDto.getAddress());
+        }
         managerRepository.save(manager);
     }
 
     public List<Manager> getAllManagers() {
         return managerRepository.findAll();
+    }
+
+
+    public List<ViewManagerDto> getAllViewManager(){
+        return managerRepository.findAll().stream()
+            .map(m -> new ViewManagerDto(m.getId(), m.getEmail(),m.isEnabled()))
+            .toList();
     }
     
 }
