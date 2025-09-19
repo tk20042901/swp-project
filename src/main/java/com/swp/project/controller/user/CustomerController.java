@@ -151,23 +151,10 @@ public class CustomerController {
     @PostMapping("/shopping-cart/update")
     public String updateCartItem(@RequestParam Long productId,
                                  @RequestParam int quantity,
-                                 HttpSession session,
                                  Principal principal) {
 
         customerService.updateCartQuantity(principal.getName(), productId, quantity);
 
-
-        List<Long> selectedIds = (List<Long>) session.getAttribute("selectedCartIds");
-
-//        // Redirect với selection
-//        if (selectedIds != null && !selectedIds.isEmpty()) {
-//            String url = "redirect:/customer/shopping-cart?";
-//            for (int i = 0; i < selectedIds.size(); i++) {
-//                if (i > 0) url += "&";
-//                url += "cartIds=" + selectedIds.get(i);
-//            }
-//            return url;
-//        }
 
         return "redirect:/customer/shopping-cart";
     }
