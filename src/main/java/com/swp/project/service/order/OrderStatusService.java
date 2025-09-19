@@ -1,5 +1,6 @@
 package com.swp.project.service.order;
 
+import com.swp.project.entity.order.Order;
 import com.swp.project.entity.order.OrderStatus;
 import com.swp.project.repository.order.OrderStatusRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,11 +36,35 @@ public class OrderStatusService {
         return orderStatusRepository.findByName("Đã Giao Hàng");
     }
 
-    public OrderStatus getCompletedStatus() {
-        return orderStatusRepository.findByName("Đã Hoàn Thành");
-    }
-
     public OrderStatus getCancelledStatus() {
         return orderStatusRepository.findByName("Đã Hủy");
+    }
+
+    public boolean isPendingConfirmationStatus(Order order) {
+        return order.getOrderStatus().getName().equals("Chờ Xác Nhận");
+    }
+
+    public boolean isPendingPaymentStatus(Order order) {
+        return order.getOrderStatus().getName().equals("Chờ Thanh Toán");
+    }
+
+    public boolean isProcessingStatus(Order order) {
+        return order.getOrderStatus().getName().equals("Đang Chuẩn Bị Hàng");
+    }
+
+    public boolean isAwaitingShipmentStatus(Order order) {
+        return order.getOrderStatus().getName().equals("Chờ Giao Hàng");
+    }
+
+    public boolean isShippingStatus(Order order) {
+        return order.getOrderStatus().getName().equals("Đang Giao Hàng");
+    }
+
+    public boolean isDeliveredStatus(Order order) {
+        return order.getOrderStatus().getName().equals("Đã Giao Hàng");
+    }
+
+    public boolean isCancelledStatus(Order order) {
+        return order.getOrderStatus().getName().equals("Đã Hủy");
     }
 }
