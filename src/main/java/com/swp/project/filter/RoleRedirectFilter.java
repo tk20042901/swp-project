@@ -15,31 +15,31 @@ public record RoleRedirectFilter(SecurityUtils securityUtils) implements Filter 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) servletRequest;
         HttpServletResponse res = (HttpServletResponse) servletResponse;
+        String requestURI = req.getRequestURI();
+        if(requestURI.startsWith("/css/") || requestURI.startsWith("/js/") || requestURI.startsWith("/images/")) {
+            filterChain.doFilter(servletRequest, servletResponse);
+            return;
+        }
         User currentUser = securityUtils.getCurrentUser();
         if (currentUser != null) {
             String role = currentUser.getAuthorities().stream().findFirst().get().getAuthority();
-            if (role.equals("Admin") &&
-                    !req.getRequestURI().startsWith("/admin")) {
+            if (role.equals("Admin") && !requestURI.startsWith("/admin")) {
                 res.sendRedirect("/admin");
                 return;
             }
-            if (role.equals("Manager") &&
-                    !req.getRequestURI().startsWith("/manager")) {
+            if (role.equals("Manager") && !requestURI.startsWith("/manager")) {
                 res.sendRedirect("/manager");
                 return;
             }
-            if (role.equals("Seller") &&
-                    !req.getRequestURI().startsWith("/seller")) {
+            if (role.equals("Seller") && !requestURI.startsWith("/seller")) {
                 res.sendRedirect("/seller");
                 return;
             }
-            if (role.equals("Shipper") &&
-                    !req.getRequestURI().startsWith("/shipper")) {
+            if (role.equals("Shipper") && !requestURI.startsWith("/shipper")) {
                 res.sendRedirect("/shipper");
                 return;
             }
-            if (role.equals("Customer Support") &&
-                    !req.getRequestURI().startsWith("/customer-support")) {
+            if (role.equals("Customer Support") && !requestURI.startsWith("/customer-support")) {
                 res.sendRedirect("/customer-support");
                 return;
             }
