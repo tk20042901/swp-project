@@ -49,4 +49,13 @@ public class Order {
 
     @Column(length = 100)
     private String specificAddress;
+
+    public int getTotalAmount(){
+        return orderItem.stream()
+                        .mapToInt(od -> od.getProduct().getPrice() * od.getQuantity()).sum();
+    }
+
+    public String getAddressString(){
+        return specificAddress + ", " + communeWard.getName() + ", " + communeWard.getProvinceCity().getName();
+    }
 }

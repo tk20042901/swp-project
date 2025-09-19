@@ -10,6 +10,8 @@ import com.swp.project.repository.order.OrderRepository;
 import com.swp.project.repository.user.CustomerRepository;
 import com.swp.project.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +28,14 @@ public class OrderService {
     private final ProductService productService;
     private final OrderStatusService orderStatusService;
 
+    public Page<Order> getAllOrder(Pageable pageable) {
+        return orderRepository.findAll(pageable);
+    }
+
+    public Page<Order> getOrdersByStatus(OrderStatus orderStatus, Pageable pageable) {
+        return orderRepository.getByOrderStatus(orderStatus, pageable);
+    }
+
     public Order getOrderById(Long orderId) {
         return orderRepository.findById(orderId).orElse(null);
     }
@@ -39,12 +49,12 @@ public class OrderService {
     }
 
     @Transactional
-    public Order createTempOrder(String customerEmail,
-                                 List<ShoppingCartItem> shoppingCartItems,
-                                 String fullName,
-                                 String phoneNumber,
-                                 CommuneWard communeWard,
-                                 String specificAddress) {
+    public Order createOrder(String customerEmail,
+                             List<ShoppingCartItem> shoppingCartItems,
+                             String fullName,
+                             String phoneNumber,
+                             CommuneWard communeWard,
+                             String specificAddress) {
         Order order = orderRepository.save(Order.builder()
                 .orderDate(Instant.now())
                 .fullName(fullName)
@@ -84,11 +94,5 @@ public class OrderService {
         Order order = getOrderById(orderId);
         order.getOrderItem().forEach(item ->
                 productService.pickProductInProductBatch(item.getProduct().getId(), item.getQuantity()));
-    }
-
-    public int totalAmount(Long orderId) {
-        Order order = getOrderById(orderId);
-        return order.getOrderItem().stream()
-                .mapToInt(od -> od.getProduct().getPrice() * od.getQuantity()).sum();
     }
 }

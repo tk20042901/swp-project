@@ -86,7 +86,7 @@ public class OrderController {
             return "/pages/customer/order/order-info";
         }
 
-        Order order = orderService.createTempOrder(principal.getName(),
+        Order order = orderService.createOrder(principal.getName(),
                 shoppingCartItems,
                 deliveryInfoDto.getFullName(),
                 deliveryInfoDto.getPhone(),
