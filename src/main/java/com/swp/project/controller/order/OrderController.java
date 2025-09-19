@@ -94,23 +94,26 @@ public class OrderController {
                 deliveryInfoDto.getSpecificAddress());
 
         if (paymentMethod.equals("cod")) {
-            orderService.setOrderStatus(order.getId(),
-                    orderStatusService.getPendingConfirmationStatus());
+            orderService.setOrderStatus(order.getId(), orderStatusService.getPendingConfirmationStatus());
             return "redirect:/order/success";
         } else {
-            orderService.setOrderStatus(order.getId(),
-                    orderStatusService.getPendingPaymentStatus());
+            orderService.setOrderStatus(order.getId(), orderStatusService.getPendingPaymentStatus());
             return "redirect:/checkout?orderId=" + order.getId();
         }
     }
 
     @GetMapping(value = "/success")
-    public String success() {
+    public String orderSuccess() {
         return "pages/order/success";
     }
 
     @GetMapping(value = "/cancel")
-    public String cancel() {
-        return "pages/order/cancel";
+    public String cancelPayment(@RequestParam Long orderCode,
+                                @RequestParam boolean cancel){
+        if(cancel) {
+            orderService.setOrderStatus(orderCode, orderStatusService.getCancelledStatus());
+            return "pages/order/cancel";
+        }
+        return "redirect:/";
     }
 }
