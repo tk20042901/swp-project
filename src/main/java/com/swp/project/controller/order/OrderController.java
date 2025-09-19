@@ -54,7 +54,7 @@ public class OrderController {
         model.addAttribute("totalAmount",
                 shoppingCartItems.stream().mapToInt(item ->
                         item.getProduct().getPrice() * item.getQuantity()).sum());
-        return "pages/order/order-info";
+        return "pages/customer/order/order-info";
     }
 
     @PostMapping("/order-info")
@@ -83,7 +83,7 @@ public class OrderController {
             model.addAttribute("totalAmount",
                     shoppingCartItems.stream().mapToInt(item ->
                             item.getProduct().getPrice() * item.getQuantity()).sum());
-            return "/pages/order/order-info";
+            return "/pages/customer/order/order-info";
         }
 
         Order order = orderService.createTempOrder(principal.getName(),
@@ -104,7 +104,7 @@ public class OrderController {
 
     @GetMapping(value = "/success")
     public String orderSuccess() {
-        return "pages/order/success";
+        return "pages/customer/order/success";
     }
 
     @GetMapping(value = "/cancel")
@@ -112,7 +112,7 @@ public class OrderController {
                                 @RequestParam boolean cancel){
         if(cancel) {
             orderService.setOrderStatus(orderCode, orderStatusService.getCancelledStatus());
-            return "pages/order/cancel";
+            return "pages/customer/order/cancel";
         }
         return "redirect:/";
     }

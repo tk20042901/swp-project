@@ -34,13 +34,13 @@ public class CustomerController {
 
     @GetMapping("/account-manager")
     public String accountManager() {
-        return "/pages/customer/account-manager";
+        return "pages/customer/account-manager/account-manager";
     }
 
     @GetMapping("/change-password")
     public String changePasswordForm(Model model) {
         model.addAttribute("changePasswordDto", new ChangePasswordDto());
-        return "/pages/customer/change-password";
+        return "pages/customer/account-manager/change-password";
     }
 
     @PostMapping("/change-password")
@@ -50,7 +50,7 @@ public class CustomerController {
                                         Principal principal) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("changePasswordRequest", changePasswordDto);
-            return "/pages/customer/change-password";
+            return "pages/customer/account-manager/change-password";
         }
 
         try {
@@ -59,7 +59,7 @@ public class CustomerController {
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
         }
-        return "/pages/customer/change-password";
+        return "pages/customer/account-manager/change-password";
     }
 
     @GetMapping("/delivery-info")
@@ -80,7 +80,7 @@ public class CustomerController {
             model.addAttribute("deliveryInfoDto", deliveryInfoDto);
         }
         model.addAttribute("provinceCities", addressService.getAllProvinceCity());
-        return "/pages/customer/delivery-info";
+        return "pages/customer/account-manager/delivery-info";
     }
 
     @PostMapping("/delivery-info")
@@ -104,7 +104,7 @@ public class CustomerController {
             model.addAttribute("wards",
                     addressService.getAllCommuneWardByProvinceCityCode(
                             deliveryInfoDto.getProvinceCityCode()));
-            return "/pages/customer/delivery-info";
+            return "pages/customer/account-manager/delivery-info";
         }
 
         customerService.updateDeliveryInfo(principal.getName(), deliveryInfoDto);
