@@ -61,7 +61,6 @@ public class OrderController {
     public String processOrder(@Valid @ModelAttribute DeliveryInfoDto deliveryInfoDto,
                                BindingResult bindingResult,
                                @ModelAttribute("shoppingCartItems") List<ShoppingCartItem> shoppingCartItems,
-                               @RequestParam(name = "voucherId", required = false) Long voucherId,
                                @RequestParam(name = "payment_method") String paymentMethod,
                                @RequestParam(required = false) String confirm,
                                Model model,
@@ -81,6 +80,9 @@ public class OrderController {
             model.addAttribute("wards",
                     addressService.getAllCommuneWardByProvinceCityCode(
                             deliveryInfoDto.getProvinceCityCode()));
+            model.addAttribute("totalAmount",
+                    shoppingCartItems.stream().mapToInt(item ->
+                            item.getProduct().getPrice() * item.getQuantity()).sum());
             return "/pages/order/order-info";
         }
 
@@ -89,8 +91,7 @@ public class OrderController {
                 deliveryInfoDto.getFullName(),
                 deliveryInfoDto.getPhone(),
                 addressService.getCommuneWardByCode(deliveryInfoDto.getCommuneWardCode()),
-                deliveryInfoDto.getSpecificAddress(),
-                voucherId);
+                deliveryInfoDto.getSpecificAddress());
 
         if (paymentMethod.equals("cod")) {
             orderService.setOrderStatus(order.getId(),

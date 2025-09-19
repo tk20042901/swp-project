@@ -1,6 +1,7 @@
 package com.swp.project.entity.user;
 
 import com.swp.project.entity.address.CommuneWard;
+import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -9,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @Getter
 @Setter
@@ -31,8 +33,8 @@ public class Customer extends User {
     @Column(length = 100)
     private String specificAddress;
 
-    @Builder.Default
-    private Long loyaltyPoints = 0L;
+    @OneToMany(mappedBy = "customer", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<ShoppingCartItem> shoppingCartItems;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

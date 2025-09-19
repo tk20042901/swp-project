@@ -174,7 +174,6 @@ public class CustomerService {
                     .phoneNumber("0363636363")
                     .communeWard(addressService.getCommuneWardByCode("16279"))
                     .specificAddress("Thủ đô linh thiêng")
-                    .loyaltyPoints(3600L)
                     .build());
         }
 
