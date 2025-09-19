@@ -3,7 +3,6 @@ package com.swp.project.controller.order;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.swp.project.service.order.OrderService;
-import com.swp.project.service.order.OrderStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,13 +17,9 @@ public class PaymentConfirmationController {
 
     private final PayOS payOS;
     private final OrderService orderService;
-    private final OrderStatusService orderStatusService;
 
-    // Xử lý đơn hàng khi thanh toán thành công
     private void orderFulfilled(WebhookData data) {
-        System.out.println("Payment successful");
         orderService.doWhenOrderConfirmed(data.getOrderCode());
-        orderService.setOrderStatus(data.getOrderCode(),orderStatusService.getProcessingStatus());
     }
 
     @PostMapping("/webhook")

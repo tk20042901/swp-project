@@ -1,8 +1,10 @@
 package com.swp.project.service.product;
 
+import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.ProductBatch;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.repository.product.ProductBatchRepository;
+import com.swp.project.repository.product.ProductRepository;
 import com.swp.project.repository.shopping_cart.ShoppingCartItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,8 +17,17 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class ProductService {
+    private final ProductRepository productRepository;
     private final ProductBatchRepository productBatchRepository;
     private final ShoppingCartItemRepository shoppingCartItemRepository;
+
+    public void saveProductBatch(ProductBatch productBatch) {
+        productBatchRepository.save(productBatch);
+    }
+
+    public void saveProduct(Product product) {
+        productRepository.save(product);
+    }
 
     @Transactional
     public void pickProductInProductBatch(Long productId, int quantity){
@@ -32,7 +43,7 @@ public class ProductService {
                 quantity -= productBatch.getQuantity();
                 productBatch.setQuantity(0);
             }
-            productBatchRepository.save(productBatch);
+            saveProductBatch(productBatch);
         }
     }
 
