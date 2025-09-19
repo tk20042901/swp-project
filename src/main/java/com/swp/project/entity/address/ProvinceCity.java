@@ -1,6 +1,8 @@
 package com.swp.project.entity.address;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -24,5 +26,6 @@ public class ProvinceCity implements Serializable {
     private String name;
 
     @OneToMany(mappedBy = "provinceCity", fetch = FetchType.EAGER)
+    @JsonManagedReference
     private List<CommuneWard> communeWards;
 }
