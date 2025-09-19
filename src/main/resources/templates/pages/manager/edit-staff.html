@@ -57,10 +57,12 @@
                     th:selected="${ward.code.equals(staffDto.communeWard)}">
             </option>
         </select>
+        <p th:errors="*{communeWard}"></p>
     </div>
     <div class="form-group">
         <label for="specificAddress">Địa chỉ cụ thể</label>
         <input type="text" class="form-control" th:field="*{specificAddress}">
+        <p th:errors="*{specificAddress}"></p>
     </div>
     <div class="form-group form-check">
         <label class="form-check-label">

@@ -40,10 +40,10 @@ public class StaffDto implements Serializable {
 
     private String provinceCity;
 
-    @NotEqualTo(value = "", message = "Phường / xã không để trống")
+    @NotBlank(message = "Phường / xã không để trống")
     private String communeWard;
 
-    @NotEqualTo(value = "", message = "Địa chỉ cụ thể không để trống")
+    @NotBlank(message = "Địa chỉ cụ thể không để trống")
     private String specificAddress;
 
     private String enabled;
