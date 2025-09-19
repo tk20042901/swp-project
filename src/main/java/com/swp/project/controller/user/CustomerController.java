@@ -8,6 +8,7 @@ import com.swp.project.service.CustomerAiService;
 import com.swp.project.service.AddressService;
 import com.swp.project.service.product.ProductService;
 import com.swp.project.service.user.CustomerService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -113,11 +114,32 @@ public class CustomerController {
     }
 
     @GetMapping("/shopping-cart")
-    public String viewShoppingCart(Model model, Principal principal) {
+    public String viewShoppingCart(Model model, Principal principal, HttpSession session,
+                                   @RequestParam(value = "cartIds", required = false) List<Long> cartIds) {
         List<ShoppingCartItem> cartItems = customerService.getCart(principal.getName());
-        long totalAmmount = customerService.TotalAmountInCart(principal.getName());
-        model.addAttribute("totalAmmount", totalAmmount);
+
+
+        if (cartIds != null && !cartIds.isEmpty()) {
+            session.setAttribute("selectedCartIds", cartIds);
+        }
+
+        List<Long> selectedIdsFromSession = (List<Long>) session.getAttribute("selectedCartIds");
+        List<Long> selectedIds;
+        if (selectedIdsFromSession != null) {
+            selectedIds = selectedIdsFromSession;
+        } else {
+            selectedIds = new ArrayList<>();
+        }
+
+
+        long totalAmount = cartItems.stream()
+                .filter(item -> selectedIds.contains(item.getProduct().getId()))
+                .mapToLong(item -> (long) item.getProduct().getPrice() * item.getQuantity())
+                .sum();
+
+        model.addAttribute("totalAmount", totalAmount);
         model.addAttribute("cartItems", cartItems);
+        model.addAttribute("selectedIds", selectedIds);
         return "pages/customer/shopping-cart";
     }
 
@@ -126,15 +148,30 @@ public class CustomerController {
         customerService.removeItem(principal.getName(), productId);
         return "redirect:/customer/shopping-cart";
     }
-
     @PostMapping("/shopping-cart/update")
     public String updateCartItem(@RequestParam Long productId,
                                  @RequestParam int quantity,
+                                 HttpSession session,
                                  Principal principal) {
 
         customerService.updateCartQuantity(principal.getName(), productId, quantity);
+
+
+        List<Long> selectedIds = (List<Long>) session.getAttribute("selectedCartIds");
+
+//        // Redirect với selection
+//        if (selectedIds != null && !selectedIds.isEmpty()) {
+//            String url = "redirect:/customer/shopping-cart?";
+//            for (int i = 0; i < selectedIds.size(); i++) {
+//                if (i > 0) url += "&";
+//                url += "cartIds=" + selectedIds.get(i);
+//            }
+//            return url;
+//        }
+
         return "redirect:/customer/shopping-cart";
     }
+
 
     @PostMapping("/shopping-cart/check-out")
     public String checkOut(@RequestParam List<Long> cartIds,
