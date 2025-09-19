@@ -189,12 +189,17 @@ public class ManagerController {
             RedirectAttributes redirectAttributes,
             Model model,
             HttpSession session) {
+
         redirectAttributes.addFlashAttribute("staffDto", staffDto);
+        redirectAttributes.addFlashAttribute("provinces", provinceCityRepository.findAll());
+        redirectAttributes.addFlashAttribute("wards", communeWardRepository.findAllByProvinceCity(provinceCityRepository.getByCode(staffDto.getProvinceCity())));
+        model.addAttribute("staffDto", staffDto);
+        model.addAttribute("provinces", provinceCityRepository.findAll());
+        model.addAttribute("wards", communeWardRepository.findAllByProvinceCity(provinceCityRepository.getByCode(staffDto.getProvinceCity())));
+
 
         if (submitButton == null) {
             staffDto.setCommuneWard("");
-            redirectAttributes.addFlashAttribute("provinces", provinceCityRepository.findAll());
-            redirectAttributes.addFlashAttribute("wards", communeWardRepository.findAllByProvinceCity(provinceCityRepository.getByCode(staffDto.getProvinceCity())));
             return "redirect:/manager/edit-staff";
 
         } else if (submitButton.equals("save")) {
@@ -222,6 +227,7 @@ public class ManagerController {
                             break;
                         case "Shipper":
                             try {
+                                staffDto.setEnabled(enabled);
                                 shipperService.add(staffDto);
                             } catch (Exception e) {
                                 redirectAttributes.addFlashAttribute("error", e.getMessage());
