@@ -1,9 +1,9 @@
 package com.swp.project.controller.user;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.List;
 
+import com.swp.project.entity.user.CustomerSupport;
+import com.swp.project.service.user.CustomerSupportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -36,7 +36,10 @@ public class ManagerController {
 
     @Autowired
     private ShipperService shipperService;
-    
+
+    @Autowired
+    private CustomerSupportService customerSupportService;
+
     @Autowired
     private ProvinceCityRepository provinceCityRepository;
 
@@ -48,21 +51,17 @@ public class ManagerController {
         return "pages/manager/index";
     }
 
-    @GetMapping("manage-staff")
-    public String manageStaff(@RequestParam(value = "clickedButton", required = false) String clickedButton,
+    @GetMapping("manage-seller")
+    public String manageSeller(
+            @RequestParam(value = "clickedButton", required = false) String clickedButton,
             @RequestParam(value = "subpageIndex", required = false) Integer subpageIndex,
             HttpSession session) {
 
         if (session.getAttribute("k") == null) {
             session.setAttribute("k", 1);
         }
-        if (session.getAttribute("list") == null || ((List<?>) session.getAttribute("list")).isEmpty()) {
             sellerService.findAllSellers();
             session.setAttribute("list", sellerService.getResults());
-        }
-        if (session.getAttribute("className") == null) {
-            session.setAttribute("className", "Seller");
-        }
         if (session.getAttribute("sortCriteria") == null) {
             session.setAttribute("sortCriteria", "id");
         }
@@ -72,18 +71,6 @@ public class ManagerController {
 
         if (clickedButton != null && !clickedButton.isEmpty()) {
             switch (clickedButton) {
-                case "seller":
-                    session.setAttribute("className", "Seller");
-                    sellerService.findAllSellers();
-                    session.setAttribute("list", sellerService.getResults());
-                    session.setAttribute("subpageIndex", 1);
-                    break;
-                case "shipper":
-                    session.setAttribute("className", "Shipper");
-                    shipperService.findAllShippers();
-                    session.setAttribute("list", shipperService.getResults());
-                    session.setAttribute("subpageIndex", 1);
-                    break;
                 case "id":
                 case "email":
                 case "fullname":
@@ -94,16 +81,9 @@ public class ManagerController {
                     int k = (int) session.getAttribute("k");
                     k = -k;
                     session.setAttribute("k", k);
-                    String className = session.getAttribute("className").toString();
-                    if (className.equals("Seller")) {
-                        sellerService.findAllSellers();
-                        sellerService.sortBy(clickedButton, k);
-                        session.setAttribute("list", sellerService.getResults());
-                    } else if (className.equals("Shipper")) {
-                        shipperService.findAllShippers();
-                        shipperService.sortBy(clickedButton, k);
-                        session.setAttribute("list", shipperService.getResults());
-                    }
+                    sellerService.findAllSellers();
+                    sellerService.sortBy(clickedButton, k);
+                    session.setAttribute("list", sellerService.getResults());
                     break;
             }
         }
@@ -112,52 +92,177 @@ public class ManagerController {
             session.setAttribute("subpageIndex", subpageIndex);
         }
 
-        return "pages/manager/manage-staff";
+        return "pages/manager/manage-seller";
     }
 
-    @PostMapping("/manage-staff")
-    public String manageStaff(@RequestParam("className") String className,
+
+    @GetMapping("manage-shipper")
+    public String manageShipper(
+            @RequestParam(value = "clickedButton", required = false) String clickedButton,
+            @RequestParam(value = "subpageIndex", required = false) Integer subpageIndex,
+            HttpSession session) {
+
+        if (session.getAttribute("k") == null) {
+            session.setAttribute("k", 1);
+        }
+            shipperService.findAllShippers();
+            session.setAttribute("list", shipperService.getResults());
+        if (session.getAttribute("sortCriteria") == null) {
+            session.setAttribute("sortCriteria", "id");
+        }
+        if (session.getAttribute("subpageIndex") == null) {
+            session.setAttribute("subpageIndex", 1);
+        }
+
+        if (clickedButton != null && !clickedButton.isEmpty()) {
+            switch (clickedButton) {
+                case "id":
+                case "email":
+                case "fullname":
+                case "cId":
+                case "address":
+                case "enabled":
+                    session.setAttribute("sortCriteria", clickedButton);
+                    int k = (int) session.getAttribute("k");
+                    k = -k;
+                    session.setAttribute("k", k);
+                    shipperService.findAllShippers();
+                    shipperService.sortBy(clickedButton, k);
+                    session.setAttribute("list", shipperService.getResults());
+                    break;
+            }
+        }
+
+        if (subpageIndex != null) {
+            session.setAttribute("subpageIndex", subpageIndex);
+        }
+
+        return "pages/manager/manage-shipper";
+    }
+
+
+    @GetMapping("manage-customer-support")
+    public String manageCustomerSupport(
+            @RequestParam(value = "clickedButton", required = false) String clickedButton,
+            @RequestParam(value = "subpageIndex", required = false) Integer subpageIndex,
+            HttpSession session) {
+
+        if (session.getAttribute("k") == null) {
+            session.setAttribute("k", 1);
+        }
+            customerSupportService.findAllCustomerSupports();
+            session.setAttribute("list", customerSupportService.getResults());
+        if (session.getAttribute("sortCriteria") == null) {
+            session.setAttribute("sortCriteria", "id");
+        }
+        if (session.getAttribute("subpageIndex") == null) {
+            session.setAttribute("subpageIndex", 1);
+        }
+
+        if (clickedButton != null && !clickedButton.isEmpty()) {
+            switch (clickedButton) {
+                case "id":
+                case "email":
+                case "fullname":
+                case "cId":
+                case "address":
+                case "enabled":
+                    session.setAttribute("sortCriteria", clickedButton);
+                    int k = (int) session.getAttribute("k");
+                    k = -k;
+                    session.setAttribute("k", k);
+                    customerSupportService.findAllCustomerSupports();
+                    customerSupportService.sortBy(clickedButton, k);
+                    session.setAttribute("list", customerSupportService.getResults());
+                    break;
+            }
+        }
+
+        if (subpageIndex != null) {
+            session.setAttribute("subpageIndex", subpageIndex);
+        }
+
+        return "pages/manager/manage-customer-support";
+    }
+
+    @PostMapping("/manage-seller")
+    public String manageSeller(
             @RequestParam("email") String email,
             RedirectAttributes redirectAttributes,
             HttpSession session) {
-        boolean isEnabled = false;
-        if (className != null && !className.isEmpty()) {
-            session.setAttribute("className", className);
-            if (className.equals("Seller")) {
-                sellerService.findAllSellers();
-                Seller seller = sellerService.getByEmail(email);
+        try {
+            sellerService.findAllSellers();
+            Seller seller = sellerService.getByEmail(email);
 
-                isEnabled = !seller.isEnabled();
-                seller.setEnabled(isEnabled);
-                sellerService.save(seller);
+            boolean isEnabled = !seller.isEnabled();
+            seller.setEnabled(isEnabled);
+            sellerService.save(seller);
 
-                sellerService.findAllSellers();
-                sellerService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
-                session.setAttribute("list", sellerService.getResults());
+            sellerService.findAllSellers();
+            sellerService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
+            session.setAttribute("list", sellerService.getResults());
 
-                sellerService.setSellerStatus(seller.getId(), isEnabled);
-
-            } else if (className.equals("Shipper")) {
-                shipperService.findAllShippers();
-                Shipper shipper = shipperService.getByEmail(email);
-
-                isEnabled = !shipper.isEnabled();
-                shipper.setEnabled(isEnabled);
-                shipperService.save(shipper);
-
-                shipperService.findAllShippers();
-                shipperService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
-                session.setAttribute("list", shipperService.getResults());
-
-                shipperService.setShipperStatus(shipper.getId(), isEnabled);
-
-            }
-            redirectAttributes.addFlashAttribute("msg", (isEnabled ? "Mở khóa " : "Khóa ") + email + " thành công");
-
+            sellerService.setSellerStatus(seller.getId(), isEnabled);
+            redirectAttributes.addFlashAttribute("list", session.getAttribute("list"));
+            redirectAttributes.addFlashAttribute("msg", (isEnabled ? "Mở khóa " : "Khóa ") + seller.getName() + " thành công" );
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
-        redirectAttributes.addFlashAttribute("list", session.getAttribute("list"));
-        return "redirect:/manager/manage-staff";
+        return "redirect:/manager/manage-seller";
     }
+
+    @PostMapping("/manage-shipper")
+    public String manageShipper(
+                               @RequestParam("email") String email,
+                               RedirectAttributes redirectAttributes,
+                               HttpSession session) {
+        try {
+            shipperService.findAllShippers();
+            Shipper shipper = shipperService.getByEmail(email);
+
+            boolean isEnabled = !shipper.isEnabled();
+            shipper.setEnabled(isEnabled);
+            shipperService.save(shipper);
+
+            shipperService.findAllShippers();
+            shipperService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
+            session.setAttribute("list", shipperService.getResults());
+
+            shipperService.setShipperStatus(shipper.getId(), isEnabled);
+            redirectAttributes.addFlashAttribute("list", session.getAttribute("list"));
+            redirectAttributes.addFlashAttribute("msg", (isEnabled ? "Mở khóa " : "Khóa ") + shipper.getName() + " thành công" );
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/manager/manage-shipper";
+    }
+
+    @PostMapping("/manage-customer-support")
+    public String manageCustomerSupport(
+                               @RequestParam("email") String email,
+                               RedirectAttributes redirectAttributes,
+                               HttpSession session) {
+        try {
+            customerSupportService.findAllCustomerSupports();
+            CustomerSupport customerSupport = customerSupportService.getByEmail(email);
+
+            boolean isEnabled = !customerSupport.isEnabled();
+            customerSupport.setEnabled(isEnabled);
+            customerSupportService.save(customerSupport);
+
+            customerSupportService.findAllCustomerSupports();
+            customerSupportService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
+            session.setAttribute("list", customerSupportService.getResults());
+
+            customerSupportService.setCustomerSupportStatus(customerSupport.getId(), isEnabled);
+            redirectAttributes.addFlashAttribute("list", session.getAttribute("list"));
+            redirectAttributes.addFlashAttribute("msg", (isEnabled ? "Mở khóa " : "Khóa ") + customerSupport.getName() + " thành công" );
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/manager/manage-customer-support";
+    }
+
 
     @GetMapping("/edit-staff")
     public String editStaff(@RequestParam(value = "clickedButton", required = false) String clickedButton, Model model,
@@ -165,14 +270,17 @@ public class ManagerController {
         if (clickedButton != null && !clickedButton.isEmpty()) {
             model.addAttribute("provinces", provinceCityRepository.findAll());
             model.addAttribute("wards", new ArrayList<>());
+            model.addAttribute("staffDto", new StaffDto());
+
             switch (clickedButton) {
-                case "seller":
+                case "Seller":
                     session.setAttribute("newClassName", "Seller");
-                    model.addAttribute("staffDto", new StaffDto());
                     break;
-                case "shipper":
+                case "Shipper":
                     session.setAttribute("newClassName", "Shipper");
-                    model.addAttribute("staffDto", new StaffDto());
+                    break;
+                case "CustomerSupport":
+                    session.setAttribute("newClassName", "CustomerSupport");
                     break;
             }
         }
@@ -197,48 +305,82 @@ public class ManagerController {
         model.addAttribute("provinces", provinceCityRepository.findAll());
         model.addAttribute("wards", communeWardRepository.findAllByProvinceCity(provinceCityRepository.getByCode(staffDto.getProvinceCity())));
 
+        String managerRedirectUrl = "";
+        String managerForwardUrl = "";
+        String editRedirectUrl = "redirect:/manager/edit-staff";
+        String editForwardUrl = "pages/manager/edit-staff";
+
+        switch (newClassName) {
+            case "Seller":
+                managerRedirectUrl = "redirect:/manager/manage-seller";
+                managerForwardUrl = "pages/manager/manage-seller";
+                break;
+            case "Shipper":
+                managerRedirectUrl = "redirect:/manager/manage-shipper";
+                managerForwardUrl = "pages/manager/manage-shipper";
+                break;
+            case "CustomerSupport":
+                managerRedirectUrl = "redirect:/manager/manage-customer-support";
+                managerForwardUrl = "pages/manager/manage-customer-support";
+                break;
+        }
 
         if (submitButton == null) {
             staffDto.setCommuneWard("");
-            return "redirect:/manager/edit-staff";
+            return editRedirectUrl;
 
         } else if (submitButton.equals("save")) {
             if (bindingResult.hasErrors()) {
-                return "pages/manager/edit-staff";
+                return editForwardUrl;
             }
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             try {
                 if (newClassName != null && !newClassName.isEmpty()) {
+
                     switch (newClassName) {
                         case "Seller":
                             try {
                                 staffDto.setEnabled(enabled);
                                 sellerService.add(staffDto);
+                                sellerService.findAllSellers();
+                                sellerService.sortBy(session.getAttribute("sortCriteria").toString(),
+                                        (int) session.getAttribute("k"));
+
+                                session.setAttribute("list", sellerService.getResults());
                             } catch (Exception e) {
                                 redirectAttributes.addFlashAttribute("error", e.getMessage());
-                                return "redirect:/manager/edit-staff";
+                                return editRedirectUrl;
                             }
 
-                            sellerService.findAllSellers();
-                            sellerService.sortBy(session.getAttribute("sortCriteria").toString(),
-                                    (int) session.getAttribute("k"));
-
-                            session.setAttribute("list", sellerService.getResults());
                             break;
                         case "Shipper":
                             try {
                                 staffDto.setEnabled(enabled);
                                 shipperService.add(staffDto);
+                                shipperService.findAllShippers();
+                                shipperService.sortBy(session.getAttribute("sortCriteria").toString(),
+                                        (int) session.getAttribute("k"));
+
+                                session.setAttribute("list", shipperService.getResults());
                             } catch (Exception e) {
                                 redirectAttributes.addFlashAttribute("error", e.getMessage());
-                                return "redirect:/manager/edit-staff";
+                                return editRedirectUrl;
                             }
 
-                            shipperService.findAllShippers();
-                            shipperService.sortBy(session.getAttribute("sortCriteria").toString(),
-                                    (int) session.getAttribute("k"));
+                            break;
+                        case "CustomerSupport":
+                            try {
+                                staffDto.setEnabled(enabled);
+                                customerSupportService.add(staffDto);
+                                customerSupportService.findAllCustomerSupports();
+                                customerSupportService.sortBy(session.getAttribute("sortCriteria").toString(),
+                                        (int) session.getAttribute("k"));
 
-                            session.setAttribute("list", shipperService.getResults());
+                                session.setAttribute("list", customerSupportService.getResults());
+                            } catch (Exception e) {
+                                redirectAttributes.addFlashAttribute("error", e.getMessage());
+                                return editRedirectUrl;
+                            }
+
                             break;
                     }
                     redirectAttributes.addFlashAttribute("msg",
@@ -250,7 +392,13 @@ public class ManagerController {
 
         }
 
-        redirectAttributes.addFlashAttribute("list", session.getAttribute("list"));
-        return "redirect:/manager/manage-staff";
+        switch (newClassName) {
+            case "Seller":
+            case "Shipper":
+            case "CustomerSupport":
+                return managerRedirectUrl;
+            default:
+                return "redirect:/manager/manage-seller";
+        }
     }
 }

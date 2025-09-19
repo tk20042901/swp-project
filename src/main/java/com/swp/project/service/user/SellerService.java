@@ -32,14 +32,11 @@ public class SellerService {
     private final PasswordEncoder passwordEncoder;
     private final AddressService addressService;
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    private final CommuneWardRepository communeWardRepository;
-    private final ProvinceCityRepository  provinceCityRepository;
 
     private List<Seller> results = new ArrayList<>();
 
     @Transactional
     public void initSeller() {
-
         try {
             for (int i = 1; i <= 8; i++) {
                 createSellerIfNotExists(Seller.builder()
@@ -74,13 +71,6 @@ public class SellerService {
         if (!sellerRepository.existsByEmail(seller.getEmail())) {
             seller.setPassword(passwordEncoder.encode(seller.getPassword()));
             sellerRepository.save(seller);
-//            CommuneWard address = communeWardRepository.getByCode(seller.getAddress().getCode());
-//            address.getSellers().add(seller);
-//            communeWardRepository.save(address);
-//            communeWardRepository.save(address);
-//            ProvinceCity provinceCity = provinceCityRepository.getReferenceById(address.getProvinceCity().getCode());
-//            provinceCity.getCommuneWards().add(address);
-//            provinceCityRepository.save(address.getProvinceCity());
         }
     }
 
