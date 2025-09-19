@@ -1,11 +1,18 @@
 package com.swp.project.initializer;
 
 
-import com.swp.project.service.CustomerAiService;
-import com.swp.project.service.user.*;
-import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+
+import com.swp.project.service.CustomerAiService;
+import com.swp.project.service.user.AdminService;
+import com.swp.project.service.user.CustomerService;
+import com.swp.project.service.user.CustomerSupportService;
+import com.swp.project.service.user.ManagerService;
+import com.swp.project.service.user.SellerService;
+import com.swp.project.service.user.ShipperService;
+
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Component

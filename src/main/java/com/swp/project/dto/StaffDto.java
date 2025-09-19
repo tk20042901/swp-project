@@ -1,16 +1,17 @@
 package com.swp.project.dto;
 
+import java.io.Serializable;
+
 import com.swp.project.customAnnotation.NotEqualTo;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.validator.constraints.Length;
-
-import java.io.Serializable;
 
 @Getter
 @Setter
@@ -34,14 +35,16 @@ public class StaffDto implements Serializable {
     private String birthDate;
 
     @NotBlank(message = "Mã căn cước công dân không được để trống")
-    @Size(min = 12, max = 12, message = "Mã căn cước công dân dài 12 kí tự")
+    @Pattern(regexp = "\\d{12}", message = "Mã căn cước công dân phải gồm 12 chữ số")
     private String cId;
-//
-//    @NotEqualTo(value = "", message = "Tỉnh / thành phố không để trống")
-//    private String province;
+
+    private String provinceCity;
 
     @NotEqualTo(value = "", message = "Phường / xã không để trống")
-    private String address;
+    private String communeWard;
+
+    @NotEqualTo(value = "", message = "Địa chỉ cụ thể không để trống")
+    private String specificAddress;
 
     private String enabled;
 }
