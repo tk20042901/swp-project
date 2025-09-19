@@ -191,11 +191,11 @@ public class ManagerController {
             HttpSession session) {
         redirectAttributes.addFlashAttribute("staffDto", staffDto);
 
-        if (submitButton.equals("changeProvince")) {
+        if (submitButton == null) {
             staffDto.setCommuneWard("");
-            model.addAttribute("provinces", provinceCityRepository.findAll());
-            model.addAttribute("wards", communeWardRepository.findAllByProvinceCity(provinceCityRepository.getByCode(staffDto.getProvinceCity())));
-            return "pages/manager/edit-staff";
+            redirectAttributes.addFlashAttribute("provinces", provinceCityRepository.findAll());
+            redirectAttributes.addFlashAttribute("wards", communeWardRepository.findAllByProvinceCity(provinceCityRepository.getByCode(staffDto.getProvinceCity())));
+            return "redirect:/manager/edit-staff";
 
         } else if (submitButton.equals("save")) {
             if (bindingResult.hasErrors()) {
