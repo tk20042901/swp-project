@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+    <script src="/js/bootstrap/bootstrap.bundle.min.js"></script>
 </head>
 <body class="container-fluid">
 <div style="display: grid; grid-template-columns: 2fr 8fr; height: 100px">
@@ -52,22 +53,27 @@
             <th>Hành động</th>
         </form>
     </tr>
-    <tr th:each="index : ${#numbers.sequence(15 * (session.subpageIndex - 1), ((15 * session.subpageIndex - 1) < session.list.size() ? (15 * session.subpageIndex - 1) : (session.list.size() - 1)))}" th:object="${session.list[index]}">
-        <td class=".col-1" th:text="*{id}"></td>
-        <td class=".col-2" th:text="*{email}"></td>
-        <td class=".col-2" th:text="*{fullname}"></td>
-        <td class=".col-2" th:text="*{cId}"></td>
-        <td class=".col-3" th:text="*{communeWard}"></td>
-        <td class=".col-1" th:text="*{(enabled == true) ? 'Có' : 'Không'}"></td>
-        <td class=".col-1">
-            <form style="width: 100%" th:action="@{/manager/manage-staff}" method="post">
-                <input name="className" th:value="${session.className}" hidden>
-                <input name="email" th:value="*{email}" hidden>
-                <button type="submit" value="true" th:text="*{enabled ? 'Khóa' : 'Mở'}" th:class="'btn' + *{enabled ? ' btn-danger' : ' btn-success'}"
-                style="width: 100%;"></button>
-            </form>
-        </td>
-    </tr>
+    <div th:if="${session.list.isEmpty()}">
+        <tr>(trống)</tr>
+    </div>
+    <div  th:unless="${session.list.isEmpty()}">
+        <tr th:each="index : ${#numbers.sequence(15 * (session.subpageIndex - 1), ((15 * session.subpageIndex - 1) < session.list.size() ? (15 * session.subpageIndex - 1) : (session.list.size() - 1)))}" th:object="${session.list[index]}">
+            <td class=".col-1" th:text="*{id}"></td>
+            <td class=".col-2" th:text="*{email}"></td>
+            <td class=".col-2" th:text="*{fullname}"></td>
+            <td class=".col-2" th:text="*{cId}"></td>
+            <td class=".col-3" th:text="*{address}"></td>
+            <td class=".col-1" th:text="*{(enabled == true) ? 'Có' : 'Không'}"></td>
+            <td class=".col-1">
+                <form style="width: 100%" th:action="@{/manager/manage-staff}" method="post">
+                    <input name="className" th:value="${session.className}" hidden>
+                    <input name="email" th:value="*{email}" hidden>
+                    <button type="submit" value="true" th:text="*{enabled ? 'Khóa' : 'Mở'}" th:class="'btn' + *{enabled ? ' btn-danger' : ' btn-success'}"
+                    style="width: 100%;"></button>
+                </form>
+            </td>
+        </tr>
+    </div>
 </table>
 
 </body>

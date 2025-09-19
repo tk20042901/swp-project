@@ -1,27 +1,26 @@
 package com.swp.project.service.user;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.swp.project.dto.StaffDto;
-import com.swp.project.entity.address.CommuneWard;
-import com.swp.project.entity.address.ProvinceCity;
 import com.swp.project.entity.user.Seller;
 import com.swp.project.listener.event.UserDisabledEvent;
 import com.swp.project.repository.address.CommuneWardRepository;
 import com.swp.project.repository.address.ProvinceCityRepository;
 import com.swp.project.repository.user.SellerRepository;
 import com.swp.project.service.AddressService;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
 
 @Getter
 @RequiredArgsConstructor
@@ -42,10 +41,6 @@ public class SellerService {
     public void initSeller() {
 
         try {
-            CommuneWard cw = addressService.getCommuneWardByCode("16279");
-            if (cw == null) {
-                throw new IllegalStateException("Không tìm thấy CommuneWard với code=16279");
-            }
             for (int i = 1; i <= 8; i++) {
                 createSellerIfNotExists(Seller.builder()
                         .email("seller" + i + "@shop.com")
@@ -54,6 +49,7 @@ public class SellerService {
                         .birthDate(sdf.parse("2001-09-11"))
                         .cId(UUID.randomUUID().toString())
                         .communeWard(addressService.getCommuneWardByCode("16279"))
+                        .specificAddress("123 Đường ABC, Phường XYZ")
                         .build());
             }
             createSellerIfNotExists(Seller.builder()
@@ -63,6 +59,7 @@ public class SellerService {
                     .birthDate(sdf.parse("2001-09-11"))
                     .cId(UUID.randomUUID().toString())
                     .communeWard(addressService.getCommuneWardByCode("16279"))
+                    .specificAddress("123 Đường ABC, Phường XYZ")
                     .enabled(false)
                     .build());
 
@@ -117,9 +114,12 @@ public class SellerService {
                         .fullname(staffDto.getFullname())
                         .birthDate(sdf.parse(staffDto.getBirthDate()))
                         .cId(staffDto.getCId())
-                        .communeWard(addressService.getCommuneWardByCode(staffDto.getAddress()))
+                        .communeWard(addressService.getCommuneWardByCode(staffDto.getCommuneWard()))
+                        .specificAddress(staffDto.getSpecificAddress())
                         .enabled(Boolean.parseBoolean(staffDto.getEnabled()))
                         .build();
+
+                        
             } catch (ParseException e) {
                 throw new RuntimeException("Định dạng ngày tháng năm bất thường");
             }
