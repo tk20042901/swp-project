@@ -18,6 +18,9 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RequiredArgsConstructor
 @Controller
@@ -30,15 +33,24 @@ public class AdminController {
     public String showAdminMainPage(Model model) {
         return "pages/admin/index";
     }
+
+    @GetMapping("/address-test")
+    public String getMethodName() {
+        return "pages/admin/address-test";
+    }
+    
     
     @GetMapping("/create-manager")
     public String getCreateManagerPage(Model model) {
-        model.addAttribute("registerDto", new ManagerRegisterDto());
+        model.addAttribute("managerRegisterDto", new ManagerRegisterDto());
         return "pages/admin/create-manager";
     }
     
     @GetMapping("/edit-manager/{id}")
-    public String getEditManagerPage(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+    public String getEditManagerPage(
+        @PathVariable Long id, 
+        Model model, 
+        RedirectAttributes redirectAttributes) {
         Manager manager = managerService.getManagerById(id);
         if (manager == null) {
             redirectAttributes.addFlashAttribute("failed", "Manager not found.");
@@ -47,6 +59,11 @@ public class AdminController {
         EditManagerDto editManagerDto = new EditManagerDto();
         editManagerDto.setId(manager.getId());
         editManagerDto.setEmail(manager.getEmail());
+        editManagerDto.setFullname(manager.getFullname());
+        editManagerDto.setBirthDate(manager.getBirthDate());
+        editManagerDto.setCId(manager.getCId());
+        editManagerDto.setProvinceCityCode(manager.getProvinceCityCode());
+        editManagerDto.setCommuneWardCode(manager.getCommuneWardCode());
         model.addAttribute("editManagerDto", editManagerDto);
         return "pages/admin/edit-manager";
     }
@@ -79,17 +96,17 @@ public class AdminController {
 
     @PostMapping("/create-manager")
     public String createManager(
-        @Valid @ModelAttribute("registerDto") ManagerRegisterDto registerDto,
+        @Valid @ModelAttribute ManagerRegisterDto managerRegisterDto,
         BindingResult bindingResult,
         RedirectAttributes redirectAttributes,
         Model model) {
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("registerDto", registerDto);
+            model.addAttribute("managerRegisterDto", managerRegisterDto);
             return "pages/admin/create-manager";
         }
         try {
-            managerService.createManager(registerDto);
+            managerService.createManager(managerRegisterDto);
             redirectAttributes.addFlashAttribute("success", "Manager created successfully.");
         } 
         catch (RuntimeException e) {

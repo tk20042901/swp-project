@@ -10,7 +10,6 @@ import com.swp.project.repository.user.ManagerRepository;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -48,7 +47,9 @@ public class ManagerService {
                     .fullname("Manager " + i)
                     .email("manager" + i + "@shop.com")
                     .password("manager")
-                    .address("123 Manager St, City, Country")
+                    .provinceCityCode("01")
+                    .communeWardCode("001")
+                    .specificAddress("123 Main St, City " + i)
                     .birthDate(LocalDate.of(2000, 1, i))
                     .cId("ID" + i)  
                     .build());
@@ -74,7 +75,9 @@ public class ManagerService {
         existingManager.setFullname(updatedManager.getFullname());
         existingManager.setBirthDate(updatedManager.getBirthDate());
         existingManager.setCId(updatedManager.getCId());
-        existingManager.setAddress(updatedManager.getAddress());
+        existingManager.setProvinceCityCode(updatedManager.getProvinceCityCode());
+        existingManager.setCommuneWardCode(updatedManager.getCommuneWardCode());
+        existingManager.setSpecificAddress(updatedManager.getSpecificAddress());
         managerRepository.save(existingManager);
     }
 
@@ -96,8 +99,16 @@ public class ManagerService {
         if(!registerDto.getCId().isBlank()){
             manager.setCId(registerDto.getCId());
         }
-        if(!registerDto.getAddress().isBlank()){
-            manager.setAddress(registerDto.getAddress());
+        if(!registerDto.getProvinceCityCode().isBlank()){
+            manager.setProvinceCityCode(registerDto.getProvinceCityCode());
+            System.out.println("Province/City Code: " + registerDto.getProvinceCityCode());
+        }
+        if(!registerDto.getCommuneWardCode().isBlank()){
+            manager.setCommuneWardCode(registerDto.getCommuneWardCode());
+            System.out.println("Commune/Ward Code: " + registerDto.getCommuneWardCode());
+        }
+        if(!registerDto.getSpecificAddress().isBlank()){
+            manager.setSpecificAddress(registerDto.getSpecificAddress());
         }
         managerRepository.save(manager);
     }

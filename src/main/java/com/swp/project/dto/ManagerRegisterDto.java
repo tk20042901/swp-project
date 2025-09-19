@@ -37,6 +37,10 @@ public class ManagerRegisterDto {
     @Size(max = 50, message = "CMND/CCCD không được vượt quá 50 ký tự")
     private String cId;
 
-    @Size(max = 100, message = "Địa chỉ không được vượt quá 100 ký tự")
-    private String address;
+    private String provinceCityCode;
+
+    private String communeWardCode;
+
+    @Size(max = 100, message = "Địa chỉ chi tiết không được vượt quá 100 ký tự")
+    private String specificAddress;
 }

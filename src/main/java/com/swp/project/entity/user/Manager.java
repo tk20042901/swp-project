@@ -6,6 +6,8 @@ import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -36,8 +38,14 @@ public class Manager extends User {
     @Column(length = 50, unique = true, nullable = false)
     private String cId;
 
-    @Column(length = 100, nullable = false)
+    private String provinceCityCode;
+
+    private String communeWardCode;
+
     private String address;
+
+    @Size(max = 100, message = "Địa chỉ chi tiết không được vượt quá 100 ký tự")
+    private String specificAddress;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
