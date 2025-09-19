@@ -32,6 +32,7 @@ public class SecurityConfig {
             "/login/**",
             "/css/**",
             "/js/**",
+            "/images/**",
             "/forgot-password/**",
             "/verify-otp/**"
     };

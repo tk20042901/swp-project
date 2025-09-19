@@ -21,7 +21,8 @@
     <tr th:each="item : ${order.orderItem}">
         <td th:text="${item.product.id}"></td>
         <td th:text="${item.product.name}"></td>
-        <td><img th:src="@{${item.product.main_image_url}}" alt="" width="100"></td>
+        <td><img th:src="@{${item.product.main_image_url}}"
+                 alt="Product Image"></td>
         <td th:text="${item.product + '/' + item.product.unit.name} + ' VND'"></td>
         <td th:text="${item.quantity}"></td>
         <td th:text="${item.product.price * item.quantity} + ' VND'"></td>
