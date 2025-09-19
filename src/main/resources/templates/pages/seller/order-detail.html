@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<p th:text="'Tên người đặt hàng: ' + ${order.fullName}"></p>
+<p th:text="'Số điện thoại: ' + ${order.phoneNumber}"></p>
+<p th:text="'Địa chỉ: ' + ${order.specificAddress} + ', ' + ${order.communeWard.name} + ', ' + ${order.communeWard.provinceCity.name}"></p>
+<p th:text="'Thời gian đặt hàng: ' + ${#dates.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></p>
+<table>
+    <tr>
+        <th>Mã sản phẩm</th>
+        <th>Tên sản phẩm</th>
+        <th>Hình ảnh</th>
+        <th>Giá</th>
+        <th>Số lượng</th>
+        <th>Thành tiền</th>
+    </tr>
+    <tr th:each="item : ${order.orderItem}">
+        <td th:text="${item.product.id}"></td>
+        <td th:text="${item.product.name}"></td>
+        <td><img th:src="@{${item.product.main_image_url}}" alt="" width="100"></td>
+        <td th:text="${item.product + '/' + item.product.unit.name} + ' VND'"></td>
+        <td th:text="${item.quantity}"></td>
+        <td th:text="${item.product.price * item.quantity} + ' VND'"></td>
+    </tr>
+    <tr>
+        <td colspan="5" style="text-align: right; font-weight: bold;">Tổng tiền:</td>
+        <td th:text="${order.totalAmount} + ' VND'"></td>
+    </tr>
+    <tr>
+        <td colspan="5" style="text-align: right; font-weight: bold;">Trạng thái đơn hàng:</td>
+        <td th:text="${order.orderStatus.name}"></td>
+    </tr>
+</table>
+<form th:action="@{/seller/update-pending-order-status}" method="post"
+      th:if="${orderStatusService.isPendingConfirmationStatus(order)}">
+    <input type="hidden" name="orderId" th:value="${order.id}">
+    <button type="submit" name="action" th:value="accept">Xác nhận đơn hàng</button>
+    <button type="submit" name="action" th:value="reject">Từ chối đơn hàng</button>
+</form>
+
+<form th:action="@{/seller/update-processing-order-status}" method="post"
+      th:if="${orderStatusService.isProcessingStatus(order)}">
+    <input type="hidden" name="orderId" th:value="${order.id}">
+    <button type="submit">Chuyển sang trạng thái Đang chờ giao hàng</button>
+</form>
+</body>
+</html>

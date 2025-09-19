@@ -157,13 +157,6 @@ public class CustomerService {
         customerRepository.save(customer);
     }
 
-    public String getAddressString(String customerEmail) {
-        Customer customer = customerRepository.getByEmail(customerEmail);
-        return customer.getSpecificAddress() + ", "
-                + customer.getCommuneWard().getName() + ", "
-                + customer.getCommuneWard().getProvinceCity().getName();
-    }
-
     @Transactional
     public void initCustomer() {
         if (!customerRepository.existsByEmail("default-customer@shop.com")) {
@@ -210,14 +203,5 @@ public class CustomerService {
 
         item.setQuantity(quantity);
         shoppingCartItemRepository.save(item);
-    }
-
-    public int TotalAmountInCart(String email) {
-        Customer customer = customerRepository.getByEmail(email);
-        int total = 0;
-        for (ShoppingCartItem item : shoppingCartItemRepository.findByCustomer(customer)) {
-            total += item.getProduct().getPrice() * item.getQuantity();
-        }
-        return total;
     }
 }

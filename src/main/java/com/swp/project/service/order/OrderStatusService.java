@@ -6,11 +6,21 @@ import com.swp.project.repository.order.OrderStatusRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Service
 public class OrderStatusService {
 
     private final OrderStatusRepository orderStatusRepository;
+
+    public List<OrderStatus> getAllStatus() {
+        return orderStatusRepository.findAll();
+    }
+
+    public OrderStatus getOrderStatusById(Long orderId) {
+        return orderStatusRepository.findById(orderId).orElse(null);
+    }
 
     public OrderStatus getPendingConfirmationStatus() {
         return orderStatusRepository.findByName("Chờ Xác Nhận");

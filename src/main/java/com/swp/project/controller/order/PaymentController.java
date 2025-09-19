@@ -3,7 +3,6 @@ package com.swp.project.controller.order;
 
 import com.swp.project.entity.order.Order;
 import com.swp.project.service.order.OrderService;
-import com.swp.project.service.user.CustomerService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -22,7 +21,6 @@ public class PaymentController {
 
     private final PayOS payOS;
     private final OrderService orderService;
-    private final CustomerService customerService;
 
     private static final String returnUrl = "http://swp-project.loca.lt/order/success";
     private static final String cancelUrl = "http://swp-project.loca.lt/order/cancel";
@@ -43,8 +41,8 @@ public class PaymentController {
                     .buyerName(order.getCustomer().getName())
                     .buyerEmail(order.getCustomer().getEmail())
                     .buyerPhone(order.getCustomer().getPhoneNumber())
-                    .buyerAddress(customerService.getAddressString(order.getCustomer().getEmail()))
-                    .amount(orderService.totalAmount(orderId))
+                    .buyerAddress(order.getAddressString())
+                    .amount(order.getTotalAmount())
                     .description("Don hang" + order.getId())
                     .returnUrl(returnUrl)
                     .cancelUrl(cancelUrl)
