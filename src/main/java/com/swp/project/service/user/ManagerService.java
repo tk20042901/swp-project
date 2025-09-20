@@ -54,16 +54,10 @@ public class ManagerService {
 
     @Transactional
     public void initManager() {
-        ProvinceCity province = provinceCityRepository.findAll()
-            .stream()
-            .findFirst()
-            .orElseThrow(() -> new RuntimeException("No provinces found"));
-
         CommuneWard ward = communeWardRepository.findAll()
             .stream()
-            .filter(w -> w.getProvinceCity().getCode().equals(province.getCode()))
             .findFirst()
-            .orElseThrow(() -> new RuntimeException("No wards found"));
+            .orElse(null);
         for (int i = 1; i <= 4; i++) {
             createManagerIfNotExists(Manager.builder()
                     .fullname("Manager " + i)
