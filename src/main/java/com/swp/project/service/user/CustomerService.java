@@ -10,6 +10,7 @@ import com.swp.project.entity.user.Customer;
 import com.swp.project.repository.shopping_cart.ShoppingCartItemRepository;
 import com.swp.project.repository.user.CustomerRepository;
 import com.swp.project.repository.PendingRegisterRepository;
+import com.swp.project.repository.user.UserRepository;
 import com.swp.project.service.AddressService;
 import com.swp.project.service.EmailService;
 
@@ -28,6 +29,7 @@ import java.util.*;
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final PendingRegisterRepository pendingRegisterRepository;
     private final EmailService emailService;
@@ -44,7 +46,7 @@ public class CustomerService {
         if (!dto.getConfirmPassword().equals(dto.getPassword())) {
             throw new RuntimeException("Mật khẩu và xác nhận mật khẩu không khớp");
         }
-        if (customerRepository.existsByEmail(dto.getEmail())) {
+        if (userRepository.existsByEmail(dto.getEmail())) {
             throw new RuntimeException("Email " + dto.getEmail() + " đã được sử dụng");
         }
         PendingRegister existedPendingRegister = pendingRegisterRepository.findByEmail(dto.getEmail());
@@ -159,7 +161,7 @@ public class CustomerService {
 
     @Transactional
     public void initCustomer() {
-        if (!customerRepository.existsByEmail("default-customer@shop.com")) {
+        if (!userRepository.existsByEmail("default-customer@shop.com")) {
             customerRepository.save(Customer.builder()
                     .email("default-customer@shop.com")
                     .password(passwordEncoder.encode("customer"))

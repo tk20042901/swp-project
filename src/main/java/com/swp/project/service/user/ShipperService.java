@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.swp.project.entity.user.Seller;
 import com.swp.project.repository.user.*;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -77,7 +76,7 @@ public class ShipperService {
 
 
     private void createShipperIfNotExists(Shipper shipper) {
-        if (!shipperRepository.existsByEmail(shipper.getEmail())) {
+        if (!userRepository.existsByEmail(shipper.getEmail())) {
             shipper.setPassword(passwordEncoder.encode(shipper.getPassword()));
             shipperRepository.save(shipper);
 //            CommuneWard address = communeWardRepository.getByCode(shipper.getAddress().getCode());
@@ -146,10 +145,10 @@ public class ShipperService {
             if (existscId(staffDto.getCId())) {
                 throw new RuntimeException("Mã căn cước công dân đã được dùng");
             }
-            if (existsEmail(staffDto.getEmail())) {
+            if (userRepository.existsByEmail(staffDto.getEmail())) {
                 throw new RuntimeException("Email đã được dùng");
             }
-            Shipper shipper = null;
+            Shipper shipper;
             try {
                 shipper = Shipper.builder()
                         .email(staffDto.getEmail())
@@ -177,10 +176,6 @@ public class ShipperService {
 //                ||
 //                managerRepository.findBycId(cId) != null
                 ;
-    }
-
-    private boolean existsEmail(String email) {
-        return userRepository.findByEmail(email) != null;
     }
 
     public void findShippersByNameAndcId(String name, String cId) {

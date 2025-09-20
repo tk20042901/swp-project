@@ -2,8 +2,6 @@ package com.swp.project.service.user;
 
 import com.swp.project.dto.StaffDto;
 import com.swp.project.entity.user.CustomerSupport;
-import com.swp.project.entity.user.Seller;
-import com.swp.project.entity.user.Shipper;
 import com.swp.project.listener.event.UserDisabledEvent;
 import com.swp.project.repository.user.*;
 import com.swp.project.service.AddressService;
@@ -69,7 +67,7 @@ public class CustomerSupportService {
 
 
     private void createCustomerSupportIfNotExists(CustomerSupport customerSupport) {
-        if (!customerSupportRepository.existsByEmail(customerSupport.getEmail())) {
+        if (!userRepository.existsByEmail(customerSupport.getEmail())) {
             customerSupport.setPassword(passwordEncoder.encode(customerSupport.getPassword()));
             customerSupportRepository.save(customerSupport);
         }
@@ -113,10 +111,10 @@ public class CustomerSupportService {
             if (existscId(staffDto.getCId())) {
                 throw new RuntimeException("Mã căn cước công dân đã được dùng");
             }
-            if (existsEmail(staffDto.getEmail())) {
+            if (userRepository.existsByEmail(staffDto.getEmail())) {
                 throw new RuntimeException("Email đã được dùng");
             }
-            CustomerSupport customerSupport = null;
+            CustomerSupport customerSupport;
             try {
                 customerSupport = CustomerSupport.builder()
                         .email(staffDto.getEmail())
@@ -170,10 +168,6 @@ public class CustomerSupportService {
 //                ||
 //                managerRepository.findBycId(cId) != null
                 ;
-    }
-
-    private boolean existsEmail(String email) {
-        return userRepository.findByEmail(email) != null;
     }
 
 

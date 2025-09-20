@@ -2,6 +2,7 @@ package com.swp.project.service.user;
 
 import com.swp.project.entity.user.Admin;
 import com.swp.project.repository.user.AdminRepository;
+import com.swp.project.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AdminService {
 
+    private final UserRepository userRepository;
     private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -21,7 +23,7 @@ public class AdminService {
     private String adminPassword;
     @Transactional
     public void initAdmin() {
-        if(!adminRepository.existsByEmail(adminEmail)){
+        if(!userRepository.existsByEmail(adminEmail)){
             adminRepository.save(Admin.builder()
                     .email(adminEmail)
                     .password(passwordEncoder.encode(adminPassword))
