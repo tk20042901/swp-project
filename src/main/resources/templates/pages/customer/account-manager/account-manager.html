@@ -2,19 +2,37 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quản lý tài khoản</title>
     <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
-<body>
+<body class="auth-body">
+<div class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
+    <div class="w-100" style="max-width: 640px;">
+        <div class="card shadow-sm auth-card">
+            <div class="card-body p-4 p-md-5">
+                <h1 class="h4 text-center mb-1 brand">Quản lý tài khoản</h1>
+                <p class="text-muted text-center mb-4">Xem và cập nhật thông tin tài khoản của bạn.</p>
 
-<a th:if="${!isGoogleRegistered}" href="/customer/change-password">Đổi mật khẩu</a>
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <a th:href="@{/customer/delivery-info}" class="btn btn-outline-primary w-100">Thông tin giao hàng</a>
+                    </div>
+                    <div class="col-12 col-md-6" th:if="${!isGoogleRegistered}">
+                        <a th:href="@{/customer/change-password}" class="btn btn-outline-secondary w-100">Đổi mật khẩu</a>
+                    </div>
+                </div>
 
-<form th:action="@{/logout}" method="post">
-    <button type="submit" class="btn">Đăng xuất</button>
-</form>
+                <hr class="my-4">
 
-<a th:href="@{/customer/delivery-info}">Thông tin giao hàng</a>
-
-<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+                <form th:action="@{/logout}" method="post" class="d-grid">
+                    <button type="submit" class="btn btn-danger">Đăng xuất</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

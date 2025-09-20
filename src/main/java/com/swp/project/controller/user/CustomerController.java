@@ -220,11 +220,12 @@ public class CustomerController {
     public String processOrder(@Valid @ModelAttribute DeliveryInfoDto deliveryInfoDto,
                                BindingResult bindingResult,
                                @ModelAttribute("shoppingCartItems") List<ShoppingCartItem> shoppingCartItems,
-                               @RequestParam(name = "payment_method") String paymentMethod,
+                               @RequestParam(name = "payment_method", defaultValue = "none") String paymentMethod,
                                @RequestParam(required = false) String confirm,
                                Model model,
                                RedirectAttributes redirectAttributes,
-                               Principal principal) {
+                               Principal principal,
+                               HttpSession session) {
         if (confirm == null) {
             redirectAttributes.addFlashAttribute("deliveryInfoDto", deliveryInfoDto);
             redirectAttributes.addFlashAttribute("wards",
@@ -244,6 +245,21 @@ public class CustomerController {
             return "/pages/customer/order/order-info";
         }
 
+        if(paymentMethod == null || paymentMethod.equals("none")) {
+                model.addAttribute("deliveryInfoDto", deliveryInfoDto);
+                model.addAttribute("provinceCities", addressService.getAllProvinceCity());
+                model.addAttribute("wards",
+                        addressService.getAllCommuneWardByProvinceCityCode(
+                                deliveryInfoDto.getProvinceCityCode()));
+                model.addAttribute("totalAmount",
+                        shoppingCartItems.stream().mapToInt(item ->
+                                item.getProduct().getPrice() * item.getQuantity()).sum());
+                model.addAttribute("payment_error", "Vui lòng chọn phương thức thanh toán");
+                return "/pages/customer/order/order-info";
+        }
+
+        session.removeAttribute("shoppingCartItems");
+
         Order order = orderService.createOrder(principal.getName(),
                 shoppingCartItems,
                 deliveryInfoDto.getFullName(),
@@ -251,12 +267,12 @@ public class CustomerController {
                 addressService.getCommuneWardByCode(deliveryInfoDto.getCommuneWardCode()),
                 deliveryInfoDto.getSpecificAddress());
 
-        if (paymentMethod.equals("cod")) {
-            orderService.setOrderStatus(order.getId(), orderStatusService.getPendingConfirmationStatus());
-            return "redirect:/customer/order-success";
-        } else {
+        if (paymentMethod.equals("qr")) {
             orderService.setOrderStatus(order.getId(), orderStatusService.getPendingPaymentStatus());
             return "redirect:/checkout?orderId=" + order.getId();
+        } else {
+            orderService.setOrderStatus(order.getId(), orderStatusService.getPendingConfirmationStatus());
+            return "redirect:/customer/order-success";
         }
     }
 
