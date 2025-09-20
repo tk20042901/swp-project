@@ -41,7 +41,7 @@ public class Shipper extends User{
     private Date birthDate;
 
     @Column(length = 50, unique = true, nullable = false)
-    private String cId;
+    private String cid;
 
     @ManyToOne(fetch =  FetchType.EAGER)
     private CommuneWard communeWard;

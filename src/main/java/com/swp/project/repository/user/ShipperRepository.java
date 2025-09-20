@@ -10,7 +10,7 @@ import java.util.List;
 public interface ShipperRepository extends JpaRepository<Shipper,Long> {
     Shipper findByEmail(String email);
 
-    Shipper findBycId(String cId);
+    Shipper findByCid(String Cid);
 
-    List<Shipper> findByNameContainsAndCIdContains(String name, String cId);
+    List<Shipper> findByFullnameContainsAndCidContains(String name, String cId);
 }

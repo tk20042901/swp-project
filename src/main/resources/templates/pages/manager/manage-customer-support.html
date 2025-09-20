@@ -42,7 +42,7 @@
                 <button type="submit" name="clickedButton" value="fullname" style="width: 100%" th:class="${'btn ' + (session.sortCriteria.equals('fullname') ? 'btn-primary' : '')}" th:text="${'Họ tên' + (session.sortCriteria.equals('fullname') ? (session.k == 1 ? ' v' : ' ^') : '')}"></button>
             </th>
             <th>
-                <button type="submit" name="clickedButton" value="cId" style="width: 100%" th:class="${'btn ' + (session.sortCriteria.equals('cId') ? 'btn-primary' : '')}" th:text="${'Số CCCD' + (session.sortCriteria.equals('cId') ? (session.k == 1 ? ' v' : ' ^') : '')}"></button>
+                <button type="submit" name="clickedButton" value="cid" style="width: 100%" th:class="${'btn ' + (session.sortCriteria.equals('cid') ? 'btn-primary' : '')}" th:text="${'Số CCCD' + (session.sortCriteria.equals('cid') ? (session.k == 1 ? ' v' : ' ^') : '')}"></button>
             </th>
             <th>
                 <button type="submit" name="clickedButton" value="address" style="width: 100%" th:class="${'btn ' + (session.sortCriteria.equals('address') ? 'btn-primary' : '')}" th:text="${'Địa chỉ' + (session.sortCriteria.equals('address') ? (session.k == 1 ? ' v' : ' ^') : '')}"></button>
@@ -61,7 +61,7 @@
             <td class=".col-1" th:text="*{id}"></td>
             <td class=".col-2" th:text="*{email}"></td>
             <td class=".col-2" th:text="*{fullname}"></td>
-            <td class=".col-2" th:text="*{cId}"></td>
+            <td class=".col-2" th:text="*{cid}"></td>
             <td class=".col-3" th:text="*{address}"></td>
             <td class=".col-1" th:text="*{(enabled == true) ? 'Có' : 'Không'}"></td>
             <td class=".col-1">

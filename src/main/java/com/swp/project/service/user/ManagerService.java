@@ -53,7 +53,7 @@ public class ManagerService {
                     .communeWardCode("001")
                     .specificAddress("123 Main St, City " + i)
                     .birthDate(LocalDate.of(2000, 1, i))
-                    .cId("ID" + i)  
+                    .cid("ID" + i)
                     .build());
         }
     }
@@ -76,7 +76,7 @@ public class ManagerService {
         existingManager.setEmail(updatedManager.getEmail());
         existingManager.setFullname(updatedManager.getFullname());
         existingManager.setBirthDate(updatedManager.getBirthDate());
-        existingManager.setCId(updatedManager.getCId());
+        existingManager.setCid(updatedManager.getCId());
         existingManager.setProvinceCityCode(updatedManager.getProvinceCityCode());
         existingManager.setCommuneWardCode(updatedManager.getCommuneWardCode());
         existingManager.setSpecificAddress(updatedManager.getSpecificAddress());
@@ -99,7 +99,7 @@ public class ManagerService {
             manager.setBirthDate(registerDto.getBirthDate());
         }
         if(!registerDto.getCId().isBlank()){
-            manager.setCId(registerDto.getCId());
+            manager.setCid(registerDto.getCId());
         }
         if(!registerDto.getProvinceCityCode().isBlank()){
             manager.setProvinceCityCode(registerDto.getProvinceCityCode());

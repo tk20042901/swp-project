@@ -52,7 +52,7 @@ public class ManagerController {
         if (session.getAttribute("k") == null) {
             session.setAttribute("k", 1);
         }
-            sellerService.findAllSellers();
+            sellerService.findAll();
             session.setAttribute("list", sellerService.getResults());
         if (session.getAttribute("sortCriteria") == null) {
             session.setAttribute("sortCriteria", "id");
@@ -73,12 +73,15 @@ public class ManagerController {
                     int k = (int) session.getAttribute("k");
                     k = -k;
                     session.setAttribute("k", k);
-                    sellerService.findAllSellers();
+                    sellerService.findAll();
                     sellerService.sortBy(clickedButton, k);
                     session.setAttribute("list", sellerService.getResults());
                     break;
                 case "search":
-                    sellerService.findSellersByNameAndcId(queryName, queryCId);
+                    int k1 = (int) session.getAttribute("k");
+                    sellerService.findByNameAndCid(queryName, queryCId);
+                    sellerService.sortBy(clickedButton, k1);
+                    session.setAttribute("list", shipperService.getResults());
                     break;
             }
         }
@@ -102,7 +105,7 @@ public class ManagerController {
         if (session.getAttribute("k") == null) {
             session.setAttribute("k", 1);
         }
-            shipperService.findAllShippers();
+            shipperService.findAll();
             session.setAttribute("list", shipperService.getResults());
         if (session.getAttribute("sortCriteria") == null) {
             session.setAttribute("sortCriteria", "id");
@@ -123,12 +126,15 @@ public class ManagerController {
                     int k = (int) session.getAttribute("k");
                     k = -k;
                     session.setAttribute("k", k);
-                    shipperService.findAllShippers();
+                    shipperService.findAll();
                     shipperService.sortBy(clickedButton, k);
                     session.setAttribute("list", shipperService.getResults());
                     break;
                 case "search":
-                    sellerService.findSellersByNameAndcId(queryName, queryCId);
+                    int k1 = (int) session.getAttribute("k");
+                    shipperService.findByNameAndCid(queryName, queryCId);
+                    customerSupportService.sortBy(clickedButton, k1);
+                    session.setAttribute("list", shipperService.getResults());
                     break;
             }
         }
@@ -152,7 +158,7 @@ public class ManagerController {
         if (session.getAttribute("k") == null) {
             session.setAttribute("k", 1);
         }
-            customerSupportService.findAllCustomerSupports();
+            customerSupportService.findAll();
             session.setAttribute("list", customerSupportService.getResults());
         if (session.getAttribute("sortCriteria") == null) {
             session.setAttribute("sortCriteria", "id");
@@ -173,12 +179,15 @@ public class ManagerController {
                     int k = (int) session.getAttribute("k");
                     k = -k;
                     session.setAttribute("k", k);
-                    customerSupportService.findAllCustomerSupports();
+                    customerSupportService.findAll();
                     customerSupportService.sortBy(clickedButton, k);
                     session.setAttribute("list", customerSupportService.getResults());
                     break;
                 case "search":
-                    sellerService.findSellersByNameAndcId(queryName, queryCId);
+                    int k1 = (int) session.getAttribute("k");
+                    customerSupportService.findByFullnameAndCid(queryName, queryCId);
+                    customerSupportService.sortBy(clickedButton, k1);
+                    session.setAttribute("list", customerSupportService.getResults());
                     break;
             }
         }
@@ -196,14 +205,14 @@ public class ManagerController {
             RedirectAttributes redirectAttributes,
             HttpSession session) {
         try {
-            sellerService.findAllSellers();
+            sellerService.findAll();
             Seller seller = sellerService.getByEmail(email);
 
             boolean isEnabled = !seller.isEnabled();
             seller.setEnabled(isEnabled);
             sellerService.save(seller);
 
-            sellerService.findAllSellers();
+            sellerService.findAll();
             sellerService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
             session.setAttribute("list", sellerService.getResults());
 
@@ -222,14 +231,14 @@ public class ManagerController {
                                RedirectAttributes redirectAttributes,
                                HttpSession session) {
         try {
-            shipperService.findAllShippers();
+            shipperService.findAll();
             Shipper shipper = shipperService.getByEmail(email);
 
             boolean isEnabled = !shipper.isEnabled();
             shipper.setEnabled(isEnabled);
             shipperService.save(shipper);
 
-            shipperService.findAllShippers();
+            shipperService.findAll();
             shipperService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
             session.setAttribute("list", shipperService.getResults());
 
@@ -248,14 +257,14 @@ public class ManagerController {
                                RedirectAttributes redirectAttributes,
                                HttpSession session) {
         try {
-            customerSupportService.findAllCustomerSupports();
+            customerSupportService.findAll();
             CustomerSupport customerSupport = customerSupportService.getByEmail(email);
 
             boolean isEnabled = !customerSupport.isEnabled();
             customerSupport.setEnabled(isEnabled);
             customerSupportService.save(customerSupport);
 
-            customerSupportService.findAllCustomerSupports();
+            customerSupportService.findAll();
             customerSupportService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
             session.setAttribute("list", customerSupportService.getResults());
 
@@ -344,7 +353,7 @@ public class ManagerController {
                         case "Seller":
                             try {
                                 sellerService.add(staffDto);
-                                sellerService.findAllSellers();
+                                sellerService.findAll();
                                 sellerService.sortBy(session.getAttribute("sortCriteria").toString(),
                                         (int) session.getAttribute("k"));
 
@@ -358,7 +367,7 @@ public class ManagerController {
                         case "Shipper":
                             try {
                                 shipperService.add(staffDto);
-                                shipperService.findAllShippers();
+                                shipperService.findAll();
                                 shipperService.sortBy(session.getAttribute("sortCriteria").toString(),
                                         (int) session.getAttribute("k"));
 
@@ -372,7 +381,7 @@ public class ManagerController {
                         case "CustomerSupport":
                             try {
                                 customerSupportService.add(staffDto);
-                                customerSupportService.findAllCustomerSupports();
+                                customerSupportService.findAll();
                                 customerSupportService.sortBy(session.getAttribute("sortCriteria").toString(),
                                         (int) session.getAttribute("k"));
 
