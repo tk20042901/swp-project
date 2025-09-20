@@ -1,5 +1,6 @@
 package com.swp.project.service.order;
 
+import com.swp.project.dto.SellerSearchOrderDto;
 import com.swp.project.entity.address.CommuneWard;
 import com.swp.project.entity.order.Order;
 import com.swp.project.entity.order.OrderItem;
@@ -15,7 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,8 +34,32 @@ public class OrderService {
         return orderRepository.findAll(pageable);
     }
 
-    public Page<Order> getOrdersByStatus(OrderStatus orderStatus, Pageable pageable) {
-        return orderRepository.getByOrderStatus(orderStatus, pageable);
+    public Page<Order> searchOrder(SellerSearchOrderDto sellerSearchOrderDto, Pageable pageable) {
+        if (sellerSearchOrderDto.getStatusId() == 0) {
+            return orderRepository.searchByCustomer_EmailContainsAndOrderDateBetween(
+                    sellerSearchOrderDto.getCustomerEmail() == null
+                            ? ""
+                            : sellerSearchOrderDto.getCustomerEmail(),
+                    sellerSearchOrderDto.getFromDate() == null
+                            ? LocalDate.parse("2005-06-03").atStartOfDay()
+                            : sellerSearchOrderDto.getFromDate().atStartOfDay(),
+                    sellerSearchOrderDto.getToDate() == null
+                            ? LocalDateTime.now()
+                            : sellerSearchOrderDto.getToDate().atTime(23,59),
+                    pageable);
+        }
+        return orderRepository.searchByOrderStatus_IdAndCustomer_EmailContainsAndOrderDateBetween(
+                sellerSearchOrderDto.getStatusId(),
+                sellerSearchOrderDto.getCustomerEmail() == null
+                        ? ""
+                        : sellerSearchOrderDto.getCustomerEmail(),
+                sellerSearchOrderDto.getFromDate() == null
+                        ? LocalDate.parse("2005-06-03").atStartOfDay()
+                        : sellerSearchOrderDto.getFromDate().atStartOfDay(),
+                sellerSearchOrderDto.getToDate() == null
+                        ? LocalDateTime.now()
+                        : sellerSearchOrderDto.getToDate().atTime(23,59),
+                pageable);
     }
 
     public Order getOrderById(Long orderId) {
@@ -56,7 +82,7 @@ public class OrderService {
                              CommuneWard communeWard,
                              String specificAddress) {
         Order order = orderRepository.save(Order.builder()
-                .orderDate(Instant.now())
+                .orderDate(LocalDateTime.now())
                 .fullName(fullName)
                 .phoneNumber(phoneNumber)
                 .communeWard(communeWard)

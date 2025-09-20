@@ -47,7 +47,6 @@ public class SellerService {
                         .fullname("seller" + i + "@shop.com")
                         .birthDate(sdf.parse("2001-09-11"))
                         .cid(UUID.randomUUID().toString())
-                        .communeWard(addressService.getCommuneWardByCode("16279"))
                         .specificAddress("123 Đường ABC, Phường XYZ")
                         .build());
             }
@@ -57,7 +56,6 @@ public class SellerService {
                     .fullname("seller" + 999 + "@shop.com")
                     .birthDate(sdf.parse("2001-09-11"))
                     .cid(UUID.randomUUID().toString())
-                    .communeWard(addressService.getCommuneWardByCode("16279"))
                     .specificAddress("123 Đường ABC, Phường XYZ")
                     .enabled(false)
                     .build());
@@ -176,4 +174,6 @@ public class SellerService {
             results = sellerRepository.findByFullnameContainsAndCidContains(name, cid);
         }
     }
+
+
 }

@@ -2,6 +2,8 @@ package com.swp.project.entity.user;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
@@ -14,6 +16,9 @@ import lombok.experimental.SuperBuilder;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import com.swp.project.entity.address.CommuneWard;
+import com.swp.project.entity.address.ProvinceCity;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -38,13 +43,13 @@ public class Manager extends User {
     @Column(length = 50, unique = true, nullable = false)
     private String cid;
 
-    private String provinceCityCode;
+    @ManyToOne(fetch =  FetchType.EAGER)
+    private ProvinceCity provinceCity;
 
-    private String communeWardCode;
+    @ManyToOne(fetch =  FetchType.EAGER)
+    private CommuneWard communeWard;
 
-    private String address;
-
-    @Size(max = 100, message = "Địa chỉ chi tiết không được vượt quá 100 ký tự")
+    @Column(length = 100)
     private String specificAddress;
 
     @Override
