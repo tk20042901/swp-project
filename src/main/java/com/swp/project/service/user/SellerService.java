@@ -172,4 +172,10 @@ public class SellerService {
     public void findByNameAndCid(String name, String Cid) {
         results = sellerRepository.findByFullnameContainsAndCidContains(name, Cid);
     }
+
+
+    public boolean existsByCid(String cId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'existsByCid'");
+    }
 }

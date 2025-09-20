@@ -9,7 +9,7 @@
         <p th:text="${failed}"></p>
     </div>
     <a th:href="@{/admin/manage-manager}" th:text="'Back to Manager List'"></a>
-    <form th:action="@{/admin/manage-manager/{id}(id=${editManagerDto.id})}" th:object="${editManagerDto}" method="post">
+    <form th:action="@{/admin/edit-manager/{id}(id=${editManagerDto.id})}" th:object="${editManagerDto}" method="post">
         <input type="hidden" id="savedProvinceCode" th:value="*{provinceCityCode}" />
         <input type="hidden" id="savedWardCode" th:value="*{communeWardCode}" />
         <label for="email">Email:</label>
@@ -25,14 +25,17 @@
         <input type="text" th:field="*{cId}" required/>
         <br/>
         <label for="provinceCityCode">Province/City Code:</label>
-        <select id="provinceCityCode" th:field="*{provinceCityCode}">
+        <select id="provinceCityCode" th:field="*{provinceCityCode}" required>
         </select>
         <br/>
         <label for="communeWardCode">Commune/Ward Code:</label>
-        <select id="communeWardCode" th:field="*{communeWardCode}"></select>
+        <select id="communeWardCode" th:field="*{communeWardCode}" required></select>
         <br/>
         <label for="specificAddress">Specific Address:</label>
-        <input type="text" id="specificAddress" th:field="*{specificAddress}"/>
+        <input type="text" id="specificAddress" th:field="*{specificAddress}" required/>
+        <br/>
+        <label for="status">Status:</label>
+        <input type="checkbox" id="status" th:field="*{status}" value="true"/> Active
         <br/>
         <button type="submit">Edit Manager</button>
         <script th:src="@{/js/address/addressEdit.js}"></script>

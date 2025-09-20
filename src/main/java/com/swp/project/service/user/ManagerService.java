@@ -3,10 +3,16 @@ package com.swp.project.service.user;
 import com.swp.project.dto.EditManagerDto;
 import com.swp.project.dto.ManagerRegisterDto;
 import com.swp.project.dto.ViewManagerDto;
+import com.swp.project.entity.address.CommuneWard;
+import com.swp.project.entity.address.ProvinceCity;
 import com.swp.project.entity.user.Manager;
 import com.swp.project.listener.event.UserDisabledEvent;
+import com.swp.project.repository.address.CommuneWardRepository;
+import com.swp.project.repository.address.ProvinceCityRepository;
+import com.swp.project.repository.user.CustomerSupportRepository;
 import com.swp.project.repository.user.ManagerRepository;
-
+import com.swp.project.repository.user.SellerRepository;
+import com.swp.project.repository.user.ShipperRepository;
 import com.swp.project.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -25,7 +31,11 @@ public class ManagerService {
     private final ApplicationEventPublisher eventPublisher;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
-
+    private final ProvinceCityRepository provinceCityRepository;
+    private final CommuneWardRepository communeWardRepository;
+    private final CustomerSupportRepository customerSupportRepository;
+    private final SellerRepository sellerRepository;
+    private final ShipperRepository shipperRepository;
     public Manager getManagerById(Long id) {
         return managerRepository.findById(id).orElse(null);
     }
@@ -44,13 +54,23 @@ public class ManagerService {
 
     @Transactional
     public void initManager() {
+        ProvinceCity province = provinceCityRepository.findAll()
+            .stream()
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("No provinces found"));
+
+        CommuneWard ward = communeWardRepository.findAll()
+            .stream()
+            .filter(w -> w.getProvinceCity().getCode().equals(province.getCode()))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("No wards found"));
         for (int i = 1; i <= 4; i++) {
             createManagerIfNotExists(Manager.builder()
                     .fullname("Manager " + i)
                     .email("manager" + i + "@shop.com")
                     .password("manager")
-                    .provinceCityCode("01")
-                    .communeWardCode("001")
+                    .provinceCity(province)
+                    .communeWard(ward)
                     .specificAddress("123 Main St, City " + i)
                     .birthDate(LocalDate.of(2000, 1, i))
                     .cid("ID" + i)
@@ -66,52 +86,65 @@ public class ManagerService {
     }
 
     public void updateManager(Long id, EditManagerDto updatedManager) {
-        Manager existingManager = getManagerById(id);
-        if(existingManager == null) {
-            throw new IllegalArgumentException("Manager not found.");
+        Manager existingManager = managerRepository.findById(id).orElseThrow(
+            () -> new IllegalArgumentException("Khong tìm thấy quản lý")
+        );
+        ProvinceCity province = provinceCityRepository.findById(updatedManager.getProvinceCityCode())
+            .orElseThrow(() -> new RuntimeException("Khong tìm thấy tỉnh"));
+        CommuneWard ward = communeWardRepository.findById(updatedManager.getCommuneWardCode())
+            .orElseThrow(() -> new RuntimeException("Khong tìm thấy quận"));
+        boolean isEnabled = false;
+        if(updatedManager.getStatus() == true) {
+            isEnabled = true;
         }
         if (!existingManager.getEmail().equals(updatedManager.getEmail()) && userRepository.existsByEmail(updatedManager.getEmail())) {
-            throw new IllegalArgumentException("Email already in use.");
+            throw new IllegalArgumentException("Mail đã được sử dụng");
+        }
+        if(!existingManager.getCid().equals(updatedManager.getCId()) 
+            && (sellerRepository.findByCid(updatedManager.getCId()) != null ||
+                shipperRepository.findByCid(updatedManager.getCId()) != null ||
+                customerSupportRepository.findByCid(updatedManager.getCId()) != null ||
+                managerRepository.findByCid(updatedManager.getCId()) != null)) {
+            throw new IllegalArgumentException("Căn cước công dân đã được sử dụng");
         }
         existingManager.setEmail(updatedManager.getEmail());
         existingManager.setFullname(updatedManager.getFullname());
         existingManager.setBirthDate(updatedManager.getBirthDate());
         existingManager.setCid(updatedManager.getCId());
-        existingManager.setProvinceCityCode(updatedManager.getProvinceCityCode());
-        existingManager.setCommuneWardCode(updatedManager.getCommuneWardCode());
         existingManager.setSpecificAddress(updatedManager.getSpecificAddress());
+        existingManager.setProvinceCity(province);
+        existingManager.setCommuneWard(ward);
+        existingManager.setEnabled(isEnabled); 
         managerRepository.save(existingManager);
     }
 
     public void createManager(ManagerRegisterDto registerDto) {
+        ProvinceCity province = provinceCityRepository.findById(registerDto.getProvinceCityCode())
+            .orElseThrow(() -> new RuntimeException("Khong tìm thấy tỉnh"));
+        CommuneWard ward = communeWardRepository.findById(registerDto.getCommuneWardCode())
+            .orElseThrow(() -> new RuntimeException("Khong tìm thấy quận"));
         if (!registerDto.getConfirmPassword().equals(registerDto.getPassword())) {
             throw new RuntimeException("Mật khẩu và xác nhận mật khẩu không khớp");
         }
         if (userRepository.existsByEmail(registerDto.getEmail())) {
-            throw new IllegalArgumentException("Email already in use.");
+            throw new IllegalArgumentException("Mail đã được sử dụng");
+        }
+        if(sellerRepository.findByCid(registerDto.getCId()) != null ||
+           shipperRepository.findByCid(registerDto.getCId()) != null ||
+           customerSupportRepository.findByCid(registerDto.getCId()) != null ||
+           managerRepository.findByCid(registerDto.getCId()) != null) {
+            throw new IllegalArgumentException("Căn cước công dân đã được sử dụng");
         }
         Manager manager = Manager.builder()
             .email(registerDto.getEmail())
             .password(passwordEncoder.encode(registerDto.getPassword()))
             .fullname(registerDto.getFullname())
+            .birthDate(registerDto.getBirthDate())
+            .cid(registerDto.getCId())
+            .provinceCity(province)
+            .communeWard(ward)
+            .specificAddress(registerDto.getSpecificAddress())
             .build();
-        if(!registerDto.getBirthDate().toString().isBlank()){
-            manager.setBirthDate(registerDto.getBirthDate());
-        }
-        if(!registerDto.getCId().isBlank()){
-            manager.setCid(registerDto.getCId());
-        }
-        if(!registerDto.getProvinceCityCode().isBlank()){
-            manager.setProvinceCityCode(registerDto.getProvinceCityCode());
-            System.out.println("Province/City Code: " + registerDto.getProvinceCityCode());
-        }
-        if(!registerDto.getCommuneWardCode().isBlank()){
-            manager.setCommuneWardCode(registerDto.getCommuneWardCode());
-            System.out.println("Commune/Ward Code: " + registerDto.getCommuneWardCode());
-        }
-        if(!registerDto.getSpecificAddress().isBlank()){
-            manager.setSpecificAddress(registerDto.getSpecificAddress());
-        }
         managerRepository.save(manager);
     }
 
