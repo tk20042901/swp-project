@@ -8,12 +8,9 @@ import java.util.List;
 
 @Repository
 public interface CustomerSupportRepository extends JpaRepository<CustomerSupport,Long> {
+    CustomerSupport findBycId(String cId);
 
-    boolean existsByEmail(String email);
-
-    public CustomerSupport findBycId(String cId);
-
-    public CustomerSupport findByEmail(String email);
+    CustomerSupport findByEmail(String email);
 
     List<CustomerSupport> findByNameContainsAndCIdContains(String name, String cId);
 }

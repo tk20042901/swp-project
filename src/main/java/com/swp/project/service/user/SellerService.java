@@ -15,8 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.swp.project.dto.StaffDto;
 import com.swp.project.entity.user.Seller;
 import com.swp.project.listener.event.UserDisabledEvent;
-import com.swp.project.repository.address.CommuneWardRepository;
-import com.swp.project.repository.address.ProvinceCityRepository;
 import com.swp.project.service.AddressService;
 
 import lombok.Getter;
@@ -72,7 +70,7 @@ public class SellerService {
 
 
     private void createSellerIfNotExists(Seller seller) {
-        if (!sellerRepository.existsByEmail(seller.getEmail())) {
+        if (!userRepository.existsByEmail(seller.getEmail())) {
             seller.setPassword(passwordEncoder.encode(seller.getPassword()));
             sellerRepository.save(seller);
         }
@@ -94,10 +92,10 @@ public class SellerService {
             if (existscId(staffDto.getCId())) {
                 throw new RuntimeException("Mã căn cước công dân đã được dùng");
             }
-            if (existsEmail(staffDto.getEmail())) {
+            if (userRepository.existsByEmail(staffDto.getEmail())) {
                 throw new RuntimeException("Email đã được dùng");
             }
-            Seller seller = null;
+            Seller seller;
             try {
                 seller = Seller.builder()
                         .email(staffDto.getEmail())
@@ -169,10 +167,6 @@ public class SellerService {
 //                ||
 //                managerRepository.findBycId(cId) != null
                 ;
-    }
-
-    private boolean existsEmail(String email) {
-        return userRepository.findByEmail(email) != null;
     }
 
     public void findSellersByNameAndcId(String name, String cId) {

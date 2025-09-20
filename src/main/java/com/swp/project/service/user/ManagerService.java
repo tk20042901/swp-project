@@ -7,6 +7,7 @@ import com.swp.project.entity.user.Manager;
 import com.swp.project.listener.event.UserDisabledEvent;
 import com.swp.project.repository.user.ManagerRepository;
 
+import com.swp.project.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
@@ -23,6 +24,7 @@ public class ManagerService {
     private final ManagerRepository managerRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
 
     public Manager getManagerById(Long id) {
         return managerRepository.findById(id).orElse(null);
@@ -57,7 +59,7 @@ public class ManagerService {
     }
 
     private void createManagerIfNotExists(Manager manager) {
-        if (!managerRepository.existsByEmail(manager.getEmail())) {
+        if (!userRepository.existsByEmail(manager.getEmail())) {
             manager.setPassword(passwordEncoder.encode(manager.getPassword()));
             managerRepository.save(manager);
         }
@@ -68,7 +70,7 @@ public class ManagerService {
         if(existingManager == null) {
             throw new IllegalArgumentException("Manager not found.");
         }
-        if (!existingManager.getEmail().equals(updatedManager.getEmail()) && managerRepository.existsByEmail(updatedManager.getEmail())) {
+        if (!existingManager.getEmail().equals(updatedManager.getEmail()) && userRepository.existsByEmail(updatedManager.getEmail())) {
             throw new IllegalArgumentException("Email already in use.");
         }
         existingManager.setEmail(updatedManager.getEmail());
@@ -85,7 +87,7 @@ public class ManagerService {
         if (!registerDto.getConfirmPassword().equals(registerDto.getPassword())) {
             throw new RuntimeException("Mật khẩu và xác nhận mật khẩu không khớp");
         }
-        if (managerRepository.existsByEmail(registerDto.getEmail())) {
+        if (userRepository.existsByEmail(registerDto.getEmail())) {
             throw new IllegalArgumentException("Email already in use.");
         }
         Manager manager = Manager.builder()
@@ -112,11 +114,6 @@ public class ManagerService {
         }
         managerRepository.save(manager);
     }
-
-    public List<Manager> getAllManagers() {
-        return managerRepository.findAll();
-    }
-
 
     public List<ViewManagerDto> getAllViewManager(){
         return managerRepository.findAll().stream()
