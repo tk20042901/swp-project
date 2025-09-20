@@ -1,4 +1,4 @@
-package com.swp.project.controller.order;
+package com.swp.project.controller.payment;
 
 
 import com.swp.project.entity.order.Order;
@@ -17,13 +17,13 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Controller
-public class PaymentController {
+public class CheckoutController {
 
     private final PayOS payOS;
     private final OrderService orderService;
 
-    private static final String returnUrl = "http://swp-project.loca.lt/order/success";
-    private static final String cancelUrl = "http://swp-project.loca.lt/order/cancel";
+    private static final String returnUrl = "https://swp-project.loca.lt/customer/order-success";
+    private static final String cancelUrl = "https://swp-project.loca.lt/customer/order-cancel";
 
     @GetMapping("/checkout")
     public void checkout(@RequestParam Long orderId,
@@ -43,7 +43,7 @@ public class PaymentController {
                     .buyerPhone(order.getCustomer().getPhoneNumber())
                     .buyerAddress(order.getAddressString())
                     .amount(order.getTotalAmount())
-                    .description("Don hang" + order.getId())
+                    .description("Don hang " + order.getId())
                     .returnUrl(returnUrl)
                     .cancelUrl(cancelUrl)
                     .items(items)

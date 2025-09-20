@@ -14,7 +14,7 @@
     </li>
 </ul>
 
-<form th:action="@{/order/order-info}"  th:object="${deliveryInfoDto}" method="post">
+<form th:action="@{/customer/order-info}"  th:object="${deliveryInfoDto}" method="post">
     <label>
         Họ và tên<input type="text" th:field="*{fullName}" required/>
         <span th:errors="*{fullName}"> Error</span>
