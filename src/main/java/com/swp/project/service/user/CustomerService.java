@@ -4,6 +4,7 @@ import com.swp.project.dto.ChangePasswordDto;
 import com.swp.project.dto.DeliveryInfoDto;
 import com.swp.project.dto.RegisterDto;
 import com.swp.project.entity.PendingRegister;
+
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.entity.shopping_cart.ShoppingCartItemId;
 import com.swp.project.entity.user.Customer;
@@ -205,4 +206,5 @@ public class CustomerService {
         item.setQuantity(quantity);
         shoppingCartItemRepository.save(item);
     }
+
 }

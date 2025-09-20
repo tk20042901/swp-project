@@ -155,9 +155,19 @@ public class CustomerController {
 
     @PostMapping("/shopping-cart/update")
     public String updateCartItem(@RequestParam Long productId,
-                                 @RequestParam int quantity,
+                                 @RequestParam int quantity,RedirectAttributes redirectAttributes,
                                  Principal principal) {
 
+        int availableQuantity = productService.getAvailableQuantity(productId);
+        if (quantity > availableQuantity) {
+            quantity = availableQuantity;
+            redirectAttributes.addFlashAttribute("error",
+                    "Số lượng bạn chọn đã vượt quá tồn kho. Hệ thống đã điều chỉnh về " + availableQuantity);
+        } else if( quantity <= 0 ) {
+            quantity = 1;
+            redirectAttributes.addFlashAttribute("error",
+                    "Số lượng bạn chọn không hợp lệ. Hệ thống đã điều chỉnh về 1");
+        }
         customerService.updateCartQuantity(principal.getName(), productId, quantity);
         return "redirect:/customer/shopping-cart";
     }

@@ -54,11 +54,7 @@
                     </form>
                 </td>
                 <td>
-
-                    <span th:if="${selectedIds.contains(item.product.id)}"
-                          th:text="${item.product.price * item.quantity + ' VND'}"></span>
-                    <span th:unless="${selectedIds.contains(item.product.id)}"
-                          th:text="${item.product.price * item.quantity + ' VND'}"></span>
+                    <span th:text="${item.product.price * item.quantity + ' VND'}"></span>
                 </td>
                 <td>
                     <form th:action="@{/customer/shopping-cart/remove}" method="post">
@@ -73,7 +69,7 @@
             </tbody>
         </table>
     </form>
-
+<span th:text="${error}"></span>
 
 
         <h4>
