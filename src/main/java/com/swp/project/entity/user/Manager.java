@@ -44,9 +44,6 @@ public class Manager extends User {
     private String cid;
 
     @ManyToOne(fetch =  FetchType.EAGER)
-    private ProvinceCity provinceCity;
-
-    @ManyToOne(fetch =  FetchType.EAGER)
     private CommuneWard communeWard;
 
     @Column(length = 100)
