@@ -176,23 +176,12 @@ public class CustomerAiService {
 
     @Transactional
     public void saveProductToVectorStore(Product product) {
-        String documentId = UUID.nameUUIDFromBytes
-                (product.getId().toString().getBytes()).toString();
-        Document document = new Document(documentId,
-                getProductContent(product),
-                Collections.emptyMap());
+        String documentId = UUID.nameUUIDFromBytes(product.getId().toString().getBytes()).toString();
+        Document document = new Document(documentId, getProductContent(product), Collections.emptyMap());
         vectorStore.add(List.of(document));
     }
 
-    @Transactional
-    public void deleteProductFromVectorStore(Long id) {
-        String documentId = UUID.nameUUIDFromBytes(id.toString().getBytes()).toString();
-        vectorStore.delete(List.of(documentId));
-    }
-
-    public void ask(String conversationId,
-                    String q,
-                    MultipartFile image) {
+    public void ask(String conversationId, String q, MultipartFile image) {
         if (q == null || q.isBlank()) {
             throw new RuntimeException("Câu hỏi không được để trống");
         } else if (image == null || image.isEmpty()) {
