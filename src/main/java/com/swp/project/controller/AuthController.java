@@ -98,9 +98,4 @@ public class AuthController {
     public String home() {
         return "pages/customer/index";
     }
-
-    @GetMapping("/access-denied")
-    public String accessDenied() {
-        return "/pages/auth/access-denied";
-    }
 }

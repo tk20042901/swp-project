@@ -77,7 +77,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(i -> i
-                                .accessDeniedPage("/access-denied")
+                                .accessDeniedPage("/")
                 )
                 .formLogin(i -> i
                         .loginPage(LOGIN_URL)
