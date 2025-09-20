@@ -4,11 +4,9 @@ import com.swp.project.dto.EditManagerDto;
 import com.swp.project.dto.ManagerRegisterDto;
 import com.swp.project.dto.ViewManagerDto;
 import com.swp.project.entity.address.CommuneWard;
-import com.swp.project.entity.address.ProvinceCity;
 import com.swp.project.entity.user.Manager;
 import com.swp.project.listener.event.UserDisabledEvent;
 import com.swp.project.repository.address.CommuneWardRepository;
-import com.swp.project.repository.address.ProvinceCityRepository;
 import com.swp.project.repository.user.CustomerSupportRepository;
 import com.swp.project.repository.user.ManagerRepository;
 import com.swp.project.repository.user.SellerRepository;
@@ -31,25 +29,12 @@ public class ManagerService {
     private final ApplicationEventPublisher eventPublisher;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
-    private final ProvinceCityRepository provinceCityRepository;
     private final CommuneWardRepository communeWardRepository;
     private final CustomerSupportRepository customerSupportRepository;
     private final SellerRepository sellerRepository;
     private final ShipperRepository shipperRepository;
     public Manager getManagerById(Long id) {
         return managerRepository.findById(id).orElse(null);
-    }
-
-    @Transactional
-    public void setManagerStatus(Long id, boolean status) {
-        Manager manager = getManagerById(id);
-        manager.setEnabled(status);
-
-        if (!status) {
-            eventPublisher.publishEvent(new UserDisabledEvent(manager.getEmail()));
-        }
-
-        managerRepository.save(manager);
     }
 
     @Transactional
@@ -101,7 +86,10 @@ public class ManagerService {
         existingManager.setCid(updatedManager.getCId());
         existingManager.setSpecificAddress(updatedManager.getSpecificAddress());
         existingManager.setCommuneWard(ward);
-        existingManager.setEnabled(isEnabled); 
+        existingManager.setEnabled(isEnabled);
+
+        if(!isEnabled) eventPublisher.publishEvent(new UserDisabledEvent(existingManager.getEmail()));
+
         managerRepository.save(existingManager);
     }
 
