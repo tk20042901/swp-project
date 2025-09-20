@@ -172,4 +172,6 @@ public class SellerService {
     public void findByNameAndCid(String name, String Cid) {
         results = sellerRepository.findByFullnameContainsAndCidContains(name, Cid);
     }
+
+
 }

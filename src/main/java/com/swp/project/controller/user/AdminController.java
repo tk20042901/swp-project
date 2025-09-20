@@ -19,7 +19,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 @RequiredArgsConstructor
@@ -33,12 +32,6 @@ public class AdminController {
     public String showAdminMainPage(Model model) {
         return "pages/admin/index";
     }
-
-    @GetMapping("/address-test")
-    public String getMethodName() {
-        return "pages/admin/address-test";
-    }
-    
     
     @GetMapping("/create-manager")
     public String getCreateManagerPage(Model model) {
@@ -62,28 +55,12 @@ public class AdminController {
         editManagerDto.setFullname(manager.getFullname());
         editManagerDto.setBirthDate(manager.getBirthDate());
         editManagerDto.setCId(manager.getCid());
-        editManagerDto.setProvinceCityCode(manager.getProvinceCityCode());
-        editManagerDto.setCommuneWardCode(manager.getCommuneWardCode());
+        editManagerDto.setProvinceCityCode(manager.getProvinceCity().getCode());
+        editManagerDto.setCommuneWardCode(manager.getCommuneWard().getCode());
+        editManagerDto.setSpecificAddress(manager.getSpecificAddress());
+        editManagerDto.setStatus(manager.isEnabled());
         model.addAttribute("editManagerDto", editManagerDto);
         return "pages/admin/edit-manager";
-    }
-    @PostMapping("/configure-manager")
-    public String configureUser(@RequestParam(defaultValue = "") Long id, RedirectAttributes redirectAttributes) {
-        try {
-            Manager manager = managerService.getManagerById(id);
-            if (manager.isEnabled()) {
-                // Logic to disable the manager
-                managerService.setManagerStatus(id, false);
-                redirectAttributes.addFlashAttribute("success", "User disabled successfully.");
-            } else {
-                // Logic to enable the manager
-                managerService.setManagerStatus(id, true);
-                redirectAttributes.addFlashAttribute("success", "User enabled successfully.");
-            }
-        } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("failed", e.getMessage());
-        }
-        return "redirect:/admin/manage-manager";
     }
 
     @GetMapping("/manage-manager")
@@ -116,7 +93,7 @@ public class AdminController {
         return "redirect:/admin/manage-manager";
     }
 
-    @PostMapping("/manage-manager/{id}")
+    @PostMapping("/edit-manager/{id}")
     public String editManager(@PathVariable Long id,
                               @Valid @ModelAttribute EditManagerDto editManagerDto,
                               RedirectAttributes redirectAttributes) {
