@@ -1,10 +1,12 @@
 package com.swp.project.controller.user;
 
+import com.nimbusds.openid.connect.sdk.claims.Address;
 import com.swp.project.dto.EditManagerDto;
 import com.swp.project.dto.ManagerRegisterDto;
 
 import com.swp.project.dto.ViewManagerDto;
 import com.swp.project.entity.user.Manager;
+import com.swp.project.service.AddressService;
 import com.swp.project.service.user.ManagerService;
 
 import jakarta.validation.Valid;
@@ -27,7 +29,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class AdminController {
 
     private final ManagerService managerService;
-
+    private final AddressService addressService;
     @GetMapping("")
     public String showAdminMainPage(Model model) {
         return "pages/admin/index";
@@ -55,10 +57,10 @@ public class AdminController {
         editManagerDto.setFullname(manager.getFullname());
         editManagerDto.setBirthDate(manager.getBirthDate());
         editManagerDto.setCId(manager.getCid());
-        editManagerDto.setProvinceCityCode(manager.getProvinceCity().getCode());
         editManagerDto.setCommuneWardCode(manager.getCommuneWard().getCode());
         editManagerDto.setSpecificAddress(manager.getSpecificAddress());
         editManagerDto.setStatus(manager.isEnabled());
+        editManagerDto.setProvinceCityCode(manager.getCommuneWard().getProvinceCity().getCode());
         model.addAttribute("editManagerDto", editManagerDto);
         return "pages/admin/edit-manager";
     }
