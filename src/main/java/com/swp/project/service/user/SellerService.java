@@ -88,7 +88,8 @@ public class SellerService {
 
     public void add(StaffDto staffDto) {
         if (staffDto != null) {
-            if (staffDto.getId() != null) {
+            System.out.println(staffDto);
+            if (staffDto.getId() == 0) {
                 if (existsCid(staffDto.getCid())) {
                     throw new RuntimeException("Mã căn cước công dân đã được dùng");
                 }
@@ -99,6 +100,7 @@ public class SellerService {
             Seller seller;
             try {
                 seller = Seller.builder()
+                        .id(staffDto.getId() != 0 ? staffDto.getId() : null)
                         .email(staffDto.getEmail())
                         .password(staffDto.getPassword())
                         .fullname(staffDto.getFullname())
@@ -106,17 +108,13 @@ public class SellerService {
                         .cid(staffDto.getCid())
                         .communeWard(addressService.getCommuneWardByCode(staffDto.getCommuneWard()))
                         .specificAddress(staffDto.getSpecificAddress())
+                        .enabled(staffDto.isEnabled())
                         .build();
-
-                        
             } catch (ParseException e) {
                 throw new RuntimeException("Định dạng ngày tháng năm bất thường");
             }
 
-            boolean found = sellerRepository.findById(staffDto.getId()) != null;
-            if (found) {
-                sellerRepository.deleteById(staffDto.getId());
-            }
+            boolean found = sellerRepository.findById(staffDto.getId()).isPresent();
             sellerRepository.save(seller);
 
         }
