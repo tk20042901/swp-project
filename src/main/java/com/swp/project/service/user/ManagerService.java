@@ -41,36 +41,12 @@ public class ManagerService {
     }
 
     @Transactional
-    public void setManagerStatus(Long id, boolean status) {
-        Manager manager = getManagerById(id);
-        manager.setEnabled(status);
-
-        if (!status) {
-            eventPublisher.publishEvent(new UserDisabledEvent(manager.getEmail()));
-        }
-
-        managerRepository.save(manager);
-    }
-
-    @Transactional
     public void initManager() {
-        ProvinceCity province = provinceCityRepository.findAll()
-            .stream()
-            .findFirst()
-            .orElseThrow(() -> new RuntimeException("No provinces found"));
-
-        CommuneWard ward = communeWardRepository.findAll()
-            .stream()
-            .filter(w -> w.getProvinceCity().getCode().equals(province.getCode()))
-            .findFirst()
-            .orElseThrow(() -> new RuntimeException("No wards found"));
         for (int i = 1; i <= 4; i++) {
             createManagerIfNotExists(Manager.builder()
                     .fullname("Manager " + i)
                     .email("manager" + i + "@shop.com")
                     .password("manager")
-                    .provinceCity(province)
-                    .communeWard(ward)
                     .specificAddress("123 Main St, City " + i)
                     .birthDate(LocalDate.of(2000, 1, i))
                     .cid("ID" + i)
@@ -111,7 +87,12 @@ public class ManagerService {
         existingManager.setSpecificAddress(updatedManager.getSpecificAddress());
         existingManager.setProvinceCity(province);
         existingManager.setCommuneWard(ward);
-        existingManager.setEnabled(isEnabled); 
+        existingManager.setEnabled(isEnabled);
+
+        if (!isEnabled) {
+            eventPublisher.publishEvent(new UserDisabledEvent(existingManager.getEmail()));
+        }
+
         managerRepository.save(existingManager);
     }
 

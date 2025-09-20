@@ -167,7 +167,6 @@ public class CustomerService {
                     .password(passwordEncoder.encode("customer"))
                     .fullName("Hoa Thanh Quế")
                     .phoneNumber("0363636363")
-                    .communeWard(addressService.getCommuneWardByCode("16279"))
                     .specificAddress("Thủ đô linh thiêng")
                     .build());
         }

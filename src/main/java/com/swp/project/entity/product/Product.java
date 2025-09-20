@@ -20,6 +20,7 @@ public class Product implements Serializable {
     @Column(nullable = false, unique = true, length = 50)
     private String name;
 
+    @Lob
     @Column(nullable = false)
     private String description;
 
