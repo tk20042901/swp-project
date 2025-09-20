@@ -174,8 +174,4 @@ public class SellerService {
     }
 
 
-    public boolean existsByCid(String cId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'existsByCid'");
-    }
 }

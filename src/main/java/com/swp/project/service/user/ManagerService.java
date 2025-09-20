@@ -93,10 +93,7 @@ public class ManagerService {
             .orElseThrow(() -> new RuntimeException("Khong tìm thấy tỉnh"));
         CommuneWard ward = communeWardRepository.findById(updatedManager.getCommuneWardCode())
             .orElseThrow(() -> new RuntimeException("Khong tìm thấy quận"));
-        boolean isEnabled = false;
-        if(updatedManager.getStatus() == true) {
-            isEnabled = true;
-        }
+        boolean isEnabled = Boolean.TRUE.equals(updatedManager.getStatus());
         if (!existingManager.getEmail().equals(updatedManager.getEmail()) && userRepository.existsByEmail(updatedManager.getEmail())) {
             throw new IllegalArgumentException("Mail đã được sử dụng");
         }
