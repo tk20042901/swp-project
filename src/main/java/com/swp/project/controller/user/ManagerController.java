@@ -1,7 +1,10 @@
 package com.swp.project.controller.user;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import com.swp.project.entity.address.CommuneWard;
+import com.swp.project.entity.address.ProvinceCity;
 import com.swp.project.entity.user.CustomerSupport;
 import com.swp.project.service.user.CustomerSupportService;
 import org.springframework.stereotype.Controller;
@@ -295,25 +298,48 @@ public class ManagerController {
 
 
     @GetMapping("/edit-staff")
-    public String editStaff(@RequestParam(value = "clickedButton", required = false) String clickedButton, Model model,
+    public String editStaff(
+            @RequestParam(value = "clickedButton", required = false) String clickedButton,
+            @RequestParam(value = "email", required = false) String email,
+            Model model,
             HttpSession session) {
+
         if (clickedButton != null && !clickedButton.isEmpty()) {
-            model.addAttribute("provinces", provinceCityRepository.findAll());
-            model.addAttribute("wards", new ArrayList<>());
-            model.addAttribute("staffDto", new StaffDto());
+            List<ProvinceCity> provinces = provinceCityRepository.findAll();;
+            List<CommuneWard> wards = new ArrayList<>();
+            StaffDto staffDto = new StaffDto();
 
             switch (clickedButton) {
                 case "Seller":
                     session.setAttribute("newClassName", "Seller");
+                    if (email != null && !email.isEmpty()) {
+                        Seller seller = sellerService.getByEmail(email);
+                        staffDto = new StaffDto().parse(seller);
+                        wards = communeWardRepository.findAllByProvinceCity(seller.getCommuneWard().getProvinceCity());
+                    }
                     break;
                 case "Shipper":
                     session.setAttribute("newClassName", "Shipper");
+                    if (email != null && !email.isEmpty()) {
+                        Shipper shipper = shipperService.getByEmail(email);
+                        staffDto = new StaffDto().parse(shipper);
+                        wards = communeWardRepository.findAllByProvinceCity(shipper.getCommuneWard().getProvinceCity());
+                    }
                     break;
                 case "CustomerSupport":
                     session.setAttribute("newClassName", "CustomerSupport");
+                    if (email != null && !email.isEmpty()) {
+                        CustomerSupport customerSupport = customerSupportService.getByEmail(email);
+                        staffDto = new StaffDto().parse(customerSupport);
+                        wards = communeWardRepository.findAllByProvinceCity(customerSupport.getCommuneWard().getProvinceCity());
+                    }
                     break;
             }
+            model.addAttribute("provinces", provinces);
+            model.addAttribute("wards", wards);
+            model.addAttribute("staffDto", staffDto);
         }
+
         return "pages/manager/edit-staff";
     }
 
@@ -409,8 +435,14 @@ public class ManagerController {
 
                             break;
                     }
-                    redirectAttributes.addFlashAttribute("msg",
-                            "Thêm tài khoản " + staffDto.getEmail() + " thành công");
+                    if (staffDto.getId() == null) {
+                        redirectAttributes.addFlashAttribute("msg",
+                                "Thêm tài khoản " + staffDto.getEmail() + " thành công");
+                    } else {
+                        redirectAttributes.addFlashAttribute("msg",
+                                "Sửa tài khoản " + staffDto.getEmail() + " thành công");
+                    }
+
                 }
             } catch (Exception e) {
                 e.printStackTrace();

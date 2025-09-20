@@ -133,7 +133,7 @@ public class ShipperService {
 
     public void add(StaffDto staffDto) {
         if (staffDto != null) {
-            if (staffDto.getId() == null) {
+            if (staffDto.getId() == 0) {
                 if (existsCid(staffDto.getCid())) {
                     throw new RuntimeException("Mã căn cước công dân đã được dùng");
                 }
@@ -144,6 +144,7 @@ public class ShipperService {
             Shipper shipper;
             try {
                 shipper = Shipper.builder()
+                        .id(staffDto.getId() != 0 ? staffDto.getId() : null)
                         .email(staffDto.getEmail())
                         .password(staffDto.getPassword())
                         .fullname(staffDto.getFullname())
@@ -151,11 +152,13 @@ public class ShipperService {
                         .cid(staffDto.getCid())
                         .communeWard(addressService.getCommuneWardByCode(staffDto.getCommuneWard()))
                         .specificAddress(staffDto.getSpecificAddress())
+                        .enabled(staffDto.isEnabled())
                         .build();
             } catch (ParseException e) {
                 throw new RuntimeException("Định dạng ngày tháng năm bất thường");
             }
 
+            boolean found = shipperRepository.findById(staffDto.getId()).isPresent();
             shipperRepository.save(shipper);
 
         }

@@ -18,30 +18,32 @@
 </div>
 <form th:action="@{/manager/edit-staff}" method="post" th:object="${staffDto}">
     <input type="text" name="newClassName" th:value="${session.newClassName}" hidden>
+    <input th:field="*{id}" hidden>
+    <input th:field="*{enabled}" hidden>
     <div class="form-group">
         <label for="email">Email</label>
-        <input type="text" class="form-control" th:field="*{email}">
-        <p th:errors="*{email}"></p>
+        <input type="text" class="form-control" th:field="*{email}" th:readonly="*{id != 0}">
+        <p style="color: red;" th:errors="*{email}"></p>
     </div>
-    <div class="form-group">
+    <div class="form-group" th:hidden="*{id != 0}">
         <label for="password">Mật khẩu</label>
         <input type="text" class="form-control" th:field="*{password}">
-        <p th:errors="*{password}"></p>
+        <p style="color: red;" th:errors="*{password}"></p>
     </div>
     <div class="form-group">
         <label for="fullName">Họ tên</label>
         <input type="text" class="form-control" th:field="*{fullname}">
-        <p th:errors="*{fullname}"></p>
+        <p style="color: red;" th:errors="*{fullname}"></p>
     </div>
     <div class="form-group">
         <label for="birthDate">Ngày tháng năm sinh</label>
         <input type="date" class="form-control" th:field="*{birthDate}">
-        <p th:errors="*{birthDate}"></p>
+        <p style="color: red;" th:errors="*{birthDate}"></p>
     </div>
     <div class="form-group">
         <label for="cid">Số căn cước công dân</label>
         <input type="text" class="form-control" th:field="*{cid}">
-        <p th:errors="*{cid}"></p>
+        <p style="color: red;" th:errors="*{cid}"></p>
     </div>
     <div class="form-group">
         <span>Tỉnh / thành phố</span>
@@ -60,13 +62,20 @@
                     th:selected="${ward.code.equals(staffDto.communeWard)}">
             </option>
         </select>
-        <p th:errors="*{communeWard}"></p>
+        <p style="color: red;" th:errors="*{communeWard}"></p>
     </div>
     <div class="form-group">
         <label for="specificAddress">Địa chỉ cụ thể</label>
         <input type="text" class="form-control" th:field="*{specificAddress}">
-        <p th:errors="*{specificAddress}"></p>
+        <p style="color: red;" th:errors="*{specificAddress}"></p>
     </div>
+<!--    <div class="form-group">-->
+<!--        <label for="enabled">Mở khóa?</label>-->
+<!--        <input type="radio" class="form-check-input" name="enabled" value="true" th:selected="*{enabled == true}">-->
+<!--        <label class="form-check-label" for="enabled">Có</label>-->
+<!--        <input type="radio" class="form-check-input" name="enabled" value="false" th:selected="*{enabled == false}">-->
+<!--        <label class="form-check-label" for="enabled">Không</label>-->
+<!--    </div>-->
     <button type="submit" name="submitButton" value="save" class="btn btn-primary">Lưu</button>
 </form>
 
