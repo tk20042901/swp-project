@@ -7,7 +7,7 @@ import com.swp.project.entity.user.Shipper;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +36,7 @@ public class Order {
     private OrderStatus orderStatus;
 
     @Column(nullable = false)
-    private Instant orderDate;
+    private LocalDateTime orderDate;
 
     @Column(length = 50)
     private String fullName;

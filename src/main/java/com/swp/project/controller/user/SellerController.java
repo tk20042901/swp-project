@@ -1,5 +1,6 @@
 package com.swp.project.controller.user;
 
+import com.swp.project.dto.SellerSearchOrderDto;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.order.OrderStatusService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,28 +26,18 @@ public class SellerController {
     }
 
     @GetMapping("/all-orders")
-    public String sellerProducts(@PageableDefault Pageable pageable,
+    public String sellerProducts(@PageableDefault(5) Pageable pageable,
+                                 @ModelAttribute SellerSearchOrderDto sellerSearchOrderDto,
                                  Model model,
                                  HttpServletRequest request) {
-        model.addAttribute("requestURI", request.getRequestURI());
-        model.addAttribute("orderStatus", orderStatusService.getAllStatus());
-        model.addAttribute("orders", orderService.getAllOrder(pageable));
-        return "pages/seller/all-orders";
-    }
-
-    @PostMapping("/all-orders")
-    public String filterOrdersByStatus(@RequestParam Long statusId,
-                                       @PageableDefault Pageable pageable,
-                                       Model model,
-                                       HttpServletRequest request) {
-        if(statusId == 0){
-            return "redirect:/seller/all-orders";
+        if(sellerSearchOrderDto.isEmpty()) {
+            model.addAttribute("orders", orderService.getAllOrder(pageable));
+        } else {
+            model.addAttribute("orders",orderService.searchOrder(sellerSearchOrderDto,pageable));
         }
         model.addAttribute("requestURI", request.getRequestURI());
-        model.addAttribute("statusId", statusId);
         model.addAttribute("orderStatus", orderStatusService.getAllStatus());
-        model.addAttribute("orders",
-                orderService.getOrdersByStatus(orderStatusService.getOrderStatusById(statusId), pageable));
+        model.addAttribute("sellerSearchOrderDto", sellerSearchOrderDto);
         return "pages/seller/all-orders";
     }
 
