@@ -5,7 +5,7 @@ import com.swp.project.entity.user.CustomerSupport;
 import com.swp.project.entity.user.Seller;
 import com.swp.project.entity.user.Shipper;
 import com.swp.project.listener.event.UserDisabledEvent;
-import com.swp.project.repository.user.CustomerSupportRepository;
+import com.swp.project.repository.user.*;
 import com.swp.project.service.AddressService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +26,10 @@ import java.util.UUID;
 public class CustomerSupportService {
 
     private final CustomerSupportRepository customerSupportRepository;
+    private final SellerRepository sellerRepository;
+    private final ShipperRepository shipperRepository;
+    private final ManagerRepository managerRepository;
+    private final UserRepository userRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final PasswordEncoder passwordEncoder;
     private final AddressService addressService;
@@ -106,14 +110,11 @@ public class CustomerSupportService {
 
     public void add(StaffDto staffDto) {
         if (staffDto != null) {
-            if (customerSupportRepository.findBycId(staffDto.getCId()) != null) {
+            if (existscId(staffDto.getCId())) {
                 throw new RuntimeException("Mã căn cước công dân đã được dùng");
             }
-            if (customerSupportRepository.findByEmail(staffDto.getEmail()) != null) {
+            if (existsEmail(staffDto.getEmail())) {
                 throw new RuntimeException("Email đã được dùng");
-            }
-            if (!staffDto.getEnabled().toLowerCase().matches("(true)|(false)")) {
-                throw new RuntimeException("Trạng thái mở / khóa bất thường");
             }
             CustomerSupport customerSupport = null;
             try {
@@ -125,7 +126,6 @@ public class CustomerSupportService {
                         .cId(staffDto.getCId())
                         .communeWard(addressService.getCommuneWardByCode(staffDto.getCommuneWard()))
                         .specificAddress(staffDto.getSpecificAddress())
-                        .enabled(Boolean.parseBoolean(staffDto.getEnabled()))
                         .build();
 
 
@@ -160,5 +160,24 @@ public class CustomerSupportService {
 
     public CustomerSupport getCustomerSupportById(Long id) {
         return customerSupportRepository.findById(id).orElse(null);
+    }
+
+
+    private boolean existscId(String cId) {
+        return sellerRepository.findBycId(cId) != null ||
+                shipperRepository.findBycId(cId) != null ||
+                customerSupportRepository.findBycId(cId) != null
+//                ||
+//                managerRepository.findBycId(cId) != null
+                ;
+    }
+
+    private boolean existsEmail(String email) {
+        return userRepository.findByEmail(email) != null;
+    }
+
+
+    public void findCustomerSupportsByNameAndcId(String name, String cId) {
+        results = customerSupportRepository.findByNameContainsAndCIdContains(name, cId);
     }
 }

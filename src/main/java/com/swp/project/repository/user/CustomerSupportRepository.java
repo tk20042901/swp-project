@@ -4,6 +4,8 @@ import com.swp.project.entity.user.CustomerSupport;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface CustomerSupportRepository extends JpaRepository<CustomerSupport,Long> {
 
@@ -12,4 +14,6 @@ public interface CustomerSupportRepository extends JpaRepository<CustomerSupport
     public CustomerSupport findBycId(String cId);
 
     public CustomerSupport findByEmail(String email);
+
+    List<CustomerSupport> findByNameContainsAndCIdContains(String name, String cId);
 }

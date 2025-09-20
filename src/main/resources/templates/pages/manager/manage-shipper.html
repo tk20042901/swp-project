@@ -8,19 +8,19 @@
 </head>
 <body class="container-fluid">
 <a href="/manager">Quay về trang chủ</a>
-<div style="display: grid; grid-template-columns: 2fr 8fr; height: 100px">
+<div style="display: grid; grid-template-columns: 3fr 7fr; height: 100px">
     <h1>Quản lí người giao hàng</h1>
-    <div class="alert alert-success fade show" th:hidden="${msg == null}">
-        <button type="button" class="close" data-dismiss="alert"> &times; </button>
-        <p th:text="${msg}"></p>
+    <div class="alert alert-success alert-dismissible" th:hidden="${msg == null}">
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <strong>Thành công!</strong> <p th:text="${msg}"></p>
     </div>
-    <div class="alert alert-danger fade show" th:hidden="${error == null}">
-        <button type="button" class="close" data-dismiss="alert"> &times; </button>
-        <p th:text="${error}"></p>
+    <div class="alert alert-danger alert-dismissible" th:hidden="${error == null}">
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <strong>Thất bại!</strong> <p th:text="${error}"></p>
     </div>
 </div>
-<div style="display: grid; grid-template-columns: 1fr 1fr 1fr">
-    <form th:action="@{/manager/manage-shipper}" method="get" style="display: flex; justify-content: center;">
+<div style="display: grid; grid-template-columns: 1fr 1fr">
+    <form th:action="@{/manager/manage-shipper}" method="get" style="display: flex; justify-content: start;">
         <div th:each="index : ${#numbers.sequence(1, (session.list.size() / 15) + (session.list.size() % 15 == 0 ? 0 : 1))}">
             <input type="submit" name="subpageIndex" th:value="${index}" th:class="'btn' + ${session.subpageIndex == index ? ' btn-primary' : ''}">
         </div>

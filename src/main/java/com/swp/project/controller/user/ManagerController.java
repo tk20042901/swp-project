@@ -31,22 +31,12 @@ import lombok.RequiredArgsConstructor;
 @Controller
 @RequestMapping("/manager")
 public class ManagerController {
-    @Autowired
+
     private SellerService sellerService;
-
-    @Autowired
     private ShipperService shipperService;
-
-    @Autowired
     private CustomerSupportService customerSupportService;
-
-    @Autowired
     private ProvinceCityRepository provinceCityRepository;
-
-    @Autowired
     private CommuneWardRepository communeWardRepository;
-
-    @GetMapping("")
     public String index() {
         return "pages/manager/index";
     }
@@ -55,6 +45,8 @@ public class ManagerController {
     public String manageSeller(
             @RequestParam(value = "clickedButton", required = false) String clickedButton,
             @RequestParam(value = "subpageIndex", required = false) Integer subpageIndex,
+            @RequestParam(value = "queryName", required = false) String queryName,
+            @RequestParam(value = "queryCId", required = false) String queryCId,
             HttpSession session) {
 
         if (session.getAttribute("k") == null) {
@@ -85,6 +77,9 @@ public class ManagerController {
                     sellerService.sortBy(clickedButton, k);
                     session.setAttribute("list", sellerService.getResults());
                     break;
+                case "search":
+                    sellerService.findSellersByNameAndcId(queryName, queryCId);
+                    break;
             }
         }
 
@@ -100,6 +95,8 @@ public class ManagerController {
     public String manageShipper(
             @RequestParam(value = "clickedButton", required = false) String clickedButton,
             @RequestParam(value = "subpageIndex", required = false) Integer subpageIndex,
+            @RequestParam(value = "queryName", required = false) String queryName,
+            @RequestParam(value = "queryCId", required = false) String queryCId,
             HttpSession session) {
 
         if (session.getAttribute("k") == null) {
@@ -130,6 +127,9 @@ public class ManagerController {
                     shipperService.sortBy(clickedButton, k);
                     session.setAttribute("list", shipperService.getResults());
                     break;
+                case "search":
+                    sellerService.findSellersByNameAndcId(queryName, queryCId);
+                    break;
             }
         }
 
@@ -145,6 +145,8 @@ public class ManagerController {
     public String manageCustomerSupport(
             @RequestParam(value = "clickedButton", required = false) String clickedButton,
             @RequestParam(value = "subpageIndex", required = false) Integer subpageIndex,
+            @RequestParam(value = "queryName", required = false) String queryName,
+            @RequestParam(value = "queryCId", required = false) String queryCId,
             HttpSession session) {
 
         if (session.getAttribute("k") == null) {
@@ -174,6 +176,9 @@ public class ManagerController {
                     customerSupportService.findAllCustomerSupports();
                     customerSupportService.sortBy(clickedButton, k);
                     session.setAttribute("list", customerSupportService.getResults());
+                    break;
+                case "search":
+                    sellerService.findSellersByNameAndcId(queryName, queryCId);
                     break;
             }
         }
@@ -291,7 +296,6 @@ public class ManagerController {
     public String editStaff(
             @Valid @ModelAttribute("staffDto") StaffDto staffDto,
             BindingResult bindingResult,
-            @RequestParam(value = "enabled", defaultValue = "false") String enabled,
             @RequestParam("newClassName") String newClassName,
             @RequestParam(value = "submitButton", required = false) String submitButton,
             RedirectAttributes redirectAttributes,
@@ -339,7 +343,6 @@ public class ManagerController {
                     switch (newClassName) {
                         case "Seller":
                             try {
-                                staffDto.setEnabled(enabled);
                                 sellerService.add(staffDto);
                                 sellerService.findAllSellers();
                                 sellerService.sortBy(session.getAttribute("sortCriteria").toString(),
@@ -354,7 +357,6 @@ public class ManagerController {
                             break;
                         case "Shipper":
                             try {
-                                staffDto.setEnabled(enabled);
                                 shipperService.add(staffDto);
                                 shipperService.findAllShippers();
                                 shipperService.sortBy(session.getAttribute("sortCriteria").toString(),
@@ -369,7 +371,6 @@ public class ManagerController {
                             break;
                         case "CustomerSupport":
                             try {
-                                staffDto.setEnabled(enabled);
                                 customerSupportService.add(staffDto);
                                 customerSupportService.findAllCustomerSupports();
                                 customerSupportService.sortBy(session.getAttribute("sortCriteria").toString(),

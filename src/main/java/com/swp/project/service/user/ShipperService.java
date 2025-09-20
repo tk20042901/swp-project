@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.swp.project.entity.user.Seller;
+import com.swp.project.repository.user.*;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,7 +18,6 @@ import com.swp.project.entity.user.Shipper;
 import com.swp.project.listener.event.UserDisabledEvent;
 import com.swp.project.repository.address.CommuneWardRepository;
 import com.swp.project.repository.address.ProvinceCityRepository;
-import com.swp.project.repository.user.ShipperRepository;
 import com.swp.project.service.AddressService;
 
 import lombok.Getter;
@@ -28,6 +29,10 @@ import lombok.RequiredArgsConstructor;
 public class ShipperService {
 
     private final ShipperRepository shipperRepository;
+    private final SellerRepository sellerRepository;
+    private final CustomerSupportRepository  customerSupportRepository;
+    private final ManagerRepository managerRepository;
+    private final UserRepository userRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final PasswordEncoder passwordEncoder;
     private final AddressService addressService;
@@ -138,14 +143,11 @@ public class ShipperService {
 
     public void add(StaffDto staffDto) {
         if (staffDto != null) {
-            if (shipperRepository.findBycId(staffDto.getCId()) != null) {
+            if (existscId(staffDto.getCId())) {
                 throw new RuntimeException("Mã căn cước công dân đã được dùng");
             }
-            if (shipperRepository.findByEmail(staffDto.getEmail()) != null) {
+            if (existsEmail(staffDto.getEmail())) {
                 throw new RuntimeException("Email đã được dùng");
-            }
-            if (staffDto.getEnabled().toLowerCase().matches("(true)|(false)")) {
-                throw new RuntimeException("Trạng thái mở / khóa bất thường");
             }
             Shipper shipper = null;
             try {
@@ -157,7 +159,6 @@ public class ShipperService {
                         .cId(staffDto.getCId())
                         .communeWard(addressService.getCommuneWardByCode(staffDto.getCommuneWard()))
                         .specificAddress(staffDto.getSpecificAddress())
-                        .enabled(Boolean.parseBoolean(staffDto.getEnabled()))
                         .build();
             } catch (ParseException e) {
                 throw new RuntimeException("Định dạng ngày tháng năm bất thường");
@@ -166,5 +167,23 @@ public class ShipperService {
             shipperRepository.save(shipper);
 
         }
+    }
+
+
+    private boolean existscId(String cId) {
+        return sellerRepository.findBycId(cId) != null ||
+                shipperRepository.findBycId(cId) != null ||
+                customerSupportRepository.findBycId(cId) != null
+//                ||
+//                managerRepository.findBycId(cId) != null
+                ;
+    }
+
+    private boolean existsEmail(String email) {
+        return userRepository.findByEmail(email) != null;
+    }
+
+    public void findShippersByNameAndcId(String name, String cId) {
+        results = shipperRepository.findByNameContainsAndCIdContains(name, cId);
     }
 }
