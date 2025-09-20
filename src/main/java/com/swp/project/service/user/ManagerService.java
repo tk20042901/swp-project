@@ -41,12 +41,29 @@ public class ManagerService {
     }
 
     @Transactional
+    public void setManagerStatus(Long id, boolean status) {
+        Manager manager = getManagerById(id);
+        manager.setEnabled(status);
+
+        if (!status) {
+            eventPublisher.publishEvent(new UserDisabledEvent(manager.getEmail()));
+        }
+
+        managerRepository.save(manager);
+    }
+
+    @Transactional
     public void initManager() {
+        CommuneWard ward = communeWardRepository.findAll()
+            .stream()
+            .findFirst()
+            .orElse(null);
         for (int i = 1; i <= 4; i++) {
             createManagerIfNotExists(Manager.builder()
                     .fullname("Manager " + i)
                     .email("manager" + i + "@shop.com")
                     .password("manager")
+                    .communeWard(ward)
                     .specificAddress("123 Main St, City " + i)
                     .birthDate(LocalDate.of(2000, 1, i))
                     .cid("ID" + i)
@@ -65,10 +82,8 @@ public class ManagerService {
         Manager existingManager = managerRepository.findById(id).orElseThrow(
             () -> new IllegalArgumentException("Khong tìm thấy quản lý")
         );
-        ProvinceCity province = provinceCityRepository.findById(updatedManager.getProvinceCityCode())
-            .orElseThrow(() -> new RuntimeException("Khong tìm thấy tỉnh"));
         CommuneWard ward = communeWardRepository.findById(updatedManager.getCommuneWardCode())
-            .orElseThrow(() -> new RuntimeException("Khong tìm thấy quận"));
+            .orElseThrow(() -> new RuntimeException("Khong tìm thấy xã"));
         boolean isEnabled = Boolean.TRUE.equals(updatedManager.getStatus());
         if (!existingManager.getEmail().equals(updatedManager.getEmail()) && userRepository.existsByEmail(updatedManager.getEmail())) {
             throw new IllegalArgumentException("Mail đã được sử dụng");
@@ -85,22 +100,14 @@ public class ManagerService {
         existingManager.setBirthDate(updatedManager.getBirthDate());
         existingManager.setCid(updatedManager.getCId());
         existingManager.setSpecificAddress(updatedManager.getSpecificAddress());
-        existingManager.setProvinceCity(province);
         existingManager.setCommuneWard(ward);
-        existingManager.setEnabled(isEnabled);
-
-        if (!isEnabled) {
-            eventPublisher.publishEvent(new UserDisabledEvent(existingManager.getEmail()));
-        }
-
+        existingManager.setEnabled(isEnabled); 
         managerRepository.save(existingManager);
     }
 
     public void createManager(ManagerRegisterDto registerDto) {
-        ProvinceCity province = provinceCityRepository.findById(registerDto.getProvinceCityCode())
-            .orElseThrow(() -> new RuntimeException("Khong tìm thấy tỉnh"));
         CommuneWard ward = communeWardRepository.findById(registerDto.getCommuneWardCode())
-            .orElseThrow(() -> new RuntimeException("Khong tìm thấy quận"));
+            .orElseThrow(() -> new RuntimeException("Khong tìm thấy xã"));
         if (!registerDto.getConfirmPassword().equals(registerDto.getPassword())) {
             throw new RuntimeException("Mật khẩu và xác nhận mật khẩu không khớp");
         }
@@ -119,7 +126,6 @@ public class ManagerService {
             .fullname(registerDto.getFullname())
             .birthDate(registerDto.getBirthDate())
             .cid(registerDto.getCId())
-            .provinceCity(province)
             .communeWard(ward)
             .specificAddress(registerDto.getSpecificAddress())
             .build();
