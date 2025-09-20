@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.*;
+import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 @Service
@@ -112,6 +113,14 @@ public class CustomerService {
 
     @Transactional
     public void forgotPassword(String email) {
+        if(email == null || email.isBlank()) {
+            throw new RuntimeException("Email không được để trống");
+        }
+
+        if(!Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$").matcher(email).matches()) {
+            throw new RuntimeException("Email không hợp lệ");
+        }
+
         Customer customer = customerRepository.getByEmail(email);
 
         if (customer == null) throw new RuntimeException("Người dùng với email " + email + " không tồn tại");

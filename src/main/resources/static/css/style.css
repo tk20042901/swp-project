@@ -1,0 +1,75 @@
+/* Auth page friendly theme */
+:root {
+  --auth-bg-start: #f6f9fc;
+  --auth-bg-end: #e9f0ff;
+  --auth-card-radius: 14px;
+  --auth-shadow: 0 10px 25px rgba(16, 24, 40, 0.08);
+  --focus-ring: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); /* bootstrap primary */
+}
+
+/* Subtle, friendly background */
+.auth-body {
+  min-height: 100vh;
+  background: radial-gradient(1200px 600px at -10% -10%, var(--auth-bg-end), transparent 50%),
+              radial-gradient(1000px 600px at 110% 10%, #f2f7ff, transparent 40%),
+              linear-gradient(180deg, var(--auth-bg-start), #ffffff 60%);
+}
+
+/* Card polish */
+.auth-card {
+  border: 1px solid rgba(16, 24, 40, 0.06);
+  border-radius: var(--auth-card-radius);
+  box-shadow: var(--auth-shadow);
+  backdrop-filter: saturate(120%) blur(2px);
+}
+
+/* Title styling */
+.brand {
+  letter-spacing: 0.2px;
+}
+
+/* Input focus aesthetic without harming accessibility */
+.auth-card .form-control:focus {
+  box-shadow: var(--focus-ring);
+  border-color: #86b7fe;
+}
+
+/* Checkbox alignment tweak */
+.auth-card .form-check-input:focus {
+  box-shadow: var(--focus-ring);
+  border-color: #86b7fe;
+}
+
+/* Button hover micro-interaction */
+.auth-card .btn-primary {
+  transition: transform .06s ease, box-shadow .2s ease;
+}
+.auth-card .btn-primary:hover {
+  transform: translateY(-1px);
+}
+
+/* Alerts spacing stack */
+.alerts-stack .alert {
+  border-radius: 10px;
+}
+
+/* Make reCAPTCHA play nice on small screens */
+.g-recaptcha {
+  transform-origin: left top;
+}
+@media (max-width: 360px) {
+  .g-recaptcha { transform: scale(0.9); }
+}
+@media (max-width: 320px) {
+  .g-recaptcha { transform: scale(0.82); }
+}
+
+/* Tiny text helpers */
+.text-muted.small { display: inline-block; padding: 0 .25rem; }
+
+/* OTP input polish */
+.otp-input {
+  text-align: center;
+  letter-spacing: 2px;
+  font-weight: 600;
+}

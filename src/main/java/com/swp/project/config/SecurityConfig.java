@@ -1,6 +1,7 @@
 package com.swp.project.config;
 
 import com.swp.project.filter.CaptchaValidationFilter;
+import com.swp.project.filter.LoginRequestValidationFilter;
 import com.swp.project.security.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -20,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final CaptchaValidationFilter captchaValidationFilter;
+    private final LoginRequestValidationFilter loginRequestValidationFilter;
     private final CustomOAuth2UserService customOAuth2UserService;
 
     private static final String LOGIN_URL = "/login";
@@ -63,6 +65,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .addFilterBefore(loginRequestValidationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(captchaValidationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(i -> i
                         .requestMatchers(PUBLIC_MATCHERS).permitAll()

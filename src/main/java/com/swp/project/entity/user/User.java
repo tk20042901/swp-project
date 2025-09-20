@@ -25,7 +25,7 @@ public abstract class User implements OAuth2User, UserDetails {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column
     private String password;
 
     @Builder.Default
