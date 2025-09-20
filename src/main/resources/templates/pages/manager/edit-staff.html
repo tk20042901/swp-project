@@ -6,14 +6,14 @@
     <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
 </head>
 <body>
-<div style="display: grid; grid-template-columns: 2fr 8fr; height: 100px">
+<div style="display: grid; grid-template-columns: 3fr 7fr; height: 100px">
     <h1 th:text="${'Thêm tài khoản' + (session.newClassName.equals('Seller') ? ' người bán' :
                                         (session.newClassName.equals('Shipper') ? ' người giao hàng' :
                                         (' hỗ trợ khách hàng')))}">
     </h1>
-    <div class="alert alert-danger fade show" th:hidden="${error == null}">
-        <button type="button" class="close" data-dismiss="alert"> &times; </button>
-        <p th:text="${error}"></p>
+    <div class="alert alert-danger alert-dismissible" th:hidden="${error == null}">
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <strong>Thất bại!</strong> <p th:text="${error}"></p>
     </div>
 </div>
 <form th:action="@{/manager/edit-staff}" method="post" th:object="${staffDto}">
@@ -66,11 +66,6 @@
         <label for="specificAddress">Địa chỉ cụ thể</label>
         <input type="text" class="form-control" th:field="*{specificAddress}">
         <p th:errors="*{specificAddress}"></p>
-    </div>
-    <div class="form-group form-check">
-        <label class="form-check-label">
-            <input type="checkbox" class="form-control" id="enabled" name="enabled" th:checked="*{enabled}" value="true"> Mở khóa
-        </label>
     </div>
     <button type="submit" name="submitButton" value="save" class="btn btn-primary">Lưu</button>
 </form>

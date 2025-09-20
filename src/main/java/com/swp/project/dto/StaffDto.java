@@ -45,6 +45,4 @@ public class StaffDto implements Serializable {
 
     @NotBlank(message = "Địa chỉ cụ thể không để trống")
     private String specificAddress;
-
-    private String enabled;
 }

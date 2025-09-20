@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.swp.project.repository.user.*;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,6 @@ import com.swp.project.entity.user.Seller;
 import com.swp.project.listener.event.UserDisabledEvent;
 import com.swp.project.repository.address.CommuneWardRepository;
 import com.swp.project.repository.address.ProvinceCityRepository;
-import com.swp.project.repository.user.SellerRepository;
 import com.swp.project.service.AddressService;
 
 import lombok.Getter;
@@ -28,6 +28,10 @@ import lombok.RequiredArgsConstructor;
 public class SellerService {
 
     private final SellerRepository sellerRepository;
+    private final ShipperRepository shipperRepository;
+    private final CustomerSupportRepository customerSupportRepository;
+    private final ManagerRepository managerRepository;
+    private final UserRepository userRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final PasswordEncoder passwordEncoder;
     private final AddressService addressService;
@@ -87,14 +91,11 @@ public class SellerService {
 
     public void add(StaffDto staffDto) {
         if (staffDto != null) {
-            if (sellerRepository.findBycId(staffDto.getCId()) != null) {
+            if (existscId(staffDto.getCId())) {
                 throw new RuntimeException("Mã căn cước công dân đã được dùng");
             }
-            if (sellerRepository.findByEmail(staffDto.getEmail()) != null) {
+            if (existsEmail(staffDto.getEmail())) {
                 throw new RuntimeException("Email đã được dùng");
-            }
-            if (!staffDto.getEnabled().toLowerCase().matches("(true)|(false)")) {
-                throw new RuntimeException("Trạng thái mở / khóa bất thường");
             }
             Seller seller = null;
             try {
@@ -106,7 +107,6 @@ public class SellerService {
                         .cId(staffDto.getCId())
                         .communeWard(addressService.getCommuneWardByCode(staffDto.getCommuneWard()))
                         .specificAddress(staffDto.getSpecificAddress())
-                        .enabled(Boolean.parseBoolean(staffDto.getEnabled()))
                         .build();
 
                         
@@ -160,5 +160,22 @@ public class SellerService {
                 });
                 break;
         }
+    }
+
+    private boolean existscId(String cId) {
+        return sellerRepository.findBycId(cId) != null ||
+                shipperRepository.findBycId(cId) != null ||
+                customerSupportRepository.findBycId(cId) != null
+//                ||
+//                managerRepository.findBycId(cId) != null
+                ;
+    }
+
+    private boolean existsEmail(String email) {
+        return userRepository.findByEmail(email) != null;
+    }
+
+    public void findSellersByNameAndcId(String name, String cId) {
+        results = sellerRepository.findByNameContainsAndCIdContains(name, cId);
     }
 }
