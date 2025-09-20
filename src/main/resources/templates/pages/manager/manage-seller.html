@@ -19,11 +19,16 @@
         <strong>Thất bại!</strong> <p th:text="${error}"></p>
     </div>
 </div>
-<div style="display: grid; grid-template-columns: 1fr 1fr">
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr">
     <form th:action="@{/manager/manage-seller}" method="get" style="display: flex; justify-content: start;">
-    <div th:each="index : ${#numbers.sequence(1, (session.list.size() / 15) + (session.list.size() % 15 == 0 ? 0 : 1))}">
-        <input type="submit" name="subpageIndex" th:value="${index}" th:class="'btn' + ${session.subpageIndex == index ? ' btn-primary' : ''}">
-    </div>
+        <div th:each="index : ${#numbers.sequence(1, (session.list.size() / 15) + (session.list.size() % 15 == 0 ? 0 : 1))}" th:unless="${session.list.isEmpty()}">
+            <input type="submit" name="subpageIndex" th:value="${index}" th:class="'btn' + ${session.subpageIndex == index ? ' btn-primary' : ''}">
+        </div>
+    </form>
+    <form th:action="@{/manager/manage-seller}" method="get">
+        <input type="text" name="queryName" th:value="${queryName}" placeholder="Tìm theo họ tên">
+        <input type="text" name="queryCid" th:value="${queryCid}" placeholder="Tìm theo cố CCCD">
+        <button type="submit" name="clickedButton" value="search" class="btn btn-dark">Tìm</button>
     </form>
     <form th:action="@{/manager/edit-staff}" method="get" style="display: flex; justify-content: end">
         <button type="submit" name="clickedButton" value="Seller" class="btn btn-success">Thêm người bán</button>
@@ -32,6 +37,8 @@
 <table class="table-striped table-hover col-md-12">
     <tr>
         <form th:action="@{/manager/manage-seller}" method="get">
+            <input name="queryName" th:value="${queryName}" hidden>
+            <input name="queryCid" th:value="${queryCid}" hidden>
             <th>
                 <button type="submit" name="clickedButton" value="id" style="width: 100%" th:class="${'btn ' + (session.sortCriteria.equals('id') ? 'btn-primary' : '')}" th:text="${'ID' + (session.sortCriteria.equals('id') ? (session.k == 1 ? ' v' : ' ^') : '')}"></button>
             </th>
@@ -54,9 +61,17 @@
         </form>
     </tr>
     <div th:if="${session.list.isEmpty()}">
-        <tr>(trống)</tr>
+        <tr>
+            <td>(trống)</td>
+            <td>(trống)</td>
+            <td>(trống)</td>
+            <td>(trống)</td>
+            <td>(trống)</td>
+            <td>(trống)</td>
+            <td>(trống)</td>
+        </tr>
     </div>
-    <div  th:unless="${session.list.isEmpty()}">
+    <div th:unless="${session.list.isEmpty()}">
         <tr th:each="index : ${#numbers.sequence(15 * (session.subpageIndex - 1), ((15 * session.subpageIndex - 1) < session.list.size() ? (15 * session.subpageIndex - 1) : (session.list.size() - 1)))}" th:object="${session.list[index]}">
             <td class=".col-1" th:text="*{id}"></td>
             <td class=".col-2" th:text="*{email}"></td>
@@ -66,6 +81,8 @@
             <td class=".col-1" th:text="*{(enabled == true) ? 'Có' : 'Không'}"></td>
             <td class=".col-1">
                 <form style="width: 100%" th:action="@{/manager/manage-seller}" method="post">
+                    <input name="queryName" th:value="${queryName}" hidden>
+                    <input name="queryCid" th:value="${queryCid}" hidden>
                     <input name="email" th:value="*{email}" hidden>
                     <button type="submit" value="true" th:text="*{enabled ? 'Khóa' : 'Mở'}" th:class="'btn' + *{enabled ? ' btn-danger' : ' btn-success'}"
                     style="width: 100%;"></button>

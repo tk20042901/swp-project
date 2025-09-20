@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import com.swp.project.entity.user.CustomerSupport;
 import com.swp.project.service.user.CustomerSupportService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -32,11 +31,13 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/manager")
 public class ManagerController {
 
-    private SellerService sellerService;
-    private ShipperService shipperService;
-    private CustomerSupportService customerSupportService;
-    private ProvinceCityRepository provinceCityRepository;
-    private CommuneWardRepository communeWardRepository;
+    private final SellerService sellerService;
+    private final ShipperService shipperService;
+    private final CustomerSupportService customerSupportService;
+    private final ProvinceCityRepository provinceCityRepository;
+    private final CommuneWardRepository communeWardRepository;
+
+    @GetMapping("")
     public String index() {
         return "pages/manager/index";
     }
@@ -46,14 +47,15 @@ public class ManagerController {
             @RequestParam(value = "clickedButton", required = false) String clickedButton,
             @RequestParam(value = "subpageIndex", required = false) Integer subpageIndex,
             @RequestParam(value = "queryName", required = false) String queryName,
-            @RequestParam(value = "queryCId", required = false) String queryCId,
+            @RequestParam(value = "queryCid", required = false) String queryCid,
+            Model model,
             HttpSession session) {
 
         if (session.getAttribute("k") == null) {
             session.setAttribute("k", 1);
         }
-            sellerService.findAll();
-            session.setAttribute("list", sellerService.getResults());
+        sellerService.findAll();
+        session.setAttribute("list", sellerService.getResults());
         if (session.getAttribute("sortCriteria") == null) {
             session.setAttribute("sortCriteria", "id");
         }
@@ -66,22 +68,15 @@ public class ManagerController {
                 case "id":
                 case "email":
                 case "fullname":
-                case "cId":
+                case "cid":
                 case "address":
                 case "enabled":
                     session.setAttribute("sortCriteria", clickedButton);
                     int k = (int) session.getAttribute("k");
                     k = -k;
                     session.setAttribute("k", k);
-                    sellerService.findAll();
-                    sellerService.sortBy(clickedButton, k);
-                    session.setAttribute("list", sellerService.getResults());
                     break;
                 case "search":
-                    int k1 = (int) session.getAttribute("k");
-                    sellerService.findByNameAndCid(queryName, queryCId);
-                    sellerService.sortBy(clickedButton, k1);
-                    session.setAttribute("list", shipperService.getResults());
                     break;
             }
         }
@@ -89,6 +84,12 @@ public class ManagerController {
         if (subpageIndex != null) {
             session.setAttribute("subpageIndex", subpageIndex);
         }
+
+        sellerService.findByNameAndCid(queryName, queryCid);
+        sellerService.sortBy((String) session.getAttribute("sortCriteria"), (Integer) session.getAttribute("k"));
+        session.setAttribute("list", sellerService.getResults());
+        model.addAttribute("queryName", queryName);
+        model.addAttribute("queryCid", queryCid);
 
         return "pages/manager/manage-seller";
     }
@@ -99,7 +100,8 @@ public class ManagerController {
             @RequestParam(value = "clickedButton", required = false) String clickedButton,
             @RequestParam(value = "subpageIndex", required = false) Integer subpageIndex,
             @RequestParam(value = "queryName", required = false) String queryName,
-            @RequestParam(value = "queryCId", required = false) String queryCId,
+            @RequestParam(value = "queryCid", required = false) String queryCid,
+            Model model,
             HttpSession session) {
 
         if (session.getAttribute("k") == null) {
@@ -119,22 +121,15 @@ public class ManagerController {
                 case "id":
                 case "email":
                 case "fullname":
-                case "cId":
+                case "cid":
                 case "address":
                 case "enabled":
                     session.setAttribute("sortCriteria", clickedButton);
                     int k = (int) session.getAttribute("k");
                     k = -k;
                     session.setAttribute("k", k);
-                    shipperService.findAll();
-                    shipperService.sortBy(clickedButton, k);
-                    session.setAttribute("list", shipperService.getResults());
                     break;
                 case "search":
-                    int k1 = (int) session.getAttribute("k");
-                    shipperService.findByNameAndCid(queryName, queryCId);
-                    customerSupportService.sortBy(clickedButton, k1);
-                    session.setAttribute("list", shipperService.getResults());
                     break;
             }
         }
@@ -142,6 +137,12 @@ public class ManagerController {
         if (subpageIndex != null) {
             session.setAttribute("subpageIndex", subpageIndex);
         }
+
+        shipperService.findByNameAndCid(queryName, queryCid);
+        shipperService.sortBy((String) session.getAttribute("sortCriteria"), (Integer) session.getAttribute("k"));
+        session.setAttribute("list", shipperService.getResults());
+        model.addAttribute("queryName", queryName);
+        model.addAttribute("queryCid", queryCid);
 
         return "pages/manager/manage-shipper";
     }
@@ -152,14 +153,15 @@ public class ManagerController {
             @RequestParam(value = "clickedButton", required = false) String clickedButton,
             @RequestParam(value = "subpageIndex", required = false) Integer subpageIndex,
             @RequestParam(value = "queryName", required = false) String queryName,
-            @RequestParam(value = "queryCId", required = false) String queryCId,
+            @RequestParam(value = "queryCid", required = false) String queryCid,
+            Model model,
             HttpSession session) {
 
         if (session.getAttribute("k") == null) {
             session.setAttribute("k", 1);
         }
-            customerSupportService.findAll();
-            session.setAttribute("list", customerSupportService.getResults());
+        customerSupportService.findAll();
+        session.setAttribute("list", customerSupportService.getResults());
         if (session.getAttribute("sortCriteria") == null) {
             session.setAttribute("sortCriteria", "id");
         }
@@ -172,22 +174,15 @@ public class ManagerController {
                 case "id":
                 case "email":
                 case "fullname":
-                case "cId":
+                case "cid":
                 case "address":
                 case "enabled":
                     session.setAttribute("sortCriteria", clickedButton);
                     int k = (int) session.getAttribute("k");
                     k = -k;
                     session.setAttribute("k", k);
-                    customerSupportService.findAll();
-                    customerSupportService.sortBy(clickedButton, k);
-                    session.setAttribute("list", customerSupportService.getResults());
                     break;
                 case "search":
-                    int k1 = (int) session.getAttribute("k");
-                    customerSupportService.findByFullnameAndCid(queryName, queryCId);
-                    customerSupportService.sortBy(clickedButton, k1);
-                    session.setAttribute("list", customerSupportService.getResults());
                     break;
             }
         }
@@ -196,84 +191,102 @@ public class ManagerController {
             session.setAttribute("subpageIndex", subpageIndex);
         }
 
+        customerSupportService.findByNameAndCid(queryName, queryCid);
+        customerSupportService.sortBy((String) session.getAttribute("sortCriteria"), (Integer) session.getAttribute("k"));
+        session.setAttribute("list", customerSupportService.getResults());
+        model.addAttribute("queryName", queryName);
+        model.addAttribute("queryCid", queryCid);
+
         return "pages/manager/manage-customer-support";
     }
 
     @PostMapping("/manage-seller")
     public String manageSeller(
+            @RequestParam("queryName") String queryName,
+            @RequestParam("queryCid") String queryCid,
             @RequestParam("email") String email,
             RedirectAttributes redirectAttributes,
             HttpSession session) {
         try {
-            sellerService.findAll();
             Seller seller = sellerService.getByEmail(email);
 
             boolean isEnabled = !seller.isEnabled();
             seller.setEnabled(isEnabled);
             sellerService.save(seller);
-
-            sellerService.findAll();
-            sellerService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
-            session.setAttribute("list", sellerService.getResults());
-
             sellerService.setSellerStatus(seller.getId(), isEnabled);
-            redirectAttributes.addFlashAttribute("list", session.getAttribute("list"));
+
             redirectAttributes.addFlashAttribute("msg", (isEnabled ? "Mở khóa " : "Khóa ") + seller.getName() + " thành công" );
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
+
+        sellerService.findByNameAndCid(queryName, queryCid);
+        sellerService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
+        session.setAttribute("list", sellerService.getResults());
+        redirectAttributes.addFlashAttribute("queryName", queryName);
+        redirectAttributes.addFlashAttribute("queryCid", queryCid);
+        redirectAttributes.addAttribute("queryName", queryName);
+        redirectAttributes.addAttribute("queryCid", queryCid);
         return "redirect:/manager/manage-seller";
     }
 
     @PostMapping("/manage-shipper")
     public String manageShipper(
-                               @RequestParam("email") String email,
-                               RedirectAttributes redirectAttributes,
-                               HttpSession session) {
+            @RequestParam("queryName") String queryName,
+            @RequestParam("queryCid") String queryCid,
+            @RequestParam("email") String email,
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
         try {
-            shipperService.findAll();
             Shipper shipper = shipperService.getByEmail(email);
 
             boolean isEnabled = !shipper.isEnabled();
             shipper.setEnabled(isEnabled);
             shipperService.save(shipper);
-
-            shipperService.findAll();
-            shipperService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
-            session.setAttribute("list", shipperService.getResults());
-
             shipperService.setShipperStatus(shipper.getId(), isEnabled);
-            redirectAttributes.addFlashAttribute("list", session.getAttribute("list"));
+
             redirectAttributes.addFlashAttribute("msg", (isEnabled ? "Mở khóa " : "Khóa ") + shipper.getName() + " thành công" );
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
+
+        shipperService.findByNameAndCid(queryName, queryCid);
+        shipperService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
+        session.setAttribute("list", shipperService.getResults());
+        redirectAttributes.addFlashAttribute("queryName", queryName);
+        redirectAttributes.addFlashAttribute("queryCid", queryCid);
+        redirectAttributes.addAttribute("queryName", queryName);
+        redirectAttributes.addAttribute("queryCid", queryCid);
         return "redirect:/manager/manage-shipper";
     }
 
     @PostMapping("/manage-customer-support")
     public String manageCustomerSupport(
-                               @RequestParam("email") String email,
-                               RedirectAttributes redirectAttributes,
-                               HttpSession session) {
+            @RequestParam("queryName") String queryName,
+            @RequestParam("queryCid") String queryCid,
+            @RequestParam("email") String email,
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
         try {
-            customerSupportService.findAll();
             CustomerSupport customerSupport = customerSupportService.getByEmail(email);
 
             boolean isEnabled = !customerSupport.isEnabled();
             customerSupport.setEnabled(isEnabled);
             customerSupportService.save(customerSupport);
-
-            customerSupportService.findAll();
-            customerSupportService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
-            session.setAttribute("list", customerSupportService.getResults());
-
             customerSupportService.setCustomerSupportStatus(customerSupport.getId(), isEnabled);
-            redirectAttributes.addFlashAttribute("list", session.getAttribute("list"));
+
             redirectAttributes.addFlashAttribute("msg", (isEnabled ? "Mở khóa " : "Khóa ") + customerSupport.getName() + " thành công" );
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
+
+        customerSupportService.findByNameAndCid(queryName, queryCid);
+        customerSupportService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
+        session.setAttribute("list", customerSupportService.getResults());
+        redirectAttributes.addFlashAttribute("queryName", queryName);
+        redirectAttributes.addFlashAttribute("queryCid", queryCid);
+        redirectAttributes.addAttribute("queryName", queryName);
+        redirectAttributes.addAttribute("queryCid", queryCid);
         return "redirect:/manager/manage-customer-support";
     }
 

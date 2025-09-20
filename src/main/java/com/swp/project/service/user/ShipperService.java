@@ -115,7 +115,7 @@ public class ShipperService {
             case "fullname":
                 results.sort((o1, o2) -> k * o1.getFullname().compareTo(o2.getFullname()));
                 break;
-            case "cId":
+            case "cid":
                 results.sort((o1, o2) -> k * o1.getCid().compareTo(o2.getCid()));
                 break;
             case "address":
@@ -169,7 +169,13 @@ public class ShipperService {
                 ;
     }
 
-    public void findByNameAndCid(String name, String cId) {
-        results = shipperRepository.findByFullnameContainsAndCidContains(name, cId);
+    public void findByNameAndCid(String name, String cid) {
+        if ((name == null || name.isEmpty()) && (cid == null || cid.isEmpty())) {
+            System.out.println("thuc hien findAll");
+            results = shipperRepository.findAll();
+        }
+        else {
+            results = shipperRepository.findByFullnameContainsAndCidContains(name, cid);
+        }
     }
 }
