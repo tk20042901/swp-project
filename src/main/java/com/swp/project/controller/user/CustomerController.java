@@ -40,12 +40,17 @@ public class CustomerController {
     private final OrderStatusService orderStatusService;
 
     @GetMapping("/account-manager")
-    public String accountManager() {
+    public String accountManager(Model model, Principal principal) {
+        model.addAttribute("isGoogleRegistered",
+                customerService.isGoogleRegistered(principal.getName()));
         return "pages/customer/account-manager/account-manager";
     }
 
     @GetMapping("/change-password")
-    public String changePasswordForm(Model model) {
+    public String changePasswordForm(Model model, Principal principal) {
+        if(customerService.isGoogleRegistered(principal.getName())){
+            return "redirect:/";
+        }
         model.addAttribute("changePasswordDto", new ChangePasswordDto());
         return "pages/customer/account-manager/change-password";
     }

@@ -158,6 +158,11 @@ public class CustomerService {
         return customer;
     }
 
+    public boolean isGoogleRegistered(String email) {
+        Customer customer = customerRepository.getByEmail(email);
+        return customer.getPassword() == null;
+    }
+
     @Transactional
     public void updateDeliveryInfo(String email, DeliveryInfoDto deliveryInfoDto) {
         Customer customer = customerRepository.getByEmail(email);

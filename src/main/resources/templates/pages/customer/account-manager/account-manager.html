@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
@@ -7,7 +7,7 @@
 </head>
 <body>
 
-<a href="/customer/change-password">Đổi mật khẩu</a>
+<a th:if="${!isGoogleRegistered}" href="/customer/change-password">Đổi mật khẩu</a>
 
 <form th:action="@{/logout}" method="post">
     <button type="submit" class="btn">Đăng xuất</button>
