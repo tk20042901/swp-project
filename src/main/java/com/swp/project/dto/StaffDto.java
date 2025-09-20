@@ -20,6 +20,8 @@ import lombok.Setter;
 public class StaffDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    private Long id;
+
     @NotBlank(message = "Email không được để trống")
     @Email(message = "Email không hợp lệ")
     private String email;
@@ -45,4 +47,6 @@ public class StaffDto implements Serializable {
 
     @NotBlank(message = "Địa chỉ cụ thể không để trống")
     private String specificAddress;
+
+    private String enabled;
 }

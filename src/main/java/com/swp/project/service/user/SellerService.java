@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.swp.project.repository.user.*;
@@ -40,7 +41,7 @@ public class SellerService {
     @Transactional
     public void initSeller() {
         try {
-            for (int i = 1; i <= 8; i++) {
+            for (int i = 1; i <= 80; i++) {
                 createSellerIfNotExists(Seller.builder()
                         .email("seller" + i + "@shop.com")
                         .password("seller")
@@ -87,11 +88,13 @@ public class SellerService {
 
     public void add(StaffDto staffDto) {
         if (staffDto != null) {
-            if (existsCid(staffDto.getCid())) {
-                throw new RuntimeException("Mã căn cước công dân đã được dùng");
-            }
-            if (userRepository.existsByEmail(staffDto.getEmail())) {
-                throw new RuntimeException("Email đã được dùng");
+            if (staffDto.getId() != null) {
+                if (existsCid(staffDto.getCid())) {
+                    throw new RuntimeException("Mã căn cước công dân đã được dùng");
+                }
+                if (userRepository.existsByEmail(staffDto.getEmail())) {
+                    throw new RuntimeException("Email đã được dùng");
+                }
             }
             Seller seller;
             try {
@@ -110,6 +113,10 @@ public class SellerService {
                 throw new RuntimeException("Định dạng ngày tháng năm bất thường");
             }
 
+            boolean found = sellerRepository.findById(staffDto.getId()) != null;
+            if (found) {
+                sellerRepository.deleteById(staffDto.getId());
+            }
             sellerRepository.save(seller);
 
         }

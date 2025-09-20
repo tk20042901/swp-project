@@ -48,7 +48,7 @@ public class ShipperService {
     @Transactional
     public void initShipper() {
         try {
-            for (int i = 1; i <= 6; i++) {
+            for (int i = 1; i <= 60; i++) {
                 createShipperIfNotExists(Shipper.builder()
                         .email("shipper" + i + "@shop.com")
                         .password("shipper")
@@ -133,11 +133,13 @@ public class ShipperService {
 
     public void add(StaffDto staffDto) {
         if (staffDto != null) {
-            if (existsCid(staffDto.getCid())) {
-                throw new RuntimeException("Mã căn cước công dân đã được dùng");
-            }
-            if (userRepository.existsByEmail(staffDto.getEmail())) {
-                throw new RuntimeException("Email đã được dùng");
+            if (staffDto.getId() == null) {
+                if (existsCid(staffDto.getCid())) {
+                    throw new RuntimeException("Mã căn cước công dân đã được dùng");
+                }
+                if (userRepository.existsByEmail(staffDto.getEmail())) {
+                    throw new RuntimeException("Email đã được dùng");
+                }
             }
             Shipper shipper;
             try {
@@ -171,7 +173,6 @@ public class ShipperService {
 
     public void findByNameAndCid(String name, String cid) {
         if ((name == null || name.isEmpty()) && (cid == null || cid.isEmpty())) {
-            System.out.println("thuc hien findAll");
             results = shipperRepository.findAll();
         }
         else {

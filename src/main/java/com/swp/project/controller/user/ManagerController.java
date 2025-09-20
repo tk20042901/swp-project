@@ -77,6 +77,7 @@ public class ManagerController {
                     session.setAttribute("k", k);
                     break;
                 case "search":
+                    session.setAttribute("subpageIndex", 1);
                     break;
             }
         }
@@ -130,6 +131,7 @@ public class ManagerController {
                     session.setAttribute("k", k);
                     break;
                 case "search":
+                    session.setAttribute("subpageIndex", 1);
                     break;
             }
         }
@@ -183,6 +185,7 @@ public class ManagerController {
                     session.setAttribute("k", k);
                     break;
                 case "search":
+                    session.setAttribute("subpageIndex", 1);
                     break;
             }
         }
