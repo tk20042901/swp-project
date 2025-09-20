@@ -10,7 +10,7 @@
 <p th:text="'Tên người đặt hàng: ' + ${order.fullName}"></p>
 <p th:text="'Số điện thoại: ' + ${order.phoneNumber}"></p>
 <p th:text="'Địa chỉ: ' + ${order.specificAddress} + ', ' + ${order.communeWard.name} + ', ' + ${order.communeWard.provinceCity.name}"></p>
-<p th:text="'Thời gian đặt hàng: ' + ${#dates.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></p>
+<p th:text="'Thời gian đặt hàng: ' + ${order.orderDate}"></p>
 <p th:text="'Trạng thái: ' + ${order.orderStatus.name}"></p>
 <table>
     <tr>
