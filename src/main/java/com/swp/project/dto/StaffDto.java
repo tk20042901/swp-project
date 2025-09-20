@@ -36,7 +36,7 @@ public class StaffDto implements Serializable {
 
     @NotBlank(message = "Mã căn cước công dân không được để trống")
     @Pattern(regexp = "\\d{12}", message = "Mã căn cước công dân phải gồm 12 chữ số")
-    private String cId;
+    private String Cid;
 
     private String provinceCity;
 

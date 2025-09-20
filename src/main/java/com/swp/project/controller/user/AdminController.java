@@ -61,7 +61,7 @@ public class AdminController {
         editManagerDto.setEmail(manager.getEmail());
         editManagerDto.setFullname(manager.getFullname());
         editManagerDto.setBirthDate(manager.getBirthDate());
-        editManagerDto.setCId(manager.getCId());
+        editManagerDto.setCId(manager.getCid());
         editManagerDto.setProvinceCityCode(manager.getProvinceCityCode());
         editManagerDto.setCommuneWardCode(manager.getCommuneWardCode());
         model.addAttribute("editManagerDto", editManagerDto);

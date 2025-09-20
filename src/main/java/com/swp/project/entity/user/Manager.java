@@ -36,7 +36,7 @@ public class Manager extends User {
     private LocalDate birthDate;
 
     @Column(length = 50, unique = true, nullable = false)
-    private String cId;
+    private String cid;
 
     private String provinceCityCode;
 

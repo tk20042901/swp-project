@@ -46,7 +46,7 @@ public class SellerService {
                         .password("seller")
                         .fullname("seller" + i + "@shop.com")
                         .birthDate(sdf.parse("2001-09-11"))
-                        .cId(UUID.randomUUID().toString())
+                        .cid(UUID.randomUUID().toString())
                         .communeWard(addressService.getCommuneWardByCode("16279"))
                         .specificAddress("123 Đường ABC, Phường XYZ")
                         .build());
@@ -56,7 +56,7 @@ public class SellerService {
                     .password("seller")
                     .fullname("seller" + 999 + "@shop.com")
                     .birthDate(sdf.parse("2001-09-11"))
-                    .cId(UUID.randomUUID().toString())
+                    .cid(UUID.randomUUID().toString())
                     .communeWard(addressService.getCommuneWardByCode("16279"))
                     .specificAddress("123 Đường ABC, Phường XYZ")
                     .enabled(false)
@@ -76,7 +76,7 @@ public class SellerService {
         }
     }
 
-    public void findAllSellers() {
+    public void findAll() {
         results = sellerRepository.findAll();
     }
 
@@ -89,7 +89,7 @@ public class SellerService {
 
     public void add(StaffDto staffDto) {
         if (staffDto != null) {
-            if (existscId(staffDto.getCId())) {
+            if (existsCid(staffDto.getCid())) {
                 throw new RuntimeException("Mã căn cước công dân đã được dùng");
             }
             if (userRepository.existsByEmail(staffDto.getEmail())) {
@@ -102,7 +102,7 @@ public class SellerService {
                         .password(staffDto.getPassword())
                         .fullname(staffDto.getFullname())
                         .birthDate(sdf.parse(staffDto.getBirthDate()))
-                        .cId(staffDto.getCId())
+                        .cid(staffDto.getCid())
                         .communeWard(addressService.getCommuneWardByCode(staffDto.getCommuneWard()))
                         .specificAddress(staffDto.getSpecificAddress())
                         .build();
@@ -145,7 +145,7 @@ public class SellerService {
                 results.sort((o1, o2) -> k * o1.getFullname().compareTo(o2.getFullname()));
                 break;
             case "cId":
-                results.sort((o1, o2) -> k * o1.getCId().compareTo(o2.getCId()));
+                results.sort((o1, o2) -> k * o1.getCid().compareTo(o2.getCid()));
                 break;
             case "address":
                 results.sort((o1, o2) -> k * o1.getCommuneWard().toString().compareTo(o2.getCommuneWard().toString()));
@@ -160,16 +160,16 @@ public class SellerService {
         }
     }
 
-    private boolean existscId(String cId) {
-        return sellerRepository.findBycId(cId) != null ||
-                shipperRepository.findBycId(cId) != null ||
-                customerSupportRepository.findBycId(cId) != null
+    private boolean existsCid(String Cid) {
+        return sellerRepository.findByCid(Cid) != null ||
+                shipperRepository.findByCid(Cid) != null ||
+                customerSupportRepository.findByCid(Cid) != null
 //                ||
-//                managerRepository.findBycId(cId) != null
+//                managerRepository.findByCid(Cid) != null
                 ;
     }
 
-    public void findSellersByNameAndcId(String name, String cId) {
-        results = sellerRepository.findByNameContainsAndCIdContains(name, cId);
+    public void findByNameAndCid(String name, String Cid) {
+        results = sellerRepository.findByFullnameContainsAndCidContains(name, Cid);
     }
 }

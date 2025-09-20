@@ -10,7 +10,8 @@ import java.util.List;
 public interface SellerRepository extends JpaRepository<Seller,Long> {
     Seller findByEmail(String email);
 
-    Seller findBycId(String cId);
+    Seller findByCid(String Cid);
 
-    List<Seller> findByNameContainsAndCIdContains(String name, String cId);
+    List<Seller> findByFullnameContainsAndCidContains(String name, String cId);
+
 }
