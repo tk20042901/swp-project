@@ -21,6 +21,8 @@
 </div>
 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr">
     <form th:action="@{/manager/manage-shipper}" method="get" style="display: flex; justify-content: start;">
+        <input name="queryName" th:value="${queryName}" hidden>
+        <input name="queryCid" th:value="${queryCid}" hidden>
         <div th:each="index : ${#numbers.sequence(1, (session.list.size() / 15) + (session.list.size() % 15 == 0 ? 0 : 1))}" th:unless="${session.list.isEmpty()}">
             <input type="submit" name="subpageIndex" th:value="${index}" th:class="'btn' + ${session.subpageIndex == index ? ' btn-primary' : ''}">
         </div>

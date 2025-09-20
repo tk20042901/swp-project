@@ -38,7 +38,7 @@ public class CustomerSupportService {
     @Transactional
     public void initCustomerSupport() {
         try {
-            for (int i = 1; i <= 5; i++) {
+            for (int i = 1; i <= 50; i++) {
                 createCustomerSupportIfNotExists(CustomerSupport.builder()
                         .email("customer-support" + i + "@shop.com")
                         .password("customer-support")
@@ -106,12 +106,15 @@ public class CustomerSupportService {
 
     public void add(StaffDto staffDto) {
         if (staffDto != null) {
-            if (existscId(staffDto.getCid())) {
-                throw new RuntimeException("Mã căn cước công dân đã được dùng");
+            if (staffDto.getId() != null) {
+                if (existscId(staffDto.getCid())) {
+                    throw new RuntimeException("Mã căn cước công dân đã được dùng");
+                }
+                if (userRepository.existsByEmail(staffDto.getEmail())) {
+                    throw new RuntimeException("Email đã được dùng");
+                }
             }
-            if (userRepository.existsByEmail(staffDto.getEmail())) {
-                throw new RuntimeException("Email đã được dùng");
-            }
+
             CustomerSupport customerSupport;
             try {
                 customerSupport = CustomerSupport.builder()
