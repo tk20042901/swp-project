@@ -43,10 +43,11 @@ public class CustomerController {
     private final CategoryService categoryService;
     private final int PAGE_SIZE = 10;
 
- 
+
 
     @GetMapping("/account-manager")
     public String accountManager(Model model, Principal principal) {
+        model.addAttribute("customer", customerService.getCustomerByEmail(principal.getName()));
         model.addAttribute("isGoogleRegistered",
                 customerService.isGoogleRegistered(principal.getName()));
         return "pages/customer/account-manager/account-manager";
@@ -63,9 +64,10 @@ public class CustomerController {
 
     @PostMapping("/change-password")
     public String processChangePassword(@Valid @ModelAttribute ChangePasswordDto changePasswordDto,
-            BindingResult bindingResult,
-            Model model,
-            Principal principal) {
+                                        BindingResult bindingResult,
+                                        Model model,
+                                        RedirectAttributes redirectAttributes,
+                                        Principal principal) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("changePasswordRequest", changePasswordDto);
             return "pages/customer/account-manager/change-password";
@@ -73,11 +75,12 @@ public class CustomerController {
 
         try {
             customerService.changePassword(principal.getName(), changePasswordDto);
-            model.addAttribute("success", "Thay đổi mật khẩu thành công");
+            redirectAttributes.addFlashAttribute("success", "Đổi mật khẩu thành công");
+            return "redirect:/customer/account-manager";
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
+            return "pages/customer/account-manager/change-password";
         }
-        return "pages/customer/account-manager/change-password";
     }
 
     @GetMapping("/delivery-info")
@@ -127,7 +130,7 @@ public class CustomerController {
 
         customerService.updateDeliveryInfo(principal.getName(), deliveryInfoDto);
         redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin giao hàng thành công");
-        return "redirect:/customer/delivery-info";
+        return "redirect:/customer/account-manager";
     }
 
     @GetMapping("/shopping-cart")
@@ -136,7 +139,7 @@ public class CustomerController {
                                    @RequestParam(value = "cartIds", required = false) List<Long> cartIds) {
         List<ShoppingCartItem> cartItems = customerService.getCart(principal.getName());
 
-        List<Long> selectedIds = new ArrayList<Long>();
+        List<Long> selectedIds = new ArrayList<>();
         if (cartIds != null) {
             selectedIds = cartIds;
         }

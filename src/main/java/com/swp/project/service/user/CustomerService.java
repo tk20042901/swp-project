@@ -107,6 +107,10 @@ public class CustomerService {
             throw new RuntimeException("Mật khẩu cũ không đúng");
         }
 
+        if(dto.getOldPassword().equals(dto.getNewPassword())) {
+            throw new RuntimeException("Mật khẩu mới không được trùng với mật khẩu cũ");
+        }
+
         customer.setPassword(passwordEncoder.encode(dto.getNewPassword()));
         customerRepository.save(customer);
     }

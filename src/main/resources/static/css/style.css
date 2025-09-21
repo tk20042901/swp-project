@@ -132,7 +132,7 @@
   max-height: clamp(320px, 55vh, 620px);
   overflow-y: auto;
   overflow-x: hidden;
-  padding: .5rem .25rem;
+  padding: .5rem 0 .5rem .25rem; /* remove right padding so scrollbar hugs the edge */
 }
 .chat-messages ul { margin: 0; padding: 0; }
 
@@ -212,4 +212,28 @@
     width: 150px;
     height: 150px;
   }
+}
+
+/* Full-screen Chat page layout */
+html, body { height: 100%; }
+.chat-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.chat-header {
+  position: sticky;
+  top: 0;
+  background: var(--bs-body-bg, #ffffff);
+  z-index: 1030; /* above content */
+}
+.chat-main {
+  flex: 1 1 auto;
+  min-height: 0; /* allow children to flex/scroll */
+  display: block;
+}
+/* In full-screen chat, let messages take available height and scroll */
+.chat-page .chat-messages {
+  max-height: none;
+  height: 100%;
 }
