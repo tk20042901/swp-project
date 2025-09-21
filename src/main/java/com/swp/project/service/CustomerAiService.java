@@ -171,8 +171,11 @@ public class CustomerAiService {
     }
 
     public void ask(String conversationId, String q, MultipartFile image) {
+
         if (q == null || q.isBlank()) {
             throw new RuntimeException("Câu hỏi không được để trống");
+        } else if(q.length() > 255){
+            throw new RuntimeException("Câu hỏi không được vượt quá 255 ký tự");
         } else if (image == null || image.isEmpty()) {
             textAsk(conversationId, q);
         } else {

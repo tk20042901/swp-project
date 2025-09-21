@@ -57,7 +57,7 @@
                     </div>
 
                     <!-- Composer -->
-                    <form id="chatForm" th:action="@{/customer/ai}" method="post" enctype="multipart/form-data" class="composer sticky-composer">
+                    <form id="chatForm" th:action="@{/ai}" method="post" enctype="multipart/form-data" class="composer sticky-composer">
                         <input type="hidden" name="conversationId" th:value="${conversationId}">
                         <div class="d-flex align-items-end gap-2">
                             <div class="flex-grow-1">
@@ -102,19 +102,24 @@
         let s = (md || '').toString();
         s = s.replace(/\r\n?/g, '\n');
         s = s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
         // Bold **text**
         s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
         // Italic *text*
         s = s.replace(/(^|\W)\*([^*]+)\*(?=\W|$)/g, '$1<em>$2</em>');
+
         // Links [text](url)
         s = s.replace(/\[([^]]+)]\((https?:[^\s)]+)\)/g, (m, text, url) => `<a th:href="@{${url}}" target="_blank" rel="noopener">${text}</a>`);
+
         // Unordered lists
         s = s.replace(/(?:^|\n)[\t ]*[-*][\t ]+(.+)(?=\n|$)/g, (m, item) => `\n<li>${item}</li>`);
         s = s.replace(/(?:<li>.*<\/li>\n?)+/gs, block => `<ul class="mb-2">${block}</ul>`);
+
         // Paragraphs
         s = s.replace(/\n{2,}/g, '</p><p>');
-        s = s.replace(/\n/g, '<br>');
-        return `<p>${s}</p>`;
+
+        return `${s}`;
     }
 
     function hydrateMarkdown() {

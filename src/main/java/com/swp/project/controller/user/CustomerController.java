@@ -5,7 +5,6 @@ import com.swp.project.dto.DeliveryInfoDto;
 import com.swp.project.entity.order.Order;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.entity.user.Customer;
-import com.swp.project.service.CustomerAiService;
 import com.swp.project.service.AddressService;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.order.OrderStatusService;
@@ -18,13 +17,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @SessionAttributes("shoppingCartItems")
 @RequiredArgsConstructor
@@ -33,7 +30,6 @@ import java.util.UUID;
 public class CustomerController {
 
     private final CustomerService customerService;
-    private final CustomerAiService customerAiService;
     private final AddressService addressService;
     private final ProductService productService;
     private final OrderService orderService;
@@ -289,27 +285,6 @@ public class CustomerController {
             return "pages/customer/order/cancel";
         }
         return "redirect:/";
-    }
-
-    @GetMapping("/ai")
-    public String ask(Model model) {
-        model.addAttribute("conversationId", UUID.randomUUID().toString());
-        return "pages/customer/ai";
-    }
-
-    @PostMapping("/ai")
-    public String ask(@RequestParam String conversationId,
-                      @RequestParam String q,
-                      @RequestParam MultipartFile image,
-                      Model model) {
-        try {
-            customerAiService.ask(conversationId, q, image);
-        } catch (RuntimeException e) {
-            model.addAttribute("error", e.getMessage());
-        }
-        model.addAttribute("conversationId", conversationId);
-        model.addAttribute("conversation", customerAiService.getConversation(conversationId));
-        return "pages/customer/ai";
     }
 
 
