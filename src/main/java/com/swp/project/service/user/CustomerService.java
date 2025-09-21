@@ -194,11 +194,11 @@ public class CustomerService {
     }
 @Transactional
     public void removeItem(String email, Long productId) {
-        Customer customer = customerRepository.getByEmail(email);
-        ShoppingCartItemId id = new ShoppingCartItemId();
-        id.setCustomerId(customer.getId());
-        id.setProductId(productId);
-        shoppingCartItemRepository.deleteById(id);
+        try{
+            shoppingCartItemRepository.deleteByCustomerEmailAndProductId(email, productId);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public void updateCartQuantity(String email, Long productId, int quantity) {
