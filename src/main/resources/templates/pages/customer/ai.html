@@ -118,7 +118,8 @@
                     // Xóa ký tự '* ' ở đầu và xử lý inline markdown
                     let itemContent = line.trim().substring(2);
                     // Liên kết: [text](url) -> <a href="url">text</a>
-                    itemContent = itemContent.replace(/\[([^\]]+)]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+                    itemContent = itemContent.replace(/\[([^\]]+)]\(([^)]+)\)/g,
+                        '<a href="$2" target="_blank" rel="noopener noreferrer nofollow">$1</a>');
                     // In đậm: **text** -> <strong>text</strong>
                     itemContent = itemContent.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
                     // In nghiêng: *text* -> <em>text</em>
@@ -133,7 +134,8 @@
             let paragraphContent = block.replace(/\n/g, '<br>');
 
             // Liên kết: [text](url) -> <a href="url">text</a>
-            paragraphContent = paragraphContent.replace(/\[([^\]]+)]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+            paragraphContent = paragraphContent.replace(/\[([^\]]+)]\(([^)]+)\)/g,
+                '<a href="$2" target="_blank" rel="noopener noreferrer nofollow">$1</a>');
             // In đậm: **text** -> <strong>text</strong>
             paragraphContent = paragraphContent.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
             // In nghiêng: *text* -> <em>text</em>
