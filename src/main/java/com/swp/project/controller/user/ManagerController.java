@@ -53,12 +53,9 @@ public class ManagerController {
             @RequestParam(value = "queryCid", required = false) String queryCid,
             Model model,
             HttpSession session) {
-
         if (session.getAttribute("k") == null) {
             session.setAttribute("k", 1);
         }
-        sellerService.findAll();
-        session.setAttribute("list", sellerService.getResults());
         if (session.getAttribute("sortCriteria") == null) {
             session.setAttribute("sortCriteria", "id");
         }
@@ -84,7 +81,6 @@ public class ManagerController {
                     break;
             }
         }
-
         if (subpageIndex != null) {
             session.setAttribute("subpageIndex", subpageIndex);
         }
@@ -92,6 +88,9 @@ public class ManagerController {
         sellerService.findByNameAndCid(queryName, queryCid);
         sellerService.sortBy((String) session.getAttribute("sortCriteria"), (Integer) session.getAttribute("k"));
         session.setAttribute("list", sellerService.getResults());
+        if (sellerService.getResults().size() - 1 < ((Integer) session.getAttribute("subpageIndex") - 1) * 15) {
+            session.setAttribute("subpageIndex", 1);
+        }
         model.addAttribute("queryName", queryName);
         model.addAttribute("queryCid", queryCid);
 
@@ -107,19 +106,15 @@ public class ManagerController {
             @RequestParam(value = "queryCid", required = false) String queryCid,
             Model model,
             HttpSession session) {
-
         if (session.getAttribute("k") == null) {
             session.setAttribute("k", 1);
         }
-            shipperService.findAll();
-            session.setAttribute("list", shipperService.getResults());
         if (session.getAttribute("sortCriteria") == null) {
             session.setAttribute("sortCriteria", "id");
         }
         if (session.getAttribute("subpageIndex") == null) {
             session.setAttribute("subpageIndex", 1);
         }
-
         if (clickedButton != null && !clickedButton.isEmpty()) {
             switch (clickedButton) {
                 case "id":
@@ -138,7 +133,6 @@ public class ManagerController {
                     break;
             }
         }
-
         if (subpageIndex != null) {
             session.setAttribute("subpageIndex", subpageIndex);
         }
@@ -146,6 +140,9 @@ public class ManagerController {
         shipperService.findByNameAndCid(queryName, queryCid);
         shipperService.sortBy((String) session.getAttribute("sortCriteria"), (Integer) session.getAttribute("k"));
         session.setAttribute("list", shipperService.getResults());
+        if (shipperService.getResults().size() - 1 < ((Integer) session.getAttribute("subpageIndex") - 1) * 15) {
+            session.setAttribute("subpageIndex", 1);
+        }
         model.addAttribute("queryName", queryName);
         model.addAttribute("queryCid", queryCid);
 
@@ -161,19 +158,15 @@ public class ManagerController {
             @RequestParam(value = "queryCid", required = false) String queryCid,
             Model model,
             HttpSession session) {
-
         if (session.getAttribute("k") == null) {
             session.setAttribute("k", 1);
         }
-        customerSupportService.findAll();
-        session.setAttribute("list", customerSupportService.getResults());
         if (session.getAttribute("sortCriteria") == null) {
             session.setAttribute("sortCriteria", "id");
         }
         if (session.getAttribute("subpageIndex") == null) {
             session.setAttribute("subpageIndex", 1);
         }
-
         if (clickedButton != null && !clickedButton.isEmpty()) {
             switch (clickedButton) {
                 case "id":
@@ -192,7 +185,6 @@ public class ManagerController {
                     break;
             }
         }
-
         if (subpageIndex != null) {
             session.setAttribute("subpageIndex", subpageIndex);
         }
@@ -200,6 +192,9 @@ public class ManagerController {
         customerSupportService.findByNameAndCid(queryName, queryCid);
         customerSupportService.sortBy((String) session.getAttribute("sortCriteria"), (Integer) session.getAttribute("k"));
         session.setAttribute("list", customerSupportService.getResults());
+        if (customerSupportService.getResults().size() - 1 < ((Integer) session.getAttribute("subpageIndex") - 1) * 15) {
+            session.setAttribute("subpageIndex", 1);
+        }
         model.addAttribute("queryName", queryName);
         model.addAttribute("queryCid", queryCid);
 
@@ -226,9 +221,6 @@ public class ManagerController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
 
-        sellerService.findByNameAndCid(queryName, queryCid);
-        sellerService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
-        session.setAttribute("list", sellerService.getResults());
         redirectAttributes.addFlashAttribute("queryName", queryName);
         redirectAttributes.addFlashAttribute("queryCid", queryCid);
         redirectAttributes.addAttribute("queryName", queryName);
@@ -256,9 +248,6 @@ public class ManagerController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
 
-        shipperService.findByNameAndCid(queryName, queryCid);
-        shipperService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
-        session.setAttribute("list", shipperService.getResults());
         redirectAttributes.addFlashAttribute("queryName", queryName);
         redirectAttributes.addFlashAttribute("queryCid", queryCid);
         redirectAttributes.addAttribute("queryName", queryName);
@@ -286,9 +275,6 @@ public class ManagerController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
 
-        customerSupportService.findByNameAndCid(queryName, queryCid);
-        customerSupportService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
-        session.setAttribute("list", customerSupportService.getResults());
         redirectAttributes.addFlashAttribute("queryName", queryName);
         redirectAttributes.addFlashAttribute("queryCid", queryCid);
         redirectAttributes.addAttribute("queryName", queryName);
@@ -305,7 +291,7 @@ public class ManagerController {
             HttpSession session) {
 
         if (clickedButton != null && !clickedButton.isEmpty()) {
-            List<ProvinceCity> provinces = provinceCityRepository.findAll();;
+            List<ProvinceCity> provinces = provinceCityRepository.findAll();
             List<CommuneWard> wards = new ArrayList<>();
             StaffDto staffDto = new StaffDto();
 

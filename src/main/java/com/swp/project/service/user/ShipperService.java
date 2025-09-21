@@ -1,6 +1,5 @@
 package com.swp.project.service.user;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -148,14 +147,14 @@ public class ShipperService {
                         .email(staffDto.getEmail())
                         .password(staffDto.getPassword())
                         .fullname(staffDto.getFullname())
-                        .birthDate(sdf.parse(staffDto.getBirthDate()))
+                        .birthDate(staffDto.getBirthDate())
                         .cid(staffDto.getCid())
                         .communeWard(addressService.getCommuneWardByCode(staffDto.getCommuneWard()))
                         .specificAddress(staffDto.getSpecificAddress())
                         .enabled(staffDto.isEnabled())
                         .build();
-            } catch (ParseException e) {
-                throw new RuntimeException("Định dạng ngày tháng năm bất thường");
+            } catch (Exception e) {
+                throw new RuntimeException(e.getMessage());
             }
             shipperRepository.save(shipper);
 
@@ -163,13 +162,11 @@ public class ShipperService {
     }
 
 
-    private boolean existsCid(String Cid) {
-        return sellerRepository.findByCid(Cid) != null ||
-                shipperRepository.findByCid(Cid) != null ||
-                customerSupportRepository.findByCid(Cid) != null
-//                ||
-//                managerRepository.findBycId(Cid) != null
-                ;
+    private boolean existsCid(String cid) {
+        return sellerRepository.findByCid(cid) != null ||
+                shipperRepository.findByCid(cid) != null ||
+                customerSupportRepository.findByCid(cid) != null ||
+                managerRepository.findByCid(cid) != null;
     }
 
     public void findByNameAndCid(String name, String cid) {
