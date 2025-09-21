@@ -30,11 +30,54 @@
             <form th:action="@{/manager/manage-customer-support}" method="get" class="d-flex flex-wrap gap-1">
                 <input name="queryName" th:value="${queryName}" hidden>
                 <input name="queryCid" th:value="${queryCid}" hidden>
-                <div th:each="index : ${#numbers.sequence(1, (session.list.size() / 10) + (session.list.size() % 10 == 0 ? 0 : 1))}"
-                     th:unless="${session.list.isEmpty()}">
-                    <input type="submit" name="subpageIndex"
-                           th:value="${index}"
-                           th:class="'btn btn-sm ' + ${session.subpageIndex == index ? 'btn-primary' : 'btn-outline-primary'}">
+                <div th:with="pageNumber=${(session.list.size() / session.numEachPage) + (session.list.size() % session.numEachPage == 0 ? 0 : 1)}">
+                    <div th:if="${0 < pageNumber && pageNumber <= 10}" style="display: flex;">
+                        <div th:each="index : ${#numbers.sequence(1, pageNumber)}"
+                            th:unless="${session.list.isEmpty()}">
+                            <input type="submit" name="subpageIndex"
+                                th:value="${index}"
+                                th:class="'btn btn-sm ' + ${session.subpageIndex == index ? 'btn-primary' : 'btn-outline-primary'}">
+                        </div>
+                    </div>
+                    <div th:if="${pageNumber > 10}">
+                        <div th:if="${session.subpageIndex <= 6}" style="display: flex;">
+                            <div th:each="index : ${#numbers.sequence(1, 8)}">
+                                <input type="submit" name="subpageIndex"
+                                    th:value="${index}"
+                                    th:class="'btn btn-sm ' + ${session.subpageIndex == index ? 'btn-primary' : 'btn-outline-primary'}">
+                            </div>
+                            <span class="btn btn-sm btn-outline-secondary disabled">...</span>
+                            <input type="submit" name="subpageIndex"
+                                th:value="${pageNumber}"
+                                th:class="'btn btn-sm ' + ${session.subpageIndex == pageNumber ? 'btn-primary' : 'btn-outline-primary'}">
+                        </div>
+                        <div th:if="${session.subpageIndex > 6 && session.subpageIndex < pageNumber - 5}" style="display: flex;">
+                            <input type="submit" name="subpageIndex"
+                                th:value="1"
+                                th:class="'btn btn-sm ' + ${session.subpageIndex == 1 ? 'btn-primary' : 'btn-outline-primary'}">
+                            <span class="btn btn-sm btn-outline-secondary disabled">...</span>
+                            <div th:each="index : ${#numbers.sequence(session.subpageIndex - 3, session.subpageIndex + 3)}">
+                                <input type="submit" name="subpageIndex"
+                                    th:value="${index}"
+                                    th:class="'btn btn-sm ' + ${session.subpageIndex == index ? 'btn-primary' : 'btn-outline-primary'}">
+                            </div>
+                            <span class="btn btn-sm btn-outline-secondary disabled">...</span>
+                            <input type="submit" name="subpageIndex"
+                                th:value="${pageNumber}"
+                                th:class="'btn btn-sm ' + ${session.subpageIndex == pageNumber ? 'btn-primary' : 'btn-outline-primary'}">
+                        </div>
+                        <div th:if="${session.subpageIndex >= pageNumber - 5}" style="display: flex;">
+                            <input type="submit" name="subpageIndex"
+                                th:value="1"
+                                th:class="'btn btn-sm ' + ${session.subpageIndex == 1 ? 'btn-primary' : 'btn-outline-primary'}">
+                            <span class="btn btn-sm btn-outline-secondary disabled">...</span>
+                            <div th:each="index : ${#numbers.sequence(pageNumber - 7, pageNumber)}">
+                                <input type="submit" name="subpageIndex"
+                                    th:value="${index}"
+                                    th:class="'btn btn-sm ' + ${session.subpageIndex == index ? 'btn-primary' : 'btn-outline-primary'}">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>
@@ -99,7 +142,7 @@
             <tr th:if="${session.list.isEmpty()}">
                 <td colspan="7" class="text-center text-muted">(Không có dữ liệu)</td>
             </tr>
-            <tr th:each="index : ${#numbers.sequence(10 * (session.subpageIndex - 1), ((10 * session.subpageIndex - 1) < session.list.size() ? (10 * session.subpageIndex - 1) : (session.list.size() - 1)))}"
+            <tr th:each="index : ${#numbers.sequence(session.numEachPage * (session.subpageIndex - 1), ((session.numEachPage * session.subpageIndex - 1) < session.list.size() ? (session.numEachPage * session.subpageIndex - 1) : (session.list.size() - 1)))}"
                 th:object="${session.list[index]}">
                 <td th:text="*{id}"></td>
                 <td th:text="*{email}"></td>
