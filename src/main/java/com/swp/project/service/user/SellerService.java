@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.swp.project.repository.user.*;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,6 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.swp.project.dto.StaffDto;
 import com.swp.project.entity.user.Seller;
 import com.swp.project.listener.event.UserDisabledEvent;
+import com.swp.project.repository.user.CustomerSupportRepository;
+import com.swp.project.repository.user.ManagerRepository;
+import com.swp.project.repository.user.SellerRepository;
+import com.swp.project.repository.user.ShipperRepository;
+import com.swp.project.repository.user.UserRepository;
 import com.swp.project.service.AddressService;
 
 import lombok.Getter;
@@ -39,7 +43,7 @@ public class SellerService {
     @Transactional
     public void initSeller() {
         try {
-            for (int i = 1; i <= 36; i++) {
+            for (int i = 1; i <= 360; i++) {
                 createSellerIfNotExists(Seller.builder()
                         .email("seller" + i + "@shop.com")
                         .password("seller")

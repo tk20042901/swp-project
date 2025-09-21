@@ -3,10 +3,6 @@ package com.swp.project.controller.user;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.swp.project.entity.address.CommuneWard;
-import com.swp.project.entity.address.ProvinceCity;
-import com.swp.project.entity.user.CustomerSupport;
-import com.swp.project.service.user.CustomerSupportService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,10 +14,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.swp.project.dto.StaffDto;
+import com.swp.project.entity.address.CommuneWard;
+import com.swp.project.entity.address.ProvinceCity;
+import com.swp.project.entity.user.CustomerSupport;
 import com.swp.project.entity.user.Seller;
 import com.swp.project.entity.user.Shipper;
 import com.swp.project.repository.address.CommuneWardRepository;
 import com.swp.project.repository.address.ProvinceCityRepository;
+import com.swp.project.service.user.CustomerSupportService;
 import com.swp.project.service.user.SellerService;
 import com.swp.project.service.user.ShipperService;
 
@@ -39,6 +39,8 @@ public class ManagerController {
     private final CustomerSupportService customerSupportService;
     private final ProvinceCityRepository provinceCityRepository;
     private final CommuneWardRepository communeWardRepository;
+
+    private final int numEachPage = 10;
 
     @GetMapping("")
     public String index() {
@@ -61,6 +63,9 @@ public class ManagerController {
         }
         if (session.getAttribute("subpageIndex") == null) {
             session.setAttribute("subpageIndex", 1);
+        }
+        if (session.getAttribute("numEachPage") == null) {
+            session.setAttribute("numEachPage", numEachPage);
         }
 
         if (clickedButton != null && !clickedButton.isEmpty()) {
@@ -88,7 +93,7 @@ public class ManagerController {
         sellerService.findByNameAndCid(queryName, queryCid);
         sellerService.sortBy((String) session.getAttribute("sortCriteria"), (Integer) session.getAttribute("k"));
         session.setAttribute("list", sellerService.getResults());
-        if (sellerService.getResults().size() - 1 < ((Integer) session.getAttribute("subpageIndex") - 1) * 10) {
+        if (sellerService.getResults().size() - 1 < ((Integer) session.getAttribute("subpageIndex") - 1) * numEachPage) {
             session.setAttribute("subpageIndex", 1);
         }
         model.addAttribute("queryName", queryName);
@@ -115,6 +120,10 @@ public class ManagerController {
         if (session.getAttribute("subpageIndex") == null) {
             session.setAttribute("subpageIndex", 1);
         }
+        if (session.getAttribute("numEachPage") == null) {
+            session.setAttribute("numEachPage", numEachPage);
+        }
+
         if (clickedButton != null && !clickedButton.isEmpty()) {
             switch (clickedButton) {
                 case "id":
@@ -140,7 +149,7 @@ public class ManagerController {
         shipperService.findByNameAndCid(queryName, queryCid);
         shipperService.sortBy((String) session.getAttribute("sortCriteria"), (Integer) session.getAttribute("k"));
         session.setAttribute("list", shipperService.getResults());
-        if (shipperService.getResults().size() - 1 < ((Integer) session.getAttribute("subpageIndex") - 1) * 10) {
+        if (shipperService.getResults().size() - 1 < ((Integer) session.getAttribute("subpageIndex") - 1) * numEachPage) {
             session.setAttribute("subpageIndex", 1);
         }
         model.addAttribute("queryName", queryName);
@@ -167,6 +176,10 @@ public class ManagerController {
         if (session.getAttribute("subpageIndex") == null) {
             session.setAttribute("subpageIndex", 1);
         }
+        if (session.getAttribute("numEachPage") == null) {
+            session.setAttribute("numEachPage", numEachPage);
+        }
+
         if (clickedButton != null && !clickedButton.isEmpty()) {
             switch (clickedButton) {
                 case "id":
@@ -192,7 +205,7 @@ public class ManagerController {
         customerSupportService.findByNameAndCid(queryName, queryCid);
         customerSupportService.sortBy((String) session.getAttribute("sortCriteria"), (Integer) session.getAttribute("k"));
         session.setAttribute("list", customerSupportService.getResults());
-        if (customerSupportService.getResults().size() - 1 < ((Integer) session.getAttribute("subpageIndex") - 1) * 10) {
+        if (customerSupportService.getResults().size() - 1 < ((Integer) session.getAttribute("subpageIndex") - 1) * numEachPage) {
             session.setAttribute("subpageIndex", 1);
         }
         model.addAttribute("queryName", queryName);
