@@ -1,21 +1,27 @@
 package com.swp.project.service.user;
 
-import com.swp.project.dto.StaffDto;
-import com.swp.project.entity.user.CustomerSupport;
-import com.swp.project.listener.event.UserDisabledEvent;
-import com.swp.project.repository.user.*;
-import com.swp.project.service.AddressService;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import com.swp.project.dto.StaffDto;
+import com.swp.project.entity.user.CustomerSupport;
+import com.swp.project.listener.event.UserDisabledEvent;
+import com.swp.project.repository.user.CustomerSupportRepository;
+import com.swp.project.repository.user.ManagerRepository;
+import com.swp.project.repository.user.SellerRepository;
+import com.swp.project.repository.user.ShipperRepository;
+import com.swp.project.repository.user.UserRepository;
+import com.swp.project.service.AddressService;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
@@ -119,7 +125,7 @@ public class CustomerSupportService {
                 customerSupport = CustomerSupport.builder()
                         .id(staffDto.getId() != 0 ? staffDto.getId() : null)
                         .email(staffDto.getEmail())
-                        .password(staffDto.getId() != 0  ? staffDto.getPassword() : passwordEncoder.encode(staffDto.getPassword()))
+                        .password(staffDto.getId() != 0  ? staffDto.getEncodedPassword() : passwordEncoder.encode(staffDto.getPassword()))
                         .fullname(staffDto.getFullname())
                         .birthDate(staffDto.getBirthDate())
                         .cid(staffDto.getCid())

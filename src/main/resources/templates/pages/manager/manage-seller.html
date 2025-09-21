@@ -107,32 +107,32 @@
                     <th>
                         <button type="submit" name="clickedButton" value="id"
                                 th:class="${'btn btn-sm ' + (session.sortCriteria.equals('id') ? 'btn-primary' : 'btn-outline-primary')}"
-                                th:text="${'ID' + (session.sortCriteria.equals('id') ? (session.k == 1 ? ' ▼' : ' ▲') : '')}"></button>
+                                th:text="${'ID' + (session.sortCriteria.equals('id') ? (session.k == 1 ? ' ▲' : ' ▼') : '')}"></button>
                     </th>
                     <th>
                         <button type="submit" name="clickedButton" value="email"
                                 th:class="${'btn btn-sm ' + (session.sortCriteria.equals('email') ? 'btn-primary' : 'btn-outline-primary')}"
-                                th:text="${'Email' + (session.sortCriteria.equals('email') ? (session.k == 1 ? ' ▼' : ' ▲') : '')}"></button>
+                                th:text="${'Email' + (session.sortCriteria.equals('email') ? (session.k == 1 ? ' ▲' : ' ▼') : '')}"></button>
                     </th>
                     <th>
                         <button type="submit" name="clickedButton" value="fullname"
                                 th:class="${'btn btn-sm ' + (session.sortCriteria.equals('fullname') ? 'btn-primary' : 'btn-outline-primary')}"
-                                th:text="${'Họ tên' + (session.sortCriteria.equals('fullname') ? (session.k == 1 ? ' ▼' : ' ▲') : '')}"></button>
+                                th:text="${'Họ tên' + (session.sortCriteria.equals('fullname') ? (session.k == 1 ? ' ▲' : ' ▼') : '')}"></button>
                     </th>
                     <th>
                         <button type="submit" name="clickedButton" value="cid"
                                 th:class="${'btn btn-sm ' + (session.sortCriteria.equals('cid') ? 'btn-primary' : 'btn-outline-primary')}"
-                                th:text="${'Số CCCD' + (session.sortCriteria.equals('cid') ? (session.k == 1 ? ' ▼' : ' ▲') : '')}"></button>
+                                th:text="${'Số CCCD' + (session.sortCriteria.equals('cid') ? (session.k == 1 ? ' ▲' : ' ▼') : '')}"></button>
                     </th>
                     <th>
                         <button type="submit" name="clickedButton" value="address"
                                 th:class="${'btn btn-sm ' + (session.sortCriteria.equals('address') ? 'btn-primary' : 'btn-outline-primary')}"
-                                th:text="${'Địa chỉ' + (session.sortCriteria.equals('address') ? (session.k == 1 ? ' ▼' : ' ▲') : '')}"></button>
+                                th:text="${'Địa chỉ' + (session.sortCriteria.equals('address') ? (session.k == 1 ? ' ▲' : ' ▼') : '')}"></button>
                     </th>
                     <th>
                         <button type="submit" name="clickedButton" value="enabled"
                                 th:class="${'btn btn-sm ' + (session.sortCriteria.equals('enabled') ? 'btn-primary' : 'btn-outline-primary')}"
-                                th:text="${'Mở khóa?' + (session.sortCriteria.equals('enabled') ? (session.k == 1 ? ' ▼' : ' ▲') : '')}"></button>
+                                th:text="${'Mở khóa?' + (session.sortCriteria.equals('enabled') ? (session.k == 1 ? ' ▲' : ' ▼') : '')}"></button>
                     </th>
                     <th>Hành động</th>
                 </form>

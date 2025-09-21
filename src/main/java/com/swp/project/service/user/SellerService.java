@@ -90,7 +90,6 @@ public class SellerService {
 
     public void add(StaffDto staffDto) {
         if (staffDto != null) {
-            System.out.println(staffDto);
             if (staffDto.getId() == 0) {
                 if (existsCid(staffDto.getCid())) {
                     throw new RuntimeException("Mã căn cước công dân đã được dùng");
@@ -104,7 +103,7 @@ public class SellerService {
                 seller = Seller.builder()
                         .id(staffDto.getId() != 0 ? staffDto.getId() : null)
                         .email(staffDto.getEmail())
-                        .password(staffDto.getId() != 0  ? staffDto.getPassword() : passwordEncoder.encode(staffDto.getPassword()))
+                        .password(staffDto.getId() != 0  ? staffDto.getEncodedPassword() : passwordEncoder.encode(staffDto.getPassword()))
                         .fullname(staffDto.getFullname())
                         .birthDate(staffDto.getBirthDate())
                         .cid(staffDto.getCid())
