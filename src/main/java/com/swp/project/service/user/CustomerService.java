@@ -176,9 +176,9 @@ public class CustomerService {
 
     @Transactional
     public void initCustomer() {
-        if (!userRepository.existsByEmail("default-customer@shop.com")) {
+        if (!userRepository.existsByEmail("customer@shop.com")) {
             customerRepository.save(Customer.builder()
-                    .email("default-customer@shop.com")
+                    .email("customer@shop.com")
                     .password(passwordEncoder.encode("customer"))
                     .fullName("Hoa Thanh Quế")
                     .phoneNumber("0363636363")
