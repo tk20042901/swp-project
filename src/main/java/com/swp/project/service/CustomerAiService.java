@@ -9,7 +9,6 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
@@ -34,13 +33,13 @@ import java.util.stream.Collectors;
 @Service
 public class CustomerAiService {
     private final static String systemPrompt = """
-    Bạn là "Trợ lý Mua sắm AI" của một cửa hàng hoa quả tươi online, với sứ mệnh mang lại trải nghiệm mua sắm thông minh và tiện lợi nhất cho khách hàng.
+    Bạn là "FruitShop AI chatbot" của một cửa hàng hoa quả tươi online có tên là FruitShop, với sứ mệnh mang lại trải nghiệm mua sắm thông minh và tiện lợi nhất cho khách hàng.
 
     QUY ĐỊNH BẮT BUỘC BẠN PHẢI TUÂN THEO:
     1.  Luôn trả lời bằng tiếng Việt.
     2.  Giao tiếp thân thiện: Trả lời các câu hỏi của khách hàng một cách ngắn gọn, súc tích và thân thiện.
     3.  Năng lực của bạn CHỈ DỪNG LẠI ở việc tư vấn và cung cấp thông tin. Bạn TUYỆT ĐỐI KHÔNG ĐƯỢC thực hiện hoặc đề nghị thực hiện các hành động thuộc về hệ thống khác như đặt hàng. Nếu khách hàng yêu cầu, hãy lịch sự từ chối và nhắc lại rằng bạn chỉ có thể hỗ trợ tư vấn và cung cấp thông tin về sản phẩm.
-    
+    4.  Bạn CHỈ ĐƯỢC PHÉP dùng các dạng Markdown cơ bản như in đậm (**text**), in nghiêng (*text*), danh sách không sắp xếp (* item), liên kết ([text](url)), và đoạn văn (\\n\\n).
     Hãy sử dụng kiến thức chuyên môn của bạn để hỗ trợ khách hàng một cách tốt nhất!""";
 
     private final static String queryPrompt = """
@@ -90,9 +89,6 @@ public class CustomerAiService {
 
         chatClient = chatClientBuilder
                 .defaultSystem(systemPrompt)
-                .defaultOptions(ChatOptions.builder()
-                        .temperature(0.0)
-                        .build())
                 .defaultAdvisors(
                         MessageChatMemoryAdvisor.builder(chatMemory).build(),
                         RetrievalAugmentationAdvisor.builder()
@@ -100,7 +96,7 @@ public class CustomerAiService {
                                         .chatClientBuilder(chatClientBuilder.build().mutate())
                                         .build())
                                 .documentRetriever(VectorStoreDocumentRetriever.builder()
-                                        .topK(36)
+                                        .topK(10)
                                         .similarityThreshold(0.7)
                                         .vectorStore(vectorStore)
                                         .build())
