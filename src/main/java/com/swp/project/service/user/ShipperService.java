@@ -48,13 +48,14 @@ public class ShipperService {
     @Transactional
     public void initShipper() {
         try {
-            for (int i = 1; i <= 60; i++) {
+            for (int i = 1; i <= 36; i++) {
                 createShipperIfNotExists(Shipper.builder()
                         .email("shipper" + i + "@shop.com")
                         .password("shipper")
                         .fullname("shipper" + i + "@shop.com")
                         .birthDate(sdf.parse("2001-09-11"))
                         .cid(UUID.randomUUID().toString())
+                        .communeWard(addressService.getCommuneWardByCode("16279"))
                         .specificAddress("123 Đường ABC, Phường XYZ")
                         .build());
             }
@@ -64,6 +65,7 @@ public class ShipperService {
                     .fullname("seller" + 999 + "@shop.com")
                     .birthDate(sdf.parse("2001-09-11"))
                     .cid(UUID.randomUUID().toString())
+                    .communeWard(addressService.getCommuneWardByCode("16279"))
                     .specificAddress("123 Đường ABC, Phường XYZ")
                     .enabled(false)
                     .build());
@@ -157,8 +159,6 @@ public class ShipperService {
             } catch (ParseException e) {
                 throw new RuntimeException("Định dạng ngày tháng năm bất thường");
             }
-
-            boolean found = shipperRepository.findById(staffDto.getId()).isPresent();
             shipperRepository.save(shipper);
 
         }
