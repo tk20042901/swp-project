@@ -4,8 +4,6 @@ import java.time.LocalDate;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-import com.swp.project.entity.address.CommuneWard;
-import com.swp.project.entity.address.ProvinceCity;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

@@ -32,6 +32,9 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @SessionAttributes("shoppingCartItems")
 @RequiredArgsConstructor
@@ -304,60 +307,8 @@ public class CustomerController {
         return "pages/customer/ai";
     }
 
-    /**
-     * Trang chủ với phân trang, lọc theo danh mục và tìm kiếm
-     * @param page Số trang hiện tại
-     * @param size Kích thước trang
-     * @param categoryId Danh mục sản phẩm
-     * @param keyword Từ khóa tìm kiếm
-     * @param model 
-     * @return 
-     */
-    @GetMapping("/homepage")
-    public String getHomepage(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "" + PAGE_SIZE) int size,
-            @RequestParam(required = false) Long categoryId,
-            @RequestParam(required = false) String keyword,
-            Model model) {
-        Page<Product> productsPage;
-        // Sửa lỗi nếu tìm kiếm và lọc category, không hiển thị đúng danh mục
-        // Lưu trang tìm kiếm để lấy danh mục
-        Page<Product> productSearchPage = null;
-        if (keyword != null && !keyword.isEmpty() && categoryId != null && categoryId != 0) {
-            productSearchPage = productService.searchProductsWithPaging(keyword, page, size);
-            productsPage = productService.searchProductsThenSortByCategoryWithPaging(keyword, categoryId, page, size);
-            model.addAttribute("keyword", keyword);
-            model.addAttribute("categoryId", categoryId);
-        } else if (keyword != null && !keyword.isEmpty()) {
-            productsPage = productService.searchProductsWithPaging(keyword, page, size);
-            productSearchPage = productsPage;
-            model.addAttribute("keyword", keyword);
-            model.addAttribute("categoryId", 0);
-        } else if (categoryId != null && categoryId != 0) {
-            productsPage = productService.getProductsByCategoryWithPaging(categoryId, page, size);
-            model.addAttribute("categoryId", categoryId);
-        } else {
-            productsPage = productService.getProductsWithPaging(page, size);
-            model.addAttribute("categoryId", 0);
-        }
-        model.addAttribute("viewProductDto", mapProductToViewProductDto(productsPage));
-        //Nếu search thì lấy danh mục từ trang search, không thì lấy từ trang products bình thường
-        if (productSearchPage != null) {
-            model.addAttribute("categories", categoryService.getUniqueCategoriesBaseOnPageOfProduct(productSearchPage)); 
-        }else{
-            model.addAttribute("categories", categoryService.getUniqueCategoriesBaseOnPageOfProduct(productsPage)); 
-        }
-        return "pages/customer/homepage";
-    }
+    
 
-    private Page<ViewProductDto> mapProductToViewProductDto(Page<Product> products) {
-        return products.map(product -> ViewProductDto.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .price(product.getPrice().doubleValue())
-                .mainImageUrl(product.getMain_image_url())
-                .build());
-    }
+    
 
 }
