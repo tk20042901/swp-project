@@ -2,97 +2,132 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+    <title>Quản lý người giao hàng</title>
+    <link href="/css/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
     <script src="/js/bootstrap/bootstrap.bundle.min.js"></script>
 </head>
-<body class="container-fluid">
-<a href="/manager">Quay về trang chủ</a>
-<div style="display: grid; grid-template-columns: 3fr 7fr; height: 100px">
-    <h1>Quản lí người giao hàng</h1>
-    <div class="alert alert-success alert-dismissible" th:hidden="${msg == null}">
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        <strong>Thành công!</strong> <p th:text="${msg}"></p>
-    </div>
-    <div class="alert alert-danger alert-dismissible" th:hidden="${error == null}">
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        <strong>Thất bại!</strong> <p th:text="${error}"></p>
-    </div>
-</div>
-<div style="display: grid; grid-template-columns: 1fr 1fr 1fr">
-    <form th:action="@{/manager/manage-shipper}" method="get" style="display: flex; justify-content: start;">
-        <input name="queryName" th:value="${queryName}" hidden>
-        <input name="queryCid" th:value="${queryCid}" hidden>
-        <div th:each="index : ${#numbers.sequence(1, (session.list.size() / 15) + (session.list.size() % 15 == 0 ? 0 : 1))}" th:unless="${session.list.isEmpty()}">
-            <input type="submit" name="subpageIndex" th:value="${index}" th:class="'btn' + ${session.subpageIndex == index ? ' btn-primary' : ''}">
-        </div>
-    </form>
-    <form th:action="@{/manager/manage-shipper}" method="get">
-        <input type="text" name="queryName" th:value="${queryName}" placeholder="Tìm theo họ tên">
-        <input type="text" name="queryCid" th:value="${queryCid}" placeholder="Tìm theo số CCCD">
-        <button type="submit" name="clickedButton" value="search" class="btn btn-dark">Tìm</button>
-    </form>
-    <form th:action="@{/manager/edit-staff}" method="get" style="display: flex; justify-content: end">
-        <button type="submit" name="clickedButton" value="Shipper" class="btn btn-success">Thêm người giao hàng</button>
-    </form>
-</div>
-<table class="table-striped table-hover col-md-12">
-    <tr>
-        <form th:action="@{/manager/manage-shipper}" method="get">
-            <input name="queryName" th:value="${queryName}" >
-            <input name="queryCid" th:value="${queryCid}" >
-            <th>
-                <button type="submit" name="clickedButton" value="id" style="width: 100%" th:class="${'btn ' + (session.sortCriteria.equals('id') ? 'btn-primary' : '')}" th:text="${'ID' + (session.sortCriteria.equals('id') ? (session.k == 1 ? ' v' : ' ^') : '')}"></button>
-            </th>
-            <th>
-                <button type="submit" name="clickedButton" value="email" style="width: 100%" th:class="${'btn ' + (session.sortCriteria.equals('email') ? 'btn-primary' : '')}" th:text="${'Email' + (session.sortCriteria.equals('email') ? (session.k == 1 ? ' v' : ' ^') : '')}"></button>
-            </th>
-            <th>
-                <button type="submit" name="clickedButton" value="fullname" style="width: 100%" th:class="${'btn ' + (session.sortCriteria.equals('fullname') ? 'btn-primary' : '')}" th:text="${'Họ tên' + (session.sortCriteria.equals('fullname') ? (session.k == 1 ? ' v' : ' ^') : '')}"></button>
-            </th>
-            <th>
-                <button type="submit" name="clickedButton" value="cid" style="width: 100%" th:class="${'btn ' + (session.sortCriteria.equals('cid') ? 'btn-primary' : '')}" th:text="${'Số CCCD' + (session.sortCriteria.equals('cid') ? (session.k == 1 ? ' v' : ' ^') : '')}"></button>
-            </th>
-            <th>
-                <button type="submit" name="clickedButton" value="address" style="width: 100%" th:class="${'btn ' + (session.sortCriteria.equals('address') ? 'btn-primary' : '')}" th:text="${'Địa chỉ' + (session.sortCriteria.equals('address') ? (session.k == 1 ? ' v' : ' ^') : '')}"></button>
-            </th>
-            <th>
-                <button type="submit" name="clickedButton" value="enabled" style="width: 100%" th:class="${'btn ' + (session.sortCriteria.equals('enabled') ? 'btn-primary' : '')}" th:text="${'Mở khóa?' + (session.sortCriteria.equals('enabled') ? (session.k == 1 ? ' v' : ' ^') : '')}"></button>
-            </th>
-            <th>Hành động</th>
-        </form>
-    </tr>
-    <div th:if="${session.list.isEmpty()}">
-        <tr>
-            <td>(trống)</td>
-            <td>(trống)</td>
-            <td>(trống)</td>
-            <td>(trống)</td>
-            <td>(trống)</td>
-            <td>(trống)</td>
-            <td>(trống)</td>
-        </tr>
-    </div>
-    <div th:unless="${session.list.isEmpty()}">
-        <tr th:each="index : ${#numbers.sequence(15 * (session.subpageIndex - 1), ((15 * session.subpageIndex - 1) < session.list.size() ? (15 * session.subpageIndex - 1) : (session.list.size() - 1)))}" th:object="${session.list[index]}">
-            <td class=".col-1" th:text="*{id}"></td>
-            <td class=".col-2" th:text="*{email}"></td>
-            <td class=".col-2" th:text="*{fullname}"></td>
-            <td class=".col-2" th:text="*{cid}"></td>
-            <td class=".col-3" th:text="*{address}"></td>
-            <td class=".col-1" th:text="*{(enabled == true) ? 'Có' : 'Không'}"></td>
-            <td class=".col-1">
-                <form style="width: 100%" th:action="@{/manager/manage-shipper}" method="post">
-                    <input name="queryName" th:value="${queryName}" >
-                    <input name="queryCid" th:value="${queryCid}" >
-                    <input name="email" th:value="*{email}" hidden>
-                    <button type="submit" value="true" th:text="*{enabled ? 'Khóa' : 'Mở'}" th:class="'btn' + *{enabled ? ' btn-danger' : ' btn-success'}"
-                            style="width: 100%;"></button>
-                </form>
-            </td>
-        </tr>
-    </div>
-</table>
+<body class="auth-body">
+<div class="container py-4">
+    <a href="/manager" class="btn btn-link mb-3">← Quay về trang chủ</a>
 
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h4 brand">Quản lí người giao hàng</h1>
+        <div class="alerts-stack">
+            <div class="alert alert-success alert-dismissible fade show" th:hidden="${msg == null}">
+                <strong>Thành công!</strong> <span th:text="${msg}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div class="alert alert-danger alert-dismissible fade show" th:hidden="${error == null}">
+                <strong>Thất bại!</strong> <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-2 mb-3">
+        <div class="col-md-4">
+            <form th:action="@{/manager/manage-shipper}" method="get" class="d-flex flex-wrap gap-1">
+                <input name="queryName" th:value="${queryName}" hidden>
+                <input name="queryCid" th:value="${queryCid}" hidden>
+                <div th:each="index : ${#numbers.sequence(1, (session.list.size() / 10) + (session.list.size() % 10 == 0 ? 0 : 1))}"
+                     th:unless="${session.list.isEmpty()}">
+                    <input type="submit" name="subpageIndex"
+                           th:value="${index}"
+                           th:class="'btn btn-sm ' + ${session.subpageIndex == index ? 'btn-primary' : 'btn-outline-primary'}">
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-4">
+            <form th:action="@{/manager/manage-shipper}" method="get" class="d-flex gap-2">
+                <input type="text" name="queryName" class="form-control" th:value="${queryName}" placeholder="Tìm theo họ tên">
+                <input type="text" name="queryCid" class="form-control" th:value="${queryCid}" placeholder="Tìm theo số CCCD">
+                <button type="submit" name="clickedButton" value="search" class="btn btn-dark">Tìm</button>
+            </form>
+        </div>
+
+        <div class="col-md-4 text-end">
+            <form th:action="@{/manager/edit-staff}" method="get">
+                <button type="submit" name="clickedButton" value="Seller" class="btn btn-success">Thêm người giao hàng</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="table-responsive auth-card p-3">
+        <table class="table table-striped table-hover align-middle">
+            <thead>
+            <tr>
+                <form th:action="@{/manager/manage-shipper}" method="get">
+                    <input name="queryName" th:value="${queryName}" hidden>
+                    <input name="queryCid" th:value="${queryCid}" hidden>
+                    <th>
+                        <button type="submit" name="clickedButton" value="id"
+                                th:class="${'btn btn-sm ' + (session.sortCriteria.equals('id') ? 'btn-primary' : 'btn-outline-primary')}"
+                                th:text="${'ID' + (session.sortCriteria.equals('id') ? (session.k == 1 ? ' ▼' : ' ▲') : '')}"></button>
+                    </th>
+                    <th>
+                        <button type="submit" name="clickedButton" value="email"
+                                th:class="${'btn btn-sm ' + (session.sortCriteria.equals('email') ? 'btn-primary' : 'btn-outline-primary')}"
+                                th:text="${'Email' + (session.sortCriteria.equals('email') ? (session.k == 1 ? ' ▼' : ' ▲') : '')}"></button>
+                    </th>
+                    <th>
+                        <button type="submit" name="clickedButton" value="fullname"
+                                th:class="${'btn btn-sm ' + (session.sortCriteria.equals('fullname') ? 'btn-primary' : 'btn-outline-primary')}"
+                                th:text="${'Họ tên' + (session.sortCriteria.equals('fullname') ? (session.k == 1 ? ' ▼' : ' ▲') : '')}"></button>
+                    </th>
+                    <th>
+                        <button type="submit" name="clickedButton" value="cid"
+                                th:class="${'btn btn-sm ' + (session.sortCriteria.equals('cid') ? 'btn-primary' : 'btn-outline-primary')}"
+                                th:text="${'Số CCCD' + (session.sortCriteria.equals('cid') ? (session.k == 1 ? ' ▼' : ' ▲') : '')}"></button>
+                    </th>
+                    <th>
+                        <button type="submit" name="clickedButton" value="address"
+                                th:class="${'btn btn-sm ' + (session.sortCriteria.equals('address') ? 'btn-primary' : 'btn-outline-primary')}"
+                                th:text="${'Địa chỉ' + (session.sortCriteria.equals('address') ? (session.k == 1 ? ' ▼' : ' ▲') : '')}"></button>
+                    </th>
+                    <th>
+                        <button type="submit" name="clickedButton" value="enabled"
+                                th:class="${'btn btn-sm ' + (session.sortCriteria.equals('enabled') ? 'btn-primary' : 'btn-outline-primary')}"
+                                th:text="${'Mở khóa?' + (session.sortCriteria.equals('enabled') ? (session.k == 1 ? ' ▼' : ' ▲') : '')}"></button>
+                    </th>
+                    <th>Hành động</th>
+                </form>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${session.list.isEmpty()}">
+                <td colspan="7" class="text-center text-muted">(Không có dữ liệu)</td>
+            </tr>
+            <tr th:each="index : ${#numbers.sequence(10 * (session.subpageIndex - 1), ((10 * session.subpageIndex - 1) < session.list.size() ? (10 * session.subpageIndex - 1) : (session.list.size() - 1)))}"
+                th:object="${session.list[index]}">
+                <td th:text="*{id}"></td>
+                <td th:text="*{email}"></td>
+                <td th:text="*{fullname}"></td>
+                <td th:text="*{cid}"></td>
+                <td th:text="*{address}"></td>
+                <td th:text="*{(enabled == true) ? 'Có' : 'Không'}"></td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <form th:action="@{/manager/manage-shipper}" method="post">
+                            <input name="queryName" th:value="${queryName}" hidden>
+                            <input name="queryCid" th:value="${queryCid}" hidden>
+                            <input name="email" th:value="*{email}" hidden>
+                            <button type="submit" value="true"
+                                    th:text="*{enabled == true ? 'Khóa' : 'Mở'}"
+                                    th:class="*{'btn btn-sm ' + (enabled == true ? 'btn-danger' : 'btn-success')}">
+                            </button>
+                        </form>
+                        <form th:action="@{/manager/edit-staff}" method="get">
+                            <input name="email" th:value="*{email}" hidden>
+                            <button type="submit" name="clickedButton" value="Seller" class="btn btn-sm btn-outline-success">Sửa</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 </body>
 </html>

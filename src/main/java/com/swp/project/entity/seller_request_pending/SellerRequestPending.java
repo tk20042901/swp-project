@@ -4,7 +4,7 @@ import com.swp.project.entity.user.Seller;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -17,15 +17,18 @@ public class SellerRequestPending {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String type;
-
     @Lob
-    private String payload;
+    @Column(columnDefinition = "TEXT")
+    private String content;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private Seller createdBy;
+    private Seller seller;
 
-    private String status;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private SellerRequestPendingType requestType;
 
-    private Instant createdAt;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private SellerRequestPendingStatusType status;
+
+    private LocalDateTime createdAt;
 }

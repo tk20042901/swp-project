@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,4 +19,7 @@ public class ProductUnit implements Serializable {
 
     @Column(nullable = false, unique = true, length = 20)
     private String name;
+
+    @OneToMany(mappedBy = "unit", fetch = FetchType.EAGER)
+    private List<Product> products;
 }

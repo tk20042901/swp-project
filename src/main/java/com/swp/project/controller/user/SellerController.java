@@ -3,12 +3,13 @@ package com.swp.project.controller.user;
 import com.swp.project.dto.SellerSearchOrderDto;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.order.OrderStatusService;
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -26,16 +27,22 @@ public class SellerController {
     }
 
     @GetMapping("/all-orders")
-    public String sellerProducts(@PageableDefault(5) Pageable pageable,
-                                 @ModelAttribute SellerSearchOrderDto sellerSearchOrderDto,
-                                 Model model,
-                                 HttpServletRequest request) {
+    public String sellerProducts(@Valid @ModelAttribute SellerSearchOrderDto sellerSearchOrderDto,
+                                 BindingResult bindingResult,
+                                 @PageableDefault(5) Pageable pageable,
+                                 Model model) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("orders", orderService.getAllOrder(pageable));
+            model.addAttribute("sellerSearchOrderDto", sellerSearchOrderDto);
+            return "pages/seller/all-orders";
+        }
+
         if(sellerSearchOrderDto.isEmpty()) {
             model.addAttribute("orders", orderService.getAllOrder(pageable));
         } else {
             model.addAttribute("orders",orderService.searchOrder(sellerSearchOrderDto,pageable));
         }
-        model.addAttribute("requestURI", request.getRequestURI());
         model.addAttribute("orderStatus", orderStatusService.getAllStatus());
         model.addAttribute("sellerSearchOrderDto", sellerSearchOrderDto);
         return "pages/seller/all-orders";

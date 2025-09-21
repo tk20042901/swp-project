@@ -2,6 +2,9 @@ package com.swp.project.service.product;
 
 import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.Product;
+import com.swp.project.listener.event.ProductRelatedUpdateEvent;
+import com.swp.project.entity.product.Category;
+import com.swp.project.entity.product.Product;
 import com.swp.project.repository.product.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -9,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -37,5 +41,14 @@ public class CategoryService {
             }
         }
         return categories;
+    }
+    private final ApplicationEventPublisher eventPublisher;
+
+    public void saveCategory(Category category) {
+        categoryRepository.save(category);
+
+        for (Product product : category.getProducts()) {
+            eventPublisher.publishEvent(new ProductRelatedUpdateEvent(product.getId()));
+        }
     }
 }

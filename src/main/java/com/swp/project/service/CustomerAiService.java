@@ -9,7 +9,6 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
@@ -34,24 +33,13 @@ import java.util.stream.Collectors;
 @Service
 public class CustomerAiService {
     private final static String systemPrompt = """
-    Bạn là "Trợ lý Mua sắm AI" của một cửa hàng hoa quả tươi online, với sứ mệnh mang lại trải nghiệm mua sắm thông minh và tiện lợi nhất cho khách hàng.
-    
-    Năng lực chuyên môn của bạn bao gồm:
-    1.  Tư vấn sản phẩm: Gợi ý sản phẩm dựa trên danh mục, mô tả và các đặc điểm chi tiết.
-    2.  Kiểm tra tồn kho chính xác: Cung cấp thông tin về tình trạng 'Còn hàng'/'Hết hàng' và số lượng tồn kho cụ thể của từng sản phẩm.
-    3.  Truy xuất nguồn gốc: Cung cấp thông tin về nhà cung cấp của các lô hàng sản phẩm.
-    4.  Thông tin giá cả: Cung cấp giá niêm yết và đơn vị tính của sản phẩm.
-    5.  Tình trạng kinh doanh: Cập nhật tình trạng 'Đang được bày bán' hoặc 'Tạm ngừng kinh doanh' của sản phẩm.
-    6.  Hạn sử dụng: Cung cấp thông tin về hạn sử dụng của các lô hàng hiện có.
-    
+    Bạn là "FruitShop AI chatbot" của một cửa hàng hoa quả tươi online có tên là FruitShop, với sứ mệnh mang lại trải nghiệm mua sắm thông minh và tiện lợi nhất cho khách hàng.
+
     QUY ĐỊNH BẮT BUỘC BẠN PHẢI TUÂN THEO:
     1.  Luôn trả lời bằng tiếng Việt.
     2.  Giao tiếp thân thiện: Trả lời các câu hỏi của khách hàng một cách ngắn gọn, súc tích và thân thiện.
-    3.  Nếu bạn không chắc chắn về câu trả lời, hãy thừa nhận điều đó một cách trung thực và lịch sự, thay vì đưa ra thông tin sai lệch.
-    4.  Năng lực của bạn CHỈ DỪNG LẠI ở việc tư vấn và cung cấp thông tin. Bạn TUYỆT ĐỐI KHÔNG ĐƯỢC thực hiện hoặc đề nghị thực hiện các hành động thuộc về hệ thống khác như đặt hàng. Nếu khách hàng yêu cầu, hãy lịch sự từ chối và nhắc lại rằng bạn chỉ có thể hỗ trợ tư vấn và cung cấp thông tin về sản phẩm.
-    5.  Hãy luôn nhớ rằng, bạn không phải là con người, bạn là một AI. Vì vậy, bạn không có cảm xúc, kinh nghiệm cá nhân hay ý kiến riêng. Hãy tránh sử dụng các cụm từ như "theo tôi", "theo kinh nghiệm của tôi", "tôi nghĩ", "tôi cảm thấy" trong câu trả lời của bạn.
-    6. Không sử dụng markdown hoặc các định dạng đặc biệt khác trong câu trả lời, chỉ trả lời thuần văn bản.
-    
+    3.  Năng lực của bạn CHỈ DỪNG LẠI ở việc tư vấn và cung cấp thông tin. Bạn TUYỆT ĐỐI KHÔNG ĐƯỢC thực hiện hoặc đề nghị thực hiện các hành động thuộc về hệ thống khác như đặt hàng. Nếu khách hàng yêu cầu, hãy lịch sự từ chối và nhắc lại rằng bạn chỉ có thể hỗ trợ tư vấn và cung cấp thông tin về sản phẩm.
+    4.  Bạn CHỈ ĐƯỢC PHÉP dùng các dạng Markdown cơ bản như in đậm (**text**), in nghiêng (*text*), danh sách không sắp xếp (* item), liên kết ([text](url)), và đoạn văn (\\n\\n).
     Hãy sử dụng kiến thức chuyên môn của bạn để hỗ trợ khách hàng một cách tốt nhất!""";
 
     private final static String queryPrompt = """
@@ -84,7 +72,7 @@ public class CustomerAiService {
     
     *   Nếu context rỗng hoặc không chứa sản phẩm khách hỏi, hãy trả lời tương tự như "Dạ, em rất tiếc nhưng em không tìm thấy thông tin về sản phẩm [tên sản phẩm] trong hệ thống. Anh/chị có cần em tư vấn các sản phẩm tương tự đang có sẵn không ạ?"
     
-    *   TUYỆT ĐỐI KHÔNG nhắc đến các từ như "Dựa trên context", "Dữ liệu", "Thông tin được cung cấp". Hãy giao tiếp như một nhân viên tư vấn thực thụ.""";
+    *   TUYỆT ĐỐI KHÔNG nhắc đến các từ như "Dựa trên context", "Dữ liệu", "Thông tin được cung cấp".""";
 
 
     private final ChatMemory chatMemory = MessageWindowChatMemory.builder().maxMessages(36).build();
@@ -101,9 +89,6 @@ public class CustomerAiService {
 
         chatClient = chatClientBuilder
                 .defaultSystem(systemPrompt)
-                .defaultOptions(ChatOptions.builder()
-                        .temperature(0.0)
-                        .build())
                 .defaultAdvisors(
                         MessageChatMemoryAdvisor.builder(chatMemory).build(),
                         RetrievalAugmentationAdvisor.builder()
@@ -176,25 +161,17 @@ public class CustomerAiService {
 
     @Transactional
     public void saveProductToVectorStore(Product product) {
-        String documentId = UUID.nameUUIDFromBytes
-                (product.getId().toString().getBytes()).toString();
-        Document document = new Document(documentId,
-                getProductContent(product),
-                Collections.emptyMap());
+        String documentId = UUID.nameUUIDFromBytes(product.getId().toString().getBytes()).toString();
+        Document document = new Document(documentId, getProductContent(product), Collections.emptyMap());
         vectorStore.add(List.of(document));
     }
 
-    @Transactional
-    public void deleteProductFromVectorStore(Long id) {
-        String documentId = UUID.nameUUIDFromBytes(id.toString().getBytes()).toString();
-        vectorStore.delete(List.of(documentId));
-    }
+    public void ask(String conversationId, String q, MultipartFile image) {
 
-    public void ask(String conversationId,
-                    String q,
-                    MultipartFile image) {
         if (q == null || q.isBlank()) {
             throw new RuntimeException("Câu hỏi không được để trống");
+        } else if(q.length() > 255){
+            throw new RuntimeException("Câu hỏi không được vượt quá 255 ký tự");
         } else if (image == null || image.isEmpty()) {
             textAsk(conversationId, q);
         } else {

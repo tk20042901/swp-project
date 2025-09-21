@@ -2,72 +2,149 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Thông tin đơn hàng</title>
+    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
-<body>
+<body class="auth-body">
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
+            <div class="card auth-card shadow-sm">
+                <div class="card-body p-4 p-md-5">
+                    <div class="row g-4 g-lg-5">
+                        <!-- Cart Summary -->
+                        <div class="col-12 col-lg-7">
+                            <h2 class="h5 mb-3">Giỏ hàng của bạn</h2>
+                            <div class="cart-list-scroll">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex align-items-center justify-content-between"
+                                        th:each="item : ${shoppingCartItems}">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <img th:src="${item.product.main_image_url}" alt="Ảnh sản phẩm"
+                                                 class="img-thumbnail" style="width:64px;height:64px;object-fit:cover">
+                                            <div>
+                                                <div class="fw-semibold cart-item-title" th:text="${item.product.name}">Tên sản phẩm
+                                                </div>
+                                                <div class="text-muted small cart-item-meta">
+                                                    <span>Số lượng: <span th:text="${item.quantity}">1</span></span>
+                                                    <br>
+                                                    <span>
+                                                        Đơn giá: <span th:text="${item.product.price} + 'VND/' + ${item.product.unit.name}">0</span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="fw-semibold cart-item-total"
+                                                 th:text="${item.product.price * item.quantity} + ' VND'">0 VND
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
 
-<ul>
-    <li th:each="item : ${shoppingCartItems}">
-        <span th:text="${item.product.name}">Product Name</span> -
-        <span th:text="${item.quantity}">Quantity</span> -
-        <span th:text="${item.product.price} + ' VND'">Price</span>
-    </li>
-</ul>
+                            <div class="d-flex justify-content-end mt-3">
+                                <div class="fs-6"><strong>Tổng:</strong> <strong th:text="${totalAmount} + ' VND'">0</strong>
+                                </div>
+                            </div>
+                        </div>
 
-<form th:action="@{/customer/order-info}"  th:object="${deliveryInfoDto}" method="post">
-    <label>
-        Họ và tên<input type="text" th:field="*{fullName}" required/>
-        <span th:errors="*{fullName}"> Error</span>
-    </label>
+                        <!-- Delivery + Payment Form -->
+                        <div class="col-12 col-lg-5">
+                            <h2 class="h5 mb-3">Thông tin giao hàng</h2>
 
-    <label>
-        Tỉnh/Thành phố
-        <select required onchange="this.form.submit()" th:field="*{provinceCityCode}">
-            <option value="">Chọn Tỉnh/Thành phố</option>
-            <option th:each="province : ${provinceCities}"
-                    th:value="${province.code}"
-                    th:text="${province.name}">
-            </option>
-        </select>
-        <span th:errors="*{provinceCityCode}"> Error</span>
-    </label>
+                            <div class="alerts-stack mb-3" th:if="${payment_error}">
+                                <div class="alert alert-danger py-2" th:text="${payment_error}"></div>
+                            </div>
 
-    <label>
-        Xã/Phường
-        <select th:field="*{communeWardCode}" required>
-            <option value="">Chọn Xã/Phường</option>
-            <option th:each="ward : ${wards}"
-                    th:value="${ward.code}"
-                    th:text="${ward.name}">
-            </option>
-        </select>
-        <span th:errors="*{communeWardCode}"> Error</span>
-    </label>
+                            <form th:action="@{/customer/order-info}" th:object="${deliveryInfoDto}" method="post">
+                                <!-- Full name -->
+                                <div class="mb-3">
+                                    <label for="fullName" class="form-label">Họ và tên</label>
+                                    <input id="fullName" type="text" th:field="*{fullName}" class="form-control"
+                                           placeholder="VD: Nguyễn Văn A" required maxlength="255">
+                                    <div class="invalid-feedback d-block" th:errors="*{fullName}"></div>
+                                </div>
 
-    <label>
-        Địa chỉ chi tiết<input type="text" th:field="*{specificAddress}" required/>
-        <span th:errors="*{specificAddress}" > Error</span>
-    </label>
+                                <!-- Province / Ward -->
+                                <div class="row g-3">
+                                    <div class="col-12 col-md-6">
+                                        <label for="provinceCityCode" class="form-label">Tỉnh/Thành phố</label>
+                                        <select id="provinceCityCode" class="form-select" required
+                                                onchange="this.form.submit()" th:field="*{provinceCityCode}">
+                                            <option value="">Chọn Tỉnh/Thành phố</option>
+                                            <option th:each="province : ${provinceCities}"
+                                                    th:value="${province.code}"
+                                                    th:text="${province.name}">
+                                            </option>
+                                        </select>
+                                        <div class="invalid-feedback d-block" th:errors="*{provinceCityCode}"></div>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label for="communeWardCode" class="form-label">Xã/Phường</label>
+                                        <select id="communeWardCode" class="form-select" th:field="*{communeWardCode}"
+                                                required>
+                                            <option value="">Chọn Xã/Phường</option>
+                                            <option th:each="ward : ${wards}"
+                                                    th:value="${ward.code}"
+                                                    th:text="${ward.name}">
+                                            </option>
+                                        </select>
+                                        <div class="invalid-feedback d-block" th:errors="*{communeWardCode}"></div>
+                                    </div>
+                                </div>
 
-    <label>
-        Số điện thoại<input type="tel" th:field="*{phone}" required/>
-        <span th:errors="*{phone}"> Error</span>
-    </label>
+                                <!-- Specific address + Phone -->
+                                <div class="row g-3 mt-1">
+                                    <div class="col-12 col-md-8">
+                                        <label for="specificAddress" class="form-label">Địa chỉ chi tiết</label>
+                                        <input id="specificAddress" type="text" th:field="*{specificAddress}"
+                                               class="form-control" placeholder="Số nhà, đường, tổ/thôn/xóm..." required
+                                               maxlength="255">
+                                        <div class="invalid-feedback d-block" th:errors="*{specificAddress}"></div>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label for="phone" class="form-label">Số điện thoại</label>
+                                        <input id="phone" type="tel" th:field="*{phone}" class="form-control"
+                                               placeholder="VD: 0912345678" required maxlength="20" inputmode="tel">
+                                        <div class="invalid-feedback d-block" th:errors="*{phone}"></div>
+                                    </div>
+                                </div>
 
-    <br>
+                                <!-- Payment methods -->
+                                <fieldset class="mt-4">
+                                    <legend class="h6 mb-2">Phương thức thanh toán</legend>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" id="pm_qr" th:name="payment_method"
+                                               th:value="qr" checked required>
+                                        <label class="form-check-label" for="pm_qr">Chuyển khoản VietQR</label>
+                                    </div>
+                                    <div class="form-check mt-2">
+                                        <input class="form-check-input" type="radio" id="pm_cod"
+                                               th:name="payment_method" th:value="cod" required>
+                                        <label class="form-check-label" for="pm_cod">Thanh toán khi nhận hàng</label>
+                                    </div>
+                                </fieldset>
 
-    <label>
-        Chuyển khoản VietQR<input type="radio" th:name="payment_method" th:value="qr" checked required/>
-    </label>
-
-    <label>
-        Thanh toán khi nhận hàng<input type="radio" th:name="payment_method" th:value="cod" required/>
-    </label>
-
-
-    <p th:text="${'Tổng:' + totalAmount}"></p>
-
-    <button type="submit" name="confirm">Xác nhận mua hàng</button>
-</form>
+                                <div class="row g-2 mt-4">
+                                    <div class="col-12 col-sm-6">
+                                        <a class="btn btn-outline-secondary w-100" th:href="@{/customer/shopping-cart}">Hủy</a>
+                                    </div>
+                                    <div class="col-12 col-sm-6 d-grid">
+                                        <button type="submit" name="confirm" class="btn btn-primary">Xác nhận mua hàng
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

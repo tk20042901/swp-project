@@ -3,7 +3,7 @@ package com.swp.project.service.product;
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.ProductBatch;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
-import com.swp.project.repository.product.ProductBatchRepository;
+import com.swp.project.listener.event.ProductRelatedUpdateEvent;
 import com.swp.project.repository.product.ProductRepository;
 import com.swp.project.repository.shopping_cart.ShoppingCartItemRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,20 +24,28 @@ import java.util.List;
 @Service
 public class ProductService {
     private final ProductRepository productRepository;
-    private final ProductBatchRepository productBatchRepository;
+    private final ProductBatchService productBatchService;
     private final ShoppingCartItemRepository shoppingCartItemRepository;
-
-    public void saveProductBatch(ProductBatch productBatch) {
-        productBatchRepository.save(productBatch);
-    }
+    private final ApplicationEventPublisher eventPublisher;
 
     public void saveProduct(Product product) {
         productRepository.save(product);
+
+        eventPublisher.publishEvent(new ProductRelatedUpdateEvent(product.getId()));
+    }
+
+
+    public Product getProductById(Long id) {
+        return productRepository.findById(id).orElse(null);
+    }
+
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
     }
 
     @Transactional
-    public void pickProductInProductBatch(Long productId, int quantity) {
-        List<ProductBatch> productBatches = productBatchRepository.getByProduct_Id(productId);
+    public void pickProductInProductBatch(Long productId, int quantity){
+        List<ProductBatch> productBatches = productBatchService.getByProductId(productId);
         productBatches.sort(Comparator.comparing(ProductBatch::getExpiredDate)
                 .thenComparingInt(ProductBatch::getQuantity));
         for (ProductBatch productBatch : productBatches) {
@@ -49,13 +58,12 @@ public class ProductService {
                 quantity -= productBatch.getQuantity();
                 productBatch.setQuantity(0);
             }
-            saveProductBatch(productBatch);
+            productBatchService.saveProductBatch(productBatch);
         }
     }
 
     public int getAvailableQuantity(Long productId) {
-        productBatchRepository.getByProduct_Id(productId);
-        return productBatchRepository.getByProduct_Id(productId)
+        return productBatchService.getByProductId(productId)
                 .stream()
                 .mapToInt(ProductBatch::getQuantity)
                 .sum();

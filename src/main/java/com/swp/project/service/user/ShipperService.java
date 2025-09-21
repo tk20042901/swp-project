@@ -1,6 +1,5 @@
 package com.swp.project.service.user;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +47,7 @@ public class ShipperService {
     @Transactional
     public void initShipper() {
         try {
-            for (int i = 1; i <= 60; i++) {
+            for (int i = 1; i <= 36; i++) {
                 createShipperIfNotExists(Shipper.builder()
                         .email("shipper" + i + "@shop.com")
                         .password("shipper")
@@ -133,7 +132,7 @@ public class ShipperService {
 
     public void add(StaffDto staffDto) {
         if (staffDto != null) {
-            if (staffDto.getId() == null) {
+            if (staffDto.getId() == 0) {
                 if (existsCid(staffDto.getCid())) {
                     throw new RuntimeException("Mã căn cước công dân đã được dùng");
                 }
@@ -144,31 +143,30 @@ public class ShipperService {
             Shipper shipper;
             try {
                 shipper = Shipper.builder()
+                        .id(staffDto.getId() != 0 ? staffDto.getId() : null)
                         .email(staffDto.getEmail())
-                        .password(staffDto.getPassword())
+                        .password(staffDto.getId() != 0  ? staffDto.getPassword() : passwordEncoder.encode(staffDto.getPassword()))
                         .fullname(staffDto.getFullname())
-                        .birthDate(sdf.parse(staffDto.getBirthDate()))
+                        .birthDate(staffDto.getBirthDate())
                         .cid(staffDto.getCid())
                         .communeWard(addressService.getCommuneWardByCode(staffDto.getCommuneWard()))
                         .specificAddress(staffDto.getSpecificAddress())
+                        .enabled(staffDto.isEnabled())
                         .build();
-            } catch (ParseException e) {
-                throw new RuntimeException("Định dạng ngày tháng năm bất thường");
+            } catch (Exception e) {
+                throw new RuntimeException(e.getMessage());
             }
-
             shipperRepository.save(shipper);
 
         }
     }
 
 
-    private boolean existsCid(String Cid) {
-        return sellerRepository.findByCid(Cid) != null ||
-                shipperRepository.findByCid(Cid) != null ||
-                customerSupportRepository.findByCid(Cid) != null
-//                ||
-//                managerRepository.findBycId(Cid) != null
-                ;
+    private boolean existsCid(String cid) {
+        return sellerRepository.findByCid(cid) != null ||
+                shipperRepository.findByCid(cid) != null ||
+                customerSupportRepository.findByCid(cid) != null ||
+                managerRepository.findByCid(cid) != null;
     }
 
     public void findByNameAndCid(String name, String cid) {

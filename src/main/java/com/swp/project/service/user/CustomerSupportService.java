@@ -12,7 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +37,7 @@ public class CustomerSupportService {
     @Transactional
     public void initCustomerSupport() {
         try {
-            for (int i = 1; i <= 50; i++) {
+            for (int i = 1; i <= 36; i++) {
                 createCustomerSupportIfNotExists(CustomerSupport.builder()
                         .email("customer-support" + i + "@shop.com")
                         .password("customer-support")
@@ -106,7 +105,7 @@ public class CustomerSupportService {
 
     public void add(StaffDto staffDto) {
         if (staffDto != null) {
-            if (staffDto.getId() != null) {
+            if (staffDto.getId() == 0) {
                 if (existscId(staffDto.getCid())) {
                     throw new RuntimeException("Mã căn cước công dân đã được dùng");
                 }
@@ -118,20 +117,19 @@ public class CustomerSupportService {
             CustomerSupport customerSupport;
             try {
                 customerSupport = CustomerSupport.builder()
+                        .id(staffDto.getId() != 0 ? staffDto.getId() : null)
                         .email(staffDto.getEmail())
-                        .password(staffDto.getPassword())
+                        .password(staffDto.getId() != 0  ? staffDto.getPassword() : passwordEncoder.encode(staffDto.getPassword()))
                         .fullname(staffDto.getFullname())
-                        .birthDate(sdf.parse(staffDto.getBirthDate()))
+                        .birthDate(staffDto.getBirthDate())
                         .cid(staffDto.getCid())
                         .communeWard(addressService.getCommuneWardByCode(staffDto.getCommuneWard()))
                         .specificAddress(staffDto.getSpecificAddress())
+                        .enabled(staffDto.isEnabled())
                         .build();
-
-
-            } catch (ParseException e) {
-                throw new RuntimeException("Định dạng ngày tháng năm bất thường");
+            } catch (Exception e) {
+                throw new RuntimeException(e.getMessage());
             }
-
             customerSupportRepository.save(customerSupport);
 
         }
@@ -162,13 +160,11 @@ public class CustomerSupportService {
     }
 
 
-    private boolean existscId(String Cid) {
-        return sellerRepository.findByCid(Cid) != null ||
-                shipperRepository.findByCid(Cid) != null ||
-                customerSupportRepository.findByCid(Cid) != null
-//                ||
-//                managerRepository.findByCid(Cid) != null
-                ;
+    private boolean existscId(String cid) {
+        return sellerRepository.findByCid(cid) != null ||
+                shipperRepository.findByCid(cid) != null ||
+                customerSupportRepository.findByCid(cid) != null ||
+                managerRepository.findByCid(cid) != null;
     }
 
 

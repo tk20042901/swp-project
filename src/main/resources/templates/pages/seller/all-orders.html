@@ -2,68 +2,149 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Quản lý đơn hàng</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap (offline) -->
+    <link rel="stylesheet" th:href="@{/css/bootstrap/bootstrap.min.css}">
+    <!-- Project styles -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
-<body>
-<p th:text="${msg}"></p>
-<form th:action="@{/seller/all-orders}" method="get" th:object="${sellerSearchOrderDto}">
+<body class="bg-light">
 
-    <label>
-        Email khách hàng<input type="text" th:field="*{customerEmail}"/>
-    </label>
+<div class="container py-4">
+    <!-- Page header -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="h3 mb-1">Tất cả đơn hàng</h1>
+            <p class="text-muted mb-0">Tra cứu, lọc theo ngày và trạng thái để xem chi tiết đơn hàng</p>
+        </div>
+        <a class="btn btn-outline-secondary" th:href="@{/seller}">Quay lại</a>
+    </div>
 
-    <label>
-        Từ ngày<input type="date" th:field="*{fromDate}"/>
-    </label>
+    <!-- Alert message -->
+    <div th:if="${msg}" class="alerts-stack">
+        <div class="alert alert-info" role="alert" th:text="${msg}"></div>
+    </div>
 
-    <label>
-        Đến ngày<input type="date" th:field="*{toDate}"/>
-    </label>
+    <!-- Filter card -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form class="row g-3" th:action="@{/seller/all-orders}" method="get" th:object="${sellerSearchOrderDto}">
+                <div class="col-12 col-md-4">
+                    <label class="form-label" for="customerEmail">Email khách hàng</label>
+                    <input id="customerEmail" type="text" class="form-control" th:field="*{customerEmail}" placeholder="vd: khach@example.com" maxlength="255">
+                </div>
+                <div class="col-6 col-md-3">
+                    <label class="form-label" for="fromDate">Từ ngày</label>
+                    <input id="fromDate" type="date" class="form-control" th:field="*{fromDate}">
+                </div>
+                <div class="col-6 col-md-3">
+                    <label class="form-label" for="toDate">Đến ngày</label>
+                    <input id="toDate" type="date" class="form-control" th:field="*{toDate}">
+                </div>
+                <div class="col-12 col-md-2">
+                    <label class="form-label" for="statusId">Trạng thái</label>
+                    <select id="statusId" class="form-select" th:field="*{statusId}" onchange="this.form.submit()">
+                        <option th:value="0">Tất cả</option>
+                        <option th:each="orderType : ${orderStatus}"
+                                th:value="${orderType.id}"
+                                th:text="${orderType.name}">
+                        </option>
+                    </select>
+                </div>
+                <div class="col-12 d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-    <label>
-        Trạng thái đơn hàng
-        <select th:field="*{statusId}" onchange="this.form.submit()">
-            <option th:value="0">Tất cả</option>
-            <option th:each="orderType : ${orderStatus}"
-                    th:value="${orderType.id}"
-                    th:text="${orderType.name}">
-            </option>
-        </select>
-    </label>
+    <!-- Results -->
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th scope="col">Mã đơn hàng</th>
+                        <th scope="col">Email khách hàng</th>
+                        <th scope="col">Thời gian đặt hàng</th>
+                        <th scope="col">Trạng thái</th>
+                        <th scope="col" class="text-end">Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${orders.totalElements == 0}">
+                        <td colspan="5" class="text-center text-muted py-4">Không có đơn hàng phù hợp</td>
+                    </tr>
+                    <tr th:each="order : ${orders}">
+                        <td th:text="${order.id}"></td>
+                        <td th:text="${order.customer.email}"></td>
+                        <td th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${order.orderStatus.name} == 'Chờ Xác Nhận' ? ' bg-secondary' :
+                                                   (${order.orderStatus.name} == 'Chờ Thanh Toán' ? ' bg-secondary' :
+                                                   (${order.orderStatus.name} == 'Đang Chuẩn Bị Hàng' ? ' bg-warning text-dark-emphasis' :
+                                                   (${order.orderStatus.name} == 'Chờ Giao Hàng' ? ' bg-info' :
+                                                   (${order.orderStatus.name} == 'Đang Giao Hàng' ? ' bg-primary' :
+                                                   (${order.orderStatus.name} == 'Đã Giao Hàng' ? ' bg-success' : ' bg-danger')))))"
+                                  th:text="${order.orderStatus.name}"></span>
+                        </td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-primary" th:href="@{'/seller/order-detail/'+${order.id}}">Chi tiết</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-items-center">
+            <!-- Pagination -->
+            <form class="d-flex align-items-center gap-2 flex-wrap" th:action="@{/seller/all-orders}" method="get" th:object="${sellerSearchOrderDto}">
+                <input type="hidden" th:field="*{statusId}"/>
+                <input type="hidden" th:field="*{customerEmail}"/>
+                <input type="hidden" th:field="*{fromDate}"/>
+                <input type="hidden" th:field="*{toDate}"/>
 
-    <button type="submit">Tìm kiếm</button>
-</form>
-<table>
-    <tr>
-        <th>Mã đơn hàng</th>
-        <th>Email khách hàng</th>
-        <th>Thời gian đặt hàng</th>
-        <th>Trạng thái</th>
-    </tr>
-    <tr th:each="order : ${orders}">
-        <td th:text="${order.id}"></td>
-        <td th:text="${order.customer.email}"></td>
-        <td th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></td>
-        <td th:text="${order.orderStatus.name}"></td>
-        <td><a th:href="@{'/seller/order-detail/'+${order.id}}">Chi tiết đơn hàng</a></td>
-    </tr>
-</table>
-<form th:action="@{/seller/all-orders}" method="get" th:object="${sellerSearchOrderDto}">
-    <input type="hidden" th:field="*{statusId}"/>
-    <input type="hidden" th:field="*{customerEmail}"/>
-    <input type="hidden" th:field="*{fromDate}"/>
-    <input type="hidden" th:field="*{toDate}"/>
+                <button th:if="${!orders.first}"
+                        type="submit"
+                        name="page"
+                        th:value="0"
+                        class="btn btn-outline-secondary btn-sm">Trang đầu</button>
 
-    <button th:if="${orders.hasPrevious()}"
-            type="submit"
-            name="page" th:value="${orders.number - 1}">Prev</button>
+                <button th:if="${orders.hasPrevious()}"
+                        type="submit"
+                        name="page"
+                        th:value="${orders.number - 1}"
+                        class="btn btn-outline-secondary btn-sm">Trang trước</button>
 
-    <span th:text="${orders.number + 1} + ' / ' + ${orders.totalPages}"></span>
+                <span class="text-muted small" th:if="${orders.totalPages > 0}">
+                    <span th:text="${orders.number + 1}"></span>
+                    /
+                    <span th:text="${orders.totalPages}"></span>
+                </span>
+                <span class="text-muted small" th:if="${orders.totalPages == 0}">0/0</span>
 
-    <button th:if="${orders.hasNext()}"
-            type="submit"
-            name="page" th:value="${orders.number + 1}">Next</button>
-</form>
+                <button th:if="${orders.hasNext()}"
+                        type="submit"
+                        name="page"
+                        th:value="${orders.number + 1}"
+                        class="btn btn-outline-secondary btn-sm">Trang sau</button>
+
+                <button th:if="${!orders.last}"
+                        type="submit"
+                        name="page"
+                        th:value="${orders.totalPages - 1}"
+                        class="btn btn-outline-secondary btn-sm">Trang cuối</button>
+            </form>
+
+            <div class="text-muted small">
+                <span th:text="${orders.totalElements}"></span> kết quả
+            </div>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>

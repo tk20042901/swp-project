@@ -1,7 +1,10 @@
 package com.swp.project.controller.user;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import com.swp.project.entity.address.CommuneWard;
+import com.swp.project.entity.address.ProvinceCity;
 import com.swp.project.entity.user.CustomerSupport;
 import com.swp.project.service.user.CustomerSupportService;
 import org.springframework.stereotype.Controller;
@@ -50,12 +53,9 @@ public class ManagerController {
             @RequestParam(value = "queryCid", required = false) String queryCid,
             Model model,
             HttpSession session) {
-
         if (session.getAttribute("k") == null) {
             session.setAttribute("k", 1);
         }
-        sellerService.findAll();
-        session.setAttribute("list", sellerService.getResults());
         if (session.getAttribute("sortCriteria") == null) {
             session.setAttribute("sortCriteria", "id");
         }
@@ -81,7 +81,6 @@ public class ManagerController {
                     break;
             }
         }
-
         if (subpageIndex != null) {
             session.setAttribute("subpageIndex", subpageIndex);
         }
@@ -89,6 +88,9 @@ public class ManagerController {
         sellerService.findByNameAndCid(queryName, queryCid);
         sellerService.sortBy((String) session.getAttribute("sortCriteria"), (Integer) session.getAttribute("k"));
         session.setAttribute("list", sellerService.getResults());
+        if (sellerService.getResults().size() - 1 < ((Integer) session.getAttribute("subpageIndex") - 1) * 10) {
+            session.setAttribute("subpageIndex", 1);
+        }
         model.addAttribute("queryName", queryName);
         model.addAttribute("queryCid", queryCid);
 
@@ -104,19 +106,15 @@ public class ManagerController {
             @RequestParam(value = "queryCid", required = false) String queryCid,
             Model model,
             HttpSession session) {
-
         if (session.getAttribute("k") == null) {
             session.setAttribute("k", 1);
         }
-            shipperService.findAll();
-            session.setAttribute("list", shipperService.getResults());
         if (session.getAttribute("sortCriteria") == null) {
             session.setAttribute("sortCriteria", "id");
         }
         if (session.getAttribute("subpageIndex") == null) {
             session.setAttribute("subpageIndex", 1);
         }
-
         if (clickedButton != null && !clickedButton.isEmpty()) {
             switch (clickedButton) {
                 case "id":
@@ -135,7 +133,6 @@ public class ManagerController {
                     break;
             }
         }
-
         if (subpageIndex != null) {
             session.setAttribute("subpageIndex", subpageIndex);
         }
@@ -143,6 +140,9 @@ public class ManagerController {
         shipperService.findByNameAndCid(queryName, queryCid);
         shipperService.sortBy((String) session.getAttribute("sortCriteria"), (Integer) session.getAttribute("k"));
         session.setAttribute("list", shipperService.getResults());
+        if (shipperService.getResults().size() - 1 < ((Integer) session.getAttribute("subpageIndex") - 1) * 10) {
+            session.setAttribute("subpageIndex", 1);
+        }
         model.addAttribute("queryName", queryName);
         model.addAttribute("queryCid", queryCid);
 
@@ -158,19 +158,15 @@ public class ManagerController {
             @RequestParam(value = "queryCid", required = false) String queryCid,
             Model model,
             HttpSession session) {
-
         if (session.getAttribute("k") == null) {
             session.setAttribute("k", 1);
         }
-        customerSupportService.findAll();
-        session.setAttribute("list", customerSupportService.getResults());
         if (session.getAttribute("sortCriteria") == null) {
             session.setAttribute("sortCriteria", "id");
         }
         if (session.getAttribute("subpageIndex") == null) {
             session.setAttribute("subpageIndex", 1);
         }
-
         if (clickedButton != null && !clickedButton.isEmpty()) {
             switch (clickedButton) {
                 case "id":
@@ -189,7 +185,6 @@ public class ManagerController {
                     break;
             }
         }
-
         if (subpageIndex != null) {
             session.setAttribute("subpageIndex", subpageIndex);
         }
@@ -197,6 +192,9 @@ public class ManagerController {
         customerSupportService.findByNameAndCid(queryName, queryCid);
         customerSupportService.sortBy((String) session.getAttribute("sortCriteria"), (Integer) session.getAttribute("k"));
         session.setAttribute("list", customerSupportService.getResults());
+        if (customerSupportService.getResults().size() - 1 < ((Integer) session.getAttribute("subpageIndex") - 1) * 10) {
+            session.setAttribute("subpageIndex", 1);
+        }
         model.addAttribute("queryName", queryName);
         model.addAttribute("queryCid", queryCid);
 
@@ -223,9 +221,6 @@ public class ManagerController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
 
-        sellerService.findByNameAndCid(queryName, queryCid);
-        sellerService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
-        session.setAttribute("list", sellerService.getResults());
         redirectAttributes.addFlashAttribute("queryName", queryName);
         redirectAttributes.addFlashAttribute("queryCid", queryCid);
         redirectAttributes.addAttribute("queryName", queryName);
@@ -253,9 +248,6 @@ public class ManagerController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
 
-        shipperService.findByNameAndCid(queryName, queryCid);
-        shipperService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
-        session.setAttribute("list", shipperService.getResults());
         redirectAttributes.addFlashAttribute("queryName", queryName);
         redirectAttributes.addFlashAttribute("queryCid", queryCid);
         redirectAttributes.addAttribute("queryName", queryName);
@@ -283,9 +275,6 @@ public class ManagerController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
 
-        customerSupportService.findByNameAndCid(queryName, queryCid);
-        customerSupportService.sortBy(session.getAttribute("sortCriteria").toString(), (int) session.getAttribute("k"));
-        session.setAttribute("list", customerSupportService.getResults());
         redirectAttributes.addFlashAttribute("queryName", queryName);
         redirectAttributes.addFlashAttribute("queryCid", queryCid);
         redirectAttributes.addAttribute("queryName", queryName);
@@ -295,25 +284,48 @@ public class ManagerController {
 
 
     @GetMapping("/edit-staff")
-    public String editStaff(@RequestParam(value = "clickedButton", required = false) String clickedButton, Model model,
+    public String editStaff(
+            @RequestParam(value = "clickedButton", required = false) String clickedButton,
+            @RequestParam(value = "email", required = false) String email,
+            Model model,
             HttpSession session) {
+
         if (clickedButton != null && !clickedButton.isEmpty()) {
-            model.addAttribute("provinces", provinceCityRepository.findAll());
-            model.addAttribute("wards", new ArrayList<>());
-            model.addAttribute("staffDto", new StaffDto());
+            List<ProvinceCity> provinces = provinceCityRepository.findAll();
+            List<CommuneWard> wards = new ArrayList<>();
+            StaffDto staffDto = new StaffDto();
 
             switch (clickedButton) {
                 case "Seller":
                     session.setAttribute("newClassName", "Seller");
+                    if (email != null && !email.isEmpty()) {
+                        Seller seller = sellerService.getByEmail(email);
+                        staffDto = new StaffDto().parse(seller);
+                        wards = communeWardRepository.findAllByProvinceCity(seller.getCommuneWard().getProvinceCity());
+                    }
                     break;
                 case "Shipper":
                     session.setAttribute("newClassName", "Shipper");
+                    if (email != null && !email.isEmpty()) {
+                        Shipper shipper = shipperService.getByEmail(email);
+                        staffDto = new StaffDto().parse(shipper);
+                        wards = communeWardRepository.findAllByProvinceCity(shipper.getCommuneWard().getProvinceCity());
+                    }
                     break;
                 case "CustomerSupport":
                     session.setAttribute("newClassName", "CustomerSupport");
+                    if (email != null && !email.isEmpty()) {
+                        CustomerSupport customerSupport = customerSupportService.getByEmail(email);
+                        staffDto = new StaffDto().parse(customerSupport);
+                        wards = communeWardRepository.findAllByProvinceCity(customerSupport.getCommuneWard().getProvinceCity());
+                    }
                     break;
             }
+            model.addAttribute("provinces", provinces);
+            model.addAttribute("wards", wards);
+            model.addAttribute("staffDto", staffDto);
         }
+
         return "pages/manager/edit-staff";
     }
 
@@ -409,8 +421,14 @@ public class ManagerController {
 
                             break;
                     }
-                    redirectAttributes.addFlashAttribute("msg",
-                            "Thêm tài khoản " + staffDto.getEmail() + " thành công");
+                    if (staffDto.getId() == 0) {
+                        redirectAttributes.addFlashAttribute("msg",
+                                "Thêm tài khoản " + staffDto.getEmail() + " thành công");
+                    } else {
+                        redirectAttributes.addFlashAttribute("msg",
+                                "Sửa tài khoản " + staffDto.getEmail() + " thành công");
+                    }
+
                 }
             } catch (Exception e) {
                 e.printStackTrace();

@@ -5,6 +5,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import com.swp.project.service.CustomerAiService;
+import com.swp.project.service.product.ProductService;
 import com.swp.project.service.user.AdminService;
 import com.swp.project.service.user.CustomerService;
 import com.swp.project.service.user.CustomerSupportService;
@@ -24,6 +25,7 @@ public class DataInitializer implements CommandLineRunner {
     private final SellerService sellerService;
     private final ShipperService shipperService;
     private final CustomerSupportService customerSupportService;
+    private final ProductService productService;
     private final CustomerAiService customerAiService;
 
 
