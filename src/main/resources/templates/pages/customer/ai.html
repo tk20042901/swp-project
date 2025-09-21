@@ -1,27 +1,173 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>AI Chatbot</title>
     <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
-<body>
-    <form th:action="@{/customer/ai}" method="post" enctype="multipart/form-data">
-        <input type="hidden" name="conversationId" th:value="${conversationId}">
-        <ul>
-            <li th:each="message : ${conversation}">
-                <span th:text="${message.messageType.value + ':' + message.text}"></span>
-            </li>
-        </ul>
-        <label>
-            Câu hỏi: <textarea name="q"></textarea>
-        </label>
-        <br>
-        <input type="file" name="image" accept="image/*">
-        <br>
-        <button type="submit">Gửi</button>
-        <span th:text="${error}"></span>
-    </form>
-    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<body class="bg-light">
+<div class="container py-4 py-md-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-0 py-3 d-flex align-items-center justify-content-between">
+                    <div>
+                        <h5 class="mb-0">FruitShop AI chatbot</h5>
+                        <small class="text-muted">Hỏi đáp nhanh – hỗ trợ mô tả sản phẩm, so sánh, gợi ý…</small>
+                    </div>
+                    <a th:href="@{/}" class="btn btn-sm btn-outline-secondary">Về trang chủ</a>
+                </div>
+
+                <div class="card-body pt-0">
+                    <!-- Errors -->
+                    <div th:if="${error}" class="alert alert-warning mb-3" role="alert" th:text="${error}"></div>
+
+                    <!-- Conversation -->
+                    <div id="chatMessages" class="chat-messages mb-3">
+                        <ul class="list-unstyled m-0">
+                            <li th:if="${#lists.isEmpty(conversation)}" class="d-flex gap-2 align-items-start">
+                                <div class="avatar-circle bg-primary text-white flex-shrink-0">AI</div>
+                                <div class="bubble bubble-assistant">
+                                    <div class="message-text" data-md="true">
+                                        Xin chào! Mình là trợ lý AI. Hãy nhập câu hỏi hoặc tải ảnh sản phẩm để được hỗ trợ nhé.
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li th:each="message,iterStat : ${conversation}"
+                                th:with="isUser=${message.messageType.value == 'user'}"
+                                class="mb-3">
+                                <div class="d-flex align-items-start gap-2"
+                                     th:classappend="${isUser} ? 'justify-content-end' : ''">
+                                    <!-- Avatar -->
+                                    <div class="avatar-circle flex-shrink-0"
+                                         th:classappend="${isUser} ? 'bg-secondary text-white order-2' : 'bg-primary text-white'"
+                                         th:text="${isUser} ? 'Bạn' : 'AI'">AI</div>
+
+                                    <!-- Bubble -->
+                                    <div class="bubble" th:classappend="${isUser} ? 'bubble-user order-1' : 'bubble-assistant'">
+                                        <!-- If assistant supports simple Markdown, render it on client side safely -->
+                                        <div class="message-text" th:attr="data-md=${!isUser}"
+                                             th:text="${message.text}">...</div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Composer -->
+                    <form id="chatForm" th:action="@{/ai}" method="post" enctype="multipart/form-data" class="composer sticky-composer">
+                        <input type="hidden" name="conversationId" th:value="${conversationId}">
+                        <div class="d-flex align-items-end gap-2">
+                            <div class="flex-grow-1">
+                                <label class="visually-hidden" for="chatInput">Câu hỏi</label>
+                                <textarea id="chatInput" class="form-control" name="q" rows="2"
+                                          placeholder="Nhập câu hỏi... (Shift+Enter để xuống dòng)"
+                                          autocomplete="off" autofocus></textarea>
+                            </div>
+
+                            <div class="d-flex align-items-center gap-2">
+                                <input id="imageInput" type="file" name="image" accept="image/*" class="d-none">
+                                <label for="imageInput" class="btn btn-outline-secondary" title="Đính kèm ảnh">
+                                    <span class="d-none d-sm-inline">Ảnh</span>
+                                    <span class="d-inline d-sm-none">+</span>
+                                </label>
+                                <button id="sendButton" type="submit" class="btn btn-primary">Gửi</button>
+                            </div>
+                        </div>
+
+                        <!-- Preview (image) -->
+                        <div id="preview" class="mt-2 d-none">
+                            <div class="small text-muted mb-1">Ảnh đính kèm:</div>
+                            <img id="previewImg" src="data:," class="img-thumbnail" alt="Xem trước ảnh" style="max-height: 160px;">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
+<script th:inline="none">
+    // Auto-scroll to bottom
+    const chatMessages = document.getElementById('chatMessages');
+    function scrollToBottom() {
+        if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Simple, safe-ish Markdown rendering (limited): bold, italic, inline code, code blocks, links, unordered lists
+    function renderMarkdown(md) {
+        let s = (md || '').toString();
+        s = s.replace(/\r\n?/g, '\n');
+        s = s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+        // Bold **text**
+        s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+        // Italic *text*
+        s = s.replace(/(^|\W)\*([^*]+)\*(?=\W|$)/g, '$1<em>$2</em>');
+
+        // Links [text](url)
+        s = s.replace(/\[([^]]+)]\((https?:[^\s)]+)\)/g, (m, text, url) => `<a th:href="@{${url}}" target="_blank" rel="noopener">${text}</a>`);
+
+        // Unordered lists
+        s = s.replace(/(?:^|\n)[\t ]*[-*][\t ]+(.+)(?=\n|$)/g, (m, item) => `\n<li>${item}</li>`);
+        s = s.replace(/(?:<li>.*<\/li>\n?)+/gs, block => `<ul class="mb-2">${block}</ul>`);
+
+        // Paragraphs
+        s = s.replace(/\n{2,}/g, '</p><p>');
+
+        return `${s}`;
+    }
+
+    function hydrateMarkdown() {
+        document.querySelectorAll('[data-md="true"]').forEach(el => {
+            const raw = el.textContent || '';
+            el.innerHTML = renderMarkdown(raw);
+        });
+    }
+
+    // Textarea behavior: Enter to send, Shift+Enter for newline
+    const form = document.getElementById('chatForm');
+    const input = document.getElementById('chatInput');
+    const sendButton = document.getElementById('sendButton');
+    if (input && form) {
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                form.requestSubmit();
+            }
+        });
+    }
+    if (form && sendButton) {
+        form.addEventListener('submit', () => {
+            sendButton.disabled = true;
+            sendButton.textContent = 'Đang gửi...';
+        });
+    }
+
+    // Image preview
+    const imageInput = document.getElementById('imageInput');
+    const preview = document.getElementById('preview');
+    const previewImg = document.getElementById('previewImg');
+    if (imageInput && preview && previewImg) {
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (file) {
+                previewImg.src = URL.createObjectURL(file);
+                preview.classList.remove('d-none');
+            } else {
+                previewImg.src = 'data:,';
+                preview.classList.add('d-none');
+            }
+        });
+    }
+
+    // Initial
+    hydrateMarkdown();
+    scrollToBottom();
+</script>
 </body>
 </html>
