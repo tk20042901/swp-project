@@ -14,7 +14,6 @@ import com.swp.project.service.order.OrderStatusService;
 import com.swp.project.service.product.CategoryService;
 import com.swp.project.service.product.ProductService;
 import com.swp.project.service.user.CustomerService;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -129,35 +128,33 @@ public class CustomerController {
     }
 
     @GetMapping("/shopping-cart")
-    public String viewShoppingCart(Model model, Principal principal, HttpSession session,
-            @RequestParam(value = "cartIds", required = false) List<Long> cartIds) {
+    public String viewShoppingCart(Model model,
+                                   Principal principal,
+                                   @RequestParam(value = "cartIds", required = false) List<Long> cartIds) {
         List<ShoppingCartItem> cartItems = customerService.getCart(principal.getName());
 
-        if (cartIds != null && !cartIds.isEmpty()) {
-            session.setAttribute("selectedCartIds", cartIds);
+        List<Long> selectedIds = new ArrayList<Long>();
+        if (cartIds != null) {
+            selectedIds = cartIds;
         }
 
-        List<Long> selectedIdsFromSession = (List<Long>) session.getAttribute("selectedCartIds");
-        List<Long> selectedIds;
-        if (selectedIdsFromSession != null) {
-            selectedIds = selectedIdsFromSession;
-        } else {
-            selectedIds = new ArrayList<>();
+        long totalAmount = 0;
+        for (ShoppingCartItem item : cartItems) {
+            if (selectedIds.contains(item.getProduct().getId())) {
+                totalAmount += (long) item.getProduct().getPrice() * item.getQuantity();
+            }
         }
-
-        long totalAmount = cartItems.stream()
-                .filter(item -> selectedIds.contains(item.getProduct().getId()))
-                .mapToLong(item -> (long) item.getProduct().getPrice() * item.getQuantity())
-                .sum();
 
         model.addAttribute("totalAmount", totalAmount);
         model.addAttribute("cartItems", cartItems);
         model.addAttribute("selectedIds", selectedIds);
+
         return "pages/customer/shopping-cart";
     }
 
     @PostMapping("/shopping-cart/remove")
-    public String removeFromCart(@RequestParam Long productId, Principal principal) {
+    public String removeFromCart(@RequestParam Long productId,
+                                 Principal principal) {
         customerService.removeItem(principal.getName(), productId);
         return "redirect:/customer/shopping-cart";
     }
@@ -277,13 +274,6 @@ public class CustomerController {
         return "redirect:/";
     }
 
-    /**
-     * Trang chủ với phân trang, lọc theo danh mục và tìm kiếm
-     * @param page Số trang hiện tại
-     * @param size Kích thước trang
-     * @param categoryId Danh mục sản phẩm
-     * @param keyword Từ khóa tìm kiếm
-     */
     @GetMapping("/homepage")
     public String getHomepage(
             @RequestParam(defaultValue = "0") int page,
