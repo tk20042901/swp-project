@@ -12,16 +12,32 @@
     <div class="w-100" style="max-width: 640px;">
         <div class="card shadow-sm auth-card">
             <div class="card-body p-4 p-md-5">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <a class="btn btn-outline-secondary btn-sm"
+                       th:href="@{/}">Quay lại</a>
+                </div>
                 <h1 class="h4 text-center mb-1 brand">Quản lý tài khoản</h1>
                 <p class="text-muted text-center mb-4">Xem và cập nhật thông tin tài khoản của bạn.</p>
 
-                <div class="row g-3">
-                    <div class="col-12 col-md-6">
-                        <a th:href="@{/customer/delivery-info}" class="btn btn-outline-primary w-100">Thông tin giao hàng</a>
-                    </div>
-                    <div class="col-12 col-md-6" th:if="${!isGoogleRegistered}">
-                        <a th:href="@{/customer/change-password}" class="btn btn-outline-secondary w-100">Đổi mật khẩu</a>
-                    </div>
+                <!-- Actions: replaced grid buttons with accessible list-group items -->
+                <div class="list-group mb-3">
+                    <a th:href="@{/customer/delivery-info}"
+                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-semibold">Thông tin giao hàng</div>
+                            <div class="small text-muted">Cập nhật địa chỉ và người nhận</div>
+                        </div>
+                        <span class="text-secondary" aria-hidden="true">&rsaquo;</span>
+                    </a>
+                    <a th:if="${!isGoogleRegistered}"
+                       th:href="@{/customer/change-password}"
+                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-semibold">Đổi mật khẩu</div>
+                            <div class="small text-muted">Tăng cường bảo mật tài khoản</div>
+                        </div>
+                        <span class="text-secondary" aria-hidden="true">&rsaquo;</span>
+                    </a>
                 </div>
 
                 <hr class="my-4">

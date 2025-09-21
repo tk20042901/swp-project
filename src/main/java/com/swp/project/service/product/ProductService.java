@@ -34,6 +34,9 @@ public class ProductService {
         return productRepository.findById(id).orElse(null);
     }
 
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
+    }
 
     @Transactional
     public void pickProductInProductBatch(Long productId, int quantity){
