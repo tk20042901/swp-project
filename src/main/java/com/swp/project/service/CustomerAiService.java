@@ -163,30 +163,24 @@ public class CustomerAiService {
         vectorStore.add(List.of(document));
     }
 
-    private final Map<String, List<AiMessageDto>> conversations = new HashMap<>();
-
-    public List<AiMessageDto> getConversation(String conversationId) {
-        return conversations.get(conversationId);
-    }
-
-    public void ask (String conversationId, String q, MultipartFile image) {
+    public void ask (String conversationId, String q, MultipartFile image, List<AiMessageDto> conversation) {
         if (q == null || q.isBlank()) {
             throw new RuntimeException("Câu hỏi không được để trống");
         } else if(q.length() > 255){
             throw new RuntimeException("Câu hỏi không được vượt quá 255 ký tự");
         } else if (image == null || image.isEmpty()) {
-            textAsk(conversationId, q);
+            textAsk(conversationId, q, conversation);
         } else {
             String contentType = image.getContentType();
             if (contentType != null && contentType.startsWith("image")) {
-                imageAsk(conversationId, q, image.getResource(), contentType);
+                imageAsk(conversationId, q, image.getResource(), contentType, conversation);
             } else {
                 throw new RuntimeException("Chỉ hỗ trợ file hình ảnh");
             }
         }
     }
 
-    private void textAsk(String conversationId, String q) {
+    private void textAsk(String conversationId, String q, List<AiMessageDto> conversation) {
         String answer = chatClient.prompt(q)
                 .system("""
                         Câu hỏi này của khách hàng chỉ chứa văn bản, nếu khách hàng hỏi về một hình ảnh, hãy nói điều tương tự như "Tôi không thể thấy bất kỳ hình ảnh nào".""")
@@ -194,17 +188,15 @@ public class CustomerAiService {
                         .param(ChatMemory.CONVERSATION_ID, conversationId))
                 .call().content();
 
-        if(!conversations.containsKey(conversationId)){
-            conversations.put(conversationId, new ArrayList<>());
-        }
-        conversations.get(conversationId).add(new AiMessageDto("user", q));
-        conversations.get(conversationId).add(new AiMessageDto("assistant", answer));
+        conversation.add(new AiMessageDto("user", q));
+        conversation.add(new AiMessageDto("assistant", answer));
     }
 
     private void imageAsk(String conversationId,
-                                  String q,
-                                  Resource media,
-                                  String contentType) {
+                          String q,
+                          Resource media,
+                          String contentType,
+                          List<AiMessageDto> conversation) {
         String fruitName = chatClient.prompt()
                 .user(u -> u
                         .text("Hãy xác định tên loại trái cây trong hình ảnh này. Chỉ trả về tên trái cây bằng tiếng Việt, không thêm bất kỳ giải thích nào.")
@@ -216,16 +208,12 @@ public class CustomerAiService {
                 .advisors(a -> a
                         .param(ChatMemory.CONVERSATION_ID, conversationId))
                 .call().content();
-        if(!conversations.containsKey(conversationId)){
-            conversations.put(conversationId, new ArrayList<>());
-        }
+
         try {
-            conversations.get(conversationId)
-                    .add(new AiMessageDto("user", q, contentType ,
+            conversation.add(new AiMessageDto("user", q, contentType,
                             Base64.getEncoder().encodeToString(media.getContentAsByteArray())));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (Exception ignored) {
         }
-        conversations.get(conversationId).add(new AiMessageDto("assistant", answer));
+        conversation.add(new AiMessageDto("assistant", answer));
     }
 }

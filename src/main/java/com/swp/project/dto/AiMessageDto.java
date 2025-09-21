@@ -4,10 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
 @AllArgsConstructor
-public class AiMessageDto {
+public class AiMessageDto implements Serializable {
     private String author;
     private String content;
     private String mimeType;

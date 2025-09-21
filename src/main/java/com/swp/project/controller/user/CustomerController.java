@@ -29,7 +29,6 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
-@SessionAttributes("shoppingCartItems")
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("/customer")
@@ -195,8 +194,8 @@ public class CustomerController {
 
     @GetMapping("/order-info")
     public String showOrderInfoForm(@ModelAttribute("shoppingCartItems") List<ShoppingCartItem> shoppingCartItems,
-            Model model,
-            Principal principal) {
+                                    Model model,
+                                    Principal principal) {
         Customer customer = customerService.getCustomerByEmail(principal.getName());
         if (!model.containsAttribute("deliveryInfoDto")) {
             DeliveryInfoDto deliveryInfoDto = new DeliveryInfoDto();
