@@ -187,12 +187,12 @@ public class CustomerService {
         }
 
     }
-
+@Transactional
     public List<ShoppingCartItem> getCart(String customerEmail) {
         return shoppingCartItemRepository.findByCustomer(
                 customerRepository.getByEmail(customerEmail));
     }
-
+@Transactional
     public void removeItem(String email, Long productId) {
         Customer customer = customerRepository.getByEmail(email);
         ShoppingCartItemId id = new ShoppingCartItemId();
