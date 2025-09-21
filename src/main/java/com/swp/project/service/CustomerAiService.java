@@ -9,6 +9,7 @@ import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
@@ -53,11 +54,11 @@ public class CustomerAiService {
     
     *   Nếu khách hàng hỏi về TỒN KHO (ví dụ: "còn hàng không?", "còn nhiều không?"):
         1.  Tìm đến các câu "Tình trạng tồn kho:" và "Tổng số lượng còn trong kho là:" trong context.
-        2.  Kết hợp cả hai thông tin để trả lời. Ví dụ: "Dạ, Bơ 034 bên em vẫn còn hàng ạ, số lượng còn lại khoảng 50 kg ạ."
+        2.  Kết hợp cả hai thông tin để trả lời. Ví dụ: "Dạ, Bơ 034 bên mình vẫn còn hàng ạ, số lượng còn lại khoảng 50 kg ạ."
     
     *   Nếu khách hàng hỏi về NHÀ CUNG CẤP hoặc NGUỒN GỐC (ví dụ: "hàng của ai?", "trồng ở đâu?"):
         1.  Tìm đến câu "Sản phẩm này được cung cấp bởi các nhà cung cấp:" trong context.
-        2.  Liệt kê các nhà cung cấp được nêu tên. Ví dụ: "Dạ, Bơ 034 bên em được cung cấp bởi Nông sản Đà Lạt ạ."
+        2.  Liệt kê các nhà cung cấp được nêu tên. Ví dụ: "Dạ, Bơ 034 bên mình được cung cấp bởi Nông sản Đà Lạt ạ."
     
     *   Nếu khách hàng muốn xem THÔNG TIN CHUNG:
         1.  Tìm các câu "Mô tả sản phẩm:", "Giá niêm yết:".
@@ -67,12 +68,14 @@ public class CustomerAiService {
         1.  context đã chứa các sản phẩm phù hợp nhất với mô tả của khách.
         2.  Hãy đọc kỹ mô tả, danh mục và các thông tin khác của các sản phẩm trong context để đưa ra một vài gợi ý tốt nhất, kèm theo lý do tại sao chúng phù hợp.
     
-    *   Nếu context rỗng hoặc không chứa sản phẩm khách hỏi, hãy trả lời tương tự như "Dạ, em rất tiếc nhưng em không tìm thấy thông tin về sản phẩm [tên sản phẩm] trong hệ thống. Anh/chị có cần em tư vấn các sản phẩm tương tự đang có sẵn không ạ?"
+    *   Nếu context rỗng hoặc không chứa sản phẩm khách hỏi, hãy trả lời tương tự như "Dạ, mình rất tiếc nhưng mình không tìm thấy thông tin về sản phẩm [tên sản phẩm] trong hệ thống. Bạn có cần mình tư vấn các sản phẩm tương tự đang có sẵn không ạ?"
     
     *   TUYỆT ĐỐI KHÔNG nhắc đến các từ như "Dựa trên context", "Dữ liệu", "Thông tin được cung cấp".""";
 
 
     private final ChatClient chatClient;
+
+    private final ChatClient imageChatClient;
 
     private final VectorStore vectorStore;
 
@@ -108,6 +111,13 @@ public class CustomerAiService {
                                         .build())
                                 .build()
                 )
+                .build();
+
+        imageChatClient = chatClientBuilder
+                .defaultOptions(ChatOptions.builder()
+                        .temperature(0.5)
+                        .maxTokens(4096)
+                        .build())
                 .build();
     }
 
@@ -183,7 +193,7 @@ public class CustomerAiService {
     private void textAsk(String conversationId, String q, List<AiMessageDto> conversation) {
         String answer = chatClient.prompt(q)
                 .system("""
-                        Câu hỏi này của khách hàng chỉ chứa văn bản, nếu khách hàng hỏi về một hình ảnh, hãy nói điều tương tự như "Tôi không thể thấy bất kỳ hình ảnh nào".""")
+                        Câu hỏi này của khách hàng chỉ chứa văn bản, nếu khách hàng hỏi về một hình ảnh, hãy nói điều tương tự như "Mình không thể thấy bất kỳ hình ảnh nào".""")
                 .advisors(a -> a
                         .param(ChatMemory.CONVERSATION_ID, conversationId))
                 .call().content();
@@ -197,14 +207,14 @@ public class CustomerAiService {
                           Resource media,
                           String contentType,
                           List<AiMessageDto> conversation) {
-        String fruitName = chatClient.prompt()
+        String fruitName = imageChatClient.prompt()
                 .user(u -> u
-                        .text("Hãy xác định tên loại trái cây trong hình ảnh này. Chỉ trả về tên trái cây bằng tiếng Việt, không thêm bất kỳ giải thích nào.")
+                        .text("Hãy xác định tên loại trái cây trong hình ảnh này. Chỉ trả về tên trái cây bằng tiếng Việt, không thêm bất kỳ giải thích nào. Nếu không phải là trái cây, hãy trả về \"Đây không phải trái cây\".")
                         .media(MimeTypeUtils.parseMimeType(contentType), media))
                 .call().content();
         String answer = chatClient.prompt()
                 .user(u -> u
-                        .text(q + "(Hình ảnh là một " + fruitName + ")"))
+                        .text(q + "(Hình ảnh đang mô tả: "+ fruitName +" )"))
                 .advisors(a -> a
                         .param(ChatMemory.CONVERSATION_ID, conversationId))
                 .call().content();
