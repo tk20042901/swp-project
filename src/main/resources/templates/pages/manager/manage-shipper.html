@@ -81,14 +81,14 @@
             <td class=".col-2" th:text="*{cid}"></td>
             <td class=".col-3" th:text="*{address}"></td>
             <td class=".col-1" th:text="*{(enabled == true) ? 'Có' : 'Không'}"></td>
-            <td class=".col-1">
-                <form th:action="@{/manager/manage-shipper}" method="post" th:class=".col-6">
+            <td class=".col-1" style="display: grid; grid-template-columns: 1fr 1fr">
+                <form th:action="@{/manager/manage-shipper}" method="post">
                     <input name="queryName" th:value="${queryName}" hidden>
                     <input name="queryCid" th:value="${queryCid}" hidden>
                     <input name="email" th:value="*{email}" hidden>
                     <button type="submit" value="true" th:text="*{enabled ? 'Khóa' : 'Mở'}" th:class="'btn' + *{enabled ? ' btn-danger' : ' btn-success'}"></button>
                 </form>
-                <form th:action="@{/manager/edit-staff}" method="get" th:class=".col-6">
+                <form th:action="@{/manager/edit-staff}" method="get">
                     <input name="email" th:value="*{email}" hidden>
                     <button type="submit" name="clickedButton" value="Shipper" class="btn btn-success">Sửa</button>
                 </form>

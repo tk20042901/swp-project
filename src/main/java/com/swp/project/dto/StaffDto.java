@@ -1,18 +1,14 @@
 package com.swp.project.dto;
 
 import java.io.Serializable;
-
-import com.swp.project.customAnnotation.NotEqualTo;
+import java.util.Date;
 
 import com.swp.project.entity.user.CustomerSupport;
 import com.swp.project.entity.user.Seller;
 import com.swp.project.entity.user.Shipper;
-import com.swp.project.service.user.CustomerSupportService;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
 @Setter
@@ -35,8 +31,10 @@ public class StaffDto implements Serializable {
     @NotBlank(message = "Tên không được để trống")
     private String fullname;
 
-    @NotBlank(message = "Ngày tháng năm sinh không được để trống")
-    private String birthDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @NotNull(message = "Ngày tháng năm sinh không được để trống")
+    @Past(message = "Ngày tháng năm sinh là quá khứ")
+    private Date birthDate;
 
     @NotBlank(message = "Mã căn cước công dân không được để trống")
     @Pattern(regexp = "\\d{12}", message = "Mã căn cước công dân phải gồm 12 chữ số")
@@ -58,7 +56,7 @@ public class StaffDto implements Serializable {
                 .email(seller.getEmail())
                 .password(seller.getPassword())
                 .fullname(seller.getFullname())
-                .birthDate(seller.getBirthDate().toString())
+                .birthDate(seller.getBirthDate())
                 .cid(seller.getCid())
                 .provinceCity(seller.getCommuneWard().getProvinceCity().getCode())
                 .communeWard(seller.getCommuneWard().getCode())
@@ -73,7 +71,7 @@ public class StaffDto implements Serializable {
                 .email(shipper.getEmail())
                 .password(shipper.getPassword())
                 .fullname(shipper.getFullname())
-                .birthDate(shipper.getBirthDate().toString())
+                .birthDate(shipper.getBirthDate())
                 .cid(shipper.getCid())
                 .provinceCity(shipper.getCommuneWard().getProvinceCity().getCode())
                 .communeWard(shipper.getCommuneWard().getCode())
@@ -88,7 +86,7 @@ public class StaffDto implements Serializable {
                 .email(customerSupport.getEmail())
                 .password(customerSupport.getPassword())
                 .fullname(customerSupport.getFullname())
-                .birthDate(customerSupport.getBirthDate().toString())
+                .birthDate(customerSupport.getBirthDate())
                 .cid(customerSupport.getCid())
                 .provinceCity(customerSupport.getCommuneWard().getProvinceCity().getCode())
                 .communeWard(customerSupport.getCommuneWard().getCode())
