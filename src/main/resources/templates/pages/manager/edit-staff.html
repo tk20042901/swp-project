@@ -2,82 +2,94 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Sửa nhân viên</title>
-    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+    <title>Thêm / Sửa nhân viên</title>
+    <link href="/css/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
 </head>
-<body>
-<div style="display: grid; grid-template-columns: 3fr 7fr; height: 100px">
-    <h1 th:text="${'Thêm tài khoản' + (session.newClassName.equals('Seller') ? ' người bán' :
-                                        (session.newClassName.equals('Shipper') ? ' người giao hàng' :
-                                        (' hỗ trợ khách hàng')))}">
-    </h1>
-    <div class="alert alert-danger alert-dismissible" th:hidden="${error == null}">
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        <strong>Thất bại!</strong> <p th:text="${error}"></p>
+<body class="auth-body d-flex align-items-center justify-content-center">
+<div class="container">
+    <div class="auth-card p-4 mx-auto col-lg-6 col-md-8 shadow">
+        <h1 class="h4 mb-4 brand text-center"
+            th:text="${(staffDto.id == 0 ? 'Thêm' : 'Sửa') + ' tài khoản' + (session.newClassName.equals('Seller') ? ' người bán' :
+              (session.newClassName.equals('Shipper') ? ' người giao hàng' : ' hỗ trợ khách hàng'))}">
+        </h1>
+
+        <div class="alerts-stack">
+            <div class="alert alert-danger alert-dismissible fade show" th:hidden="${error == null}">
+                <strong>Thất bại!</strong> <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+
+        <form th:action="@{/manager/edit-staff}" method="post" th:object="${staffDto}" class="needs-validation">
+            <input type="text" name="newClassName" th:value="${session.newClassName}" hidden>
+            <input th:field="*{id}" hidden>
+            <input th:field="*{enabled}" hidden>
+
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="text" class="form-control" th:field="*{email}" th:readonly="*{id != 0}">
+                <div class="text-danger small" th:errors="*{email}"></div>
+            </div>
+
+            <div class="mb-3" th:hidden="*{id != 0}">
+                <label class="form-label">Mật khẩu</label>
+                <input type="text" class="form-control" th:field="*{password}">
+                <div class="text-danger small" th:errors="*{password}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Họ tên</label>
+                <input type="text" class="form-control" th:field="*{fullname}">
+                <div class="text-danger small" th:errors="*{fullname}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Ngày tháng năm sinh</label>
+                <input type="date" class="form-control" th:field="*{birthDate}">
+                <div class="text-danger small" th:errors="*{birthDate}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Số căn cước công dân</label>
+                <input type="text" class="form-control" th:field="*{cid}">
+                <div class="text-danger small" th:errors="*{cid}"></div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col">
+                    <label class="form-label">Tỉnh / thành phố</label>
+                    <select class="form-select" name="provinceCity" onchange="this.form.submit()">
+                        <option value="">Chọn Tỉnh/Thành phố</option>
+                        <option th:each="province : ${provinces}" th:object="${province}"
+                                th:value="*{code}" th:text="*{name}"
+                                th:selected="${province.code.equals(staffDto.provinceCity)}">
+                        </option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label class="form-label">Phường / Xã</label>
+                    <select class="form-select" name="communeWard">
+                        <option value="">Chọn Xã/Phường</option>
+                        <option th:each="ward : ${wards}" th:object="${ward}"
+                                th:value="*{code}" th:text="*{name}"
+                                th:selected="${ward.code.equals(staffDto.communeWard)}">
+                        </option>
+                    </select>
+                </div>
+                <div class="text-danger small mt-1" th:errors="*{communeWard}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Địa chỉ cụ thể</label>
+                <input type="text" class="form-control" th:field="*{specificAddress}">
+                <div class="text-danger small" th:errors="*{specificAddress}"></div>
+            </div>
+
+            <button type="submit" name="submitButton" value="save" class="btn btn-primary w-100">Lưu</button>
+        </form>
     </div>
 </div>
-<form th:action="@{/manager/edit-staff}" method="post" th:object="${staffDto}">
-    <input type="text" name="newClassName" th:value="${session.newClassName}" hidden>
-    <input th:field="*{id}" hidden>
-    <input th:field="*{enabled}" hidden>
-    <div class="form-group">
-        <label for="email">Email</label>
-        <input type="text" class="form-control" th:field="*{email}" th:readonly="*{id != 0}">
-        <p style="color: red;" th:errors="*{email}"></p>
-    </div>
-    <div class="form-group" th:hidden="*{id != 0}">
-        <label for="password">Mật khẩu</label>
-        <input type="text" class="form-control" th:field="*{password}">
-        <p style="color: red;" th:errors="*{password}"></p>
-    </div>
-    <div class="form-group">
-        <label for="fullName">Họ tên</label>
-        <input type="text" class="form-control" th:field="*{fullname}">
-        <p style="color: red;" th:errors="*{fullname}"></p>
-    </div>
-    <div class="form-group">
-        <label for="birthDate">Ngày tháng năm sinh</label>
-        <input type="date" class="form-control" th:field="*{birthDate}">
-        <p style="color: red;" th:errors="*{birthDate}"></p>
-    </div>
-    <div class="form-group">
-        <label for="cid">Số căn cước công dân</label>
-        <input type="text" class="form-control" th:field="*{cid}">
-        <p style="color: red;" th:errors="*{cid}"></p>
-    </div>
-    <div class="form-group">
-        <span>Tỉnh / thành phố</span>
-        <select name="provinceCity" onchange="this.form.submit()">
-            <option value="">Chọn Tỉnh/Thành phố</option>
-            <option  th:each="province : ${provinces}" th:object="${province}"
-                     th:value="*{code}" th:text="*{name}"
-                     th:selected="${province.code.equals(staffDto.provinceCity)}">
-            </option>
-        </select>
-        <span>Phường / Xã</span>
-        <select name="communeWard">
-            <option value="">Chọn Xã/Phường</option>
-            <option th:each="ward : ${wards}" th:object="${ward}"
-                    th:value="*{code}" th:text="*{name}"
-                    th:selected="${ward.code.equals(staffDto.communeWard)}">
-            </option>
-        </select>
-        <p style="color: red;" th:errors="*{communeWard}"></p>
-    </div>
-    <div class="form-group">
-        <label for="specificAddress">Địa chỉ cụ thể</label>
-        <input type="text" class="form-control" th:field="*{specificAddress}">
-        <p style="color: red;" th:errors="*{specificAddress}"></p>
-    </div>
-<!--    <div class="form-group">-->
-<!--        <label for="enabled">Mở khóa?</label>-->
-<!--        <input type="radio" class="form-check-input" name="enabled" value="true" th:selected="*{enabled == true}">-->
-<!--        <label class="form-check-label" for="enabled">Có</label>-->
-<!--        <input type="radio" class="form-check-input" name="enabled" value="false" th:selected="*{enabled == false}">-->
-<!--        <label class="form-check-label" for="enabled">Không</label>-->
-<!--    </div>-->
-    <button type="submit" name="submitButton" value="save" class="btn btn-primary">Lưu</button>
-</form>
-
+<script src="/js/bootstrap/bootstrap.bundle.min.js"></script>
 </body>
 </html>
