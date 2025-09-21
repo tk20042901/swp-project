@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Controller
-public class AiController {
+public class CustomerAiController {
 
     private final CustomerAiService customerAiService;
 

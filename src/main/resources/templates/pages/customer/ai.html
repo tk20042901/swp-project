@@ -97,29 +97,45 @@
         if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    // Simple, safe-ish Markdown rendering (limited): bold, italic, inline code, code blocks, links, unordered lists
+    //Markdown rendering (limited): bold, italic, links, unordered lists
     function renderMarkdown(md) {
-        let s = (md || '').toString();
-        s = s.replace(/\r\n?/g, '\n');
-        s = s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+        let html = md || '';
 
-        // Bold **text**
-        s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+        // Tách các khối bằng hai hoặc nhiều dấu xuống dòng
+        const blocks = html.trim().split(/\n\n+/);
 
-        // Italic *text*
-        s = s.replace(/(^|\W)\*([^*]+)\*(?=\W|$)/g, '$1<em>$2</em>');
+        return blocks.map(block => {
+            // Xử lý danh sách không sắp xếp
+            // Kiểm tra nếu tất cả các dòng trong khối đều bắt đầu bằng '* '
+            const lines = block.split('\n');
+            if (lines.every(line => line.trim().startsWith('* '))) {
+                const listItems = lines.map(line => {
+                    // Xóa ký tự '* ' ở đầu và xử lý inline markdown
+                    let itemContent = line.trim().substring(2);
+                    // Liên kết: [text](url) -> <a href="url">text</a>
+                    itemContent = itemContent.replace(/\[([^\]]+)]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+                    // In đậm: **text** -> <strong>text</strong>
+                    itemContent = itemContent.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+                    // In nghiêng: *text* -> <em>text</em>
+                    itemContent = itemContent.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+                    return `<li>${itemContent}</li>`;
+                }).join('');
+                return `<ul class="list-unstyled m-0">${listItems}</ul>`;
+            }
 
-        // Links [text](url)
-        s = s.replace(/\[([^]]+)]\((https?:[^\s)]+)\)/g, (m, text, url) => `<a th:href="@{${url}}" target="_blank" rel="noopener">${text}</a>`);
+            // Xử lý đoạn văn
+            // Thay thế các ký tự xuống dòng đơn lẻ bằng thẻ <br> để giữ nguyên định dạng
+            let paragraphContent = block.replace(/\n/g, '<br>');
 
-        // Unordered lists
-        s = s.replace(/(?:^|\n)[\t ]*[-*][\t ]+(.+)(?=\n|$)/g, (m, item) => `\n<li>${item}</li>`);
-        s = s.replace(/(?:<li>.*<\/li>\n?)+/gs, block => `<ul class="mb-2">${block}</ul>`);
+            // Liên kết: [text](url) -> <a href="url">text</a>
+            paragraphContent = paragraphContent.replace(/\[([^\]]+)]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+            // In đậm: **text** -> <strong>text</strong>
+            paragraphContent = paragraphContent.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+            // In nghiêng: *text* -> <em>text</em>
+            paragraphContent = paragraphContent.replace(/\*([^*]+)\*/g, '<em>$1</em>');
 
-        // Paragraphs
-        s = s.replace(/\n{2,}/g, '</p><p>');
-
-        return `${s}`;
+            return `<p>${paragraphContent}</p>`;
+        }).join('');
     }
 
     function hydrateMarkdown() {
