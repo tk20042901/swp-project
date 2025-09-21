@@ -119,7 +119,7 @@ public class CustomerSupportService {
                 customerSupport = CustomerSupport.builder()
                         .id(staffDto.getId() != 0 ? staffDto.getId() : null)
                         .email(staffDto.getEmail())
-                        .password(staffDto.getPassword())
+                        .password(staffDto.getId() != 0  ? staffDto.getPassword() : passwordEncoder.encode(staffDto.getPassword()))
                         .fullname(staffDto.getFullname())
                         .birthDate(staffDto.getBirthDate())
                         .cid(staffDto.getCid())

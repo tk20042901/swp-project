@@ -88,7 +88,7 @@ public class ManagerController {
         sellerService.findByNameAndCid(queryName, queryCid);
         sellerService.sortBy((String) session.getAttribute("sortCriteria"), (Integer) session.getAttribute("k"));
         session.setAttribute("list", sellerService.getResults());
-        if (sellerService.getResults().size() - 1 < ((Integer) session.getAttribute("subpageIndex") - 1) * 15) {
+        if (sellerService.getResults().size() - 1 < ((Integer) session.getAttribute("subpageIndex") - 1) * 10) {
             session.setAttribute("subpageIndex", 1);
         }
         model.addAttribute("queryName", queryName);
@@ -140,7 +140,7 @@ public class ManagerController {
         shipperService.findByNameAndCid(queryName, queryCid);
         shipperService.sortBy((String) session.getAttribute("sortCriteria"), (Integer) session.getAttribute("k"));
         session.setAttribute("list", shipperService.getResults());
-        if (shipperService.getResults().size() - 1 < ((Integer) session.getAttribute("subpageIndex") - 1) * 15) {
+        if (shipperService.getResults().size() - 1 < ((Integer) session.getAttribute("subpageIndex") - 1) * 10) {
             session.setAttribute("subpageIndex", 1);
         }
         model.addAttribute("queryName", queryName);
@@ -192,7 +192,7 @@ public class ManagerController {
         customerSupportService.findByNameAndCid(queryName, queryCid);
         customerSupportService.sortBy((String) session.getAttribute("sortCriteria"), (Integer) session.getAttribute("k"));
         session.setAttribute("list", customerSupportService.getResults());
-        if (customerSupportService.getResults().size() - 1 < ((Integer) session.getAttribute("subpageIndex") - 1) * 15) {
+        if (customerSupportService.getResults().size() - 1 < ((Integer) session.getAttribute("subpageIndex") - 1) * 10) {
             session.setAttribute("subpageIndex", 1);
         }
         model.addAttribute("queryName", queryName);
@@ -421,7 +421,7 @@ public class ManagerController {
 
                             break;
                     }
-                    if (staffDto.getId() == null) {
+                    if (staffDto.getId() == 0) {
                         redirectAttributes.addFlashAttribute("msg",
                                 "Thêm tài khoản " + staffDto.getEmail() + " thành công");
                     } else {
