@@ -14,7 +14,7 @@
                 <div class="card-header bg-white border-0 py-3 d-flex align-items-center justify-content-between">
                     <div>
                         <h5 class="mb-0">FruitShop AI chatbot</h5>
-                        <small class="text-muted">Hỏi đáp nhanh – hỗ trợ mô tả sản phẩm, so sánh, gợi ý…</small>
+                        <small class="text-muted">Hỏi đáp với AI về các loại hoa quả trong FruitShop…</small>
                     </div>
                     <a th:href="@{/}" class="btn btn-sm btn-outline-secondary">Về trang chủ</a>
                 </div>
@@ -30,13 +30,13 @@
                                 <div class="avatar-circle bg-primary text-white flex-shrink-0">AI</div>
                                 <div class="bubble bubble-assistant">
                                     <div class="message-text" data-md="true">
-                                        Xin chào! Mình là trợ lý AI. Hãy nhập câu hỏi hoặc tải ảnh sản phẩm để được hỗ trợ nhé.
+                                        Xin chào! Mình là FruitShop AI Chatbot. Hãy nhập câu hỏi hoặc tải ảnh sản phẩm để được hỗ trợ nhé.
                                     </div>
                                 </div>
                             </li>
 
-                            <li th:each="message,iterStat : ${conversation}"
-                                th:with="isUser=${message.messageType.value == 'user'}"
+                            <li th:each="message : ${conversation}"
+                                th:with="isUser=${message.author == 'user'}"
                                 class="mb-3">
                                 <div class="d-flex align-items-start gap-2"
                                      th:classappend="${isUser} ? 'justify-content-end' : ''">
@@ -49,7 +49,10 @@
                                     <div class="bubble" th:classappend="${isUser} ? 'bubble-user order-1' : 'bubble-assistant'">
                                         <!-- If assistant supports simple Markdown, render it on client side safely -->
                                         <div class="message-text" th:attr="data-md=${!isUser}"
-                                             th:text="${message.text}">...</div>
+                                             th:text="${message.content}">...</div>
+                                        <div th:if="${message.image}" class="mt-2 text-center">
+                                            <img th:src="'data:' + ${message.mimeType} + ';base64,' + ${message.image}" alt="ảnh người dùng gửi"/>
+                                        </div>
                                     </div>
                                 </div>
                             </li>

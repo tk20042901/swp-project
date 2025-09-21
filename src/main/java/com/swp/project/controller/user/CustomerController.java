@@ -8,13 +8,11 @@ import com.swp.project.dto.ViewProductDto;
 import com.swp.project.entity.order.Order;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.entity.user.Customer;
-import com.swp.project.service.CustomerAiService;
 import com.swp.project.service.AddressService;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.order.OrderStatusService;
 import com.swp.project.service.product.CategoryService;
 import com.swp.project.service.product.ProductService;
-import com.swp.project.service.product.ProductUnitService;
 import com.swp.project.service.user.CustomerService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -25,13 +23,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @SessionAttributes("shoppingCartItems")
 @RequiredArgsConstructor
@@ -39,7 +35,6 @@ import java.util.UUID;
 @RequestMapping("/customer")
 public class CustomerController {
     private final CustomerService customerService;
-    private final CustomerAiService customerAiService;
     private final AddressService addressService;
     private final ProductService productService;
     private final OrderService orderService;
@@ -283,35 +278,12 @@ public class CustomerController {
         return "redirect:/";
     }
 
-    @GetMapping("/ai")
-    public String ask(Model model) {
-        model.addAttribute("conversationId", UUID.randomUUID().toString());
-        return "pages/customer/ai";
-    }
-
-    @PostMapping("/ai")
-    public String ask(@RequestParam String conversationId,
-            @RequestParam String q,
-            @RequestParam MultipartFile image,
-            Model model) {
-        try {
-            customerAiService.ask(conversationId, q, image);
-        } catch (RuntimeException e) {
-            model.addAttribute("error", e.getMessage());
-        }
-        model.addAttribute("conversationId", conversationId);
-        model.addAttribute("conversation", customerAiService.getConversation(conversationId));
-        return "pages/customer/ai";
-    }
-
     /**
      * Trang chủ với phân trang, lọc theo danh mục và tìm kiếm
      * @param page Số trang hiện tại
      * @param size Kích thước trang
      * @param categoryId Danh mục sản phẩm
      * @param keyword Từ khóa tìm kiếm
-     * @param model 
-     * @return 
      */
     @GetMapping("/homepage")
     public String getHomepage(
