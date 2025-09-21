@@ -8,15 +8,12 @@ import com.swp.project.dto.ViewProductDto;
 import com.swp.project.entity.order.Order;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.entity.user.Customer;
-import com.swp.project.service.CustomerAiService;
 import com.swp.project.service.AddressService;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.order.OrderStatusService;
 import com.swp.project.service.product.CategoryService;
 import com.swp.project.service.product.ProductService;
-import com.swp.project.service.product.ProductUnitService;
 import com.swp.project.service.user.CustomerService;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -25,24 +22,20 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 
-@SessionAttributes("shoppingCartItems")
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("/customer")
 public class CustomerController {
     private final CustomerService customerService;
-    private final CustomerAiService customerAiService;
     private final AddressService addressService;
     private final ProductService productService;
     private final OrderService orderService;
@@ -138,35 +131,33 @@ public class CustomerController {
     }
 
     @GetMapping("/shopping-cart")
-    public String viewShoppingCart(Model model, Principal principal, HttpSession session,
-            @RequestParam(value = "cartIds", required = false) List<Long> cartIds) {
+    public String viewShoppingCart(Model model,
+                                   Principal principal,
+                                   @RequestParam(value = "cartIds", required = false) List<Long> cartIds) {
         List<ShoppingCartItem> cartItems = customerService.getCart(principal.getName());
 
-        if (cartIds != null && !cartIds.isEmpty()) {
-            session.setAttribute("selectedCartIds", cartIds);
+        List<Long> selectedIds = new ArrayList<Long>();
+        if (cartIds != null) {
+            selectedIds = cartIds;
         }
 
-        List<Long> selectedIdsFromSession = (List<Long>) session.getAttribute("selectedCartIds");
-        List<Long> selectedIds;
-        if (selectedIdsFromSession != null) {
-            selectedIds = selectedIdsFromSession;
-        } else {
-            selectedIds = new ArrayList<>();
+        long totalAmount = 0;
+        for (ShoppingCartItem item : cartItems) {
+            if (selectedIds.contains(item.getProduct().getId())) {
+                totalAmount += (long) item.getProduct().getPrice() * item.getQuantity();
+            }
         }
-
-        long totalAmount = cartItems.stream()
-                .filter(item -> selectedIds.contains(item.getProduct().getId()))
-                .mapToLong(item -> (long) item.getProduct().getPrice() * item.getQuantity())
-                .sum();
 
         model.addAttribute("totalAmount", totalAmount);
         model.addAttribute("cartItems", cartItems);
         model.addAttribute("selectedIds", selectedIds);
+
         return "pages/customer/shopping-cart";
     }
 
     @PostMapping("/shopping-cart/remove")
-    public String removeFromCart(@RequestParam Long productId, Principal principal) {
+    public String removeFromCart(@RequestParam Long productId,
+                                 Principal principal) {
         customerService.removeItem(principal.getName(), productId);
         return "redirect:/customer/shopping-cart";
     }
@@ -203,8 +194,8 @@ public class CustomerController {
 
     @GetMapping("/order-info")
     public String showOrderInfoForm(@ModelAttribute("shoppingCartItems") List<ShoppingCartItem> shoppingCartItems,
-            Model model,
-            Principal principal) {
+                                    Model model,
+                                    Principal principal) {
         Customer customer = customerService.getCustomerByEmail(principal.getName());
         if (!model.containsAttribute("deliveryInfoDto")) {
             DeliveryInfoDto deliveryInfoDto = new DeliveryInfoDto();
@@ -286,29 +277,51 @@ public class CustomerController {
         return "redirect:/";
     }
 
-    @GetMapping("/ai")
-    public String ask(Model model) {
-        model.addAttribute("conversationId", UUID.randomUUID().toString());
-        return "pages/customer/ai";
-    }
-
-    @PostMapping("/ai")
-    public String ask(@RequestParam String conversationId,
-            @RequestParam String q,
-            @RequestParam MultipartFile image,
+    @GetMapping("/homepage")
+    public String getHomepage(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "" + PAGE_SIZE) int size,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String keyword,
             Model model) {
-        try {
-            customerAiService.ask(conversationId, q, image);
-        } catch (RuntimeException e) {
-            model.addAttribute("error", e.getMessage());
+        Page<Product> productsPage;
+        // Sửa lỗi nếu tìm kiếm và lọc category, không hiển thị đúng danh mục
+        // Lưu trang tìm kiếm để lấy danh mục
+        Page<Product> productSearchPage = null;
+        if (keyword != null && !keyword.isEmpty() && categoryId != null && categoryId != 0) {
+            productSearchPage = productService.searchProductsWithPaging(keyword, page, size);
+            productsPage = productService.searchProductsThenSortByCategoryWithPaging(keyword, categoryId, page, size);
+            model.addAttribute("keyword", keyword);
+            model.addAttribute("categoryId", categoryId);
+        } else if (keyword != null && !keyword.isEmpty()) {
+            productsPage = productService.searchProductsWithPaging(keyword, page, size);
+            productSearchPage = productsPage;
+            model.addAttribute("keyword", keyword);
+            model.addAttribute("categoryId", 0);
+        } else if (categoryId != null && categoryId != 0) {
+            productsPage = productService.getProductsByCategoryWithPaging(categoryId, page, size);
+            model.addAttribute("categoryId", categoryId);
+        } else {
+            productsPage = productService.getProductsWithPaging(page, size);
+            model.addAttribute("categoryId", 0);
         }
-        model.addAttribute("conversationId", conversationId);
-        model.addAttribute("conversation", customerAiService.getConversation(conversationId));
-        return "pages/customer/ai";
+        model.addAttribute("viewProductDto", mapProductToViewProductDto(productsPage));
+        //Nếu search thì lấy danh mục từ trang search, không thì lấy từ trang products bình thường
+        if (productSearchPage != null) {
+            model.addAttribute("categories", categoryService.getUniqueCategoriesBaseOnPageOfProduct(productSearchPage)); 
+        }else{
+            model.addAttribute("categories", categoryService.getUniqueCategoriesBaseOnPageOfProduct(productsPage)); 
+        }
+        return "pages/customer/homepage";
     }
 
-    
-
-    
+    private Page<ViewProductDto> mapProductToViewProductDto(Page<Product> products) {
+        return products.map(product -> ViewProductDto.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .price(product.getPrice().doubleValue())
+                .mainImageUrl(product.getMain_image_url())
+                .build());
+    }
 
 }

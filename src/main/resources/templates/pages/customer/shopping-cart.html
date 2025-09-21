@@ -13,7 +13,6 @@
     <h1>Giỏ hàng của tôi</h1>
 
 
-    <form th:action="@{/customer/shopping-cart}" method="get">
         <table>
             <thead>
             <tr>
@@ -45,6 +44,7 @@
                 <td>
 
                     <form th:action="@{/customer/shopping-cart/update}" method="post" style="display: inline;">
+                        <input type="hidden" name="cartIds" value="" />
                         <input type="hidden" name="productId" th:value="${item.product.id}">
                         <input type="number"
                                name="quantity"
@@ -68,7 +68,6 @@
             </tr>
             </tbody>
         </table>
-    </form>
 <span th:text="${error}"></span>
 
 

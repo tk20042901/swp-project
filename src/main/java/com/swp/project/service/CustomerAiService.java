@@ -1,5 +1,6 @@
 package com.swp.project.service;
 
+import com.swp.project.dto.AiMessageDto;
 import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.ProductBatch;
@@ -7,8 +8,8 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
-import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
@@ -24,16 +25,13 @@ import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class CustomerAiService {
     private final static String systemPrompt = """
-    Bạn là "FruitShop AI chatbot" của một cửa hàng hoa quả tươi online có tên là FruitShop, với sứ mệnh mang lại trải nghiệm mua sắm thông minh và tiện lợi nhất cho khách hàng.
+    Bạn là "FruitShop AI Chatbot" của một cửa hàng hoa quả tươi online có tên là FruitShop, với sứ mệnh mang lại trải nghiệm mua sắm thông minh và tiện lợi nhất cho khách hàng.
 
     QUY ĐỊNH BẮT BUỘC BẠN PHẢI TUÂN THEO:
     1.  Luôn trả lời bằng tiếng Việt.
@@ -56,11 +54,11 @@ public class CustomerAiService {
     
     *   Nếu khách hàng hỏi về TỒN KHO (ví dụ: "còn hàng không?", "còn nhiều không?"):
         1.  Tìm đến các câu "Tình trạng tồn kho:" và "Tổng số lượng còn trong kho là:" trong context.
-        2.  Kết hợp cả hai thông tin để trả lời. Ví dụ: "Dạ, Bơ 034 bên em vẫn còn hàng ạ, số lượng còn lại khoảng 50 kg ạ."
+        2.  Kết hợp cả hai thông tin để trả lời. Ví dụ: "Dạ, Bơ 034 bên mình vẫn còn hàng ạ, số lượng còn lại khoảng 50 kg ạ."
     
     *   Nếu khách hàng hỏi về NHÀ CUNG CẤP hoặc NGUỒN GỐC (ví dụ: "hàng của ai?", "trồng ở đâu?"):
         1.  Tìm đến câu "Sản phẩm này được cung cấp bởi các nhà cung cấp:" trong context.
-        2.  Liệt kê các nhà cung cấp được nêu tên. Ví dụ: "Dạ, Bơ 034 bên em được cung cấp bởi Nông sản Đà Lạt ạ."
+        2.  Liệt kê các nhà cung cấp được nêu tên. Ví dụ: "Dạ, Bơ 034 bên mình được cung cấp bởi Nông sản Đà Lạt ạ."
     
     *   Nếu khách hàng muốn xem THÔNG TIN CHUNG:
         1.  Tìm các câu "Mô tả sản phẩm:", "Giá niêm yết:".
@@ -70,14 +68,14 @@ public class CustomerAiService {
         1.  context đã chứa các sản phẩm phù hợp nhất với mô tả của khách.
         2.  Hãy đọc kỹ mô tả, danh mục và các thông tin khác của các sản phẩm trong context để đưa ra một vài gợi ý tốt nhất, kèm theo lý do tại sao chúng phù hợp.
     
-    *   Nếu context rỗng hoặc không chứa sản phẩm khách hỏi, hãy trả lời tương tự như "Dạ, em rất tiếc nhưng em không tìm thấy thông tin về sản phẩm [tên sản phẩm] trong hệ thống. Anh/chị có cần em tư vấn các sản phẩm tương tự đang có sẵn không ạ?"
+    *   Nếu context rỗng hoặc không chứa sản phẩm khách hỏi, hãy trả lời tương tự như "Dạ, mình rất tiếc nhưng mình không tìm thấy thông tin về sản phẩm [tên sản phẩm] trong hệ thống. Bạn có cần mình tư vấn các sản phẩm tương tự đang có sẵn không ạ?"
     
     *   TUYỆT ĐỐI KHÔNG nhắc đến các từ như "Dựa trên context", "Dữ liệu", "Thông tin được cung cấp".""";
 
 
-    private final ChatMemory chatMemory = MessageWindowChatMemory.builder().maxMessages(36).build();
-
     private final ChatClient chatClient;
+
+    private final ChatClient imageChatClient;
 
     private final VectorStore vectorStore;
 
@@ -90,7 +88,9 @@ public class CustomerAiService {
         chatClient = chatClientBuilder
                 .defaultSystem(systemPrompt)
                 .defaultAdvisors(
-                        MessageChatMemoryAdvisor.builder(chatMemory).build(),
+                        MessageChatMemoryAdvisor.builder(MessageWindowChatMemory.builder()
+                                .maxMessages(36)
+                                .build()).build(),
                         RetrievalAugmentationAdvisor.builder()
                                 .queryTransformers(CompressionQueryTransformer.builder()
                                         .chatClientBuilder(chatClientBuilder.build().mutate())
@@ -111,6 +111,13 @@ public class CustomerAiService {
                                         .build())
                                 .build()
                 )
+                .build();
+
+        imageChatClient = chatClientBuilder
+                .defaultOptions(ChatOptions.builder()
+                        .temperature(0.5)
+                        .maxTokens(4096)
+                        .build())
                 .build();
     }
 
@@ -166,47 +173,57 @@ public class CustomerAiService {
         vectorStore.add(List.of(document));
     }
 
-    public void ask(String conversationId, String q, MultipartFile image) {
-
+    public void ask (String conversationId, String q, MultipartFile image, List<AiMessageDto> conversation) {
         if (q == null || q.isBlank()) {
             throw new RuntimeException("Câu hỏi không được để trống");
         } else if(q.length() > 255){
             throw new RuntimeException("Câu hỏi không được vượt quá 255 ký tự");
         } else if (image == null || image.isEmpty()) {
-            textAsk(conversationId, q);
+            textAsk(conversationId, q, conversation);
         } else {
             String contentType = image.getContentType();
             if (contentType != null && contentType.startsWith("image")) {
-                imageAsk(conversationId, q, image.getResource(), contentType);
+                imageAsk(conversationId, q, image.getResource(), contentType, conversation);
             } else {
                 throw new RuntimeException("Chỉ hỗ trợ file hình ảnh");
             }
         }
     }
 
-    public List<Message> getConversation(String conversationId) {
-        return chatMemory.get(conversationId);
-    }
-
-    private void textAsk(String conversationId, String q) {
-        chatClient.prompt(q)
+    private void textAsk(String conversationId, String q, List<AiMessageDto> conversation) {
+        String answer = chatClient.prompt(q)
                 .system("""
-                        Câu hỏi này của khách hàng chỉ chứa văn bản, nếu khách hàng hỏi về một hình ảnh, hãy nói điều tương tự như "Tôi không thể thấy bất kỳ hình ảnh nào".""")
+                        Câu hỏi này của khách hàng chỉ chứa văn bản, nếu khách hàng hỏi về một hình ảnh, hãy nói điều tương tự như "Mình không thể thấy bất kỳ hình ảnh nào".""")
                 .advisors(a -> a
                         .param(ChatMemory.CONVERSATION_ID, conversationId))
                 .call().content();
+
+        conversation.add(new AiMessageDto("user", q));
+        conversation.add(new AiMessageDto("assistant", answer));
     }
 
     private void imageAsk(String conversationId,
-                                  String q,
-                                  Resource media,
-                                  String contentType) {
-        chatClient.prompt()
+                          String q,
+                          Resource media,
+                          String contentType,
+                          List<AiMessageDto> conversation) {
+        String fruitName = imageChatClient.prompt()
                 .user(u -> u
-                        .text(q)
+                        .text("Hãy xác định tên loại trái cây trong hình ảnh này. Chỉ trả về tên trái cây bằng tiếng Việt, không thêm bất kỳ giải thích nào. Nếu không phải là trái cây, hãy trả về \"Đây không phải trái cây\".")
                         .media(MimeTypeUtils.parseMimeType(contentType), media))
+                .call().content();
+        String answer = chatClient.prompt()
+                .user(u -> u
+                        .text(q + "(Hình ảnh đang mô tả: "+ fruitName +" )"))
                 .advisors(a -> a
                         .param(ChatMemory.CONVERSATION_ID, conversationId))
                 .call().content();
+
+        try {
+            conversation.add(new AiMessageDto("user", q, contentType,
+                            Base64.getEncoder().encodeToString(media.getContentAsByteArray())));
+        } catch (Exception ignored) {
+        }
+        conversation.add(new AiMessageDto("assistant", answer));
     }
 }
