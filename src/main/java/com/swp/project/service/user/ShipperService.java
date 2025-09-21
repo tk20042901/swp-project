@@ -48,7 +48,7 @@ public class ShipperService {
     @Transactional
     public void initShipper() {
         try {
-            for (int i = 1; i <= 60; i++) {
+            for (int i = 1; i <= 36; i++) {
                 createShipperIfNotExists(Shipper.builder()
                         .email("shipper" + i + "@shop.com")
                         .password("shipper")
@@ -157,8 +157,6 @@ public class ShipperService {
             } catch (ParseException e) {
                 throw new RuntimeException("Định dạng ngày tháng năm bất thường");
             }
-
-            boolean found = shipperRepository.findById(staffDto.getId()).isPresent();
             shipperRepository.save(shipper);
 
         }

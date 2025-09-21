@@ -17,11 +17,9 @@ public class SellerRequestPending {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String type;
-
     @Lob
     @Column(columnDefinition = "TEXT")
-    private String payload;
+    private String content;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Seller seller;

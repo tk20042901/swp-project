@@ -4,7 +4,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import com.swp.project.repository.user.*;
@@ -41,7 +40,7 @@ public class SellerService {
     @Transactional
     public void initSeller() {
         try {
-            for (int i = 1; i <= 80; i++) {
+            for (int i = 1; i <= 36; i++) {
                 createSellerIfNotExists(Seller.builder()
                         .email("seller" + i + "@shop.com")
                         .password("seller")
@@ -113,8 +112,6 @@ public class SellerService {
             } catch (ParseException e) {
                 throw new RuntimeException("Định dạng ngày tháng năm bất thường");
             }
-
-            boolean found = sellerRepository.findById(staffDto.getId()).isPresent();
             sellerRepository.save(seller);
 
         }

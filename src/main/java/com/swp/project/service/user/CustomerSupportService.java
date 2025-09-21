@@ -38,7 +38,7 @@ public class CustomerSupportService {
     @Transactional
     public void initCustomerSupport() {
         try {
-            for (int i = 1; i <= 50; i++) {
+            for (int i = 1; i <= 36; i++) {
                 createCustomerSupportIfNotExists(CustomerSupport.builder()
                         .email("customer-support" + i + "@shop.com")
                         .password("customer-support")
@@ -131,8 +131,6 @@ public class CustomerSupportService {
             } catch (ParseException e) {
                 throw new RuntimeException("Định dạng ngày tháng năm bất thường");
             }
-
-            boolean found = customerSupportRepository.findById(staffDto.getId()).isPresent();
             customerSupportRepository.save(customerSupport);
 
         }
