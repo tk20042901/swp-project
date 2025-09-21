@@ -1,21 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+  <meta charset="UTF-8">
+  <title>Quản lý</title>
+  <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/style.css">
 </head>
-<body>
-<p>Manager</p>
-<form th:action="@{/logout}" method="post">
-    <button type="submit" class="btn">Đăng xuất</button>
-</form>
-<a href="/manager/manage-seller">Quản lí người bán</a>
-<br>
-<a href="/manager/manage-shipper">Quản lí người giao hàng</a>
-<br>
-<a href="/manager/manage-customer-support">Quản lí hỗ trợ khách hàng</a>
-<br>
-<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<body class="auth-body d-flex align-items-center justify-content-center min-vh-100">
+  <div class="auth-card p-4 col-lg-4 col-md-6 shadow text-center">
+    <!-- Tiêu đề -->
+    <h1 class="h4 mb-4 brand text-primary">Trang quản lý</h1>
+
+    <!-- Nút đăng xuất -->
+    <form th:action="@{/logout}" method="post" class="mb-3">
+      <button type="submit" class="btn btn-outline-danger w-100">Đăng xuất</button>
+    </form>
+
+    <!-- Liên kết điều hướng -->
+    <div class="d-grid gap-2">
+      <a href="/manager/manage-seller" class="btn btn-primary">Quản lí người bán</a>
+      <a href="/manager/manage-shipper" class="btn btn-success">Quản lí người giao hàng</a>
+      <a href="/manager/manage-customer-support" class="btn btn-info text-white">Quản lí hỗ trợ khách hàng</a>
+    </div>
+  </div>
+
+  <script src="/js/bootstrap/bootstrap.bundle.min.js"></script>
 </body>
 </html>
