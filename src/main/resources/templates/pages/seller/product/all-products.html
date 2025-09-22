@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Tên</th>
+        <th>Giá</th>
+        <th>Đơn vị</th>
+        <th>Trạng thái</th>
+        <th>Thao tác</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="product : ${products}">
+        <td th:text="${product.id}">1</td>
+        <td th:text="${product.name}">Product Name</td>
+        <td th:text="${product.price}">100.00</td>
+        <td th:text="${product.unit}">Piece</td>
+        <td th:text="${product.enabled}">true</td>
+        <td><a th:href="@{'/request/product'+${product.id}}">Chỉnh sửa</a></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
