@@ -1,18 +1,13 @@
 package com.swp.project.controller.user;
 
 import com.swp.project.dto.UpdateShoppingCartDto;
-import org.springframework.data.domain.Page;
-import com.swp.project.entity.product.Product;
 import com.swp.project.dto.ChangePasswordDto;
 import com.swp.project.dto.DeliveryInfoDto;
-import com.swp.project.dto.ViewProductDto;
 import com.swp.project.entity.order.Order;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
-import com.swp.project.entity.user.Customer;
 import com.swp.project.service.AddressService;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.order.OrderStatusService;
-import com.swp.project.service.product.CategoryService;
 import com.swp.project.service.product.ProductService;
 import com.swp.project.service.user.CustomerService;
 import jakarta.validation.Valid;
@@ -41,8 +36,6 @@ public class CustomerController {
     private final ProductService productService;
     private final OrderService orderService;
     private final OrderStatusService orderStatusService;
-    private final CategoryService categoryService;
-    private final int PAGE_SIZE = 10;
 
 
 
@@ -86,18 +79,11 @@ public class CustomerController {
 
     @GetMapping("/delivery-info")
     public String deliveryInfo(Model model, Principal principal) {
-        Customer customer = customerService.getCustomerByEmail(principal.getName());
         if (!model.containsAttribute("deliveryInfoDto")) {
             DeliveryInfoDto deliveryInfoDto = new DeliveryInfoDto();
-            deliveryInfoDto.setFullName(customer.getFullName());
-            deliveryInfoDto.setPhone(customer.getPhoneNumber());
-            deliveryInfoDto.setSpecificAddress(customer.getSpecificAddress());
-            if (customer.getCommuneWard() != null) {
-                deliveryInfoDto.setProvinceCityCode(customer.getCommuneWard().getProvinceCity().getCode());
-                deliveryInfoDto.setCommuneWardCode(customer.getCommuneWard().getCode());
-                model.addAttribute("wards",
-                        addressService.getAllCommuneWardByProvinceCityCode(
-                                customer.getCommuneWard().getProvinceCity().getCode()));
+            if(deliveryInfoDto.setFromExistedInfo(customerService.getCustomerByEmail(principal.getName()))){
+                model.addAttribute("wards", addressService
+                        .getAllCommuneWardByProvinceCityCode(deliveryInfoDto.getProvinceCityCode()));
             }
             model.addAttribute("deliveryInfoDto", deliveryInfoDto);
         }
@@ -107,25 +93,23 @@ public class CustomerController {
 
     @PostMapping("/delivery-info")
     public String processDeliveryInfo(@Valid @ModelAttribute DeliveryInfoDto deliveryInfoDto,
-            BindingResult bindingResult,
-            @RequestParam(required = false) String update,
-            Model model,
-            RedirectAttributes redirectAttributes,
-            Principal principal) {
+                                      BindingResult bindingResult,
+                                      @RequestParam(required = false) String update,
+                                      Model model,
+                                      RedirectAttributes redirectAttributes,
+                                      Principal principal) {
         if (update == null) {
             redirectAttributes.addFlashAttribute("deliveryInfoDto", deliveryInfoDto);
-            redirectAttributes.addFlashAttribute("wards",
-                    addressService.getAllCommuneWardByProvinceCityCode(
-                            deliveryInfoDto.getProvinceCityCode()));
+            redirectAttributes.addFlashAttribute("wards", addressService
+                    .getAllCommuneWardByProvinceCityCode(deliveryInfoDto.getProvinceCityCode()));
             return "redirect:/customer/delivery-info";
         }
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("deliveryInfoDto", deliveryInfoDto);
             model.addAttribute("provinceCities", addressService.getAllProvinceCity());
-            model.addAttribute("wards",
-                    addressService.getAllCommuneWardByProvinceCityCode(
-                            deliveryInfoDto.getProvinceCityCode()));
+            model.addAttribute("wards", addressService
+                    .getAllCommuneWardByProvinceCityCode(deliveryInfoDto.getProvinceCityCode()));
             return "pages/customer/account-manager/delivery-info";
         }
 
@@ -152,36 +136,36 @@ public class CustomerController {
     }
 
 
-@PostMapping("/shopping-cart/update")
-public String updateCartItem(@Valid UpdateShoppingCartDto updateShoppingCartDto, BindingResult bindingResult, RedirectAttributes redirectAttributes, Principal principal) {
+    @PostMapping("/shopping-cart/update")
+    public String updateCartItem(@Valid UpdateShoppingCartDto updateShoppingCartDto, BindingResult bindingResult, RedirectAttributes redirectAttributes, Principal principal) {
 
-    if (bindingResult.hasErrors()) {
-        String errorMessage = bindingResult.getAllErrors().get(0).getDefaultMessage();
-        redirectAttributes.addFlashAttribute("error", errorMessage);
+        if (bindingResult.hasErrors()) {
+            String errorMessage = bindingResult.getAllErrors().get(0).getDefaultMessage();
+            redirectAttributes.addFlashAttribute("error", errorMessage);
+            return "redirect:/customer/shopping-cart";
+        }
+
+        String quantityStr = updateShoppingCartDto.getQuantity();
+        int quantity = Integer.parseInt(quantityStr);
+        Long productId = updateShoppingCartDto.getProductId();
+        int availableQuantity = productService.getAvailableQuantity(productId);
+        if (quantity > availableQuantity) {
+            quantity = availableQuantity;
+            redirectAttributes.addFlashAttribute("error",
+                    "Số lượng bạn chọn đã vượt quá tồn kho. Hệ thống đã điều chỉnh về " + availableQuantity);
+        }
+        customerService.updateCartQuantity(principal.getName(), productId, quantity);
         return "redirect:/customer/shopping-cart";
     }
 
-    String quantityStr = updateShoppingCartDto.getQuantity();
-    int quantity = Integer.parseInt(quantityStr);
-    Long productId = updateShoppingCartDto.getProductId();
-    int availableQuantity = productService.getAvailableQuantity(productId);
-    if (quantity > availableQuantity) {
-        quantity = availableQuantity;
-        redirectAttributes.addFlashAttribute("error",
-                "Số lượng bạn chọn đã vượt quá tồn kho. Hệ thống đã điều chỉnh về " + availableQuantity);
-    }
-    customerService.updateCartQuantity(principal.getName(), productId, quantity);
-    return "redirect:/customer/shopping-cart";
-}
-
     @PostMapping("/shopping-cart/check-out")
     public String checkOut(@RequestParam List<Long> cartIds,
-                             RedirectAttributes redirectAttributes,
+                             Model model,
                              Principal principal) {
         List<ShoppingCartItem> shoppingCartItems = new ArrayList<>();
         cartIds.forEach(i -> shoppingCartItems.add(
                 productService.getAllShoppingCartItemByCustomerIdAndProductId(principal.getName(), i)));
-        redirectAttributes.addFlashAttribute("shoppingCartItems", shoppingCartItems);
+        model.addAttribute("shoppingCartItems", shoppingCartItems);
         return "redirect:/customer/order-info";
     }
 
@@ -189,37 +173,30 @@ public String updateCartItem(@Valid UpdateShoppingCartDto updateShoppingCartDto,
     public String showOrderInfoForm(@ModelAttribute("shoppingCartItems") List<ShoppingCartItem> shoppingCartItems,
                                     Model model,
                                     Principal principal) {
-        Customer customer = customerService.getCustomerByEmail(principal.getName());
         if (!model.containsAttribute("deliveryInfoDto")) {
             DeliveryInfoDto deliveryInfoDto = new DeliveryInfoDto();
-            deliveryInfoDto.setFullName(customer.getFullName());
-            deliveryInfoDto.setPhone(customer.getPhoneNumber());
-            deliveryInfoDto.setSpecificAddress(customer.getSpecificAddress());
-            if (customer.getCommuneWard() != null) {
-                deliveryInfoDto.setProvinceCityCode(customer.getCommuneWard().getProvinceCity().getCode());
-                deliveryInfoDto.setCommuneWardCode(customer.getCommuneWard().getCode());
-                model.addAttribute("wards",
-                        addressService.getAllCommuneWardByProvinceCityCode(
-                                customer.getCommuneWard().getProvinceCity().getCode()));
+            if(deliveryInfoDto.setFromExistedInfo(customerService.getCustomerByEmail(principal.getName()))){
+                model.addAttribute("wards", addressService
+                        .getAllCommuneWardByProvinceCityCode(deliveryInfoDto.getProvinceCityCode()));
             }
             model.addAttribute("deliveryInfoDto", deliveryInfoDto);
         }
         model.addAttribute("provinceCities", addressService.getAllProvinceCity());
         model.addAttribute("shoppingCartItems", shoppingCartItems);
-        model.addAttribute("totalAmount",
-                shoppingCartItems.stream().mapToInt(item -> item.getProduct().getPrice() * item.getQuantity()).sum());
+        model.addAttribute("totalAmount", shoppingCartItems.stream()
+                .mapToInt(item -> item.getProduct().getPrice() * item.getQuantity()).sum());
         return "pages/customer/order/order-info";
     }
 
     @PostMapping("/order-info")
     public String processOrder(@Valid @ModelAttribute DeliveryInfoDto deliveryInfoDto,
-            BindingResult bindingResult,
-            @ModelAttribute("shoppingCartItems") List<ShoppingCartItem> shoppingCartItems,
-            @RequestParam(name = "payment_method") String paymentMethod,
-            @RequestParam(required = false) String confirm,
-            Model model,
-            RedirectAttributes redirectAttributes,
-            Principal principal) {
+                               BindingResult bindingResult,
+                               @ModelAttribute("shoppingCartItems") List<ShoppingCartItem> shoppingCartItems,
+                               @RequestParam(name = "payment_method") String paymentMethod,
+                               @RequestParam(required = false) String confirm,
+                               Model model,
+                               RedirectAttributes redirectAttributes,
+                               Principal principal) {
         if (confirm == null) {
             redirectAttributes.addFlashAttribute("deliveryInfoDto", deliveryInfoDto);
             redirectAttributes.addFlashAttribute("wards",
@@ -230,14 +207,13 @@ public String updateCartItem(@Valid UpdateShoppingCartDto updateShoppingCartDto,
         if (bindingResult.hasErrors()) {
             model.addAttribute("deliveryInfoDto", deliveryInfoDto);
             model.addAttribute("provinceCities", addressService.getAllProvinceCity());
-            model.addAttribute("wards",
-                    addressService.getAllCommuneWardByProvinceCityCode(
-                            deliveryInfoDto.getProvinceCityCode()));
-            model.addAttribute("totalAmount",
-                    shoppingCartItems.stream().mapToInt(item -> item.getProduct().getPrice() * item.getQuantity())
-                            .sum());
+            model.addAttribute("wards", addressService
+                    .getAllCommuneWardByProvinceCityCode(deliveryInfoDto.getProvinceCityCode()));
+            model.addAttribute("totalAmount", shoppingCartItems.stream().mapToInt
+                            (item -> item.getProduct().getPrice() * item.getQuantity()).sum());
             return "/pages/customer/order/order-info";
         }
+
 
         Order order = orderService.createOrder(principal.getName(),
                 shoppingCartItems,
@@ -268,53 +244,6 @@ public String updateCartItem(@Valid UpdateShoppingCartDto updateShoppingCartDto,
             return "pages/customer/order/cancel";
         }
         return "redirect:/";
-    }
-
-    @GetMapping("/homepage")
-    public String getHomepage(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "" + PAGE_SIZE) int size,
-            @RequestParam(required = false) Long categoryId,
-            @RequestParam(required = false) String keyword,
-            Model model) {
-        Page<Product> productsPage;
-        // Sửa lỗi nếu tìm kiếm và lọc category, không hiển thị đúng danh mục
-        // Lưu trang tìm kiếm để lấy danh mục
-        Page<Product> productSearchPage = null;
-        if (keyword != null && !keyword.isEmpty() && categoryId != null && categoryId != 0) {
-            productSearchPage = productService.searchProductsWithPaging(keyword, page, size);
-            productsPage = productService.searchProductsThenSortByCategoryWithPaging(keyword, categoryId, page, size);
-            model.addAttribute("keyword", keyword);
-            model.addAttribute("categoryId", categoryId);
-        } else if (keyword != null && !keyword.isEmpty()) {
-            productsPage = productService.searchProductsWithPaging(keyword, page, size);
-            productSearchPage = productsPage;
-            model.addAttribute("keyword", keyword);
-            model.addAttribute("categoryId", 0);
-        } else if (categoryId != null && categoryId != 0) {
-            productsPage = productService.getProductsByCategoryWithPaging(categoryId, page, size);
-            model.addAttribute("categoryId", categoryId);
-        } else {
-            productsPage = productService.getProductsWithPaging(page, size);
-            model.addAttribute("categoryId", 0);
-        }
-        model.addAttribute("viewProductDto", mapProductToViewProductDto(productsPage));
-        //Nếu search thì lấy danh mục từ trang search, không thì lấy từ trang products bình thường
-        if (productSearchPage != null) {
-            model.addAttribute("categories", categoryService.getUniqueCategoriesBaseOnPageOfProduct(productSearchPage)); 
-        }else{
-            model.addAttribute("categories", categoryService.getUniqueCategoriesBaseOnPageOfProduct(productsPage)); 
-        }
-        return "pages/customer/homepage";
-    }
-
-    private Page<ViewProductDto> mapProductToViewProductDto(Page<Product> products) {
-        return products.map(product -> ViewProductDto.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .price(product.getPrice().doubleValue())
-                .mainImageUrl(product.getMain_image_url())
-                .build());
     }
 
 }

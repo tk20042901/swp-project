@@ -1,5 +1,6 @@
 package com.swp.project.dto;
 
+import com.swp.project.entity.user.Customer;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -30,4 +31,13 @@ public class DeliveryInfoDto implements Serializable {
     @Size(max = 100, message = "Địa chỉ chi tiết không được vượt quá 100 ký tự")
     private String specificAddress;
 
+    public boolean setFromExistedInfo(Customer customer) {
+        if(customer.getFullName() == null) return false;
+        this.setFullName(customer.getFullName());
+        this.setPhone(customer.getPhoneNumber());
+        this.setProvinceCityCode(customer.getCommuneWard().getProvinceCity().getCode());
+        this.setCommuneWardCode(customer.getCommuneWard().getCode());
+        this.setSpecificAddress(customer.getSpecificAddress());
+        return true;
+    }
 }
