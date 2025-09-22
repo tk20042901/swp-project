@@ -1,11 +1,25 @@
 package com.swp.project.controller.user;
 
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
-import com.swp.project.entity.product.Product;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import com.swp.project.dto.ChangePasswordDto;
 import com.swp.project.dto.DeliveryInfoDto;
 import com.swp.project.dto.ViewProductDto;
 import com.swp.project.entity.order.Order;
+import com.swp.project.entity.product.Product;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.entity.user.Customer;
 import com.swp.project.service.AddressService;
@@ -14,21 +28,9 @@ import com.swp.project.service.order.OrderStatusService;
 import com.swp.project.service.product.CategoryService;
 import com.swp.project.service.product.ProductService;
 import com.swp.project.service.user.CustomerService;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
-
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 @RequiredArgsConstructor

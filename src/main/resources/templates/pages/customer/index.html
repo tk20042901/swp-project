@@ -49,7 +49,9 @@
             <tr th:each="product : ${viewProductDto}">
                 <td th:text="${product.id}"></td>
                 <td><img th:src="${product.mainImageUrl}" alt="Product Image" style="width: 100px; height: auto;"></td>
-                <td th:text="${product.name}"></td>
+                <td>
+                    <a th:href="@{/product/product-details(id=${product.id})}" th:text="${product.name}"></a>
+                </td>
                 <td th:text="${product.price}"></td>
             </tr>
         </tbody>
