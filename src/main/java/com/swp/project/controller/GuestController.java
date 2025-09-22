@@ -15,7 +15,7 @@ import com.swp.project.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Controller
-public class CustomerProductController {
+public class GuestController {
     private final ProductService productService;
     private final CategoryService categoryService;
     private final static int PAGE_SIZE = 9;
@@ -73,13 +73,6 @@ public class CustomerProductController {
                 .price(product.getPrice().doubleValue())
                 .mainImageUrl(product.getMain_image_url())
                 .build());
-    }
-
-    @GetMapping("/product/{id}")
-    public String getProduct(@PathVariable Long id, Model model) {
-        Product product = productService.getProductById(id);
-        model.addAttribute("product", product);
-        return "fragments/product-detail";
     }
     
 }
