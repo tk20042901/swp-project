@@ -1,17 +1,22 @@
 package com.swp.project.controller;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.swp.project.dto.ViewProductDto;
 import com.swp.project.entity.product.Product;
+import com.swp.project.entity.product.SubImage;
 import com.swp.project.service.product.CategoryService;
 import com.swp.project.service.product.ProductService;
 
 import lombok.RequiredArgsConstructor;
+
 @RequiredArgsConstructor
 @Controller
 public class GuestController {
@@ -74,6 +79,17 @@ public class GuestController {
                 .price(product.getPrice().doubleValue())
                 .mainImageUrl(product.getMain_image_url())
                 .build());
+    }
+
+    @GetMapping("/product-details/{id}")
+    public String getProductDetail(
+            @PathVariable(name = "id") Long id,
+            Model model) {
+        Product product = productService.getProductById(id);
+        List<SubImage> subImages = product.getSub_images();
+        model.addAttribute("product", product);
+        model.addAttribute("subImages", subImages);
+        return "pages/guest/product-details";
     }
     
 }
