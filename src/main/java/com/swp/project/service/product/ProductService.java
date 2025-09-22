@@ -74,7 +74,20 @@ public class ProductService {
     }
 
     /**
-     * Lấy tất cả sản phẩm với phân trang
+     * Lấy tất cả sản phẩm đang được kích hoạt
+     * 
+     * @return Danh sách sản phẩm
+     */
+    public List<Product> getAllEnabledProducts() {
+        return productRepository.findAll().stream()
+                .filter(product -> product.isEnabled())
+                .toList();
+    }
+
+    
+
+    /**
+     * Lấy tất cả sản phẩm enable với phân trang
      * 
      * @param page Số trang
      * @param size Kích thước trang
@@ -82,7 +95,8 @@ public class ProductService {
      */
     public Page<Product> getProductsWithPaging(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return productRepository.findAll(pageable);
+        List<Product> allProducts = getAllEnabledProducts();
+        return convertListToPage(allProducts, pageable);
     }
 
     /**
@@ -99,7 +113,7 @@ public class ProductService {
     }
 
     /**
-     * Lấy sản phẩm theo danh mục với phân trang
+     * Lấy sản phẩm enable theo danh mục với phân trang
      * 
      * @param categoryId ID danh mục
      * @param page       Số trang
@@ -108,7 +122,7 @@ public class ProductService {
      */
     public Page<Product> getProductsByCategoryWithPaging(Long categoryId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        List<Product> allProducts = getProductsByCategory(productRepository.findAll(), categoryId);
+        List<Product> allProducts = getProductsByCategory(getAllEnabledProducts(), categoryId);
         Page<Product> productsPage = convertListToPage(allProducts, pageable);
         return productsPage;
     }
@@ -139,7 +153,7 @@ public class ProductService {
      */
     public Page<Product> searchProductsWithPaging(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return convertListToPage(searchProducts(productRepository.findAll(), keyword), pageable);
+        return convertListToPage(searchProducts(getAllEnabledProducts(), keyword), pageable);
     }
 
 
@@ -158,7 +172,7 @@ public class ProductService {
     }
 
     /**
-     * Tìm kiếm sản phẩm rồi sắp xếp theo danh mục với phân trang
+     * Tìm kiếm sản phẩm enable rồi sắp xếp theo danh mục với phân trang
      * 
      * @param keyword    Từ khóa tìm kiếm
      * @param categoryId ID danh mục
@@ -168,7 +182,7 @@ public class ProductService {
      */
     public Page<Product> searchProductsThenSortByCategoryWithPaging(String keyword, Long categoryId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        List<Product> searchProducts = searchProducts(productRepository.findAll(), keyword);
+        List<Product> searchProducts = searchProducts(getAllEnabledProducts(), keyword);
         List<Product> products  = getProductsByCategory(searchProducts, categoryId);
         return convertListToPage(products, pageable);
     }
