@@ -6,7 +6,6 @@ import com.swp.project.dto.ManagerRegisterDto;
 
 import com.swp.project.dto.ViewManagerDto;
 import com.swp.project.entity.user.Manager;
-import com.swp.project.service.AddressService;
 import com.swp.project.service.user.ManagerService;
 
 import jakarta.validation.Valid;
@@ -29,7 +28,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class AdminController {
 
     private final ManagerService managerService;
-    private final AddressService addressService;
     @GetMapping("")
     public String showAdminMainPage(Model model) {
         return "pages/admin/index";
