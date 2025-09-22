@@ -7,6 +7,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FruitShop</title>
     <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        main {
+            flex: 1;
+        }
+        footer {
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
 </head>
 
 <body>
@@ -24,16 +39,25 @@
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="/">Home</a>
                         </li>
-                        <!-- <li class="nav-item">
-                            <a class="nav-link" href="/products">Products</a>
+                        <li class="nav-item" th:if="${!#authorization.expression('isAuthenticated()')}">
+                            <a class="nav-link" th:href="@{/login}">Đăng nhập</a>
+                        </li>
+                        <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
+                            <a class="nav-link" th:href="@{/customer/account-manager}">Quản lí tài khoản</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/about">About</a>
+                            <a class="nav-link" th:href="@{/ai}">AI chatbot</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/contact">Contact</a>
-                        </li> -->
+                        <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
+                            <a class="nav-link" th:href="@{/customer/shopping-cart}">Giỏ hàng</a>
+                        </li>
                     </ul>
+                    <!-- Search Form -->
+                    <form method="get" th:action="@{/search-product}" class="d-flex ms-auto">
+                        <input type="text" name="keyword" class="form-control me-2" placeholder="Tìm kiếm sản phẩm..."
+                               th:value="${keyword}" aria-label="Tìm kiếm sản phẩm" required>
+                        <button class="btn btn-outline-success" type="submit">Tìm kiếm</button>
+                    </form>
                 </div>
             </div>
         </nav>

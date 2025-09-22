@@ -38,6 +38,6 @@ public class DataInitializer implements CommandLineRunner {
         customerSupportService.initCustomerSupport();
         customerService.initCustomer();
 
-        //productService.getAllProducts().forEach(customerAiService::saveProductToVectorStore);
+//        productService.getAllProducts().forEach(customerAiService::saveProductToVectorStore);
     }
 }

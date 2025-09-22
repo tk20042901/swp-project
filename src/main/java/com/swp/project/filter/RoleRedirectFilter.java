@@ -16,11 +16,14 @@ public record RoleRedirectFilter(SecurityUtils securityUtils) implements Filter 
         HttpServletRequest req = (HttpServletRequest) servletRequest;
         HttpServletResponse res = (HttpServletResponse) servletResponse;
         String requestURI = req.getRequestURI();
-        if(requestURI.startsWith("/css/") || requestURI.startsWith("/js/") || requestURI.startsWith("/images/")) {
+
+        if(requestURI.startsWith("/css/") || requestURI.startsWith("/js/") || requestURI.startsWith("/images/") ) {
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
+        
         User currentUser = securityUtils.getCurrentUser();
+
         if (currentUser != null) {
             String role = currentUser.getAuthorities().stream().findFirst().get().getAuthority();
             if (role.equals("Admin") && !requestURI.startsWith("/admin")) {

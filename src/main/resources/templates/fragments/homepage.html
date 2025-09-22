@@ -1,0 +1,51 @@
+<div layout:decorate="~{layouts/customer-layout}" xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+    <div layout:fragment="content">
+
+        <h1>Chào mừng đến với trang chủ FruitShop</h1>
+
+
+        <h2>Danh mục sản phẩm</h2>
+
+        <!-- Category Dropdown -->
+        <form method="get" th:action="@{${url}}">
+            <label for="category">Lọc theo danh mục:</label>
+            <select name="categoryId" id="category" class="form-select form-select-sm" style="width: auto;"
+                onchange="this.form.submit()">
+                <option value="0" th:text="'Tất cả danh mục'" th:selected="${categoryId == 0}"></option>
+                <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"
+                    th:selected="${category.id == categoryId}">
+                </option>
+            </select>
+        </form>
+
+        <!-- Products Cards -->
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            <div class="col" th:each="product : ${viewProductDto}">
+                <div class="card h-100">
+                    <img th:src="${product.mainImageUrl}" class="card-img-top" alt="Product Image"
+                        style="width: 100%; height: 200px; object-fit: cover;">
+                    <div class="card-body">
+                        <a th:href="@{/product/{id}(id=${product.id})}" class="card-title h5" th:text="${product.name}"></a>
+                        <p class="card-text">Giá: <span th:text="${product.price}"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination Display -->
+        <div class="d-flex justify-content-between mb-3">
+            <span>Trang hiện tại: <span th:text="${currentPage + 1}"></span> / <span th:text="${totalPages}"></span></span>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="d-flex justify-content-between mt-3">
+            <a th:href="@{${url}(page=${currentPage - 1}, size=${viewProductDto.size}, categoryId=${categoryId})}"
+                th:if="${currentPage > 0}" class="btn btn-primary">Trước</a>
+            <a th:href="@{${url}(page=${currentPage + 1}, size=${viewProductDto.size}, categoryId=${categoryId})}"
+                th:if="${currentPage + 1 < totalPages}" class="btn btn-primary">Tiếp theo</a>
+        </div>
+
+    </div>
+</div>
