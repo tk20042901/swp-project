@@ -43,7 +43,7 @@ public class CheckoutController {
                     .buyerPhone(order.getCustomer().getPhoneNumber())
                     .buyerAddress(order.getAddressString())
                     .amount(order.getTotalAmount())
-                    .description("Don hang " + order.getId())
+                    .description("FruitShop "+order.getId())
                     .returnUrl(returnUrl)
                     .cancelUrl(cancelUrl)
                     .items(items)

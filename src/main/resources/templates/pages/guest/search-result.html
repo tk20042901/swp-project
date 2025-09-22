@@ -36,17 +36,17 @@
                     <td th:text="${product.id}"></td>
                     <td><img th:src="${product.mainImageUrl}" alt="Product Image" style="width: 100px; height: auto;">
                     </td>
-                    <a th:href="@{/product/{id}(id=${product.id})}" class="card-title h5" th:text="${product.name}"></a>
+                    <td th:text="${product.name}"></td>
                     <td th:text="${product.price}"></td>
                 </tr>
             </tbody>
         </table>
 
-        <!-- Pagination Controls -->
-        <div class="d-flex justify-content-between">
-            <a th:href="@{${url}(page=${viewProductDto.number - 1}, size=${viewProductDto.size}, categoryId=${categoryId})}"
+            <a th:href="@{${url}(page=${viewProductDto.number - 1}, size=${viewProductDto.size}, categoryId=${categoryId}, keyword=${keyword})}"
                 th:if="${!viewProductDto.first}" class="btn btn-primary">Trước</a>
-            <a th:href="@{${url}(page=${viewProductDto.number + 1}, size=${viewProductDto.size}, categoryId=${categoryId})}"
+            <a th:href="@{${url}(page=${viewProductDto.number - 1}, size=${viewProductDto.size}, categoryId=${categoryId}, keyword=${keyword})}"
+                th:if="${!viewProductDto.first}" class="btn btn-primary">Trước</a>
+            <a th:href="@{${url}(page=${viewProductDto.number + 1}, size=${viewProductDto.size}, categoryId=${categoryId}, keyword=${keyword})}"
                 th:if="${!viewProductDto.last}" class="btn btn-primary">Tiếp theo</a>
         </div>
     </div>

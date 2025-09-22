@@ -214,20 +214,18 @@ public class CustomerController {
             return "/pages/customer/order/order-info";
         }
 
-
-        Order order = orderService.createOrder(principal.getName(),
-                shoppingCartItems,
-                deliveryInfoDto.getFullName(),
-                deliveryInfoDto.getPhone(),
-                addressService.getCommuneWardByCode(deliveryInfoDto.getCommuneWardCode()),
-                deliveryInfoDto.getSpecificAddress());
-
-        if (paymentMethod.equals("cod")) {
-            orderService.setOrderStatus(order.getId(), orderStatusService.getPendingConfirmationStatus());
-            return "redirect:/customer/order-success";
-        } else {
-            orderService.setOrderStatus(order.getId(), orderStatusService.getPendingPaymentStatus());
-            return "redirect:/checkout?orderId=" + order.getId();
+        try {
+            Order order = orderService.createOrder(principal.getName(), shoppingCartItems,deliveryInfoDto);
+            if (paymentMethod.equals("cod")) {
+                orderService.setOrderStatus(order.getId(), orderStatusService.getPendingConfirmationStatus());
+                return "redirect:/customer/order-success";
+            } else {
+                orderService.setOrderStatus(order.getId(), orderStatusService.getPendingPaymentStatus());
+                return "redirect:/checkout?orderId=" + order.getId();
+            }
+        } catch (Exception e){
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/customer/shopping-cart";
         }
     }
 

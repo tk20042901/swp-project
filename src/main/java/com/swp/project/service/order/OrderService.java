@@ -1,7 +1,7 @@
 package com.swp.project.service.order;
 
+import com.swp.project.dto.DeliveryInfoDto;
 import com.swp.project.dto.SellerSearchOrderDto;
-import com.swp.project.entity.address.CommuneWard;
 import com.swp.project.entity.order.Order;
 import com.swp.project.entity.order.OrderItem;
 import com.swp.project.entity.order.OrderStatus;
@@ -9,6 +9,7 @@ import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.entity.user.Customer;
 import com.swp.project.repository.order.OrderRepository;
 import com.swp.project.repository.user.CustomerRepository;
+import com.swp.project.service.AddressService;
 import com.swp.project.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,6 +32,7 @@ public class OrderService {
     private final CustomerRepository customerRepository;
     private final ProductService productService;
     private final OrderStatusService orderStatusService;
+    private final AddressService addressService;
 
     public Page<Order> getAllOrder() {
         Pageable pageable = PageRequest.of(0,10, Sort.by("id").ascending());
@@ -39,7 +41,7 @@ public class OrderService {
 
     public Page<Order> searchOrder(SellerSearchOrderDto sellerSearchOrderDto) {
         Pageable pageable = PageRequest.of(
-                Integer.parseInt(sellerSearchOrderDto.getPage()),
+                Integer.parseInt(sellerSearchOrderDto.getPage())-1,
                 10,
                 Sort.by("id").ascending());
         if (sellerSearchOrderDto.getStatusId() == null || sellerSearchOrderDto.getStatusId() == 0) {
@@ -84,16 +86,21 @@ public class OrderService {
     @Transactional
     public Order createOrder(String customerEmail,
                              List<ShoppingCartItem> shoppingCartItems,
-                             String fullName,
-                             String phoneNumber,
-                             CommuneWard communeWard,
-                             String specificAddress) {
+                             DeliveryInfoDto deliveryInfoDto) {
+
+        for (ShoppingCartItem shoppingCartItem : shoppingCartItems) {
+            if (shoppingCartItem.getQuantity()
+                    > productService.getAvailableQuantity(shoppingCartItem.getProduct().getId())) {
+                throw new RuntimeException("Đã có sản phẩm trong giỏ hàng vượt quá số lượng tồn kho");
+            }
+        }
+
         Order order = orderRepository.save(Order.builder()
                 .orderDate(LocalDateTime.now())
-                .fullName(fullName)
-                .phoneNumber(phoneNumber)
-                .communeWard(communeWard)
-                .specificAddress(specificAddress)
+                .fullName(deliveryInfoDto.getFullName())
+                .phoneNumber(deliveryInfoDto.getPhone())
+                .communeWard(addressService.getCommuneWardByCode(deliveryInfoDto.getCommuneWardCode()))
+                .specificAddress(deliveryInfoDto.getSpecificAddress())
                 .customer(customerRepository.getByEmail(customerEmail))
                 .build());
         List<OrderItem> orderItems = shoppingCartItems.stream()
