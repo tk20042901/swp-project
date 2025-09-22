@@ -118,7 +118,7 @@ public class CustomerAiService {
         imageChatClient = chatClientBuilder
                 .defaultOptions(ChatOptions.builder()
                         .temperature(0.5)
-                        .maxTokens(4096)
+                        .maxTokens(1024)
                         .build())
                 .build();
     }
@@ -188,7 +188,7 @@ public class CustomerAiService {
             if (contentType != null && contentType.startsWith("image")) {
                 imageAsk(conversationId, q, image.getResource(), contentType, conversation);
             } else {
-                throw new RuntimeException("Chỉ hỗ trợ file hình ảnh");
+                throw new RuntimeException("Hệ thống chỉ hỗ trợ hình ảnh có định dạng PNG, JPG, JPEG, WEBP");
             }
         }
     }
@@ -217,7 +217,7 @@ public class CustomerAiService {
                 .call().content();
         String answer = chatClient.prompt()
                 .user(u -> u
-                        .text(q + "(Hình ảnh đang mô tả: "+ fruitName +" )"))
+                        .text(q + " (Hình ảnh đang mô tả: "+ fruitName +" )"))
                 .advisors(a -> a
                         .param(ChatMemory.CONVERSATION_ID, conversationId))
                 .call().content();
