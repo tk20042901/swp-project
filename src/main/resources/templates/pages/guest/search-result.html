@@ -36,9 +36,7 @@
                     <td th:text="${product.id}"></td>
                     <td><img th:src="${product.mainImageUrl}" alt="Product Image" style="width: 100px; height: auto;">
                     </td>
-                    <td>
-                        <a th:href="@{/product/{id}(id=${product.id})}" class="card-title h5" th:text="${product.name}"></a>
-                    </td>
+                    <td th:text="${product.name}"></td>
                     <td th:text="${product.price}"></td>
                 </tr>
             </tbody>

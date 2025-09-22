@@ -38,7 +38,7 @@ public class GuestController {
         model.addAttribute("url", "/");
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", productsPage.getTotalPages());
-        return "fragments/homepage";
+        return "pages/guest/homepage";
     }
 
     @GetMapping("/search-product")
@@ -63,7 +63,7 @@ public class GuestController {
 
         model.addAttribute("totalElement", productsPage.getTotalElements());
         model.addAttribute("url", "/search-product" + (keyword != null ? "?keyword=" + keyword : ""));
-        return "fragments/search-result";
+        return "pages/guest/search-result";
     }
 
     private Page<ViewProductDto> mapProductToViewProductDto(Page<Product> products) {
