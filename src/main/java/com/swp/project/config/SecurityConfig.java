@@ -38,6 +38,7 @@ public class SecurityConfig {
             "/forgot-password/**",
             "/verify-otp/**",
             "/ai/**",
+            "/product/**",
     };
 
     private static final String[] ADMIN_MATCHERS = {
