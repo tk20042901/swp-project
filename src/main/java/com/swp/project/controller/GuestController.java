@@ -99,7 +99,7 @@ public class GuestController {
         List<SubImage> subImages = product.getSub_images();
         model.addAttribute("product", product);
         model.addAttribute("subImages", subImages);
-        return "pages/guest/product-details";
+        return "pages/guest/product";
     }
 
     @GetMapping("/ai")

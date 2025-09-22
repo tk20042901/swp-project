@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Chi tiết sản phẩm</title>
+  <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .product-thumbnails img {
+      max-width: 80px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .product-thumbnails img:hover {
+      transform: scale(1.1);
+    }
+    .product-main img {
+      max-width: 100%;
+      border-radius: 8px;
+      box-shadow: var(--auth-shadow);
+    }
+  </style>
+</head>
+<body class="auth-body">
+  <div class="container py-5">
+    <div class="auth-card p-4 mx-auto shadow">
+      <div class="row g-4">
+        <!-- Hình ảnh chính -->
+        <div class="col-lg-5 product-main text-center">
+          <img th:src="${product.main_image_url}" alt="Sản phẩm">
+          <div class="product-thumbnails mt-3 d-flex justify-content-center gap-2 flex-wrap">
+            <img th:each="subImage : ${subImages}"
+                 th:src="${subImage.sub_image_url}"
+                 alt="Ảnh phụ">
+          </div>
+        </div>
+
+        <!-- Thông tin sản phẩm -->
+        <div class="col-lg-7">
+          <h1 class="h4 mb-3 text-primary fw-bold" th:text="${product.name}"></h1>
+          <h2 class="h5 text-danger mb-3" th:text="${product.price} + ' đ'"></h2>
+          <p class="mb-4 text-muted" th:text="${product.description}"></p>
+
+          <form th:action="@{/customer/shopping-cart/update}" method="post" class="d-flex flex-column flex-sm-row align-items-sm-end gap-3">
+            <input type="hidden" name="productId" th:value="${product.id}">
+            <div>
+              <label for="quantity" class="form-label">Số lượng</label>
+              <input id="quantity" type="number" name="quantity" value="1" min="1" class="form-control w-auto">
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg shadow-sm">Thêm vào giỏ hàng</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="/js/bootstrap/bootstrap.bundle.min.js"></script>
+</body>
+</html>
