@@ -31,7 +31,7 @@ import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
+@SessionAttributes("shoppingCartItems")
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("/customer")
@@ -174,7 +174,7 @@ public String updateCartItem(@Valid UpdateShoppingCartDto updateShoppingCartDto,
     return "redirect:/customer/shopping-cart";
 }
 
-                             @PostMapping("/shopping-cart/check-out")
+    @PostMapping("/shopping-cart/check-out")
     public String checkOut(@RequestParam List<Long> cartIds,
                              RedirectAttributes redirectAttributes,
                              Principal principal) {

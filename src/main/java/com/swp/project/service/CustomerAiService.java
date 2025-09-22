@@ -165,7 +165,7 @@ public class CustomerAiService {
         } else {
             sb.append("Tình trạng tồn kho: Hết hàng. Sản phẩm chưa có lô hàng nào. ");
         }
-        sb.append("Link sản phẩm: /products/").append(product.getId()).append(". ");
+        sb.append("Link sản phẩm: /product/").append(product.getId()).append(". ");
         return sb.toString();
     }
 
