@@ -14,5 +14,5 @@ public interface CommuneWardRepository extends JpaRepository<CommuneWard,String>
 
     CommuneWard getByCode(String code);
 
-    List<CommuneWard> findAllByProvinceCity(ProvinceCity provinceCity);
+    List<CommuneWard> findByProvinceCity(ProvinceCity provinceCity);
 }

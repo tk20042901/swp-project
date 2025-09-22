@@ -234,8 +234,6 @@ public class ManagerController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
 
-        redirectAttributes.addFlashAttribute("queryName", queryName);
-        redirectAttributes.addFlashAttribute("queryCid", queryCid);
         redirectAttributes.addAttribute("queryName", queryName);
         redirectAttributes.addAttribute("queryCid", queryCid);
         return "redirect:/manager/manage-seller";
@@ -261,8 +259,6 @@ public class ManagerController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
 
-        redirectAttributes.addFlashAttribute("queryName", queryName);
-        redirectAttributes.addFlashAttribute("queryCid", queryCid);
         redirectAttributes.addAttribute("queryName", queryName);
         redirectAttributes.addAttribute("queryCid", queryCid);
         return "redirect:/manager/manage-shipper";
@@ -288,8 +284,6 @@ public class ManagerController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
 
-        redirectAttributes.addFlashAttribute("queryName", queryName);
-        redirectAttributes.addFlashAttribute("queryCid", queryCid);
         redirectAttributes.addAttribute("queryName", queryName);
         redirectAttributes.addAttribute("queryCid", queryCid);
         return "redirect:/manager/manage-customer-support";
@@ -303,48 +297,56 @@ public class ManagerController {
             Model model,
             HttpSession session) {
 
-        if (clickedButton != null && !clickedButton.isEmpty()) {
-            List<ProvinceCity> provinces = provinceCityRepository.findAll();
-            List<CommuneWard> wards = new ArrayList<>();
-            StaffDto staffDto = new StaffDto();
+        List<ProvinceCity> provinces = provinceCityRepository.findAll();
+        List<CommuneWard> wards = new ArrayList<>();
+        StaffDto staffDto = (StaffDto) session.getAttribute("staffDto");
 
+        if (clickedButton != null && !clickedButton.isEmpty()) {
             switch (clickedButton) {
                 case "Seller":
-                    session.setAttribute("newClassName", "Seller");
+                    session.setAttribute("newClassName", clickedButton);
                     if (email != null && !email.isEmpty()) {
                         Seller seller = sellerService.getByEmail(email);
                         staffDto = new StaffDto().parse(seller);
-                        wards = communeWardRepository.findAllByProvinceCity(seller.getCommuneWard().getProvinceCity());
+                    } else {
+                        staffDto = new StaffDto();
                     }
                     break;
                 case "Shipper":
-                    session.setAttribute("newClassName", "Shipper");
+                    session.setAttribute("newClassName", clickedButton);
                     if (email != null && !email.isEmpty()) {
                         Shipper shipper = shipperService.getByEmail(email);
                         staffDto = new StaffDto().parse(shipper);
-                        wards = communeWardRepository.findAllByProvinceCity(shipper.getCommuneWard().getProvinceCity());
+                    }  else {
+                        staffDto = new StaffDto();
                     }
                     break;
                 case "CustomerSupport":
-                    session.setAttribute("newClassName", "CustomerSupport");
+                    session.setAttribute("newClassName", clickedButton);
                     if (email != null && !email.isEmpty()) {
                         CustomerSupport customerSupport = customerSupportService.getByEmail(email);
                         staffDto = new StaffDto().parse(customerSupport);
-                        wards = communeWardRepository.findAllByProvinceCity(customerSupport.getCommuneWard().getProvinceCity());
+                    } else {
+                        staffDto = new StaffDto();
                     }
                     break;
             }
-            model.addAttribute("provinces", provinces);
-            model.addAttribute("wards", wards);
-            model.addAttribute("staffDto", staffDto);
         }
+        if (staffDto.getProvinceCity() != null) {
+            wards = communeWardRepository.findByProvinceCity(provinceCityRepository.getByCode(staffDto.getProvinceCity()));
+        }
+
+        session.setAttribute("provinces", provinces);
+        model.addAttribute("wards", wards);
+        model.addAttribute("staffDto", staffDto);
+        session.setAttribute("staffDto", staffDto);
 
         return "pages/manager/edit-staff";
     }
 
     @PostMapping("/edit-staff")
     public String editStaff(
-            @Valid @ModelAttribute("staffDto") StaffDto staffDto,
+            @Valid @ModelAttribute("staffDto") StaffDto inputStaffDto,
             BindingResult bindingResult,
             @RequestParam("newClassName") String newClassName,
             @RequestParam(value = "submitButton", required = false) String submitButton,
@@ -352,12 +354,10 @@ public class ManagerController {
             Model model,
             HttpSession session) {
 
-        redirectAttributes.addFlashAttribute("staffDto", staffDto);
-        redirectAttributes.addFlashAttribute("provinces", provinceCityRepository.findAll());
-        redirectAttributes.addFlashAttribute("wards", communeWardRepository.findAllByProvinceCity(provinceCityRepository.getByCode(staffDto.getProvinceCity())));
-        model.addAttribute("staffDto", staffDto);
-        model.addAttribute("provinces", provinceCityRepository.findAll());
-        model.addAttribute("wards", communeWardRepository.findAllByProvinceCity(provinceCityRepository.getByCode(staffDto.getProvinceCity())));
+        StaffDto staffDto = inputStaffDto;
+        session.setAttribute("staffDto", staffDto);
+
+        model.addAttribute("wards", communeWardRepository.findByProvinceCity(provinceCityRepository.getByCode(staffDto.getProvinceCity())));
 
         String managerRedirectUrl = "";
         String managerForwardUrl = "";
@@ -403,8 +403,8 @@ public class ManagerController {
                                 redirectAttributes.addFlashAttribute("error", e.getMessage());
                                 return editRedirectUrl;
                             }
-
                             break;
+
                         case "Shipper":
                             try {
                                 shipperService.add(staffDto);
@@ -417,8 +417,8 @@ public class ManagerController {
                                 redirectAttributes.addFlashAttribute("error", e.getMessage());
                                 return editRedirectUrl;
                             }
-
                             break;
+
                         case "CustomerSupport":
                             try {
                                 customerSupportService.add(staffDto);
@@ -431,7 +431,6 @@ public class ManagerController {
                                 redirectAttributes.addFlashAttribute("error", e.getMessage());
                                 return editRedirectUrl;
                             }
-
                             break;
                     }
                     if (staffDto.getId() == 0) {
