@@ -3,8 +3,6 @@ package com.swp.project.service.product;
 import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.Product;
 import com.swp.project.listener.event.ProductRelatedUpdateEvent;
-import com.swp.project.entity.product.Category;
-import com.swp.project.entity.product.Product;
 import com.swp.project.repository.product.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 

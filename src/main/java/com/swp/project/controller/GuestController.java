@@ -4,7 +4,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.swp.project.dto.ViewProductDto;
@@ -38,6 +37,7 @@ public class GuestController {
         model.addAttribute("url", "/");
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", productsPage.getTotalPages());
+        model.addAttribute("showSearchBar", true);
         return "pages/guest/homepage";
     }
 
@@ -63,6 +63,7 @@ public class GuestController {
 
         model.addAttribute("totalElement", productsPage.getTotalElements());
         model.addAttribute("url", "/search-product" + (keyword != null ? "?keyword=" + keyword : ""));
+        model.addAttribute("showSearchBar", true);
         return "pages/guest/search-result";
     }
 
