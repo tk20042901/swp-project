@@ -160,8 +160,8 @@ public class CustomerController {
 
     @PostMapping("/shopping-cart/check-out")
     public String checkOut(@RequestParam List<Long> cartIds,
-                             Model model,
-                             Principal principal) {
+                           Model model,
+                           Principal principal) {
         List<ShoppingCartItem> shoppingCartItems = new ArrayList<>();
         cartIds.forEach(i -> shoppingCartItems.add(
                 productService.getAllShoppingCartItemByCustomerIdAndProductId(principal.getName(), i)));
@@ -210,7 +210,7 @@ public class CustomerController {
             model.addAttribute("wards", addressService
                     .getAllCommuneWardByProvinceCityCode(deliveryInfoDto.getProvinceCityCode()));
             model.addAttribute("totalAmount", shoppingCartItems.stream().mapToInt
-                            (item -> item.getProduct().getPrice() * item.getQuantity()).sum());
+                    (item -> item.getProduct().getPrice() * item.getQuantity()).sum());
             return "/pages/customer/order/order-info";
         }
 
@@ -236,7 +236,7 @@ public class CustomerController {
 
     @GetMapping(value = "/order-cancel")
     public String cancelPayment(@RequestParam Long orderCode,
-            @RequestParam boolean cancel) {
+                                @RequestParam boolean cancel) {
         if (cancel) {
             orderService.setOrderStatus(orderCode, orderStatusService.getCancelledStatus());
             return "pages/customer/order/cancel";
