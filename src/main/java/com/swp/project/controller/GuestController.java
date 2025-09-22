@@ -1,12 +1,18 @@
 package com.swp.project.controller;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+import com.swp.project.dto.AiMessageDto;
+import com.swp.project.service.CustomerAiService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.swp.project.dto.ViewProductDto;
@@ -16,13 +22,17 @@ import com.swp.project.service.product.CategoryService;
 import com.swp.project.service.product.ProductService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @Controller
 public class GuestController {
+
     private final ProductService productService;
     private final CategoryService categoryService;
+    private final CustomerAiService customerAiService;
     private final static int PAGE_SIZE = 9;
+
     @GetMapping({"/"})
     public String getHomepage(
             @RequestParam(defaultValue = "0") int page,
@@ -81,7 +91,7 @@ public class GuestController {
                 .build());
     }
 
-    @GetMapping("/product-details/{id}")
+    @GetMapping("/product/{id}")
     public String getProductDetail(
             @PathVariable(name = "id") Long id,
             Model model) {
@@ -91,5 +101,30 @@ public class GuestController {
         model.addAttribute("subImages", subImages);
         return "pages/guest/product-details";
     }
-    
+
+    @GetMapping("/ai")
+    public String ask(Model model, HttpSession session) {
+        model.addAttribute("conversationId", UUID.randomUUID().toString());
+        session.removeAttribute("conversation");
+        session.setAttribute("conversation", new ArrayList<AiMessageDto>());
+        return "pages/guest/ai";
+    }
+
+    @PostMapping("/ai")
+    public String ask(@RequestParam String conversationId,
+                      @RequestParam String q,
+                      @RequestParam MultipartFile image,
+                      HttpSession session,
+                      Model model) {
+        List<AiMessageDto> conversation = (List<AiMessageDto>) session.getAttribute("conversation");
+        try {
+            customerAiService.ask(conversationId, q, image, conversation);
+        } catch (RuntimeException e) {
+            model.addAttribute("error", e.getMessage());
+        }
+        model.addAttribute("conversationId", conversationId);
+        session.setAttribute("conversation", conversation);
+        model.addAttribute("conversation", conversation);
+        return "pages/guest/ai";
+    }
 }
