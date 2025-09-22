@@ -32,7 +32,11 @@
             <form class="row g-3" th:action="@{/seller/all-orders}" method="get" th:object="${sellerSearchOrderDto}">
                 <div class="col-12 col-md-4">
                     <label class="form-label" for="customerEmail">Email khách hàng</label>
-                    <input id="customerEmail" type="text" class="form-control" th:field="*{customerEmail}" placeholder="vd: khach@example.com" maxlength="255">
+                    <input id="customerEmail" type="text" class="form-control"
+                           th:field="*{customerEmail}" placeholder="vd: khach@example.com"
+                           th:classappend="${#fields.hasErrors('customerEmail')} ? ' is-invalid'"
+                           maxlength="255">
+                    <span class="text-danger invalid-feedback" th:errors="*{customerEmail}">Email không hợp lệ</span>
                 </div>
                 <div class="col-6 col-md-3">
                     <label class="form-label" for="fromDate">Từ ngày</label>
@@ -107,13 +111,13 @@
                 <input type="hidden" th:field="*{fromDate}"/>
                 <input type="hidden" th:field="*{toDate}"/>
 
-                <button th:if="${!orders.first}"
+                <button th:disabled="${orders.first}"
                         type="submit"
                         name="page"
                         th:value="0"
                         class="btn btn-outline-secondary btn-sm">Trang đầu</button>
 
-                <button th:if="${orders.hasPrevious()}"
+                <button th:disabled="${!orders.hasPrevious()}"
                         type="submit"
                         name="page"
                         th:value="${orders.number - 1}"
@@ -126,13 +130,13 @@
                 </span>
                 <span class="text-muted small" th:if="${orders.totalPages == 0}">0/0</span>
 
-                <button th:if="${orders.hasNext()}"
+                <button th:disabled="${!orders.hasNext()}"
                         type="submit"
                         name="page"
                         th:value="${orders.number + 1}"
                         class="btn btn-outline-secondary btn-sm">Trang sau</button>
 
-                <button th:if="${!orders.last}"
+                <button th:disabled="${orders.last}"
                         type="submit"
                         name="page"
                         th:value="${orders.totalPages - 1}"

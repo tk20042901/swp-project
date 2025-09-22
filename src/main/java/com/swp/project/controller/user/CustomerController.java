@@ -1,5 +1,6 @@
 package com.swp.project.controller.user;
 
+import com.swp.project.dto.UpdateShoppingCartDto;
 import org.springframework.data.domain.Page;
 import com.swp.project.entity.product.Product;
 import com.swp.project.dto.ChangePasswordDto;
@@ -43,10 +44,11 @@ public class CustomerController {
     private final CategoryService categoryService;
     private final int PAGE_SIZE = 10;
 
- 
+
 
     @GetMapping("/account-manager")
     public String accountManager(Model model, Principal principal) {
+        model.addAttribute("customer", customerService.getCustomerByEmail(principal.getName()));
         model.addAttribute("isGoogleRegistered",
                 customerService.isGoogleRegistered(principal.getName()));
         return "pages/customer/account-manager/account-manager";
@@ -63,9 +65,10 @@ public class CustomerController {
 
     @PostMapping("/change-password")
     public String processChangePassword(@Valid @ModelAttribute ChangePasswordDto changePasswordDto,
-            BindingResult bindingResult,
-            Model model,
-            Principal principal) {
+                                        BindingResult bindingResult,
+                                        Model model,
+                                        RedirectAttributes redirectAttributes,
+                                        Principal principal) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("changePasswordRequest", changePasswordDto);
             return "pages/customer/account-manager/change-password";
@@ -73,11 +76,12 @@ public class CustomerController {
 
         try {
             customerService.changePassword(principal.getName(), changePasswordDto);
-            model.addAttribute("success", "Thay đổi mật khẩu thành công");
+            redirectAttributes.addFlashAttribute("success", "Đổi mật khẩu thành công");
+            return "redirect:/customer/account-manager";
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
+            return "pages/customer/account-manager/change-password";
         }
-        return "pages/customer/account-manager/change-password";
     }
 
     @GetMapping("/delivery-info")
@@ -127,30 +131,15 @@ public class CustomerController {
 
         customerService.updateDeliveryInfo(principal.getName(), deliveryInfoDto);
         redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin giao hàng thành công");
-        return "redirect:/customer/delivery-info";
+        return "redirect:/customer/account-manager";
     }
 
     @GetMapping("/shopping-cart")
     public String viewShoppingCart(Model model,
-                                   Principal principal,
-                                   @RequestParam(value = "cartIds", required = false) List<Long> cartIds) {
+                                   Principal principal) {
         List<ShoppingCartItem> cartItems = customerService.getCart(principal.getName());
 
-        List<Long> selectedIds = new ArrayList<Long>();
-        if (cartIds != null) {
-            selectedIds = cartIds;
-        }
-
-        long totalAmount = 0;
-        for (ShoppingCartItem item : cartItems) {
-            if (selectedIds.contains(item.getProduct().getId())) {
-                totalAmount += (long) item.getProduct().getPrice() * item.getQuantity();
-            }
-        }
-
-        model.addAttribute("totalAmount", totalAmount);
         model.addAttribute("cartItems", cartItems);
-        model.addAttribute("selectedIds", selectedIds);
 
         return "pages/customer/shopping-cart";
     }
@@ -162,29 +151,33 @@ public class CustomerController {
         return "redirect:/customer/shopping-cart";
     }
 
-    @PostMapping("/shopping-cart/update")
-    public String updateCartItem(@RequestParam Long productId,
-            @RequestParam int quantity, RedirectAttributes redirectAttributes,
-            Principal principal) {
 
-        int availableQuantity = productService.getAvailableQuantity(productId);
-        if (quantity > availableQuantity) {
-            quantity = availableQuantity;
-            redirectAttributes.addFlashAttribute("error",
-                    "Số lượng bạn chọn đã vượt quá tồn kho. Hệ thống đã điều chỉnh về " + availableQuantity);
-        } else if (quantity <= 0) {
-            quantity = 1;
-            redirectAttributes.addFlashAttribute("error",
-                    "Số lượng bạn chọn không hợp lệ. Hệ thống đã điều chỉnh về 1");
-        }
-        customerService.updateCartQuantity(principal.getName(), productId, quantity);
+@PostMapping("/shopping-cart/update")
+public String updateCartItem(@Valid UpdateShoppingCartDto updateShoppingCartDto, BindingResult bindingResult, RedirectAttributes redirectAttributes, Principal principal) {
+
+    if (bindingResult.hasErrors()) {
+        String errorMessage = bindingResult.getAllErrors().get(0).getDefaultMessage();
+        redirectAttributes.addFlashAttribute("error", errorMessage);
         return "redirect:/customer/shopping-cart";
     }
 
-    @PostMapping("/shopping-cart/check-out")
+    String quantityStr = updateShoppingCartDto.getQuantity();
+    int quantity = Integer.parseInt(quantityStr);
+    Long productId = updateShoppingCartDto.getProductId();
+    int availableQuantity = productService.getAvailableQuantity(productId);
+    if (quantity > availableQuantity) {
+        quantity = availableQuantity;
+        redirectAttributes.addFlashAttribute("error",
+                "Số lượng bạn chọn đã vượt quá tồn kho. Hệ thống đã điều chỉnh về " + availableQuantity);
+    }
+    customerService.updateCartQuantity(principal.getName(), productId, quantity);
+    return "redirect:/customer/shopping-cart";
+}
+
+                             @PostMapping("/shopping-cart/check-out")
     public String checkOut(@RequestParam List<Long> cartIds,
-            RedirectAttributes redirectAttributes,
-            Principal principal) {
+                             RedirectAttributes redirectAttributes,
+                             Principal principal) {
         List<ShoppingCartItem> shoppingCartItems = new ArrayList<>();
         cartIds.forEach(i -> shoppingCartItems.add(
                 productService.getAllShoppingCartItemByCustomerIdAndProductId(principal.getName(), i)));

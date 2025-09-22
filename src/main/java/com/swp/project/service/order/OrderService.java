@@ -12,7 +12,9 @@ import com.swp.project.repository.user.CustomerRepository;
 import com.swp.project.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,12 +32,17 @@ public class OrderService {
     private final ProductService productService;
     private final OrderStatusService orderStatusService;
 
-    public Page<Order> getAllOrder(Pageable pageable) {
+    public Page<Order> getAllOrder() {
+        Pageable pageable = PageRequest.of(0,10, Sort.by("id").ascending());
         return orderRepository.findAll(pageable);
     }
 
-    public Page<Order> searchOrder(SellerSearchOrderDto sellerSearchOrderDto, Pageable pageable) {
-        if (sellerSearchOrderDto.getStatusId() == 0) {
+    public Page<Order> searchOrder(SellerSearchOrderDto sellerSearchOrderDto) {
+        Pageable pageable = PageRequest.of(
+                Integer.parseInt(sellerSearchOrderDto.getPage()),
+                10,
+                Sort.by("id").ascending());
+        if (sellerSearchOrderDto.getStatusId() == null || sellerSearchOrderDto.getStatusId() == 0) {
             return orderRepository.searchByCustomer_EmailContainsAndOrderDateBetween(
                     sellerSearchOrderDto.getCustomerEmail() == null
                             ? ""

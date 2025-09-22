@@ -132,7 +132,7 @@
   max-height: clamp(320px, 55vh, 620px);
   overflow-y: auto;
   overflow-x: hidden;
-  padding: .5rem .25rem;
+  padding: .5rem 0 .5rem .25rem; /* remove right padding so scrollbar hugs the edge */
 }
 .chat-messages ul { margin: 0; padding: 0; }
 
@@ -168,7 +168,30 @@
 
 /* Markdown rendering tweaks */
 .message-text p { margin-bottom: .5rem; }
-.message-text a { text-decoration: underline; }
+.message-text a {
+  color: var(--bs-link-color, #0d6efd);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1.5px;
+  font-weight: 500;
+  /* wrap long URLs gracefully */
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.message-text a:hover {
+  color: var(--bs-link-hover-color, #0a58ca);
+  text-decoration-thickness: 2px;
+}
+.message-text a:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 .2rem rgba(13,110,253,.25);
+  border-radius: 4px;
+}
+.message-text a[target="_blank"]::after {
+  content: " \2197"; /* ↗ */
+  opacity: .6;
+  font-size: .85em;
+}
 .md-code {
   background: rgba(16,24,40,.04);
   border: 1px solid rgba(16,24,40,.08);
@@ -212,4 +235,28 @@
     width: 150px;
     height: 150px;
   }
+}
+
+/* Full-screen Chat page layout */
+html, body { height: 100%; }
+.chat-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.chat-header {
+  position: sticky;
+  top: 0;
+  background: var(--bs-body-bg, #ffffff);
+  z-index: 1030; /* above content */
+}
+.chat-main {
+  flex: 1 1 auto;
+  min-height: 0; /* allow children to flex/scroll */
+  display: block;
+}
+/* In full-screen chat, let messages take available height and scroll */
+.chat-page .chat-messages {
+  max-height: none;
+  height: 100%;
 }

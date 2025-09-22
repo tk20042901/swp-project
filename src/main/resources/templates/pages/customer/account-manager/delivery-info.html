@@ -18,10 +18,6 @@
                     <p class="text-muted mb-0">Cập nhật địa chỉ để nhận hàng nhanh chóng và chính xác.</p>
                 </div>
 
-                <div class="alerts-stack mb-3">
-                    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
-                </div>
-
                 <form th:action="@{/customer/delivery-info}" th:object="${deliveryInfoDto}" method="post" autocomplete="off">
                     <div class="mb-3">
                         <label for="fullName" class="form-label">Họ và tên</label>
@@ -62,7 +58,7 @@
                         </div>
                         <div class="col-12 col-md-4">
                             <label for="phone" class="form-label">Số điện thoại</label>
-                            <input id="phone" type="tel" class="form-control" th:field="*{phone}" placeholder="VD: 0912345678" required maxlength="20" inputmode="tel">
+                            <input id="phone" type="tel" class="form-control" th:field="*{phone}" placeholder="VD: 0912345678" required minlength="7" maxlength="11" inputmode="tel">
                             <div class="invalid-feedback d-block" th:errors="*{phone}"></div>
                         </div>
                     </div>

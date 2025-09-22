@@ -22,10 +22,13 @@ public class SellerSearchOrderDto {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate toDate;
 
+    private String page;
+
     public boolean isEmpty() {
         return statusId == null
                 && (customerEmail == null || customerEmail.isBlank())
                 && fromDate == null
-                && toDate == null;
+                && toDate == null
+                && page.equals("0");
     }
 }

@@ -3,6 +3,7 @@ package com.swp.project.controller.user;
 import com.swp.project.dto.SellerSearchOrderDto;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.order.OrderStatusService;
+import com.swp.project.service.product.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ public class SellerController {
 
     private final OrderStatusService orderStatusService;
     private final OrderService orderService;
+    private final ProductService productService;
 
     @GetMapping("")
     public String sellerMain() {
@@ -28,31 +30,32 @@ public class SellerController {
 
     @GetMapping("/all-orders")
     public String sellerProducts(@Valid @ModelAttribute SellerSearchOrderDto sellerSearchOrderDto,
+                                 @RequestParam(required = false, defaultValue = "0") int page,
                                  BindingResult bindingResult,
-                                 @PageableDefault(5) Pageable pageable,
                                  Model model) {
-
+        sellerSearchOrderDto.setPage(String.valueOf(page));
         if (bindingResult.hasErrors()) {
-            model.addAttribute("orders", orderService.getAllOrder(pageable));
+            model.addAttribute("orders", orderService.getAllOrder());
+            model.addAttribute("orderStatus", orderStatusService.getAllStatus());
             model.addAttribute("sellerSearchOrderDto", sellerSearchOrderDto);
-            return "pages/seller/all-orders";
+            return "pages/seller/order/all-orders";
         }
 
         if(sellerSearchOrderDto.isEmpty()) {
-            model.addAttribute("orders", orderService.getAllOrder(pageable));
+            model.addAttribute("orders", orderService.getAllOrder());
         } else {
-            model.addAttribute("orders",orderService.searchOrder(sellerSearchOrderDto,pageable));
+            model.addAttribute("orders",orderService.searchOrder(sellerSearchOrderDto));
         }
         model.addAttribute("orderStatus", orderStatusService.getAllStatus());
         model.addAttribute("sellerSearchOrderDto", sellerSearchOrderDto);
-        return "pages/seller/all-orders";
+        return "pages/seller/order/all-orders";
     }
 
     @GetMapping("/order-detail/{orderId}")
     public String orderDetail(@PathVariable Long orderId, Model model) {
         model.addAttribute("orderStatusService", orderStatusService);
         model.addAttribute("order", orderService.getOrderById(orderId));
-        return "pages/seller/order-detail";
+        return "pages/seller/order/order-detail";
     }
 
     @PostMapping("/update-pending-order-status")
@@ -78,5 +81,12 @@ public class SellerController {
         redirectAttributes.addFlashAttribute("msg",
                 "Cập nhật trạng thái đơn hàng thành Đang chờ giao hàng thành công");
         return "redirect:/seller/all-orders";
+    }
+
+    @GetMapping("/all-products")
+    public String sellerAllProducts(@PageableDefault(value = 5, sort = "id") Pageable pageable,
+                                    Model model) {
+        model.addAttribute("products", productService.getAllProducts(pageable));
+        return "pages/seller/product/all-products";
     }
 }

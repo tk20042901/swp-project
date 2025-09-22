@@ -17,7 +17,7 @@ public class DeliveryInfoDto implements Serializable {
     private String fullName;
 
     @NotBlank(message = "Số điện thoại không được để trống")
-    @Pattern(regexp = "^\\d{6,12}$", message = "Số điện thoại không hợp lệ")
+    @Pattern(regexp = "^0\\d{6,10}$", message = "Số điện thoại không hợp lệ")
     private String phone;
 
     @NotBlank(message = "Bạn chưa chọn tỉnh/thành phố")

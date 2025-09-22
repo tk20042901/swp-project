@@ -19,6 +19,10 @@
                 <h1 class="h4 text-center mb-1 brand">Quản lý tài khoản</h1>
                 <p class="text-muted text-center mb-4">Xem và cập nhật thông tin tài khoản của bạn.</p>
 
+                <div class="alerts-stack mb-3 text-center">
+                    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+                </div>
+
                 <!-- Actions: replaced grid buttons with accessible list-group items -->
                 <div class="list-group mb-3">
                     <a th:href="@{/customer/delivery-info}"
@@ -26,6 +30,29 @@
                         <div>
                             <div class="fw-semibold">Thông tin giao hàng</div>
                             <div class="small text-muted">Cập nhật địa chỉ và người nhận</div>
+                            <!-- Delivery summary -->
+                            <ul class="list-unstyled small mb-0 mt-2">
+                                <li>
+                                    <span class="text-secondary">Người nhận:</span>
+                                    <span class="fw-medium"
+                                          th:text="${customer != null && customer.fullName != null ? customer.fullName : 'Chưa cập nhật'}">Chưa cập nhật</span>
+                                </li>
+                                <li>
+                                    <span class="text-secondary">SĐT:</span>
+                                    <span class="fw-medium"
+                                          th:text="${customer != null && customer.phoneNumber != null ? customer.phoneNumber : 'Chưa cập nhật'}">Chưa cập nhật</span>
+                                </li>
+                                <li>
+                                    <span class="text-secondary">Địa chỉ:</span>
+                                    <span class="fw-medium"
+                                          th:text="${customer != null && customer.communeWard != null ? (customer.communeWard.name + (customer.communeWard.provinceCity != null ? ', ' + customer.communeWard.provinceCity.name : '')) : 'Chưa cập nhật'}">Chưa cập nhật</span>
+                                </li>
+                                <li>
+                                    <span class="text-secondary">Địa chỉ chi tiết:</span>
+                                    <span class="fw-medium"
+                                          th:text="${customer != null && customer.specificAddress != null ? customer.specificAddress : 'Chưa cập nhật'}">Chưa cập nhật</span>
+                                </li>
+                            </ul>
                         </div>
                         <span class="text-secondary" aria-hidden="true">&rsaquo;</span>
                     </a>

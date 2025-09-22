@@ -115,20 +115,45 @@
     <div class="d-flex flex-wrap gap-3">
         <form th:action="@{/seller/update-pending-order-status}" method="post"
               th:if="${orderStatusService.isPendingConfirmationStatus(order)}"
-              class="d-flex gap-2 align-items-center">
+              class="d-flex gap-2 align-items-center confirm-action-form">
             <input type="hidden" name="orderId" th:value="${order.id}">
-            <button type="submit" name="action" th:value="accept" class="btn btn-success">Xác nhận đơn hàng
+            <button type="submit" name="action" th:value="accept" class="btn btn-success btn-confirm-order">Xác nhận đơn hàng
             </button>
-            <button type="submit" name="action" th:value="reject" class="btn btn-outline-danger">Từ chối đơn hàng
+            <button type="submit" name="action" th:value="reject" class="btn btn-outline-danger btn-reject-order">Từ chối đơn hàng
             </button>
         </form>
 
         <form th:action="@{/seller/update-processing-order-status}" method="post"
-              th:if="${orderStatusService.isProcessingStatus(order)}">
+              th:if="${orderStatusService.isProcessingStatus(order)}"
+              class="confirm-action-form">
             <input type="hidden" name="orderId" th:value="${order.id}">
-            <button type="submit" class="btn btn-primary">Chuyển sang trạng thái Chờ giao hàng</button>
+            <button type="submit" class="btn btn-primary btn-processing-order">Chuyển sang trạng thái Chờ giao hàng</button>
         </form>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const confirmForms = document.querySelectorAll('.confirm-action-form');
+
+        confirmForms.forEach(form => {
+            form.addEventListener('submit', function (event) {
+                const action = event.submitter ? event.submitter.value : null;
+                let message;
+
+                if (action === 'accept') {
+                    message = 'Bạn có chắc chắn muốn xác nhận đơn hàng này không?';
+                } else if (action === 'reject') {
+                    message = 'Bạn có chắc chắn muốn từ chối đơn hàng này không?';
+                } else {
+                    message = 'Bạn có chắc chắn muốn thực hiện hành động này không?';
+                }
+
+                if (!confirm(message)) {
+                    event.preventDefault();
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>
