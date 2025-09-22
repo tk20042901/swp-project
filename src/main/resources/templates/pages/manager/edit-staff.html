@@ -61,7 +61,7 @@
                     <label class="form-label">Tỉnh / thành phố</label>
                     <select class="form-select" name="provinceCity" onchange="this.form.submit()">
                         <option value="">Chọn Tỉnh/Thành phố</option>
-                        <option th:each="province : ${provinces}" th:object="${province}"
+                        <option th:each="province : ${session.provinces}" th:object="${province}"
                                 th:value="*{code}" th:text="*{name}"
                                 th:selected="${province.code.equals(staffDto.provinceCity)}">
                         </option>
