@@ -5,9 +5,11 @@ import com.swp.project.dto.DeliveryInfoDto;
 import com.swp.project.dto.RegisterDto;
 import com.swp.project.entity.PendingRegister;
 
+import com.swp.project.entity.order.Order;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.entity.shopping_cart.ShoppingCartItemId;
 import com.swp.project.entity.user.Customer;
+import com.swp.project.repository.order.OrderRepository;
 import com.swp.project.repository.shopping_cart.ShoppingCartItemRepository;
 import com.swp.project.repository.user.CustomerRepository;
 import com.swp.project.repository.PendingRegisterRepository;
@@ -38,6 +40,7 @@ public class CustomerService {
     private final AddressService addressService;
     private final SecureRandom secureRandom = new SecureRandom();
     private final ShoppingCartItemRepository shoppingCartItemRepository;
+    private final OrderRepository orderRepository;
 
     public Customer getCustomerByEmail(String email) {
         return customerRepository.getByEmail(email);
@@ -225,4 +228,9 @@ public class CustomerService {
         shoppingCartItemRepository.save(item);
     }
 
+    @Transactional
+    public List<Order> getOrdersByCustomerEmail(String email) {
+        Customer customer = customerRepository.getByEmail(email);
+        return orderRepository.getByCustomer(customer);
+    }
 }
