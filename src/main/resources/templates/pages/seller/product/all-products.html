@@ -21,9 +21,9 @@
         <td th:text="${product.id}">1</td>
         <td th:text="${product.name}">Product Name</td>
         <td th:text="${product.price}">100.00</td>
-        <td th:text="${product.unit}">Piece</td>
+        <td th:text="${product.unit.name}">Piece</td>
         <td th:text="${product.enabled}">true</td>
-        <td><a th:href="@{'/request/product'+${product.id}}">Chỉnh sửa</a></td>
+        <td><a th:href="@{'/seller/request/'+${product.id}}">Chỉnh sửa</a></td>
     </tr>
     </tbody>
 </table>
