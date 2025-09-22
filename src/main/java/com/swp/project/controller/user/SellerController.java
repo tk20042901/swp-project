@@ -30,31 +30,32 @@ public class SellerController {
 
     @GetMapping("/all-orders")
     public String sellerProducts(@Valid @ModelAttribute SellerSearchOrderDto sellerSearchOrderDto,
+                                 @RequestParam(required = false, defaultValue = "0") int page,
                                  BindingResult bindingResult,
-                                 @PageableDefault(value = 5, sort = {"id"}) Pageable pageable,
                                  Model model) {
-
+        sellerSearchOrderDto.setPage(String.valueOf(page));
         if (bindingResult.hasErrors()) {
-            model.addAttribute("orders", orderService.getAllOrder(pageable));
+            model.addAttribute("orders", orderService.getAllOrder());
+            model.addAttribute("orderStatus", orderStatusService.getAllStatus());
             model.addAttribute("sellerSearchOrderDto", sellerSearchOrderDto);
-            return "pages/seller/all-orders";
+            return "pages/seller/order/all-orders";
         }
 
         if(sellerSearchOrderDto.isEmpty()) {
-            model.addAttribute("orders", orderService.getAllOrder(pageable));
+            model.addAttribute("orders", orderService.getAllOrder());
         } else {
-            model.addAttribute("orders",orderService.searchOrder(sellerSearchOrderDto,pageable));
+            model.addAttribute("orders",orderService.searchOrder(sellerSearchOrderDto));
         }
         model.addAttribute("orderStatus", orderStatusService.getAllStatus());
         model.addAttribute("sellerSearchOrderDto", sellerSearchOrderDto);
-        return "pages/seller/all-orders";
+        return "pages/seller/order/all-orders";
     }
 
     @GetMapping("/order-detail/{orderId}")
     public String orderDetail(@PathVariable Long orderId, Model model) {
         model.addAttribute("orderStatusService", orderStatusService);
         model.addAttribute("order", orderService.getOrderById(orderId));
-        return "pages/seller/order-detail";
+        return "pages/seller/order/order-detail";
     }
 
     @PostMapping("/update-pending-order-status")
@@ -83,7 +84,7 @@ public class SellerController {
     }
 
     @GetMapping("/all-products")
-    public String sellerAllProducts(@PageableDefault(5) Pageable pageable,
+    public String sellerAllProducts(@PageableDefault(value = 5, sort = "id") Pageable pageable,
                                     Model model) {
         model.addAttribute("products", productService.getAllProducts(pageable));
         return "pages/seller/product/all-products";

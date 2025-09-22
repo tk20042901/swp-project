@@ -32,7 +32,11 @@
             <form class="row g-3" th:action="@{/seller/all-orders}" method="get" th:object="${sellerSearchOrderDto}">
                 <div class="col-12 col-md-4">
                     <label class="form-label" for="customerEmail">Email khách hàng</label>
-                    <input id="customerEmail" type="text" class="form-control" th:field="*{customerEmail}" placeholder="vd: khach@example.com" maxlength="255">
+                    <input id="customerEmail" type="text" class="form-control"
+                           th:field="*{customerEmail}" placeholder="vd: khach@example.com"
+                           th:classappend="${#fields.hasErrors('customerEmail')} ? ' is-invalid'"
+                           maxlength="255">
+                    <span class="text-danger invalid-feedback" th:errors="*{customerEmail}">Email không hợp lệ</span>
                 </div>
                 <div class="col-6 col-md-3">
                     <label class="form-label" for="fromDate">Từ ngày</label>
