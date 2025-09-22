@@ -3,6 +3,7 @@ package com.swp.project.controller.user;
 import com.swp.project.dto.SellerSearchOrderDto;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.order.OrderStatusService;
+import com.swp.project.service.product.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ public class SellerController {
 
     private final OrderStatusService orderStatusService;
     private final OrderService orderService;
+    private final ProductService productService;
 
     @GetMapping("")
     public String sellerMain() {
@@ -29,7 +31,7 @@ public class SellerController {
     @GetMapping("/all-orders")
     public String sellerProducts(@Valid @ModelAttribute SellerSearchOrderDto sellerSearchOrderDto,
                                  BindingResult bindingResult,
-                                 @PageableDefault(5) Pageable pageable,
+                                 @PageableDefault(value = 5, sort = {"id"}) Pageable pageable,
                                  Model model) {
 
         if (bindingResult.hasErrors()) {
@@ -78,5 +80,12 @@ public class SellerController {
         redirectAttributes.addFlashAttribute("msg",
                 "Cập nhật trạng thái đơn hàng thành Đang chờ giao hàng thành công");
         return "redirect:/seller/all-orders";
+    }
+
+    @GetMapping("/all-products")
+    public String sellerAllProducts(@PageableDefault(5) Pageable pageable,
+                                    Model model) {
+        model.addAttribute("products", productService.getAllProducts(pageable));
+        return "pages/seller/product/all-products";
     }
 }

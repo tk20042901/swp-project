@@ -107,13 +107,13 @@
                 <input type="hidden" th:field="*{fromDate}"/>
                 <input type="hidden" th:field="*{toDate}"/>
 
-                <button th:if="${!orders.first}"
+                <button th:disabled="${orders.first}"
                         type="submit"
                         name="page"
                         th:value="0"
                         class="btn btn-outline-secondary btn-sm">Trang đầu</button>
 
-                <button th:if="${orders.hasPrevious()}"
+                <button th:disabled="${!orders.hasPrevious()}"
                         type="submit"
                         name="page"
                         th:value="${orders.number - 1}"
@@ -126,13 +126,13 @@
                 </span>
                 <span class="text-muted small" th:if="${orders.totalPages == 0}">0/0</span>
 
-                <button th:if="${orders.hasNext()}"
+                <button th:disabled="${!orders.hasNext()}"
                         type="submit"
                         name="page"
                         th:value="${orders.number + 1}"
                         class="btn btn-outline-secondary btn-sm">Trang sau</button>
 
-                <button th:if="${!orders.last}"
+                <button th:disabled="${orders.last}"
                         type="submit"
                         name="page"
                         th:value="${orders.totalPages - 1}"
