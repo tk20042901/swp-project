@@ -19,6 +19,10 @@ public class SellerRequestPending {
 
     @Lob
     @Column(columnDefinition = "TEXT")
+    private String oldContent;
+
+    @Lob
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @ManyToOne(fetch = FetchType.EAGER)
