@@ -99,6 +99,7 @@ public class GuestController {
         List<SubImage> subImages = product.getSub_images();
         model.addAttribute("product", product);
         model.addAttribute("subImages", subImages);
+        model.addAttribute("maxQuantity", productService.getAvailableQuantity(id));
         return "pages/guest/product";
     }
 
