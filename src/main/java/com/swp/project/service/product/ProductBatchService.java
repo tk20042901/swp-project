@@ -16,10 +16,19 @@ public class ProductBatchService {
     private final ProductBatchRepository productBatchRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-    public void saveProductBatch(ProductBatch productBatch) {
+    public void addProductBatch(ProductBatch productBatch) {
+        productBatchRepository.save(productBatch);
+    }
+
+    public ProductBatch getProductBatchById(Long id) {
+        return productBatchRepository.findById(id).orElse(null);
+    }
+
+    public void updateProductBatch(ProductBatch productBatch) {
         productBatchRepository.save(productBatch);
 
-        eventPublisher.publishEvent(new ProductRelatedUpdateEvent(productBatch.getProduct().getId()));
+        eventPublisher.publishEvent(new ProductRelatedUpdateEvent
+                (getProductBatchById(productBatch.getId()).getProduct().getId()));
     }
 
     public List<ProductBatch> getByProductId(Long productId) {

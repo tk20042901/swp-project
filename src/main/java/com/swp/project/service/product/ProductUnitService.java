@@ -26,7 +26,7 @@ public class ProductUnitService {
     public void updateProductUnit(ProductUnit productUnit) {
         productUnitRepository.save(productUnit);
 
-        for(Product product : productUnit.getProducts()) {
+        for(Product product : getProductUnitById(productUnit.getId()).getProducts()) {
             eventPublisher.publishEvent(new ProductRelatedUpdateEvent(product.getId()));
         }
     }

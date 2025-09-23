@@ -1,5 +1,6 @@
 package com.swp.project.entity.product;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,6 +21,7 @@ public class Supplier implements Serializable {
     @Column(nullable = false, unique = true,  length = 100)
     private String name;
 
+    @JsonIgnore
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "suppliers")
     private List<ProductBatch> productBatches;
 }
