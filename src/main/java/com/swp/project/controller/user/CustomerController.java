@@ -122,7 +122,12 @@ public class CustomerController {
     public String viewShoppingCart(Model model,
                                    Principal principal) {
         List<ShoppingCartItem> cartItems = customerService.getCart(principal.getName());
-
+for(ShoppingCartItem item: cartItems) {
+    int availableQuantity = productService.getAvailableQuantity(item.getProduct().getId());
+    if (availableQuantity <= 0) {
+        customerService.removeItem(principal.getName(), item.getProduct().getId());
+    }
+}
         model.addAttribute("cartItems", cartItems);
 
         return "pages/customer/shopping-cart";
