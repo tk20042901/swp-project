@@ -41,7 +41,7 @@ public class OrderService {
 
     public Page<Order> searchOrder(SellerSearchOrderDto sellerSearchOrderDto) {
         Pageable pageable = PageRequest.of(
-                Integer.parseInt(sellerSearchOrderDto.getPage())-1,
+                Integer.parseInt(sellerSearchOrderDto.getGoToPage()) - 1,
                 10,
                 Sort.by("id").ascending());
         if (sellerSearchOrderDto.getStatusId() == null || sellerSearchOrderDto.getStatusId() == 0) {

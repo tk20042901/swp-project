@@ -1,5 +1,6 @@
 package com.swp.project.dto;
 
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,13 +23,14 @@ public class SellerSearchOrderDto {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate toDate;
 
-    private String page;
+    @Pattern(regexp = "^[1-9]\\d*$", message = "Trang phải là số nguyên dương")
+    private String goToPage = "1";
 
     public boolean isEmpty() {
         return statusId == null
                 && (customerEmail == null || customerEmail.isBlank())
                 && fromDate == null
                 && toDate == null
-                && page.equals("0");
+                && goToPage.equals("1");
     }
 }

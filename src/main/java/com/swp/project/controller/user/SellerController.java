@@ -1,13 +1,12 @@
 package com.swp.project.controller.user;
 
 import com.swp.project.dto.SellerSearchOrderDto;
+import com.swp.project.entity.order.Order;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.order.OrderStatusService;
-import com.swp.project.service.product.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,7 +20,6 @@ public class SellerController {
 
     private final OrderStatusService orderStatusService;
     private final OrderService orderService;
-    private final ProductService productService;
 
     @GetMapping("")
     public String sellerMain() {
@@ -30,10 +28,9 @@ public class SellerController {
 
     @GetMapping("/all-orders")
     public String sellerProducts(@Valid @ModelAttribute SellerSearchOrderDto sellerSearchOrderDto,
-                                 @RequestParam(required = false, defaultValue = "0") int page,
                                  BindingResult bindingResult,
                                  Model model) {
-        sellerSearchOrderDto.setPage(String.valueOf(page));
+
         if (bindingResult.hasErrors()) {
             model.addAttribute("orders", orderService.getAllOrder());
             model.addAttribute("orderStatus", orderStatusService.getAllStatus());
@@ -41,10 +38,18 @@ public class SellerController {
             return "pages/seller/order/all-orders";
         }
 
-        if(sellerSearchOrderDto.isEmpty()) {
+        if (sellerSearchOrderDto.isEmpty()) {
             model.addAttribute("orders", orderService.getAllOrder());
         } else {
-            model.addAttribute("orders",orderService.searchOrder(sellerSearchOrderDto));
+            Page<Order> orders = orderService.searchOrder(sellerSearchOrderDto);
+            int totalPages = orders.getTotalPages();
+            if (totalPages > 0 && Integer.parseInt(sellerSearchOrderDto.getGoToPage()) > totalPages) {
+                bindingResult.rejectValue("goToPage", "invalid.range",
+                        "Trang phải trong khoảng 1 đến " + totalPages);
+                sellerSearchOrderDto.setGoToPage("1");
+                orders = orderService.searchOrder(sellerSearchOrderDto);
+            }
+            model.addAttribute("orders", orders);
         }
         model.addAttribute("orderStatus", orderStatusService.getAllStatus());
         model.addAttribute("sellerSearchOrderDto", sellerSearchOrderDto);
@@ -60,14 +65,14 @@ public class SellerController {
 
     @PostMapping("/update-pending-order-status")
     public String updatePendingOrderStatus(@RequestParam Long orderId,
-                              @RequestParam String action,
-                              RedirectAttributes redirectAttributes) {
-        if(action.equals("accept")) {
+                                           @RequestParam String action,
+                                           RedirectAttributes redirectAttributes) {
+        if (action.equals("accept")) {
             orderService.doWhenOrderConfirmed(orderId);
             redirectAttributes.addFlashAttribute("msg",
                     "Chấp nhận đơn hàng thành công");
-        } else if(action.equals("reject")) {
-            orderService.setOrderStatus(orderId,orderStatusService.getCancelledStatus());
+        } else if (action.equals("reject")) {
+            orderService.setOrderStatus(orderId, orderStatusService.getCancelledStatus());
             redirectAttributes.addFlashAttribute("msg",
                     "Từ chối đơn hàng thành công");
         }
@@ -77,16 +82,9 @@ public class SellerController {
     @PostMapping("/update-processing-order-status")
     public String updateProcessingOrderStatus(@RequestParam Long orderId,
                                               RedirectAttributes redirectAttributes) {
-        orderService.setOrderStatus(orderId,orderStatusService.getAwaitingShipmentStatus());
+        orderService.setOrderStatus(orderId, orderStatusService.getAwaitingShipmentStatus());
         redirectAttributes.addFlashAttribute("msg",
                 "Cập nhật trạng thái đơn hàng thành Đang chờ giao hàng thành công");
         return "redirect:/seller/all-orders";
-    }
-
-    @GetMapping("/all-products")
-    public String sellerAllProducts(@PageableDefault(value = 5, sort = "id") Pageable pageable,
-                                    Model model) {
-        model.addAttribute("products", productService.getAllProducts(pageable));
-        return "pages/seller/product/all-products";
     }
 }
