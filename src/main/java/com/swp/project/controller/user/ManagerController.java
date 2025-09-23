@@ -16,12 +16,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.swp.project.dto.StaffDto;
 import com.swp.project.entity.address.CommuneWard;
 import com.swp.project.entity.address.ProvinceCity;
-import com.swp.project.entity.user.CustomerSupport;
 import com.swp.project.entity.user.Seller;
 import com.swp.project.entity.user.Shipper;
 import com.swp.project.repository.address.CommuneWardRepository;
 import com.swp.project.repository.address.ProvinceCityRepository;
-import com.swp.project.service.user.CustomerSupportService;
 import com.swp.project.service.user.SellerService;
 import com.swp.project.service.user.ShipperService;
 
@@ -36,7 +34,6 @@ public class ManagerController {
 
     private final SellerService sellerService;
     private final ShipperService shipperService;
-    private final CustomerSupportService customerSupportService;
     private final ProvinceCityRepository provinceCityRepository;
     private final CommuneWardRepository communeWardRepository;
 
@@ -159,68 +156,12 @@ public class ManagerController {
     }
 
 
-    @GetMapping("manage-customer-support")
-    public String manageCustomerSupport(
-            @RequestParam(value = "clickedButton", required = false) String clickedButton,
-            @RequestParam(value = "subpageIndex", required = false) Integer subpageIndex,
-            @RequestParam(value = "queryName", required = false) String queryName,
-            @RequestParam(value = "queryCid", required = false) String queryCid,
-            Model model,
-            HttpSession session) {
-        if (session.getAttribute("k") == null) {
-            session.setAttribute("k", 1);
-        }
-        if (session.getAttribute("sortCriteria") == null) {
-            session.setAttribute("sortCriteria", "id");
-        }
-        if (session.getAttribute("subpageIndex") == null) {
-            session.setAttribute("subpageIndex", 1);
-        }
-        if (session.getAttribute("numEachPage") == null) {
-            session.setAttribute("numEachPage", numEachPage);
-        }
-
-        if (clickedButton != null && !clickedButton.isEmpty()) {
-            switch (clickedButton) {
-                case "id":
-                case "email":
-                case "fullname":
-                case "cid":
-                case "address":
-                case "enabled":
-                    session.setAttribute("sortCriteria", clickedButton);
-                    int k = (int) session.getAttribute("k");
-                    k = -k;
-                    session.setAttribute("k", k);
-                    break;
-                case "search":
-                    session.setAttribute("subpageIndex", 1);
-                    break;
-            }
-        }
-        if (subpageIndex != null) {
-            session.setAttribute("subpageIndex", subpageIndex);
-        }
-
-        customerSupportService.findByNameAndCid(queryName, queryCid);
-        customerSupportService.sortBy((String) session.getAttribute("sortCriteria"), (Integer) session.getAttribute("k"));
-        session.setAttribute("list", customerSupportService.getResults());
-        if (customerSupportService.getResults().size() - 1 < ((Integer) session.getAttribute("subpageIndex") - 1) * numEachPage) {
-            session.setAttribute("subpageIndex", 1);
-        }
-        model.addAttribute("queryName", queryName);
-        model.addAttribute("queryCid", queryCid);
-
-        return "pages/manager/manage-customer-support";
-    }
-
     @PostMapping("/manage-seller")
     public String manageSeller(
             @RequestParam("queryName") String queryName,
             @RequestParam("queryCid") String queryCid,
             @RequestParam("email") String email,
-            RedirectAttributes redirectAttributes,
-            HttpSession session) {
+            RedirectAttributes redirectAttributes) {
         try {
             Seller seller = sellerService.getByEmail(email);
 
@@ -244,8 +185,7 @@ public class ManagerController {
             @RequestParam("queryName") String queryName,
             @RequestParam("queryCid") String queryCid,
             @RequestParam("email") String email,
-            RedirectAttributes redirectAttributes,
-            HttpSession session) {
+            RedirectAttributes redirectAttributes) {
         try {
             Shipper shipper = shipperService.getByEmail(email);
 
@@ -264,30 +204,6 @@ public class ManagerController {
         return "redirect:/manager/manage-shipper";
     }
 
-    @PostMapping("/manage-customer-support")
-    public String manageCustomerSupport(
-            @RequestParam("queryName") String queryName,
-            @RequestParam("queryCid") String queryCid,
-            @RequestParam("email") String email,
-            RedirectAttributes redirectAttributes,
-            HttpSession session) {
-        try {
-            CustomerSupport customerSupport = customerSupportService.getByEmail(email);
-
-            boolean isEnabled = !customerSupport.isEnabled();
-            customerSupport.setEnabled(isEnabled);
-            customerSupportService.save(customerSupport);
-            customerSupportService.setCustomerSupportStatus(customerSupport.getId(), isEnabled);
-
-            redirectAttributes.addFlashAttribute("msg", (isEnabled ? "Mở khóa " : "Khóa ") + customerSupport.getName() + " thành công" );
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-        }
-
-        redirectAttributes.addAttribute("queryName", queryName);
-        redirectAttributes.addAttribute("queryCid", queryCid);
-        return "redirect:/manager/manage-customer-support";
-    }
 
 
     @GetMapping("/edit-staff")
@@ -318,15 +234,6 @@ public class ManagerController {
                         Shipper shipper = shipperService.getByEmail(email);
                         staffDto = new StaffDto().parse(shipper);
                     }  else {
-                        staffDto = new StaffDto();
-                    }
-                    break;
-                case "CustomerSupport":
-                    session.setAttribute("newClassName", clickedButton);
-                    if (email != null && !email.isEmpty()) {
-                        CustomerSupport customerSupport = customerSupportService.getByEmail(email);
-                        staffDto = new StaffDto().parse(customerSupport);
-                    } else {
                         staffDto = new StaffDto();
                     }
                     break;
@@ -413,20 +320,6 @@ public class ManagerController {
                                         (int) session.getAttribute("k"));
 
                                 session.setAttribute("list", shipperService.getResults());
-                            } catch (Exception e) {
-                                redirectAttributes.addFlashAttribute("error", e.getMessage());
-                                return editRedirectUrl;
-                            }
-                            break;
-
-                        case "CustomerSupport":
-                            try {
-                                customerSupportService.add(staffDto);
-                                customerSupportService.findAll();
-                                customerSupportService.sortBy(session.getAttribute("sortCriteria").toString(),
-                                        (int) session.getAttribute("k"));
-
-                                session.setAttribute("list", customerSupportService.getResults());
                             } catch (Exception e) {
                                 redirectAttributes.addFlashAttribute("error", e.getMessage());
                                 return editRedirectUrl;

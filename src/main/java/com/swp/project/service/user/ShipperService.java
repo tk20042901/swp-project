@@ -15,7 +15,6 @@ import com.swp.project.entity.user.Shipper;
 import com.swp.project.listener.event.UserDisabledEvent;
 import com.swp.project.repository.address.CommuneWardRepository;
 import com.swp.project.repository.address.ProvinceCityRepository;
-import com.swp.project.repository.user.CustomerSupportRepository;
 import com.swp.project.repository.user.ManagerRepository;
 import com.swp.project.repository.user.SellerRepository;
 import com.swp.project.repository.user.ShipperRepository;
@@ -32,7 +31,6 @@ public class ShipperService {
 
     private final ShipperRepository shipperRepository;
     private final SellerRepository sellerRepository;
-    private final CustomerSupportRepository  customerSupportRepository;
     private final ManagerRepository managerRepository;
     private final UserRepository userRepository;
     private final ApplicationEventPublisher eventPublisher;
@@ -169,7 +167,6 @@ public class ShipperService {
     private boolean existsCid(String cid) {
         return sellerRepository.findByCid(cid) != null ||
                 shipperRepository.findByCid(cid) != null ||
-                customerSupportRepository.findByCid(cid) != null ||
                 managerRepository.findByCid(cid) != null;
     }
 

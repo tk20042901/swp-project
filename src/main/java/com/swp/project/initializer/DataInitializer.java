@@ -8,7 +8,6 @@ import com.swp.project.service.CustomerAiService;
 import com.swp.project.service.product.ProductService;
 import com.swp.project.service.user.AdminService;
 import com.swp.project.service.user.CustomerService;
-import com.swp.project.service.user.CustomerSupportService;
 import com.swp.project.service.user.ManagerService;
 import com.swp.project.service.user.SellerService;
 import com.swp.project.service.user.ShipperService;
@@ -24,7 +23,6 @@ public class DataInitializer implements CommandLineRunner {
     private final ManagerService managerService;
     private final SellerService sellerService;
     private final ShipperService shipperService;
-    private final CustomerSupportService customerSupportService;
     private final ProductService productService;
     private final CustomerAiService customerAiService;
 
@@ -35,7 +33,6 @@ public class DataInitializer implements CommandLineRunner {
         managerService.initManager();
         sellerService.initSeller();
         shipperService.initShipper();
-        customerSupportService.initCustomerSupport();
         customerService.initCustomer();
 
 //        productService.getAllProducts().forEach(customerAiService::saveProductToVectorStore);
