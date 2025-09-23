@@ -34,7 +34,7 @@ public class SellerRequestService {
 
     public <T> void saveAddRequest(T entity, String sellerEmail) throws JsonProcessingException {
         sellerRequestRepository.save(SellerRequest.builder()
-                .entityName(entity.getClass().getName())
+                .entityName(entity.getClass().getSimpleName())
                 .content(objectMapper.writeValueAsString(entity))
                 .seller(sellerService.getSellerByEmail(sellerEmail))
                 .requestType(sellerRequestTypeService.getAddType())
@@ -45,7 +45,7 @@ public class SellerRequestService {
 
     public <T> void saveUpdateRequest(T oldEntity, T entity, String sellerEmail) throws JsonProcessingException {
         sellerRequestRepository.save(SellerRequest.builder()
-                .entityName(entity.getClass().getName())
+                .entityName(entity.getClass().getSimpleName())
                 .oldContent(objectMapper.writeValueAsString(oldEntity))
                 .content(objectMapper.writeValueAsString(entity))
                 .seller(sellerService.getSellerByEmail(sellerEmail))
@@ -64,11 +64,11 @@ public class SellerRequestService {
         String requestContent = sellerRequest.getContent();
         String entityName = sellerRequest.getEntityName();
         if(requestTypeName.equals(sellerRequestTypeService.getAddType().getName())) {
-            if(entityName.equals(ProductUnit.class.getName())) {
+            if(entityName.equals(ProductUnit.class.getSimpleName())) {
                 excuteAddProductUnitRequest(requestContent);
             }
         } else if(requestTypeName.equals(sellerRequestTypeService.getUpdateType().getName())) {
-            if(entityName.equals(ProductUnit.class.getName())) {
+            if(entityName.equals(ProductUnit.class.getSimpleName())) {
                 excuteUpdateProductUnitRequest(requestContent);
             }
         }
