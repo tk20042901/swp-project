@@ -34,9 +34,10 @@ public class SellerRequestService {
 
     public <T> void saveAddRequest(T entity, String sellerEmail) throws JsonProcessingException {
         sellerRequestRepository.save(SellerRequest.builder()
+                .entityName(entity.getClass().getName())
                 .content(objectMapper.writeValueAsString(entity))
                 .seller(sellerService.getSellerByEmail(sellerEmail))
-                .requestType(sellerRequestTypeService.getAddProductUnitType())
+                .requestType(sellerRequestTypeService.getAddType())
                 .status(sellerRequestStatusTypeService.getPendingStatusType())
                 .createdAt(LocalDateTime.now())
                 .build());
@@ -44,10 +45,11 @@ public class SellerRequestService {
 
     public <T> void saveUpdateRequest(T oldEntity, T entity, String sellerEmail) throws JsonProcessingException {
         sellerRequestRepository.save(SellerRequest.builder()
+                .entityName(entity.getClass().getName())
                 .oldContent(objectMapper.writeValueAsString(oldEntity))
                 .content(objectMapper.writeValueAsString(entity))
                 .seller(sellerService.getSellerByEmail(sellerEmail))
-                .requestType(sellerRequestTypeService.getUpdateProductUnitType())
+                .requestType(sellerRequestTypeService.getUpdateType())
                 .status(sellerRequestStatusTypeService.getPendingStatusType())
                 .createdAt(LocalDateTime.now())
                 .build());
@@ -55,16 +57,20 @@ public class SellerRequestService {
 
     public void approveRequest(Long requestId) throws JsonProcessingException {
         SellerRequest sellerRequest = getSellerRequestById(requestId);
-
         sellerRequest.setStatus(sellerRequestStatusTypeService.getApprovedStatusType());
         sellerRequestRepository.save(sellerRequest);
 
         String requestTypeName = sellerRequest.getRequestType().getName();
         String requestContent = sellerRequest.getContent();
-        if(requestTypeName.equals(sellerRequestTypeService.getAddProductUnitType().getName())) {
-            excuteAddProductUnitRequest(requestContent);
-        } else if(requestTypeName.equals(sellerRequestTypeService.getUpdateProductUnitType().getName())) {
-            excuteUpdateProductUnitRequest(requestContent);
+        String entityName = sellerRequest.getEntityName();
+        if(requestTypeName.equals(sellerRequestTypeService.getAddType().getName())) {
+            if(entityName.equals(ProductUnit.class.getName())) {
+                excuteAddProductUnitRequest(requestContent);
+            }
+        } else if(requestTypeName.equals(sellerRequestTypeService.getUpdateType().getName())) {
+            if(entityName.equals(ProductUnit.class.getName())) {
+                excuteUpdateProductUnitRequest(requestContent);
+            }
         }
     }
 
