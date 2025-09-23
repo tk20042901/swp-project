@@ -15,7 +15,15 @@ public class ProductUnitService {
     private final ProductUnitRepository productUnitRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-    public void saveProductUnit(ProductUnit productUnit) {
+    public ProductUnit getProductUnitById(Long id){
+        return productUnitRepository.findById(id).orElse(null);
+    }
+
+    public void addProductUnit(ProductUnit productUnit) {
+        productUnitRepository.save(productUnit);
+    }
+
+    public void updateProductUnit(ProductUnit productUnit) {
         productUnitRepository.save(productUnit);
 
         for(Product product : productUnit.getProducts()) {
