@@ -174,5 +174,7 @@ public class SellerService {
         }
     }
 
-
+    public Seller getSellerByEmail(String email) {
+        return sellerRepository.findByEmail(email);
+    }
 }
