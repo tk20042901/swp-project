@@ -7,7 +7,6 @@ import com.swp.project.entity.address.CommuneWard;
 import com.swp.project.entity.user.Manager;
 import com.swp.project.listener.event.UserDisabledEvent;
 import com.swp.project.repository.address.CommuneWardRepository;
-import com.swp.project.repository.user.CustomerSupportRepository;
 import com.swp.project.repository.user.ManagerRepository;
 import com.swp.project.repository.user.SellerRepository;
 import com.swp.project.repository.user.ShipperRepository;
@@ -30,7 +29,6 @@ public class ManagerService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final CommuneWardRepository communeWardRepository;
-    private final CustomerSupportRepository customerSupportRepository;
     private final SellerRepository sellerRepository;
     private final ShipperRepository shipperRepository;
     public Manager getManagerById(Long id) {
@@ -76,7 +74,6 @@ public class ManagerService {
         if(!existingManager.getCid().equals(updatedManager.getCId()) 
             && (sellerRepository.findByCid(updatedManager.getCId()) != null ||
                 shipperRepository.findByCid(updatedManager.getCId()) != null ||
-                customerSupportRepository.findByCid(updatedManager.getCId()) != null ||
                 managerRepository.findByCid(updatedManager.getCId()) != null)) {
             throw new IllegalArgumentException("Căn cước công dân đã được sử dụng");
         }
@@ -104,7 +101,6 @@ public class ManagerService {
         }
         if(sellerRepository.findByCid(registerDto.getCId()) != null ||
            shipperRepository.findByCid(registerDto.getCId()) != null ||
-           customerSupportRepository.findByCid(registerDto.getCId()) != null ||
            managerRepository.findByCid(registerDto.getCId()) != null) {
             throw new IllegalArgumentException("Căn cước công dân đã được sử dụng");
         }

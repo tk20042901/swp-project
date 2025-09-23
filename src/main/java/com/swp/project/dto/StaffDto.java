@@ -3,7 +3,6 @@ package com.swp.project.dto;
 import java.io.Serializable;
 import java.util.Date;
 
-import com.swp.project.entity.user.CustomerSupport;
 import com.swp.project.entity.user.Seller;
 import com.swp.project.entity.user.Shipper;
 import jakarta.validation.constraints.*;
@@ -81,22 +80,6 @@ public class StaffDto implements Serializable {
                 .communeWard(shipper.getCommuneWard().getCode())
                 .specificAddress(shipper.getSpecificAddress())
                 .enabled(shipper.isEnabled())
-                .build();
-    }
-
-    public StaffDto parse(CustomerSupport customerSupport) {
-        return StaffDto.builder()
-                .id(customerSupport.getId())
-                .email(customerSupport.getEmail())
-                .password("placeholder")
-                .encodedPassword(customerSupport.getPassword())
-                .fullname(customerSupport.getFullname())
-                .birthDate(customerSupport.getBirthDate())
-                .cid(customerSupport.getCid())
-                .provinceCity(customerSupport.getCommuneWard().getProvinceCity().getCode())
-                .communeWard(customerSupport.getCommuneWard().getCode())
-                .specificAddress(customerSupport.getSpecificAddress())
-                .enabled(customerSupport.isEnabled())
                 .build();
     }
 }
