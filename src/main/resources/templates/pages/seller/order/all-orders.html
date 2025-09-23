@@ -96,7 +96,8 @@
                                   th:text="${order.orderStatus.name}"></span>
                         </td>
                         <td class="text-end">
-                            <a class="btn btn-sm btn-outline-primary" th:href="@{'/seller/order-detail/'+${order.id}}">Chi tiết</a>
+                            <a class="btn btn-sm btn-outline-primary" th:href="@{'/seller/order-detail/'+${order.id}}">Chi
+                                tiết</a>
                         </td>
                     </tr>
                     </tbody>
@@ -105,23 +106,27 @@
         </div>
         <div class="card-footer d-flex justify-content-between align-items-center">
             <!-- Pagination -->
-            <form class="d-flex align-items-center gap-2 flex-wrap" th:action="@{/seller/all-orders}" method="get" th:object="${sellerSearchOrderDto}">
+            <form class="d-flex align-items-center gap-2 flex-wrap" th:action="@{/seller/all-orders}" method="get"
+                  th:object="${sellerSearchOrderDto}">
                 <input type="hidden" th:field="*{statusId}"/>
                 <input type="hidden" th:field="*{customerEmail}"/>
                 <input type="hidden" th:field="*{fromDate}"/>
                 <input type="hidden" th:field="*{toDate}"/>
+                <input type="hidden" th:field="*{goToPage}" id="goToPageHidden">
 
                 <button th:disabled="${orders.first}"
                         type="submit"
-                        name="page"
-                        th:value="0"
-                        class="btn btn-outline-secondary btn-sm">Trang đầu</button>
+                        th:value="1"
+                        onclick="setGoToPageFromBtn(this.value)"
+                        class="btn btn-outline-secondary btn-sm">Trang đầu
+                </button>
 
                 <button th:disabled="${!orders.hasPrevious()}"
                         type="submit"
-                        name="page"
-                        th:value="${orders.number - 1}"
-                        class="btn btn-outline-secondary btn-sm">Trang trước</button>
+                        onclick="setGoToPageFromBtn(this.value)"
+                        th:value="${orders.number}"
+                        class="btn btn-outline-secondary btn-sm">Trang trước
+                </button>
 
                 <span class="text-muted small" th:if="${orders.totalPages > 0}">
                     <span th:text="${orders.number + 1}"></span>
@@ -132,15 +137,42 @@
 
                 <button th:disabled="${!orders.hasNext()}"
                         type="submit"
-                        name="page"
-                        th:value="${orders.number + 1}"
-                        class="btn btn-outline-secondary btn-sm">Trang sau</button>
+                        onclick="setGoToPageFromBtn(this.value)"
+                        th:value="${orders.number + 2}"
+                        class="btn btn-outline-secondary btn-sm">Trang sau
+                </button>
 
                 <button th:disabled="${orders.last}"
                         type="submit"
-                        name="page"
-                        th:value="${orders.totalPages - 1}"
-                        class="btn btn-outline-secondary btn-sm">Trang cuối</button>
+                        onclick="setGoToPageFromBtn(this.value)"
+                        th:value="${orders.totalPages}"
+                        class="btn btn-outline-secondary btn-sm">Trang cuối
+                </button>
+
+                <div class="ms-2" style="min-width: 190px;">
+
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text">Trang</span>
+                        <label>
+                            <input type="number"
+                                   class="form-control form-control-sm text-center"
+                                   th:value="${orders.number + 1}"
+                                   th:classappend="${#fields.hasErrors('goToPage')} ? ' is-invalid'"
+                                   th:disabled="${orders.totalPages == 0}"
+                                   placeholder="Nhập số"
+                                   style="max-width: 90px;">
+                        </label>
+                        <button type="submit"
+                                class="btn btn-primary btn-sm"
+                                onclick="setGoToPageFromInput()"
+                                th:disabled="${orders.totalPages == 0}"
+                                title="Đi tới trang">Đi
+                        </button>
+                    </div>
+                    <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('goToPage')}"
+                         th:errors="*{goToPage}">Giá trị không hợp lệ
+                    </div>
+                </div>
             </form>
 
             <div class="text-muted small">
@@ -150,5 +182,14 @@
     </div>
 </div>
 
+<script>
+    function setGoToPageFromBtn(page) {
+        document.getElementById("goToPageHidden").value = page;
+    }
+
+    function setGoToPageFromInput() {
+        document.getElementById("goToPageHidden").value = document.getElementById("goToPageInput").value;
+    }
+</script>
 </body>
 </html>
