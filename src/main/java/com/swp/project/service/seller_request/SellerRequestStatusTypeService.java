@@ -1,5 +1,6 @@
 package com.swp.project.service.seller_request;
 
+import com.swp.project.entity.seller_request.SellerRequest;
 import com.swp.project.entity.seller_request.SellerRequestStatusType;
 import com.swp.project.repository.seller_request.SellerRequestStatusTypeRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,5 +22,9 @@ public class SellerRequestStatusTypeService {
 
     public SellerRequestStatusType getRejectedStatusType() {
         return sellerRequestStatusTypeRepository.findByName("Đã Từ Chối");
+    }
+
+    public boolean isPendingStatusType(SellerRequest sellerRequest){
+        return sellerRequest.getStatus().getName().equals("Đang Chờ Duyệt");
     }
 }
