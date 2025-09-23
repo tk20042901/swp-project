@@ -31,9 +31,9 @@ public class ProductService {
     public void saveProduct(Product product) {
         productRepository.save(product);
 
-        eventPublisher.publishEvent(new ProductRelatedUpdateEvent(product.getId()));
+        eventPublisher.publishEvent(new ProductRelatedUpdateEvent
+                (productRepository.findByName(product.getName()).getId()));
     }
-
 
     public Product getProductById(Long id) {
         return productRepository.findById(id).orElse(null);
@@ -62,7 +62,7 @@ public class ProductService {
                 quantity -= productBatch.getQuantity();
                 productBatch.setQuantity(0);
             }
-            productBatchService.saveProductBatch(productBatch);
+            productBatchService.updateProductBatch(productBatch);
         }
     }
 

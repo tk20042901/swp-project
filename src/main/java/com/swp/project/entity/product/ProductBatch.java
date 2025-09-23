@@ -1,6 +1,5 @@
 package com.swp.project.entity.product;
 
-import com.swp.project.entity.user.Seller;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,9 +22,6 @@ public class ProductBatch implements Serializable {
 
     @Column(nullable = false)
     private int quantity;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    private Seller seller;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Product product;
