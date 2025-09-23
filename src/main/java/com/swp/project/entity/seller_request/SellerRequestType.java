@@ -1,4 +1,4 @@
-package com.swp.project.entity.seller_request_pending;
+package com.swp.project.entity.seller_request;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,7 +12,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Entity
-public class SellerRequestPendingStatusType {
+public class SellerRequestType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

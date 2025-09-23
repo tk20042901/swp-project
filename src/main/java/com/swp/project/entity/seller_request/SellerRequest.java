@@ -1,4 +1,4 @@
-package com.swp.project.entity.seller_request_pending;
+package com.swp.project.entity.seller_request;
 
 import com.swp.project.entity.user.Seller;
 import jakarta.persistence.*;
@@ -12,16 +12,14 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Entity
-public class SellerRequestPending {
+public class SellerRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String oldContent;
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String content;
 
@@ -29,10 +27,10 @@ public class SellerRequestPending {
     private Seller seller;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private SellerRequestPendingType requestType;
+    private SellerRequestType requestType;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private SellerRequestPendingStatusType status;
+    private SellerRequestStatusType status;
 
     private LocalDateTime createdAt;
 }
