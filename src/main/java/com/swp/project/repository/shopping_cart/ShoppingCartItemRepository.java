@@ -1,14 +1,15 @@
 package com.swp.project.repository.shopping_cart;
 
-import com.swp.project.entity.shopping_cart.ShoppingCartItem;
-import com.swp.project.entity.shopping_cart.ShoppingCartItemId;
-import com.swp.project.entity.user.Customer;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.swp.project.entity.shopping_cart.ShoppingCartItem;
+import com.swp.project.entity.shopping_cart.ShoppingCartItemId;
+import com.swp.project.entity.user.Customer;
 
 @Repository
 public interface ShoppingCartItemRepository extends JpaRepository<ShoppingCartItem, ShoppingCartItemId> {

@@ -4,6 +4,7 @@ import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.ProductBatch;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.listener.event.ProductRelatedUpdateEvent;
+import com.swp.project.repository.order.OrderRepository;
 import com.swp.project.repository.product.ProductRepository;
 import com.swp.project.repository.shopping_cart.ShoppingCartItemRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ import java.util.List;
 public class ProductService {
     private final ProductRepository productRepository;
     private final ProductBatchService productBatchService;
+    private final OrderRepository orderRepository;
     private final ShoppingCartItemRepository shoppingCartItemRepository;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -206,4 +208,21 @@ public class ProductService {
         return normalized.replaceAll("[^a-zA-Z0-9 ]", ""); // Remove non-alphanumeric characters except spaces
     }
 
+    public List<Product> getRelatedProducts(Long id, int i) {
+        Product product = getProductById(id);
+        if (product == null) {
+            return List.of();
+        }
+        return productRepository.findDistinctByCategoriesInAndIdNot(product.getCategories(), id, PageRequest.of(0, i));
+    }
+
+    public int getSoldQuantity(Long id) {
+        int soldQuantity = orderRepository.findAll().stream()
+                .filter(order -> order.getOrderStatus().getId() == 6) // Lọc các order có orderStatus = 6
+                .flatMap(order -> order.getOrderItem().stream())
+                .filter(item -> item.getProduct().getId() == id)
+                .mapToInt(item -> item.getQuantity())
+                .sum();
+        return soldQuantity;
+    }
 }

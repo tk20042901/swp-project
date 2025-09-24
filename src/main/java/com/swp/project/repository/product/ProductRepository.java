@@ -1,11 +1,13 @@
 package com.swp.project.repository.product;
 
-import com.swp.project.entity.product.Product;
-import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.swp.project.entity.product.Category;
+import com.swp.project.entity.product.Product;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product,Long> {
@@ -13,6 +15,6 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
 
     Product findByName(String productName);
 
-
     List<Product> getByName(String name);
+    List<Product> findDistinctByCategoriesInAndIdNot(List<Category> categories, Long id, PageRequest of);
 }

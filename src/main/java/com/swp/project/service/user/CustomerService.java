@@ -1,32 +1,34 @@
 package com.swp.project.service.user;
 
-import com.swp.project.dto.ChangePasswordDto;
-import com.swp.project.dto.DeliveryInfoDto;
-import com.swp.project.dto.RegisterDto;
-import com.swp.project.entity.PendingRegister;
+import java.security.SecureRandom;
+import java.time.Instant;
+import java.util.List;
+import java.util.Random;
+import java.util.regex.Pattern;
 
-import com.swp.project.entity.order.Order;
-import com.swp.project.entity.shopping_cart.ShoppingCartItem;
-import com.swp.project.entity.shopping_cart.ShoppingCartItemId;
-import com.swp.project.entity.user.Customer;
-import com.swp.project.repository.order.OrderRepository;
-import com.swp.project.repository.shopping_cart.ShoppingCartItemRepository;
-import com.swp.project.repository.user.CustomerRepository;
-import com.swp.project.repository.PendingRegisterRepository;
-import com.swp.project.repository.user.UserRepository;
-import com.swp.project.service.AddressService;
-import com.swp.project.service.EmailService;
-
-import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.SecureRandom;
-import java.time.Instant;
-import java.util.*;
-import java.util.regex.Pattern;
+import com.swp.project.dto.ChangePasswordDto;
+import com.swp.project.dto.DeliveryInfoDto;
+import com.swp.project.dto.RegisterDto;
+import com.swp.project.entity.PendingRegister;
+import com.swp.project.entity.order.Order;
+import com.swp.project.entity.shopping_cart.ShoppingCartItem;
+import com.swp.project.entity.shopping_cart.ShoppingCartItemId;
+import com.swp.project.entity.user.Customer;
+import com.swp.project.repository.PendingRegisterRepository;
+import com.swp.project.repository.order.OrderRepository;
+import com.swp.project.repository.product.ProductRepository;
+import com.swp.project.repository.shopping_cart.ShoppingCartItemRepository;
+import com.swp.project.repository.user.CustomerRepository;
+import com.swp.project.repository.user.UserRepository;
+import com.swp.project.service.AddressService;
+import com.swp.project.service.EmailService;
+
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service
@@ -34,6 +36,7 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
     private final UserRepository userRepository;
+    private final ProductRepository productRepository;
     private final PasswordEncoder passwordEncoder;
     private final PendingRegisterRepository pendingRegisterRepository;
     private final EmailService emailService;
@@ -232,5 +235,27 @@ public class CustomerService {
     public List<Order> getOrdersByCustomerEmail(String email) {
         Customer customer = customerRepository.getByEmail(email);
         return orderRepository.getByCustomer(customer);
+    }
+
+    public void addShoppingCartItem(String name, Long productId, int quantity) {
+        Customer customer = customerRepository.getByEmail(name);
+        if (customer == null) {
+            throw new RuntimeException("Khách hàng có email " + name + " không tìm thấy");
+        }
+
+        ShoppingCartItem existingItem = shoppingCartItemRepository.findByCustomer_EmailAndProduct_Id(name, productId);
+        if (existingItem != null) {
+            updateCartQuantity(name, productId, quantity + existingItem.getQuantity());
+        } else {
+            ShoppingCartItem newItem = new ShoppingCartItem();
+            newItem.setCustomer(customer);
+            newItem.setProduct(productRepository.findById(productId).orElse(null));
+            newItem.setQuantity(quantity);
+            shoppingCartItemRepository.save(newItem);
+        }
+    }
+
+    public Customer findByEmail(String email) {
+        return customerRepository.findByEmail(email);
     }
 }
