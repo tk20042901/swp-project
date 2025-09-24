@@ -54,27 +54,27 @@ public class CustomerAiService {
     
     TUÂN THỦ NGHIÊM NGẶT QUY ĐỊNH SAU:
     
-    *   Khi nhắc đến tên một sản phẩm, nên chèn link của sản phẩm đó vào tên bằng cú pháp Markdown. Ví dụ: "[Bơ 034](/products/bo-034)".
+    *   Khi nhắc đến tên một sản phẩm, hãy chèn link của sản phẩm đó vào tên bằng cú pháp Markdown. Ví dụ: "[Bơ 034](/product/bo-034)".
     
     *   Nếu khách hàng hỏi về TỒN KHO (ví dụ: "còn hàng không?", "còn nhiều không?"):
         1.  Tìm đến các câu "Tình trạng tồn kho:" và "Tổng số lượng còn trong kho là:" trong context.
-        2.  Kết hợp cả hai thông tin để trả lời. Ví dụ: "Dạ, [Bơ 034](/products/bo-034) bên mình vẫn còn hàng ạ, số lượng còn lại khoảng 50 kg ạ."
+        2.  Kết hợp cả hai thông tin để trả lời. Ví dụ: "Dạ, [Bơ 034](/product/bo-034) bên mình vẫn còn hàng ạ, số lượng còn lại khoảng 50 kg ạ."
     
     *   Nếu khách hàng hỏi về NHÀ CUNG CẤP hoặc NGUỒN GỐC (ví dụ: "hàng của ai?", "trồng ở đâu?"):
         1.  Tìm đến câu "Sản phẩm này được cung cấp bởi các nhà cung cấp:" trong context.
-        2.  Liệt kê các nhà cung cấp được nêu tên. Ví dụ: "Dạ, [Bơ 034](/products/bo-034) bên mình được cung cấp bởi Nông sản Đà Lạt ạ."
+        2.  Liệt kê các nhà cung cấp được nêu tên. Ví dụ: "Dạ, [Bơ 034](/product/bo-034) bên mình được cung cấp bởi Nông sản Đà Lạt ạ."
     
     *   Nếu khách hàng muốn xem THÔNG TIN CHUNG:
         1.  Tìm các câu "Mô tả sản phẩm:", "Giá niêm yết:".
-        2.  Tổng hợp thành một đoạn văn súc tích. Ví dụ: "Dạ, [Bơ 034](/products/bo-034) là loại bơ sáp, thịt vàng, hạt nhỏ, rất thơm và béo. Giá niêm yết là 120.000 VNĐ mỗi kg ạ."
+        2.  Tổng hợp thành một đoạn văn súc tích. Ví dụ: "Dạ, [Bơ 034](/product/bo-034) là loại bơ sáp, thịt vàng, hạt nhỏ, rất thơm và béo. Giá niêm yết là 120.000 VNĐ mỗi kg ạ."
     
     *   Nếu khách hàng cần TƯ VẤN hoặc TÌM KIẾM SẢN PHẨM:
         1.  context đã chứa các sản phẩm phù hợp nhất với mô tả của khách.
         2.  Hãy đọc kỹ mô tả, danh mục và các thông tin khác của các sản phẩm trong context để đưa ra một vài gợi ý tốt nhất, kèm theo lý do tại sao chúng phù hợp.
     
-    *   Nếu context rỗng hoặc không chứa sản phẩm khách hỏi, hãy trả lời tương tự như "Dạ, mình rất tiếc nhưng mình không tìm thấy thông tin về sản phẩm [tên sản phẩm] trong hệ thống. Bạn có cần mình tư vấn các sản phẩm tương tự đang có sẵn không ạ?"
+    *   Nếu context rỗng hoặc không chứa sản phẩm khách hỏi, hãy trả lời tương tự như "Dạ, mình rất tiếc nhưng mình không tìm thấy thông tin về sản phẩm [tên sản phẩm] trong hệ thống." và đề xuất tư vấn thêm để kéo dài cuộc trò chuyện, ví dụ: "Bạn có cần mình tư vấn các sản phẩm tương tự đang có sẵn không ạ?"
     
-    *   TUYỆT ĐỐI KHÔNG nhắc đến các từ như "Dựa trên context", "Dữ liệu", "Thông tin được cung cấp".""";
+    *   TUYỆT ĐỐI KHÔNG nhắc đến các từ tương tự như "Dựa trên context", "Dữ liệu", "Thông tin được cung cấp".""";
 
 
     private final ChatClient chatClient;
@@ -220,10 +220,9 @@ public class CustomerAiService {
                 .user(u -> u
                         .media(MimeTypeUtils.parseMimeType(contentType), media))
                 .call().content();
-        System.out.println(fruitName);
         String answer = chatClient.prompt()
                 .user(u -> u
-                        .text(q + " (Hình ảnh đang mô tả: "+ fruitName +" )"))
+                        .text(q + " (Hình ảnh đính kèm : "+ fruitName +" )"))
                 .advisors(a -> a
                         .param(ChatMemory.CONVERSATION_ID, conversationId))
                 .call().content();
