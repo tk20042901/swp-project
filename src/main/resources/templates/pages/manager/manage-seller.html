@@ -142,7 +142,7 @@
             <tr th:if="${session.list.isEmpty()}">
                 <td colspan="7" class="text-center text-muted">(Không có dữ liệu)</td>
             </tr>
-            <tr th:each="index : ${#numbers.sequence(session.numEachPage * (session.subpageIndex - 1), ((session.numEachPage * session.subpageIndex - 1) < session.list.size() ? (session.numEachPage * session.subpageIndex - 1) : (session.list.size() - 1)))}"
+            <tr th:if="${!session.list.isEmpty()}" th:each="index : ${#numbers.sequence(session.numEachPage * (session.subpageIndex - 1), ((session.numEachPage * session.subpageIndex - 1) < session.list.size() ? (session.numEachPage * session.subpageIndex - 1) : (session.list.size() - 1)))}"
                 th:object="${session.list[index]}">
                 <td th:text="*{id}"></td>
                 <td th:text="*{email}"></td>
