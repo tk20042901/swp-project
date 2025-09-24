@@ -1,5 +1,6 @@
 package com.swp.project.service;
 
+import com.google.cloud.vertexai.VertexAI;
 import com.swp.project.dto.AiMessageDto;
 import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.Product;
@@ -9,7 +10,6 @@ import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
@@ -18,6 +18,8 @@ import org.springframework.ai.rag.preretrieval.query.transformation.CompressionQ
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.template.st.StTemplateRenderer;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.ai.vertexai.gemini.VertexAiGeminiChatModel;
+import org.springframework.ai.vertexai.gemini.VertexAiGeminiChatOptions;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -115,11 +117,15 @@ public class CustomerAiService {
                 )
                 .build();
 
-        imageChatClient = chatClientBuilder
-                .defaultOptions(ChatOptions.builder()
-                        .temperature(0.5)
-                        .maxTokens(1024)
+        imageChatClient = ChatClient
+                .builder(VertexAiGeminiChatModel.builder()
+                        .defaultOptions(VertexAiGeminiChatOptions.builder()
+                                .model("gemini-2.5-flash")
+                                .maxOutputTokens(128)
+                                .build())
+                        .vertexAI(new VertexAI("gen-lang-client-0228656505","asia-southeast1"))
                         .build())
+                .defaultUser("Hãy xác định và trả về tên trái cây trong hình ảnh này bằng tiếng Việt, không thêm bất kỳ giải thích nào. Nếu không phải là trái cây, hãy trả về \"Không phải trái cây\".")
                 .build();
     }
 
@@ -212,9 +218,9 @@ public class CustomerAiService {
                           List<AiMessageDto> conversation) {
         String fruitName = imageChatClient.prompt()
                 .user(u -> u
-                        .text("Hãy xác định tên loại trái cây trong hình ảnh này. Chỉ trả về tên trái cây bằng tiếng Việt, không thêm bất kỳ giải thích nào. Nếu không phải là trái cây, hãy trả về \"Đây không phải trái cây\".")
                         .media(MimeTypeUtils.parseMimeType(contentType), media))
                 .call().content();
+        System.out.println(fruitName);
         String answer = chatClient.prompt()
                 .user(u -> u
                         .text(q + " (Hình ảnh đang mô tả: "+ fruitName +" )"))
