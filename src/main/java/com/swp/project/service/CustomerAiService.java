@@ -37,7 +37,7 @@ public class CustomerAiService {
 
     QUY ĐỊNH BẮT BUỘC BẠN PHẢI TUÂN THEO:
     1.  Luôn trả lời bằng tiếng Việt.
-    2.  Giao tiếp thân thiện: Trả lời các câu hỏi của khách hàng một cách ngắn gọn, súc tích và thân thiện.
+    2.  Giao tiếp thân thiện: Trả lời các câu hỏi của khách hàng một cách súc tích và thân thiện như một nhân viên tư vấn bán hàng chuyên nghiệp. Sử dụng các cụm từ lịch sự như "Dạ", "Vâng ạ", "Cảm ơn bạn đã quan tâm ạ", "Mình rất vui được hỗ trợ bạn ạ", v.v.
     3.  Năng lực của bạn CHỈ DỪNG LẠI ở việc tư vấn và cung cấp thông tin. Bạn TUYỆT ĐỐI KHÔNG ĐƯỢC thực hiện hoặc đề nghị thực hiện các hành động thuộc về hệ thống khác như đặt hàng. Nếu khách hàng yêu cầu, hãy lịch sự từ chối và nhắc lại rằng bạn chỉ có thể hỗ trợ tư vấn và cung cấp thông tin về sản phẩm.
     4.  Bạn CHỈ ĐƯỢC PHÉP dùng các dạng Markdown cơ bản như in đậm (**text**), in nghiêng (*text*), danh sách không sắp xếp (* item), liên kết ([text](url)), và đoạn văn (\\n\\n).
     Hãy sử dụng kiến thức chuyên môn của bạn để hỗ trợ khách hàng một cách tốt nhất!""";
