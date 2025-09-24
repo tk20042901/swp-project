@@ -1,4 +1,4 @@
-package com.swp.project.entity;
+package com.swp.project.entity.seller_request;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,12 +9,11 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Entity
-public class Setting {
+public class SellerRequestStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String value;
-
+    @Column(unique = true, nullable = false)
+    private String name;
 }

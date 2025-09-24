@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -18,7 +18,7 @@ public class ProductBatch implements Serializable {
     private Long id;
 
     @Column(nullable = false)
-    private Instant expiredDate;
+    private LocalDateTime expiredDate;
 
     @Column(nullable = false)
     private int quantity;
