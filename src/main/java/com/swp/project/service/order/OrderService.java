@@ -6,8 +6,8 @@ import com.swp.project.entity.order.Order;
 import com.swp.project.entity.order.OrderItem;
 import com.swp.project.entity.order.OrderStatus;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
-import com.swp.project.entity.user.Customer;
 import com.swp.project.repository.order.OrderRepository;
+import com.swp.project.repository.shopping_cart.ShoppingCartItemRepository;
 import com.swp.project.repository.user.CustomerRepository;
 import com.swp.project.service.AddressService;
 import com.swp.project.service.product.ProductService;
@@ -32,6 +32,7 @@ public class OrderService {
     private final CustomerRepository customerRepository;
     private final ProductService productService;
     private final OrderStatusService orderStatusService;
+    private final ShoppingCartItemRepository shoppingCartItemRepository;
     private final AddressService addressService;
 
     public Page<Order> getAllOrder() {
@@ -88,12 +89,13 @@ public class OrderService {
                              List<ShoppingCartItem> shoppingCartItems,
                              DeliveryInfoDto deliveryInfoDto) {
 
-        for (ShoppingCartItem shoppingCartItem : shoppingCartItems) {
-            if (shoppingCartItem.getQuantity()
-                    > productService.getAvailableQuantity(shoppingCartItem.getProduct().getId())) {
-                throw new RuntimeException("Đã có sản phẩm trong giỏ hàng vượt quá số lượng tồn kho");
-            }
+        if(shoppingCartItems.stream().anyMatch(i ->
+                i.getQuantity() > productService.getAvailableQuantity(i.getProduct().getId()))) {
+            throw new RuntimeException("Số lượng sản phẩm trong đơn hàng vượt quá số lượng khả dụng");
         }
+
+        shoppingCartItems.forEach(i ->
+                shoppingCartItemRepository.deleteByCustomerEmailAndProductId(customerEmail, i.getProduct().getId()));
 
         Order order = orderRepository.save(Order.builder()
                 .orderDate(LocalDateTime.now())
@@ -117,17 +119,7 @@ public class OrderService {
     @Transactional
     public void doWhenOrderConfirmed(Long orderId) {
         pickProductForOrder(orderId);
-        removeShoppingCartItemsWhenOrderConfirmed(orderId);
         setOrderStatus(orderId, orderStatusService.getProcessingStatus());
-    }
-
-    private void removeShoppingCartItemsWhenOrderConfirmed(Long orderId) {
-        Order order = getOrderById(orderId);
-        Customer customer = order.getCustomer();
-        customer.getShoppingCartItems().removeIf(item ->
-                order.getOrderItem().stream()
-                        .anyMatch(od -> od.getProduct().getId().equals(item.getProduct().getId())));
-        customerRepository.save(customer);
     }
 
     private void pickProductForOrder(Long orderId) {
