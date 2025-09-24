@@ -1,5 +1,17 @@
 package com.swp.project.service.product;
 
+import java.text.Normalizer;
+import java.util.Comparator;
+import java.util.List;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.ProductBatch;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
@@ -7,25 +19,16 @@ import com.swp.project.listener.event.ProductRelatedUpdateEvent;
 import com.swp.project.repository.order.OrderRepository;
 import com.swp.project.repository.product.ProductRepository;
 import com.swp.project.repository.shopping_cart.ShoppingCartItemRepository;
+import com.swp.project.service.order.OrderStatusService;
+
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.text.Normalizer;
-import java.util.Comparator;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Service
 public class ProductService {
     private final ProductRepository productRepository;
     private final ProductBatchService productBatchService;
+    private final OrderStatusService orderStatusService;
     private final OrderRepository orderRepository;
     private final ShoppingCartItemRepository shoppingCartItemRepository;
     private final ApplicationEventPublisher eventPublisher;
@@ -218,7 +221,7 @@ public class ProductService {
 
     public int getSoldQuantity(Long id) {
         int soldQuantity = orderRepository.findAll().stream()
-                .filter(order -> order.getOrderStatus().getId() == 6) // Lọc các order có orderStatus = 6
+                .filter(order -> orderStatusService.isDeliveredStatus(order))
                 .flatMap(order -> order.getOrderItem().stream())
                 .filter(item -> item.getProduct().getId() == id)
                 .mapToInt(item -> item.getQuantity())

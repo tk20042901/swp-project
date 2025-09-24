@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.regex.Pattern;
 
+import com.swp.project.service.product.ProductService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,7 @@ public class CustomerService {
     private final SecureRandom secureRandom = new SecureRandom();
     private final ShoppingCartItemRepository shoppingCartItemRepository;
     private final OrderRepository orderRepository;
+    private final ProductService productService;
 
     public Customer getCustomerByEmail(String email) {
         return customerRepository.getByEmail(email);
@@ -244,9 +246,16 @@ public class CustomerService {
         }
 
         ShoppingCartItem existingItem = shoppingCartItemRepository.findByCustomer_EmailAndProduct_Id(name, productId);
+
         if (existingItem != null) {
+            if (existingItem.getQuantity() + quantity > productService.getAvailableQuantity(productId)) {
+                throw new RuntimeException("Số lượng sản phẩm trong giỏ hàng vượt quá số lượng tồn kho");
+            }
             updateCartQuantity(name, productId, quantity + existingItem.getQuantity());
         } else {
+            if (quantity > productService.getAvailableQuantity(productId)) {
+                throw new RuntimeException("Số lượng sản phẩm trong giỏ hàng vượt quá số lượng tồn kho");
+            }
             ShoppingCartItem newItem = new ShoppingCartItem();
             newItem.setCustomer(customer);
             newItem.setProduct(productRepository.findById(productId).orElse(null));
