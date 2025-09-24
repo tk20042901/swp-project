@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -150,7 +150,7 @@ public class CustomerAiService {
 
         if (product.getProductBatches() != null && !product.getProductBatches().isEmpty()) {
             List<ProductBatch> validBatches = product.getProductBatches().stream()
-                    .filter(batch -> batch.getQuantity() > 0 && batch.getExpiredDate().isAfter(Instant.now()))
+                    .filter(batch -> batch.getQuantity() > 0 && batch.getExpiredDate().isAfter(LocalDateTime.now()))
                     .toList();
 
             int totalStock = validBatches.stream()
