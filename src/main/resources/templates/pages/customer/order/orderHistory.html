@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Order History</title>
+    <title>Lịch sử đơn hàng</title>
 </head>
 <body>
-<h1>Lịch sử đặt hàng</h1>
+<a th:href="@{/}">Trang chủ</a>
+<h1>Lịch sử đơn hàng</h1>
 <table>
     <thead>
     <tr>
@@ -14,6 +15,7 @@
         <th>Ngày đặt</th>
         <th>Trạng thái</th>
         <th>Tổng tiền</th>
+        <th>Chi tiết</th>
     </tr>
     </thead>
     <tbody>
@@ -31,6 +33,7 @@
     <td th:text="${#dates.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></td>
     <td th:text="${order.status}"></td>
     <td th:text="${order.totalAmount}"></td>
+    <td><a th:href="@{'/customer/orders/' + ${order.id}}">Chi tiết</a></td>
 </tr>
     </tbody>
 </table>

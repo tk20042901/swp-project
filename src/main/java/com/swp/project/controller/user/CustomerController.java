@@ -174,6 +174,12 @@ for(ShoppingCartItem item: cartItems) {
         return "redirect:/customer/order-info";
     }
 
+    @GetMapping("/orderHistory")
+    public String getOrderHistory(Model model, Principal principal) {
+        model.addAttribute("orders", customerService.getOrdersByCustomerEmail(principal.getName()));
+        return "pages/customer/order-history";
+    }
+
     @GetMapping("/order-info")
     public String showOrderInfoForm(@ModelAttribute("shoppingCartItems") List<ShoppingCartItem> shoppingCartItems,
                                     Model model,
