@@ -20,7 +20,7 @@ public class SellerRequestService {
     private final ObjectMapper objectMapper;
     private final SellerRequestRepository sellerRequestRepository;
     private final SellerRequestTypeService sellerRequestTypeService;
-    private final SellerRequestStatusTypeService sellerRequestStatusTypeService;
+    private final SellerRequestStatusService sellerRequestStatusService;
     private final SellerService sellerService;
     private final ProductUnitService productUnitService;
 
@@ -38,7 +38,7 @@ public class SellerRequestService {
                 .content(objectMapper.writeValueAsString(entity))
                 .seller(sellerService.getSellerByEmail(sellerEmail))
                 .requestType(sellerRequestTypeService.getAddType())
-                .status(sellerRequestStatusTypeService.getPendingStatusType())
+                .status(sellerRequestStatusService.getPendingStatus())
                 .createdAt(LocalDateTime.now())
                 .build());
     }
@@ -50,14 +50,14 @@ public class SellerRequestService {
                 .content(objectMapper.writeValueAsString(entity))
                 .seller(sellerService.getSellerByEmail(sellerEmail))
                 .requestType(sellerRequestTypeService.getUpdateType())
-                .status(sellerRequestStatusTypeService.getPendingStatusType())
+                .status(sellerRequestStatusService.getPendingStatus())
                 .createdAt(LocalDateTime.now())
                 .build());
     }
 
     public void approveRequest(Long requestId) throws JsonProcessingException {
         SellerRequest sellerRequest = getSellerRequestById(requestId);
-        sellerRequest.setStatus(sellerRequestStatusTypeService.getApprovedStatusType());
+        sellerRequest.setStatus(sellerRequestStatusService.getApprovedStatus());
         sellerRequestRepository.save(sellerRequest);
 
         String requestTypeName = sellerRequest.getRequestType().getName();
@@ -76,7 +76,7 @@ public class SellerRequestService {
 
     public void rejectRequest(Long requestId){
         SellerRequest sellerRequest = getSellerRequestById(requestId);
-        sellerRequest.setStatus(sellerRequestStatusTypeService.getRejectedStatusType());
+        sellerRequest.setStatus(sellerRequestStatusService.getRejectedStatus());
         sellerRequestRepository.save(sellerRequest);
     }
 

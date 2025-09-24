@@ -33,7 +33,7 @@ public class SellerRequest {
     private SellerRequestType requestType;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private SellerRequestStatusType status;
+    private SellerRequestStatus status;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
