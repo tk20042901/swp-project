@@ -34,7 +34,7 @@
 
                         <div class="mb-3">
                             <div class="btn btn-light" th:each="category : ${categories}">
-                                <a th:href="@{'/product/' + ${category.id}}" th:text="${category.name}" style="text-decoration: none; "></a>
+                                <a th:href="@{'/?categoryId=' + ${category.id}}" th:text="${category.name}" style="text-decoration: none; "></a>
                             </div>
                         </div>
 
