@@ -175,11 +175,16 @@ for(ShoppingCartItem item: cartItems) {
         return "redirect:/customer/order-info";
     }
 
-    @GetMapping("/orderHistory")
+    @GetMapping("/order-history")
     public String getOrderHistory(Model model, Principal principal) {
-        model.addAttribute("orders", customerService.getOrdersByCustomerEmail(principal.getName()));
-        return "pages/customer/order-history";
+        List<Order> orders=customerService.getOrdersByCustomerEmail(principal.getName());
+        model.addAttribute("orders",orders );
+        return "pages/customer/order/order-history";
     }
+
+
+//    @GetMapping("/orderHistory/orderDetail/{orderId}")
+//    public String getOrderDetail(@PathVariable Long orderId, Model model, Principal principal)
 
     @GetMapping("/order-info")
     public String showOrderInfoForm(@ModelAttribute("shoppingCartItems") List<ShoppingCartItem> shoppingCartItems,
