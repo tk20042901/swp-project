@@ -236,7 +236,7 @@ public class CustomerService {
     @Transactional
     public List<Order> getOrdersByCustomerEmail(String email) {
         Customer customer = customerRepository.getByEmail(email);
-        return orderRepository.getByCustomer(customer);
+        return orderRepository.findByCustomer(customer);
     }
 
     public void addShoppingCartItem(String name, Long productId, int quantity) {

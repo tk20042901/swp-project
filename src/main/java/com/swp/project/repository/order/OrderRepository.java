@@ -14,5 +14,7 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
 
     Page<Order> searchByOrderStatus_IdAndCustomer_EmailContainsAndOrderDateBetween(Long statusId,String customer_email,LocalDateTime toDate, LocalDateTime fromDate, Pageable pageable);
 
-    List<Order> getByCustomer(Customer customer);
+
+    List<Order> findByCustomer(Customer customer);
+
 }
