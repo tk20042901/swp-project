@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Order History</title>
+</head>
+<body>
+<h1>Lịch sử đặt hàng</h1>
+<p th:text="'Total: ' + ${orders.size()}">0</p>
+<table>
+    <thead>
+    <tr>
+        <th>Mã đơn hàng</th>
+        <th>Ngày đặt hàng</th>
+        <th>Trạng thái</th>
+        <th>Tổng tiền</th>
+        <th>Chi tiết</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="order : ${orders}">
+        <td th:text="${order.id}"></td>
+<!--        <td th:text="${#dates.format(order.getOrderDate(), 'dd/MM/yyyy HH:mm')}"></td>-->
+        <td th:text="${order.orderStatus.name}"></td>
+        <td th:text="${order.totalAmount}+'VND'"></td>
+        <td><a th:href="@{'/customer/orders/' + ${order.id}}">Chi tiết</a></td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
