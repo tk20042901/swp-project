@@ -64,6 +64,12 @@ public class ManagerController {
         if (session.getAttribute("numEachPage") == null) {
             session.setAttribute("numEachPage", numEachPage);
         }
+        if (session.getAttribute("queryName") == null) {
+            session.setAttribute("queryName", "");
+        }
+        if (session.getAttribute("queryCid") == null) {
+            session.setAttribute("queryCid", "");
+        }
 
         if (clickedButton != null && !clickedButton.isEmpty()) {
             switch (clickedButton) {
@@ -80,6 +86,8 @@ public class ManagerController {
                     break;
                 case "search":
                     session.setAttribute("subpageIndex", 1);
+                    session.setAttribute("queryName", queryName);
+                    session.setAttribute("queryCid", queryCid);
                     break;
             }
         }
@@ -87,14 +95,13 @@ public class ManagerController {
             session.setAttribute("subpageIndex", subpageIndex);
         }
 
-        sellerService.findByNameAndCid(queryName, queryCid);
+        sellerService.findByNameAndCid(session.getAttribute("queryName").toString(),
+                                        session.getAttribute("queryCid").toString());
         sellerService.sortBy((String) session.getAttribute("sortCriteria"), (Integer) session.getAttribute("k"));
         session.setAttribute("list", sellerService.getResults());
         if (sellerService.getResults().size() - 1 < ((Integer) session.getAttribute("subpageIndex") - 1) * numEachPage) {
             session.setAttribute("subpageIndex", 1);
         }
-        model.addAttribute("queryName", queryName);
-        model.addAttribute("queryCid", queryCid);
 
         return "pages/manager/manage-seller";
     }
@@ -120,6 +127,12 @@ public class ManagerController {
         if (session.getAttribute("numEachPage") == null) {
             session.setAttribute("numEachPage", numEachPage);
         }
+        if (session.getAttribute("queryName") == null) {
+            session.setAttribute("queryName", "");
+        }
+        if (session.getAttribute("queryCid") == null) {
+            session.setAttribute("queryCid", "");
+        }
 
         if (clickedButton != null && !clickedButton.isEmpty()) {
             switch (clickedButton) {
@@ -136,6 +149,8 @@ public class ManagerController {
                     break;
                 case "search":
                     session.setAttribute("subpageIndex", 1);
+                    session.setAttribute("queryName", queryName);
+                    session.setAttribute("queryCid", queryCid);
                     break;
             }
         }
@@ -143,14 +158,13 @@ public class ManagerController {
             session.setAttribute("subpageIndex", subpageIndex);
         }
 
-        shipperService.findByNameAndCid(queryName, queryCid);
+        shipperService.findByNameAndCid(session.getAttribute("queryName").toString(),
+                                        session.getAttribute("queryCid").toString());
         shipperService.sortBy((String) session.getAttribute("sortCriteria"), (Integer) session.getAttribute("k"));
         session.setAttribute("list", shipperService.getResults());
         if (shipperService.getResults().size() - 1 < ((Integer) session.getAttribute("subpageIndex") - 1) * numEachPage) {
             session.setAttribute("subpageIndex", 1);
         }
-        model.addAttribute("queryName", queryName);
-        model.addAttribute("queryCid", queryCid);
 
         return "pages/manager/manage-shipper";
     }
@@ -158,10 +172,9 @@ public class ManagerController {
 
     @PostMapping("/manage-seller")
     public String manageSeller(
-            @RequestParam("queryName") String queryName,
-            @RequestParam("queryCid") String queryCid,
             @RequestParam("email") String email,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
         try {
             Seller seller = sellerService.getByEmail(email);
 
@@ -174,18 +187,14 @@ public class ManagerController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
-
-        redirectAttributes.addAttribute("queryName", queryName);
-        redirectAttributes.addAttribute("queryCid", queryCid);
         return "redirect:/manager/manage-seller";
     }
 
     @PostMapping("/manage-shipper")
     public String manageShipper(
-            @RequestParam("queryName") String queryName,
-            @RequestParam("queryCid") String queryCid,
             @RequestParam("email") String email,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
         try {
             Shipper shipper = shipperService.getByEmail(email);
 
@@ -198,9 +207,6 @@ public class ManagerController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
-
-        redirectAttributes.addAttribute("queryName", queryName);
-        redirectAttributes.addAttribute("queryCid", queryCid);
         return "redirect:/manager/manage-shipper";
     }
 
@@ -301,7 +307,9 @@ public class ManagerController {
                         case "Seller":
                             try {
                                 sellerService.add(staffDto);
-                                sellerService.findAll();
+                                sellerService.findByNameAndCid(
+                                        session.getAttribute("queryName").toString(),
+                                        session.getAttribute("queryCid").toString());
                                 sellerService.sortBy(session.getAttribute("sortCriteria").toString(),
                                         (int) session.getAttribute("k"));
 
@@ -315,7 +323,9 @@ public class ManagerController {
                         case "Shipper":
                             try {
                                 shipperService.add(staffDto);
-                                shipperService.findAll();
+                                shipperService.findByNameAndCid(
+                                        session.getAttribute("queryName").toString(),
+                                        session.getAttribute("queryCid").toString());
                                 shipperService.sortBy(session.getAttribute("sortCriteria").toString(),
                                         (int) session.getAttribute("k"));
 
