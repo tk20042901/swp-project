@@ -1,5 +1,6 @@
 package com.swp.project.entity.product;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,6 +31,7 @@ public class Product implements Serializable {
     @JoinColumn(name = "unit_id")
     private ProductUnit unit;
 
+    @JsonIgnore
     @Column(nullable = false)
     private String main_image_url;
 
@@ -37,12 +39,14 @@ public class Product implements Serializable {
     @Column(nullable = false)
     private boolean enabled = true;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
     private List<SubImage> sub_images;
 
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Category> categories;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
     private List<ProductBatch> productBatches;
 }

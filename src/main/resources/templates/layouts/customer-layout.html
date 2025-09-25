@@ -51,6 +51,9 @@
                         <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
                             <a class="nav-link" th:href="@{/customer/shopping-cart}">Giỏ hàng</a>
                         </li>
+                        <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
+                            <a class="nav-link" th:href="@{/customer/order-history}">Lịch sử đơn hàng</a>
+                        </li>
                     </ul>
                     <!-- Search Form -->
                     <form method="get" th:action="@{/search-product}" class="d-flex ms-auto" th:if="${showSearchBar}">

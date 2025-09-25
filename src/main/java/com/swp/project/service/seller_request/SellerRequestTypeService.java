@@ -12,19 +12,19 @@ public class SellerRequestTypeService {
 
     private final SellerRequestTypeRepository sellerRequestTypeRepository;
 
-    public SellerRequestType getAddProductUnitType() {
-        return sellerRequestTypeRepository.findByName("Thêm đơn vị sản phẩm mới");
+    public SellerRequestType getAddType() {
+        return sellerRequestTypeRepository.findByName("Thêm mới");
     }
 
-    public SellerRequestType getUpdateProductUnitType() {
-        return sellerRequestTypeRepository.findByName("Cập nhật thông tin đơn vị sản phẩm");
+    public SellerRequestType getUpdateType() {
+        return sellerRequestTypeRepository.findByName("Cập nhật");
     }
 
-    public boolean isAddProductUnitType(SellerRequest request) {
-        return request.getRequestType().getName().equals("Thêm đơn vị sản phẩm mới");
+    public boolean isAddType(SellerRequest request) {
+        return request.getRequestType().getName().equals("Thêm mới");
     }
 
-    public boolean isUpdateProductUnitType(SellerRequest request) {
-        return request.getRequestType().getName().equals("Cập nhật thông tin đơn vị sản phẩm");
+    public boolean isUpdateType(SellerRequest request) {
+        return request.getRequestType().getName().equals("Cập nhật");
     }
 }

@@ -20,7 +20,7 @@ public class SellerRequestService {
     private final ObjectMapper objectMapper;
     private final SellerRequestRepository sellerRequestRepository;
     private final SellerRequestTypeService sellerRequestTypeService;
-    private final SellerRequestStatusTypeService sellerRequestStatusTypeService;
+    private final SellerRequestStatusService sellerRequestStatusService;
     private final SellerService sellerService;
     private final ProductUnitService productUnitService;
 
@@ -34,43 +34,49 @@ public class SellerRequestService {
 
     public <T> void saveAddRequest(T entity, String sellerEmail) throws JsonProcessingException {
         sellerRequestRepository.save(SellerRequest.builder()
+                .entityName(entity.getClass().getSimpleName())
                 .content(objectMapper.writeValueAsString(entity))
                 .seller(sellerService.getSellerByEmail(sellerEmail))
-                .requestType(sellerRequestTypeService.getAddProductUnitType())
-                .status(sellerRequestStatusTypeService.getPendingStatusType())
+                .requestType(sellerRequestTypeService.getAddType())
+                .status(sellerRequestStatusService.getPendingStatus())
                 .createdAt(LocalDateTime.now())
                 .build());
     }
 
     public <T> void saveUpdateRequest(T oldEntity, T entity, String sellerEmail) throws JsonProcessingException {
         sellerRequestRepository.save(SellerRequest.builder()
+                .entityName(entity.getClass().getSimpleName())
                 .oldContent(objectMapper.writeValueAsString(oldEntity))
                 .content(objectMapper.writeValueAsString(entity))
                 .seller(sellerService.getSellerByEmail(sellerEmail))
-                .requestType(sellerRequestTypeService.getUpdateProductUnitType())
-                .status(sellerRequestStatusTypeService.getPendingStatusType())
+                .requestType(sellerRequestTypeService.getUpdateType())
+                .status(sellerRequestStatusService.getPendingStatus())
                 .createdAt(LocalDateTime.now())
                 .build());
     }
 
     public void approveRequest(Long requestId) throws JsonProcessingException {
         SellerRequest sellerRequest = getSellerRequestById(requestId);
-
-        sellerRequest.setStatus(sellerRequestStatusTypeService.getApprovedStatusType());
+        sellerRequest.setStatus(sellerRequestStatusService.getApprovedStatus());
         sellerRequestRepository.save(sellerRequest);
 
         String requestTypeName = sellerRequest.getRequestType().getName();
         String requestContent = sellerRequest.getContent();
-        if(requestTypeName.equals(sellerRequestTypeService.getAddProductUnitType().getName())) {
-            excuteAddProductUnitRequest(requestContent);
-        } else if(requestTypeName.equals(sellerRequestTypeService.getUpdateProductUnitType().getName())) {
-            excuteUpdateProductUnitRequest(requestContent);
+        String entityName = sellerRequest.getEntityName();
+        if(requestTypeName.equals(sellerRequestTypeService.getAddType().getName())) {
+            if(entityName.equals(ProductUnit.class.getSimpleName())) {
+                excuteAddProductUnitRequest(requestContent);
+            }
+        } else if(requestTypeName.equals(sellerRequestTypeService.getUpdateType().getName())) {
+            if(entityName.equals(ProductUnit.class.getSimpleName())) {
+                excuteUpdateProductUnitRequest(requestContent);
+            }
         }
     }
 
     public void rejectRequest(Long requestId){
         SellerRequest sellerRequest = getSellerRequestById(requestId);
-        sellerRequest.setStatus(sellerRequestStatusTypeService.getRejectedStatusType());
+        sellerRequest.setStatus(sellerRequestStatusService.getRejectedStatus());
         sellerRequestRepository.save(sellerRequest);
     }
 

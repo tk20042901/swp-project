@@ -1,11 +1,10 @@
 package com.swp.project.entity.product;
 
-import com.swp.project.entity.user.Seller;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -19,13 +18,10 @@ public class ProductBatch implements Serializable {
     private Long id;
 
     @Column(nullable = false)
-    private Instant expiredDate;
+    private LocalDateTime expiredDate;
 
     @Column(nullable = false)
     private int quantity;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    private Seller seller;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Product product;

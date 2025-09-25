@@ -1,12 +1,10 @@
 package com.swp.project.controller;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.swp.project.dto.AiMessageDto;
-import com.swp.project.service.CustomerAiService;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,15 +12,21 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.swp.project.dto.AiMessageDto;
 import com.swp.project.dto.ViewProductDto;
+import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.SubImage;
+import com.swp.project.service.CustomerAiService;
 import com.swp.project.service.product.CategoryService;
 import com.swp.project.service.product.ProductService;
+import com.swp.project.service.user.CustomerService;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @Controller
@@ -31,6 +35,7 @@ public class GuestController {
     private final ProductService productService;
     private final CategoryService categoryService;
     private final CustomerAiService customerAiService;
+    private final CustomerService customerService;
     private final static int PAGE_SIZE = 9;
 
     @GetMapping({"/"})
@@ -94,12 +99,23 @@ public class GuestController {
     @GetMapping("/product/{id}")
     public String getProductDetail(
             @PathVariable(name = "id") Long id,
-            Model model) {
+            Model model,
+            Principal principal) {
         Product product = productService.getProductById(id);
         List<SubImage> subImages = product.getSub_images();
         model.addAttribute("product", product);
         model.addAttribute("subImages", subImages);
         model.addAttribute("maxQuantity", productService.getAvailableQuantity(id));
+
+        List<Product> relatedProducts = productService.getRelatedProducts(id, 6);
+        model.addAttribute("relatedProducts", relatedProducts);
+
+        int soldQuantity = productService.getSoldQuantity(id);
+        model.addAttribute("soldQuantity", soldQuantity);
+
+        List<Category> categories = product.getCategories();
+        model.addAttribute("categories", categories);
+
         return "pages/guest/product";
     }
 
@@ -127,5 +143,27 @@ public class GuestController {
         session.setAttribute("conversation", conversation);
         model.addAttribute("conversation", conversation);
         return "pages/guest/ai";
+    }
+
+    @PostMapping("/product/add")
+    public String addToCart(
+            @RequestParam Long productId,
+            @RequestParam int quantity,
+            Model model,
+            RedirectAttributes redirectAttributes,
+            Principal principal) {
+        if (principal == null) {
+            redirectAttributes.addFlashAttribute("error", "Bạn phải đăng nhập để thêm sản phẩm vào giỏ hàng");
+            return "redirect:/product/" + productId;
+        } else {
+            try {
+                customerService.addShoppingCartItem(principal.getName(), productId, quantity);
+            } catch (Exception ex) {
+                redirectAttributes.addFlashAttribute("error", ex.getMessage());
+                return "redirect:/product/" + productId;
+            }
+        }
+        redirectAttributes.addFlashAttribute("msg", "Thêm sản phẩm vào giỏ hàng thành công");
+        return "redirect:/product/" + productId;
     }
 }

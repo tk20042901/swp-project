@@ -17,10 +17,13 @@ public class SellerRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private String entityName;
+
     @Column(columnDefinition = "TEXT")
     private String oldContent;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -30,7 +33,8 @@ public class SellerRequest {
     private SellerRequestType requestType;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private SellerRequestStatusType status;
+    private SellerRequestStatus status;
 
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 }

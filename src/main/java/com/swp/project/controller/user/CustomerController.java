@@ -18,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
@@ -174,6 +175,17 @@ for(ShoppingCartItem item: cartItems) {
         return "redirect:/customer/order-info";
     }
 
+    @GetMapping("/order-history")
+    public String getOrderHistory(Model model, Principal principal) {
+        List<Order> orders=customerService.getOrdersByCustomerEmail(principal.getName());
+        model.addAttribute("orders",orders );
+        return "pages/customer/order/order-history";
+    }
+
+
+//    @GetMapping("/orderHistory/orderDetail/{orderId}")
+//    public String getOrderDetail(@PathVariable Long orderId, Model model, Principal principal)
+
     @GetMapping("/order-info")
     public String showOrderInfoForm(@ModelAttribute("shoppingCartItems") List<ShoppingCartItem> shoppingCartItems,
                                     Model model,
@@ -201,6 +213,7 @@ for(ShoppingCartItem item: cartItems) {
                                @RequestParam(required = false) String confirm,
                                Model model,
                                RedirectAttributes redirectAttributes,
+                               SessionStatus sessionStatus,
                                Principal principal) {
         if (confirm == null) {
             redirectAttributes.addFlashAttribute("deliveryInfoDto", deliveryInfoDto);
@@ -221,6 +234,7 @@ for(ShoppingCartItem item: cartItems) {
 
         try {
             Order order = orderService.createOrder(principal.getName(), shoppingCartItems,deliveryInfoDto);
+            sessionStatus.setComplete();
             if (paymentMethod.equals("cod")) {
                 orderService.setOrderStatus(order.getId(), orderStatusService.getPendingConfirmationStatus());
                 return "redirect:/customer/order-success";

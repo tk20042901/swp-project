@@ -4,6 +4,18 @@
     <div layout:fragment="content">
 
         <div class="container py-5">
+
+            <div class="alerts-stack">
+                <div class="alert alert-success alert-dismissible fade show" th:hidden="${msg == null}">
+                    <strong>Thành công!</strong> <span th:text="${msg}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                <div class="alert alert-danger alert-dismissible fade show" th:hidden="${error == null}">
+                    <strong>Thất bại!</strong> <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            </div>
+
             <div class="auth-card p-4 mx-auto shadow">
                 <div class="row g-4">
                     <!-- Hình ảnh chính -->
@@ -19,10 +31,18 @@
                     <!-- Thông tin sản phẩm -->
                     <div class="col-lg-7">
                         <h1 class="h4 mb-3 text-primary fw-bold" th:text="${product.name}"></h1>
+
+                        <div class="mb-3">
+                            <div class="btn btn-light" th:each="category : ${categories}">
+                                <a th:href="@{'/?categoryId=' + ${category.id}}" th:text="${category.name}" style="text-decoration: none; "></a>
+                            </div>
+                        </div>
+
                         <h2 class="h5 text-danger mb-3" th:text="${product.price} + ' đ'"></h2>
+                        <p th:text="${'Đã bán '} + ${soldQuantity} + ', Còn ' + ${maxQuantity}" style="color: blue"></p>
                         <p class="mb-4 text-muted" th:text="${product.description}"></p>
 
-                        <form th:action="@{/customer/shopping-cart/update}" method="post" class="d-flex flex-column flex-sm-row align-items-sm-end gap-3">
+                        <form th:action="@{/product/add}" method="post" class="d-flex flex-column flex-sm-row align-items-sm-end gap-3">
                             <input type="hidden" name="productId" th:value="${product.id}">
                             <div>
                                 <label for="quantity" class="form-label">Số lượng</label>
@@ -30,6 +50,22 @@
                             </div>
                             <button type="submit" class="btn btn-primary btn-lg shadow-sm">Thêm vào giỏ hàng</button>
                         </form>
+                    </div>
+
+                    <div class="related-products mt-5">
+                        <h3 class="h5 mb-4 text-secondary fw-bold">Sản phẩm liên quan</h3>
+                        <div class="row g-4">
+                            <div class="col-md-4" th:each="relatedProduct : ${relatedProducts}">
+                                <div class="card h-100">
+                                    <img th:src="${relatedProduct.main_image_url}" class="card-img-top" alt="Sản phẩm liên quan">
+                                    <div class="card-body d-flex flex-column">
+                                        <h5 class="card-title" th:text="${relatedProduct.name}"></h5>
+                                        <p class="card-text text-danger fw-bold" th:text="${relatedProduct.price} + ' đ'"></p>
+                                        <a th:href="@{/product/{id}(id=${relatedProduct.id})}" class="btn btn-outline-primary mt-auto">Xem chi tiết</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -23,6 +23,10 @@ public class CategoryService {
         return categoryRepository.findAll();
     }
 
+    public Category getCategoryById(Long id) {
+        return categoryRepository.findById(id).orElse(null);
+    }
+
     /**
      * Lấy danh sách các danh mục duy nhất dựa trên trang sản phẩm đã cho.
      *
@@ -42,10 +46,14 @@ public class CategoryService {
     }
     private final ApplicationEventPublisher eventPublisher;
 
-    public void saveCategory(Category category) {
+    public void addCategory(Category category) {
+        categoryRepository.save(category);
+    }
+
+    public void updateCategory(Category category) {
         categoryRepository.save(category);
 
-        for (Product product : category.getProducts()) {
+        for (Product product : getCategoryById(category.getId()).getProducts()) {
             eventPublisher.publishEvent(new ProductRelatedUpdateEvent(product.getId()));
         }
     }

@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -23,8 +24,6 @@ public class SecurityConfig {
     private final CaptchaValidationFilter captchaValidationFilter;
     private final LoginRequestValidationFilter loginRequestValidationFilter;
     private final CustomOAuth2UserService customOAuth2UserService;
-
-    private static final String LOGIN_URL = "/login";
 
     private static final String HOME_URL = "/";
 
@@ -58,10 +57,6 @@ public class SecurityConfig {
             "/shipper/**"
     };
 
-    private static final String[] CUSTOMER_SUPPORT_MATCHERS = {
-            "/customer-support/**",
-    };
-
     // Thời gian remember-me (s)
     private static final int REMEMBER_ME_VALIDITY = Integer.MAX_VALUE;
 
@@ -76,20 +71,20 @@ public class SecurityConfig {
                         .requestMatchers(MANAGER_MATCHERS).hasAuthority("Manager")
                         .requestMatchers(SELLER_MATCHERS).hasAuthority("Seller")
                         .requestMatchers(SHIPPER_MATCHERS).hasAuthority("Shipper")
-                        .requestMatchers(CUSTOMER_SUPPORT_MATCHERS).hasAuthority("Customer Support")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(i -> i
-                                .accessDeniedPage("/")
+                        .authenticationEntryPoint(
+                                new LoginUrlAuthenticationEntryPoint("/login")
+                        )
+                        .accessDeniedPage(HOME_URL)
                 )
                 .formLogin(i -> i
-                        .loginPage(LOGIN_URL)
                         .usernameParameter("email")
                         .failureHandler(loginFailureHandler())
                         .defaultSuccessUrl(HOME_URL,true)
                 )
                 .oauth2Login(i -> i
-                        .loginPage(LOGIN_URL)
                         .failureHandler(oauth2FailureHandler())
                         .defaultSuccessUrl(HOME_URL, true)
                         .userInfoEndpoint(userInfo -> userInfo

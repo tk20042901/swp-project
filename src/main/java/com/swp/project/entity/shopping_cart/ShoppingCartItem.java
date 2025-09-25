@@ -15,7 +15,7 @@ import java.io.Serializable;
 @Entity
 public class ShoppingCartItem implements Serializable {
     @EmbeddedId
-    private ShoppingCartItemId id;
+    private ShoppingCartItemId id = new ShoppingCartItemId();
 
     @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("customerId")
