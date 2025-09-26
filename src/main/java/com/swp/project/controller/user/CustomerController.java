@@ -22,23 +22,26 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
-import java.util.ArrayList;
+import java.time.ZoneId;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import vn.payos.PayOS;
+import vn.payos.type.ItemData;
+import vn.payos.type.PaymentData;
 
 @SessionAttributes("shoppingCartItems")
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("/customer")
 public class CustomerController {
+
     private final CustomerService customerService;
     private final AddressService addressService;
     private final ProductService productService;
     private final OrderService orderService;
     private final OrderStatusService orderStatusService;
-
-
+    private final PayOS payOS;
 
     @GetMapping("/account-manager")
     public String accountManager(Model model, Principal principal) {
@@ -168,9 +171,9 @@ for(ShoppingCartItem item: cartItems) {
     public String checkOut(@RequestParam List<Long> cartIds,
                            Model model,
                            Principal principal) {
-        List<ShoppingCartItem> shoppingCartItems = new ArrayList<>();
-        cartIds.forEach(i -> shoppingCartItems.add(
-                productService.getAllShoppingCartItemByCustomerIdAndProductId(principal.getName(), i)));
+        List<ShoppingCartItem> shoppingCartItems = cartIds.stream().map(cartId ->
+                productService.getAllShoppingCartItemByCustomerIdAndProductId(principal.getName(), cartId))
+                .toList();
         model.addAttribute("shoppingCartItems", shoppingCartItems);
         return "redirect:/customer/order-info";
     }
@@ -232,18 +235,47 @@ for(ShoppingCartItem item: cartItems) {
             return "/pages/customer/order/order-info";
         }
 
+        sessionStatus.setComplete();
         try {
-            Order order = orderService.createOrder(principal.getName(), shoppingCartItems,deliveryInfoDto);
-            sessionStatus.setComplete();
             if (paymentMethod.equals("cod")) {
-                orderService.setOrderStatus(order.getId(), orderStatusService.getPendingConfirmationStatus());
+                orderService.createCodOrder(principal.getName(), shoppingCartItems,deliveryInfoDto);
                 return "redirect:/customer/order-success";
             } else {
-                orderService.setOrderStatus(order.getId(), orderStatusService.getPendingPaymentStatus());
-                return "redirect:/checkout?orderId=" + order.getId();
+                Order order = orderService.createQrOrder(principal.getName(), shoppingCartItems,deliveryInfoDto);
+                return "redirect:/customer/pay-os-checkout?orderId=" + order.getId();
             }
         } catch (Exception e){
             redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/customer/shopping-cart";
+        }
+    }
+
+    @GetMapping("/pay-os-checkout")
+    public String payOsCheckout(@RequestParam Long orderId) {
+        Order order = orderService.getOrderById(orderId);
+        try {
+            List<ItemData> items = order.getOrderItem().stream().map(orderItem ->
+                    ItemData.builder()
+                            .name(orderItem.getProduct().getName())
+                            .price(orderItem.getProduct().getPrice())
+                            .quantity(orderItem.getQuantity())
+                            .build()).toList();
+            PaymentData paymentData = PaymentData.builder()
+                    .orderCode(order.getId())
+                    .buyerName(order.getCustomer().getName())
+                    .buyerEmail(order.getCustomer().getEmail())
+                    .buyerPhone(order.getCustomer().getPhoneNumber())
+                    .buyerAddress(order.getAddressString())
+                    .amount(order.getTotalAmount())
+                    .expiredAt(order.getPaymentExpiredTime().atZone(ZoneId.systemDefault()).toEpochSecond())
+                    .items(items)
+                    .description("FruitShop " + order.getId())
+                    .returnUrl("https://localhost:8080/customer/order-success")
+                    .cancelUrl("https://localhost:8080/customer/order-cancel")
+                    .build();
+            return "redirect:" + payOS.createPaymentLink(paymentData).getCheckoutUrl();
+        } catch (Exception e) {
+            e.printStackTrace();
             return "redirect:/customer/shopping-cart";
         }
     }
@@ -257,6 +289,7 @@ for(ShoppingCartItem item: cartItems) {
     public String cancelPayment(@RequestParam Long orderCode,
                                 @RequestParam boolean cancel) {
         if (cancel) {
+            // TODO: return products to inventory
             orderService.setOrderStatus(orderCode, orderStatusService.getCancelledStatus());
             return "pages/customer/order/cancel";
         }
