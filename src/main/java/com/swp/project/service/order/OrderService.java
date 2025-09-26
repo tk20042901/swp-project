@@ -41,6 +41,10 @@ public class OrderService {
         return orderRepository.findAll(pageable);
     }
 
+    public void saveOrder(Order order) {
+        orderRepository.save(order);
+    }
+
     public Page<Order> searchOrder(SellerSearchOrderDto sellerSearchOrderDto) {
         Pageable pageable = PageRequest.of(
                 Integer.parseInt(sellerSearchOrderDto.getGoToPage()) - 1,
