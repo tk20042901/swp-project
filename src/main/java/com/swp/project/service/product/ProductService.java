@@ -212,12 +212,21 @@ public class ProductService {
         return normalized.replaceAll("[^a-zA-Z0-9 ]", ""); // Remove non-alphanumeric characters except spaces
     }
 
-    public List<Product> getRelatedProducts(Long id, int i) {
+
+    public List<Product> getRelatedProducts(Long id, int limit) {
         Product product = getProductById(id);
         if (product == null) {
             return List.of();
         }
-        return productRepository.findDistinctByCategoriesInAndIdNot(product.getCategories(), id, PageRequest.of(0, i));
+        String productName = product.getName();
+        List<Product> allProducts = getAllEnabledProducts().stream()
+                .filter(p -> !p.getId().equals(id))
+                .toList();
+        List<Product> relatedProducts = allProducts.stream()
+                .filter(p -> isProductNameRelated(p.getName(), productName))
+                .limit(limit)
+                .toList();
+        return relatedProducts;
     }
 
     public int getSoldQuantity(Long id) {
@@ -229,4 +238,29 @@ public class ProductService {
                 .sum();
         return soldQuantity;
     }
+
+    private boolean isProductNameRelated(String productName, String anotherName) {
+        if (productName.equals("") || anotherName.equals(""))
+            return false;
+        String[] keywords = anotherName.split(" ");
+        for (String keyword : keywords) {
+            if (isKeywordInProductName(productName, keyword)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isKeywordInProductName(String productName, String keyword) {
+        if (productName.equals("") || keyword.equals(""))
+            return false;
+        String[] splitedWords = productName.split(" ");
+        for (String word : splitedWords) {
+            if (word.equalsIgnoreCase(keyword)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
