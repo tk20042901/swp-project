@@ -1,12 +1,15 @@
 package com.swp.project.service;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.swp.project.entity.address.CommuneWard;
 import com.swp.project.entity.address.ProvinceCity;
 import com.swp.project.repository.address.CommuneWardRepository;
 import com.swp.project.repository.address.ProvinceCityRepository;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Service
