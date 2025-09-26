@@ -58,6 +58,7 @@ public class SellerController {
 
     @GetMapping("/order-detail/{orderId}")
     public String orderDetail(@PathVariable Long orderId, Model model) {
+        // TODO: check and warning inventory if order is pending confirmation status
         model.addAttribute("orderStatusService", orderStatusService);
         model.addAttribute("order", orderService.getOrderById(orderId));
         return "pages/seller/order/order-detail";
@@ -68,7 +69,8 @@ public class SellerController {
                                            @RequestParam String action,
                                            RedirectAttributes redirectAttributes) {
         if (action.equals("accept")) {
-            orderService.doWhenOrderConfirmed(orderId);
+            //TODO: check inventory before accepting order
+            //TODO: reduce inventory
             redirectAttributes.addFlashAttribute("msg",
                     "Chấp nhận đơn hàng thành công");
         } else if (action.equals("reject")) {

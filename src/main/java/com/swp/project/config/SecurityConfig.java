@@ -2,7 +2,6 @@ package com.swp.project.config;
 
 import com.swp.project.filter.CaptchaValidationFilter;
 import com.swp.project.filter.LoginRequestValidationFilter;
-import com.swp.project.security.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,76 +22,67 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     private final CaptchaValidationFilter captchaValidationFilter;
     private final LoginRequestValidationFilter loginRequestValidationFilter;
-    private final CustomOAuth2UserService customOAuth2UserService;
 
     private static final String HOME_URL = "/";
 
-    private static final String[] PUBLIC_MATCHERS = {
-            "/",
-            "/register/**",
-            "/login/**",
-            "/css/**",
-            "/js/**",
-            "/images/**",
-            "/forgot-password/**",
-            "/verify-otp/**",
-            "/ai/**",
-            "/search-product",
-            "/product/**"
+    private static final String[] ALL_ALLOWED = {
+            "/",                    // trang chủ
+            "/search-product/**",   // tìm kiếm sản phẩm
+            "/product/**",          // chi tiết sản phẩm
+            "/login/**",            // đăng nhập
+            "/register/**",         // đăng ký
+            "/verify-otp/**",       // xác thực otp
+            "/css/**",              // css tĩnh
+            "/js/**",               // js tĩnh
+            "/images/**",           // hình ảnh tĩnh
+            "/forgot-password/**",  // quên mật khẩu
+            "/webhook/**",          // webhook
+            "/ai/**"                // chatbot ai
     };
 
-    private static final String[] ADMIN_MATCHERS = {
+    private static final String[] ADMIN_ALLOWED = {
             "/admin/**"
     };
 
-    private static final  String[] MANAGER_MATCHERS = {
+    private static final String[] MANAGER_ALLOWED = {
             "/manager/**"
     };
 
-    private static final  String[] SELLER_MATCHERS = {
+    private static final String[] SELLER_ALLOWED = {
             "/seller/**"
     };
 
-    private static final  String[] SHIPPER_MATCHERS = {
+    private static final String[] SHIPPER_ALLOWED = {
             "/shipper/**"
     };
-
-    // Thời gian remember-me (s)
-    private static final int REMEMBER_ME_VALIDITY = Integer.MAX_VALUE;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .addFilterBefore(loginRequestValidationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(captchaValidationFilter, UsernamePasswordAuthenticationFilter.class)
-                .authorizeHttpRequests(i -> i
-                        .requestMatchers(PUBLIC_MATCHERS).permitAll()
-                        .requestMatchers(ADMIN_MATCHERS).hasAuthority("Admin")
-                        .requestMatchers(MANAGER_MATCHERS).hasAuthority("Manager")
-                        .requestMatchers(SELLER_MATCHERS).hasAuthority("Seller")
-                        .requestMatchers(SHIPPER_MATCHERS).hasAuthority("Shipper")
-                        .anyRequest().authenticated()
-                )
-                .exceptionHandling(i -> i
-                        .authenticationEntryPoint(
-                                new LoginUrlAuthenticationEntryPoint("/login")
-                        )
-                        .accessDeniedPage(HOME_URL)
-                )
                 .formLogin(i -> i
                         .usernameParameter("email")
                         .failureHandler(loginFailureHandler())
-                        .defaultSuccessUrl(HOME_URL,true)
+                        .defaultSuccessUrl(HOME_URL, true)
                 )
                 .oauth2Login(i -> i
                         .failureHandler(oauth2FailureHandler())
                         .defaultSuccessUrl(HOME_URL, true)
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService)
-                        )
                 )
-                .rememberMe(i -> i
-                        .tokenValiditySeconds(REMEMBER_ME_VALIDITY)
+                .addFilterBefore(loginRequestValidationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(captchaValidationFilter, UsernamePasswordAuthenticationFilter.class)
+                .authorizeHttpRequests(i -> i
+                        .requestMatchers(ALL_ALLOWED).permitAll()
+                        .requestMatchers(ADMIN_ALLOWED).hasAuthority("Admin")
+                        .requestMatchers(MANAGER_ALLOWED).hasAuthority("Manager")
+                        .requestMatchers(SELLER_ALLOWED).hasAuthority("Seller")
+                        .requestMatchers(SHIPPER_ALLOWED).hasAuthority("Shipper")
+                        .anyRequest().authenticated()
+                ).csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/webhook")
+                )
+                .exceptionHandling(i -> i
+                        .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
+                        .accessDeniedPage(HOME_URL)
                 );
 
         return http.build();
@@ -103,7 +93,7 @@ public class SecurityConfig {
             if (exception instanceof BadCredentialsException
                     || exception instanceof UsernameNotFoundException) {
                 response.sendRedirect("/login?incorrect_email_or_password");
-            } else if (exception instanceof DisabledException){
+            } else if (exception instanceof DisabledException) {
                 response.sendRedirect("/login?account_disabled");
             } else {
                 response.sendRedirect("/login?unknown_error");
