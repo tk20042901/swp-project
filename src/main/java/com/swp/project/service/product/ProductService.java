@@ -72,6 +72,7 @@ public class ProductService {
     }
 
     public int getAvailableQuantity(Long productId) {
+        // TODO: Reduce quantity of QR Payment Order in Pending Payment status
         return productBatchService.getByProductId(productId)
                 .stream()
                 .mapToInt(ProductBatch::getQuantity)
