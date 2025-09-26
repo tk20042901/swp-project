@@ -186,8 +186,12 @@ for(ShoppingCartItem item: cartItems) {
     }
 
 
-//    @GetMapping("/orderHistory/orderDetail/{orderId}")
-//    public String getOrderDetail(@PathVariable Long orderId, Model model, Principal principal)
+    @GetMapping("/order/order-detail/{orderId}")
+    public String getOrderDetail(@PathVariable Long orderId, Model model, Principal principal){
+        Order order = orderService.getOrderById(orderId);
+        model.addAttribute("order",order);
+        return "pages/customer/order/order-detail";
+    }
 
     @GetMapping("/order-info")
     public String showOrderInfoForm(@ModelAttribute("shoppingCartItems") List<ShoppingCartItem> shoppingCartItems,
