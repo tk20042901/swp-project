@@ -236,6 +236,7 @@ for(ShoppingCartItem item: cartItems) {
         }
 
         sessionStatus.setComplete();
+
         try {
             if (paymentMethod.equals("cod")) {
                 orderService.createCodOrder(principal.getName(), shoppingCartItems,deliveryInfoDto);
@@ -273,6 +274,9 @@ for(ShoppingCartItem item: cartItems) {
                     .returnUrl("https://localhost:8080/customer/order-success")
                     .cancelUrl("https://localhost:8080/customer/order-cancel")
                     .build();
+            String checkoutUrl = payOS.createPaymentLink(paymentData).getCheckoutUrl();
+            order.setPaymentLink(checkoutUrl);
+            orderService.saveOrder(order);
             return "redirect:" + payOS.createPaymentLink(paymentData).getCheckoutUrl();
         } catch (Exception e) {
             e.printStackTrace();
@@ -289,7 +293,6 @@ for(ShoppingCartItem item: cartItems) {
     public String cancelPayment(@RequestParam Long orderCode,
                                 @RequestParam boolean cancel) {
         if (cancel) {
-            // TODO: return products to inventory
             orderService.setOrderStatus(orderCode, orderStatusService.getCancelledStatus());
             return "pages/customer/order/cancel";
         }

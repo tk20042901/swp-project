@@ -40,6 +40,8 @@ public class Order {
     @Builder.Default
     private LocalDateTime orderTime = LocalDateTime.now();
 
+    private String paymentLink;
+
     private LocalDateTime paymentExpiredTime;
 
     private LocalDateTime deliveredTime;
