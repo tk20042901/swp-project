@@ -151,11 +151,15 @@ public class OrderService {
     @Scheduled(fixedRate = 300000) // cancel expired qr orders every 5 minutes
     @Transactional
     public void cancelExpiredQrOrders() {
-        // TODO: return products to inventory
         List<Order> expiredOrders = orderRepository.findByOrderStatusAndPaymentExpiredTimeBefore(
                 orderStatusService.getPendingPaymentStatus(), LocalDateTime.now());
         expiredOrders.forEach(order -> setOrderStatus(order.getId(), orderStatusService.getCancelledStatus()));
         orderRepository.saveAll(expiredOrders);
+    }
+
+    public boolean isOrderItemQuantityMoreThanAvailable(Long orderId) {
+        return getOrderById(orderId).getOrderItem().stream().anyMatch(i ->
+                i.getQuantity() > productService.getAvailableQuantity(i.getProduct().getId()));
     }
 
     @Transactional

@@ -4,6 +4,8 @@ import java.text.Normalizer;
 import java.util.Comparator;
 import java.util.List;
 
+import com.swp.project.entity.order.OrderItem;
+import com.swp.project.repository.order.OrderItemRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -30,6 +32,7 @@ public class ProductService {
     private final ProductBatchService productBatchService;
     private final OrderStatusService orderStatusService;
     private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
     private final ShoppingCartItemRepository shoppingCartItemRepository;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -72,11 +75,17 @@ public class ProductService {
     }
 
     public int getAvailableQuantity(Long productId) {
-        // TODO: Reduce quantity of QR Payment Order in Pending Payment status
-        return productBatchService.getByProductId(productId)
+        int productBatchQuantity = productBatchService.getByProductId(productId)
                 .stream()
                 .mapToInt(ProductBatch::getQuantity)
                 .sum();
+
+        int pendingPaymentQuantity = orderItemRepository.getByProduct_IdAndOrder_OrderStatus
+                        (productId,orderStatusService.getPendingPaymentStatus()).stream()
+                .mapToInt(OrderItem::getQuantity)
+                .sum();
+
+        return productBatchQuantity - pendingPaymentQuantity;
     }
 
     public ShoppingCartItem getAllShoppingCartItemByCustomerIdAndProductId(String email, Long productId) {
