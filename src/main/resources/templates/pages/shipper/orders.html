@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách đơn hàng</title>
+</head>
+<body>
+<div class="alert alert-danger alert-dismissible fade show" th:hidden="${error == null}">
+    <strong>Thất bại!</strong> <span th:text="${error}"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+<h1>Đơn hàng đang giao</h1>
+<table class="table">
+    <thead>
+    <tr>
+        <th>Mã đơn hàng</th>
+        <th>Khách hàng</th>
+        <th>Địa chỉ</th>
+        <th>Số điện thoại</th>
+        <th>Thời gian đặt hàng</th>
+        <th>Thời gian giao hàng</th>
+        <th>Trạng thái</th>
+        <th>Hành động</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="order : ${deliveringOrders}">
+        <td th:text="${order.id}"></td>
+        <td th:text="${order.customer.fullName}"></td>
+        <td th:text="${order.addressString}"></td>
+        <td th:text="${order.phoneNumber}"></td>
+        <td th:text="${order.orderTime}"></td>
+        <td th:text="${order.deliveredTime}"></td>
+        <td th:text="${order.orderStatus.name}"></td>
+        <td>
+            <form th:action="@{/shipper/orders/done/{id}(id=${order.id})}" method="post">
+                <button type="submit" class="btn btn-success">Hoàn thành</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<hr/>
+<h1>Đơn hàng khác</h1>
+<hr/>
+<table class="table">
+    <thead>
+    <tr>
+        <th>Mã đơn hàng</th>
+        <th>Khách hàng</th>
+        <th>Địa chỉ</th>
+        <th>Số điện thoại</th>
+        <th>Thời gian đặt hàng</th>
+        <th>Thời gian giao hàng</th>
+        <th>Trạng thái</th>
+        <th>Hành động</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="order : ${otherOrders}">
+        <td th:text="${order.id}"></td>
+        <td th:text="${order.customer.fullName}"></td>
+        <td th:text="${order.addressString}"></td>
+        <td th:text="${order.phoneNumber}"></td>
+        <td th:text="${order.orderTime}"></td>
+        <td th:text="${order.deliveredTime}"></td>
+        <td th:text="${order.orderStatus.name}"></td>
+        <td colspan="8">
+            <form th:action="@{/shipper/orders/deliver/{id}(id=${order.id})}" method="post" th:if="${orderStatusService.isAwaitingShipmentStatus(order)}">
+                <button type="submit" class="btn">Giao hàng</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

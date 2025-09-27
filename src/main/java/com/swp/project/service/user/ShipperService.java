@@ -1,5 +1,6 @@
 package com.swp.project.service.user;
 
+import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,15 +12,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.swp.project.dto.StaffDto;
+import com.swp.project.entity.order.Order;
 import com.swp.project.entity.user.Shipper;
 import com.swp.project.listener.event.UserDisabledEvent;
 import com.swp.project.repository.address.CommuneWardRepository;
 import com.swp.project.repository.address.ProvinceCityRepository;
+import com.swp.project.repository.order.OrderRepository;
 import com.swp.project.repository.user.ManagerRepository;
 import com.swp.project.repository.user.SellerRepository;
 import com.swp.project.repository.user.ShipperRepository;
 import com.swp.project.repository.user.UserRepository;
 import com.swp.project.service.AddressService;
+import com.swp.project.service.order.OrderStatusService;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +37,8 @@ public class ShipperService {
     private final SellerRepository sellerRepository;
     private final ManagerRepository managerRepository;
     private final UserRepository userRepository;
+    private final OrderRepository orderRepository;
+    private final OrderStatusService orderStatusService;
     private final ApplicationEventPublisher eventPublisher;
     private final PasswordEncoder passwordEncoder;
     private final AddressService addressService;
@@ -177,5 +183,32 @@ public class ShipperService {
         else {
             results = shipperRepository.findByFullnameContainsAndCidContains(name, cid);
         }
+    }
+
+    public List<Order> getAllOrders() {
+        return orderRepository.findAll();
+    }
+
+    public List<Order> getPendingOrders(Principal principal) {
+        if (principal == null) {
+            throw new RuntimeException("Người giao hàng không xác định");
+        }
+        return orderRepository.findAll()
+                              .stream()
+                              .filter(order -> orderStatusService.isShippingStatus(order) &&
+                                               order.getShipper().getEmail().equals(principal.getName()))
+                              .toList();
+    }
+
+    public List<Order> getOtherOrders(Principal principal) {
+        if (principal == null) {
+            throw new RuntimeException("Người giao hàng không xác định");
+        }
+        return orderRepository.findAll()
+                              .stream()
+                              .filter(order -> (orderStatusService.isAwaitingShipmentStatus(order)) || 
+                                                (order.getShipper().getEmail().equals(principal.getName()) &&
+                                                 !orderStatusService.isShippingStatus(order)))
+                              .toList();
     }
 }
