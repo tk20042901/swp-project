@@ -3,6 +3,7 @@ package com.swp.project.service.product;
 import java.text.Normalizer;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -70,6 +71,25 @@ public class ProductService {
             productBatchService.updateProductBatch(productBatch);
         }
     }
+        /**
+     * Universal sort method for Product properties
+     *
+     * @param products List of products to sort
+     * @param keyExtractor Function to extract the property to sort by
+     * @param ascending true for ascending, false for descending
+     * @param limit max number of products to return
+     * @return sorted list of products
+     */
+    public <T extends Comparable<T>> List<Product> sortProductsByProperty(List<Product> products, Function<Product, T> keyExtractor, boolean ascending, int limit) {
+        Comparator<Product> comparator = Comparator.comparing(keyExtractor);
+        if (!ascending) {
+            comparator = comparator.reversed();
+        }
+        return products.stream()
+                .sorted(comparator)
+                .limit(limit)
+                .toList();
+    }
 
     public int getAvailableQuantity(Long productId) {
         return productBatchService.getByProductId(productId)
@@ -81,6 +101,9 @@ public class ProductService {
     public ShoppingCartItem getAllShoppingCartItemByCustomerIdAndProductId(String email, Long productId) {
         return shoppingCartItemRepository.findByCustomer_EmailAndProduct_Id(email, productId);
     }
+
+
+    
 
     /**
      * Lấy tất cả sản phẩm đang được kích hoạt
@@ -218,6 +241,7 @@ public class ProductService {
         }
         return productRepository.findDistinctByCategoriesInAndIdNot(product.getCategories(), id, PageRequest.of(0, i));
     }
+    
 
     public int getSoldQuantity(Long id) {
         int soldQuantity = orderRepository.findAll().stream()

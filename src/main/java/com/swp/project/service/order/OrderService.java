@@ -127,4 +127,15 @@ public class OrderService {
         order.getOrderItem().forEach(item ->
                 productService.pickProductInProductBatch(item.getProduct().getId(), item.getQuantity()));
     }
+    public List<Order> getSuccessOrder() {
+        return orderRepository.findAll().stream()
+                .filter(order -> orderStatusService.isDeliveredStatus(order))
+                .collect(Collectors.toList());
+    }
+    public List<Order> getOrderByProductId(List<Order> orders, Long productId) {
+        return orders.stream()
+                .filter(order -> order.getOrderItem().stream()
+                        .anyMatch(item -> item.getProduct().getId().equals(productId)))
+                .collect(Collectors.toList());
+    }
 }

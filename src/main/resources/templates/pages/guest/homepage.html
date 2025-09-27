@@ -5,6 +5,62 @@
 
         <h1>Chào mừng đến với trang chủ FruitShop</h1>
 
+        <!-- Newest Products Section -->
+        <div class="mb-5">
+            <h2 class="mb-3">Sản phẩm mới nhất</h2>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                <div class="col" th:each="product : ${newestProducts}">
+                    <div class="card h-100">
+                        <img th:src="${product.main_image_url}" class="card-img-top" alt="Product Image"
+                            style="width: 100%; height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <a th:href="@{/product/{id}(id=${product.id})}">
+                                <h5 class="card-title" th:text="${product.name}"></h5>
+                            </a>
+                            <p class="card-text">Giá: <span th:text="${product.price}"></span> VND</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Most Sold Products Section -->
+        <div class="mb-5">
+            <h2 class="mb-3">Sản phẩm bán chạy nhất</h2>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                <div class="col" th:each="product : ${mostSoldProducts}">
+                    <div class="card h-100">
+                        <img th:src="${product.main_image_url}" class="card-img-top" alt="Product Image"
+                            style="width: 100%; height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <a th:href="@{/product/{id}(id=${product.id})}">
+                                <h5 class="card-title" th:text="${product.name}"></h5>
+                            </a>
+                            <p class="card-text">Giá: <span th:text="${product.price}"></span> VND</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cheapest Products Section -->
+        <div class="mb-5">
+            <h2 class="mb-3">Sản phẩm giá rẻ nhất</h2>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                <div class="col" th:each="product : ${cheapestProducts}">
+                    <div class="card h-100">
+                        <img th:src="${product.main_image_url}" class="card-img-top" alt="Product Image"
+                            style="width: 100%; height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <a th:href="@{/product/{id}(id=${product.id})}">
+                                <h5 class="card-title" th:text="${product.name}"></h5>
+                            </a>
+                            <p class="card-text">Giá: <span th:text="${product.price}"></span> VND</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <h2>Danh mục sản phẩm</h2>
 

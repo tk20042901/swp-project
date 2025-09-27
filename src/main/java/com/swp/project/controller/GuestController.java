@@ -52,6 +52,18 @@ public class GuestController {
             productsPage = productService.getProductsWithPaging(page, size);
             model.addAttribute("categoryId", 0);
         }
+        
+        List<Product> allProducts = productService.getAllEnabledProducts();
+
+        List<Product> newestProducts = productService.sortProductsByProperty(allProducts, Product::getId, false, size);
+        model.addAttribute("newestProducts", newestProducts);
+
+        List<Product> mostSoldProducts = productService.sortProductsByProperty(allProducts, productService.getSoldQuantity(categoryId), false, 6);
+        model.addAttribute("mostSoldProducts", mostSoldProducts);
+
+        List<Product> cheapestProducts = productService.sortProductsByProperty(allProducts, Product::getPrice, true, 6);
+        model.addAttribute("cheapestProducts", cheapestProducts);
+        
         model.addAttribute("viewProductDto", mapProductToViewProductDto(productsPage));
         model.addAttribute("categories", categoryService.getAllCategories()); 
         model.addAttribute("url", "/");
