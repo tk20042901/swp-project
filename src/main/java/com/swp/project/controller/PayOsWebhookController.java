@@ -1,5 +1,6 @@
 package com.swp.project.controller;
 
+import com.swp.project.service.order.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,9 +13,11 @@ import vn.payos.type.Webhook;
 public class PayOsWebhookController {
 
     private final PayOS payOS;
+    private final OrderService orderService;
 
     private void orderConfirmed(Long orderId) {
-        //TODO: process payOS order confirmation logic
+        orderService.doWhenOrderConfirmed(orderId);
+        //TODO: send invoice email to customer
     }
 
     @PostMapping("/webhook")

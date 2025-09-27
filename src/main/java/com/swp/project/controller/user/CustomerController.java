@@ -275,13 +275,13 @@ for(ShoppingCartItem item: cartItems) {
                     .expiredAt(order.getPaymentExpiredTime().atZone(ZoneId.systemDefault()).toEpochSecond())
                     .items(items)
                     .description("FruitShop " + order.getId())
-                    .returnUrl("https://localhost:8080/customer/order-success")
-                    .cancelUrl("https://localhost:8080/customer/order-cancel")
+                    .returnUrl("http://localhost:8080/customer/order-success")
+                    .cancelUrl("http://localhost:8080/customer/order-cancel")
                     .build();
             String checkoutUrl = payOS.createPaymentLink(paymentData).getCheckoutUrl();
             order.setPaymentLink(checkoutUrl);
             orderService.saveOrder(order);
-            return "redirect:" + payOS.createPaymentLink(paymentData).getCheckoutUrl();
+            return "redirect:" + checkoutUrl;
         } catch (Exception e) {
             e.printStackTrace();
             return "redirect:/customer/shopping-cart";

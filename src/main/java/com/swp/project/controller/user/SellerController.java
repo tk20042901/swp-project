@@ -74,7 +74,7 @@ public class SellerController {
             if(orderService.isOrderItemQuantityMoreThanAvailable(orderId)) {
                 redirectAttributes.addFlashAttribute("error", "Lỗi: Một số sản phẩm trong đơn hàng vừa chấp nhận có số lượng lớn hơn số lượng hiện có trong kho. Tác vụ bị hủy.");
             } else {
-                //TODO: logic on accepting order
+                orderService.doWhenOrderConfirmed(orderId);
                 redirectAttributes.addFlashAttribute
                         ("msg", "Chấp nhận đơn hàng thành công");
             }
