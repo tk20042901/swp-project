@@ -39,7 +39,8 @@
                 <img th:src="@{${item.product.main_image_url}}"
                      alt="Product Image"
                      style="width: 50px; height: 50px;">
-                <span th:text="${item.product.name}"></span>
+                <a th:href="@{/product/{id}(id=${item.product.id})}"
+                   th:text="${item.product.name}"></a>
             </td>
             <td>
                 <span th:text="${item.product.price + '/' + item.product.unit.name}"></span>
