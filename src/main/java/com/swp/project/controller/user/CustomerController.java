@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -179,11 +180,12 @@ for(ShoppingCartItem item: cartItems) {
     }
 
     @GetMapping("/order-history")
-    public String getOrderHistory(Model model, Principal principal) {
-        List<Order> orders=customerService.getOrdersByCustomerEmail(principal.getName());
+    public String getOrderHistory(Model model, Principal principal, @RequestParam(defaultValue = "0")int page, @RequestParam(defaultValue = "5")int size){
+        Page<Order> orders=customerService.getOrdersByCustomerEmail(principal.getName(),page,size);
         model.addAttribute("orders",orders );
         return "pages/customer/order/order-history";
     }
+
 
 
     @GetMapping("/order/order-detail/{orderId}")

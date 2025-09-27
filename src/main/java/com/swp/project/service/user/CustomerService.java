@@ -1,12 +1,16 @@
 package com.swp.project.service.user;
 
+
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.List;
 import java.util.Random;
 import java.util.regex.Pattern;
-
+import org.springframework.data.domain.Pageable;
 import com.swp.project.service.product.ProductService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -187,14 +191,17 @@ public class CustomerService {
 
     @Transactional
     public void initCustomer() {
-        if (!userRepository.existsByEmail("customer@shop.com")) {
-            customerRepository.save(Customer.builder()
-                    .email("customer@shop.com")
-                    .password(passwordEncoder.encode("customer"))
-                    .fullName("Hoa Thanh Quế")
-                    .phoneNumber("0363636363")
-                    .specificAddress("Thủ đô linh thiêng")
-                    .build());
+        for (int i = 1; i < 10; i++){
+            String email = "customer" + i + "@shop.com";
+            if (!userRepository.existsByEmail(email)) {
+                customerRepository.save(Customer.builder()
+                        .email(email)
+                        .password(passwordEncoder.encode("customer"))
+                        .fullName("Hoa Thanh " + i)
+                        .phoneNumber("036363636" + i)
+                        .specificAddress("Thủ đô " + i)
+                        .build());
+            }
         }
 
     }
@@ -233,9 +240,10 @@ public class CustomerService {
     }
 
     @Transactional
-    public List<Order> getOrdersByCustomerEmail(String email) {
+    public Page<Order> getOrdersByCustomerEmail(String email, int page, int size) {
         Customer customer = customerRepository.getByEmail(email);
-        return orderRepository.findByCustomer(customer);
+        Pageable pageable = PageRequest.of(page,size, Sort.by("orderTime").descending());
+        return orderRepository.findByCustomer(customer,pageable);
     }
 
     public void addShoppingCartItem(String name, Long productId, int quantity) {
