@@ -5,6 +5,7 @@
     <title>Order History</title>
 </head>
 <body>
+<a th:href="@{/}">Trang chủ</a>
 <h1>Lịch sử đặt hàng</h1>
 <p th:text="'Total: ' + ${orders.size()}">0</p>
 <table>
@@ -20,10 +21,10 @@
     <tbody>
     <tr th:each="order : ${orders}">
         <td th:text="${order.id}"></td>
-<!--        <td th:text="${#dates.format(order.getOrderDate(), 'dd/MM/yyyy HH:mm')}"></td>-->
+        <td th:text="${#temporals.format(order.orderTime, 'dd/MM/yyyy HH:mm')}"></td>
         <td th:text="${order.orderStatus.name}"></td>
         <td th:text="${order.totalAmount}+'VND'"></td>
-        <td><a th:href="@{'/customer/orders/' + ${order.id}}">Chi tiết</a></td>
+        <td><a th:href="@{'/customer/order/order-detail/' + ${order.id}}">Chi tiết</a></td>
     </tr>
     </tbody>
 </table>

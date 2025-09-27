@@ -98,8 +98,7 @@ public class CustomerService {
     @Scheduled(fixedRate = 7200000) //Cleanup PendingRegister every 2 hours
     @Transactional
     public void cleanupExpiredPendingRegistrations() {
-        Instant now = Instant.now();
-        pendingRegisterRepository.deleteByOtpExpiryTimeBefore(now);
+        pendingRegisterRepository.deleteByOtpExpiryTimeBefore(Instant.now());
     }
 
     @Transactional
@@ -264,7 +263,4 @@ public class CustomerService {
         }
     }
 
-    public Customer findByEmail(String email) {
-        return customerRepository.findByEmail(email);
-    }
 }

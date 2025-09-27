@@ -42,10 +42,6 @@ public record RoleRedirectFilter(SecurityUtils securityUtils) implements Filter 
                 res.sendRedirect("/shipper");
                 return;
             }
-            if (role.equals("Customer Support") && !requestURI.startsWith("/customer-support")) {
-                res.sendRedirect("/customer-support");
-                return;
-            }
         }
 
         filterChain.doFilter(servletRequest, servletResponse);

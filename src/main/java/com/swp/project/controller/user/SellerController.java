@@ -58,6 +58,9 @@ public class SellerController {
 
     @GetMapping("/order-detail/{orderId}")
     public String orderDetail(@PathVariable Long orderId, Model model) {
+        if(orderService.isOrderItemQuantityMoreThanAvailable(orderId)) {
+            model.addAttribute("warning", "Cảnh báo: Một số sản phẩm trong đơn hàng này có số lượng lớn hơn số lượng hiện có trong kho.");
+        }
         model.addAttribute("orderStatusService", orderStatusService);
         model.addAttribute("order", orderService.getOrderById(orderId));
         return "pages/seller/order/order-detail";
@@ -68,9 +71,13 @@ public class SellerController {
                                            @RequestParam String action,
                                            RedirectAttributes redirectAttributes) {
         if (action.equals("accept")) {
-            orderService.doWhenOrderConfirmed(orderId);
-            redirectAttributes.addFlashAttribute("msg",
-                    "Chấp nhận đơn hàng thành công");
+            if(orderService.isOrderItemQuantityMoreThanAvailable(orderId)) {
+                redirectAttributes.addFlashAttribute("error", "Lỗi: Một số sản phẩm trong đơn hàng vừa chấp nhận có số lượng lớn hơn số lượng hiện có trong kho. Tác vụ bị hủy.");
+            } else {
+                orderService.doWhenOrderConfirmed(orderId);
+                redirectAttributes.addFlashAttribute
+                        ("msg", "Chấp nhận đơn hàng thành công");
+            }
         } else if (action.equals("reject")) {
             orderService.setOrderStatus(orderId, orderStatusService.getCancelledStatus());
             redirectAttributes.addFlashAttribute("msg",

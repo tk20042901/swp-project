@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en"   xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Detail</title>
+</head>
+<body>
+<span>
+<a th:href="@{/customer/order-history}">Quay lại lịch sử mua hàng</a>
+</span>
+<h1>Chi tiết đơn hàng</h1>
+<table>
+    <thead>
+    <tr>
+        <th>STT</th>
+        <th>Sản phẩm</th>
+        <th>Đơn giá</th>
+        <th>Số lượng</th>
+        <th>Thành tiền</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="item, iterStat : ${order.orderItem}">
+        <td th:text="${iterStat.index + 1}"></td>
+        <td>
+            <img th:src="@{${item.product.main_image_url}}"
+                 alt="Product Image"
+                 style="width: 50px; height: 50px;">
+            <a th:href="@{/product/{id}(id=${item.product.id})}"
+               th:text="${item.product.name}"></a>
+        </td>
+        <td th:text="${item.product.price} + ' VND/' + ${item.product.unit.name}"></td>
+        <td th:text="${item.quantity}"></td>
+        <td th:text="${item.product.price * item.quantity} + ' VND'"></td>
+    </tbody>
+</table>
+</body>
+</html>

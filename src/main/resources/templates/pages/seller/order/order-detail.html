@@ -19,6 +19,11 @@
         <a class="btn btn-outline-secondary" th:href="@{/seller/all-orders}">Quay lại danh sách</a>
     </div>
 
+    <div th:if="${warning}" class="alert alert-warning d-flex align-items-center gap-2 mb-3" role="alert">
+        <span class="fs-5" aria-hidden="true">⚠️</span>
+        <div th:text="${warning}"></div>
+    </div>
+
     <!-- Order meta -->
     <div class="card mb-4">
         <div class="card-body">
@@ -30,7 +35,7 @@
                 <div class="col-md-4">
                     <div class="text-muted small">Thời gian đặt hàng</div>
                     <div class="fw-medium"
-                         th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></div>
+                         th:text="${#temporals.format(order.orderTime, 'dd/MM/yyyy HH:mm')}"></div>
                 </div>
                 <div class="col-md-4">
                     <div class="text-muted small">Trạng thái</div>

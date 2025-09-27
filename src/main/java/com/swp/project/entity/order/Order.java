@@ -10,6 +10,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Getter
 @Setter
@@ -20,8 +21,8 @@ import java.util.List;
 @Table(name = "orders")
 public class Order {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Builder.Default
+    private Long id = ThreadLocalRandom.current().nextLong(10000,100000);
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Customer customer;
@@ -36,7 +37,14 @@ public class Order {
     private OrderStatus orderStatus;
 
     @Column(nullable = false)
-    private LocalDateTime orderDate;
+    @Builder.Default
+    private LocalDateTime orderTime = LocalDateTime.now();
+
+    private String paymentLink;
+
+    private LocalDateTime paymentExpiredTime;
+
+    private LocalDateTime deliveredTime;
 
     @Column(length = 50)
     private String fullName;
