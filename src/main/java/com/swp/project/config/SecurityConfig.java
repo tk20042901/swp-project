@@ -23,7 +23,7 @@ public class SecurityConfig {
     private final CaptchaValidationFilter captchaValidationFilter;
     private final LoginRequestValidationFilter loginRequestValidationFilter;
 
-    private static final String HOME_URL = "/";
+    private static final String HOME_URL = "/";//nên thêm trang error
 
     private static final String[] ALL_ALLOWED = {
             "/",                    // trang chủ
@@ -37,7 +37,9 @@ public class SecurityConfig {
             "/images/**",           // hình ảnh tĩnh
             "/forgot-password/**",  // quên mật khẩu
             "/webhook/**",          // webhook
-            "/ai/**"                // chatbot ai
+            "/ai/**" ,              // chatbot ai
+            "/product-category-display/**" ,// danh mục sản phẩm
+            "/all-product-sorting/**"  
     };
 
     private static final String[] ADMIN_ALLOWED = {

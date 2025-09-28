@@ -194,4 +194,24 @@ public class OrderService {
         order.setShipper(shipperRepository.findByEmail(email));
         orderRepository.save(order);
     }
+    public List<Order> getSuccessOrder() {
+        return orderRepository.findAll().stream()
+                .filter(order -> orderStatusService.isDeliveredStatus(order))
+                .collect(Collectors.toList());
+    }
+    public List<Order> getOrderByProductId(List<Order> orders, Long productId) {
+        return orders.stream()
+                .filter(order -> order.getOrderItem().stream()
+                        .anyMatch(item -> item.getProduct().getId().equals(productId)))
+                .collect(Collectors.toList());
+    }
+        public int getSoldQuantity(Long productId) {
+                List<Order> orders = getOrderByProductId(getSuccessOrder(), productId);
+                return orders.stream()
+                        .mapToInt(order -> order.getOrderItem().stream()
+                                .filter(item -> item.getProduct().getId().equals(productId))
+                                .mapToInt(OrderItem::getQuantity)
+                                .sum())
+                        .sum();
+        }
 }

@@ -5,49 +5,104 @@
 
         <h1>Chào mừng đến với trang chủ FruitShop</h1>
 
+        <!-- Newest Products Section -->
+        <div class="mb-5">
+            <h2 class="mb-3">Sản phẩm mới nhất</h2>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                <div class="col" th:each="product : ${newestProducts}">
+                    <div class="card h-100">
+                        <img th:src="${product.mainImageUrl}" class="card-img-top" alt="Product Image"
+                            style="width: 100%; height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <a th:href="@{/product/{id}(id=${product.id})}">
+                                <h5 class="card-title" th:text="${product.name}"></h5>
+                            </a>
+                            <p class="card-text">Giá: <span th:text="${product.price}"></span> VND</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- <a th:href="@{/all-product-sorting/0?sortBy=newest}" class="btn btn-link mt-3">Xem tất cả sản phẩm mới nhất</a> -->
+        </div>
+
+        <!-- Most Sold Products Section -->
+        <div class="mb-5">
+            <h2 class="mb-3">Sản phẩm bán chạy nhất</h2>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                <div class="col" th:each="product : ${mostSoldProducts}">
+                    <div class="card h-100">
+                        <img th:src="${product.mainImageUrl}" class="card-img-top" alt="Product Image"
+                            style="width: 100%; height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <a th:href="@{/product/{id}(id=${product.id})}">
+                                <h5 class="card-title" th:text="${product.name}"></h5>
+                            </a>
+                            <p class="card-text">Giá: <span th:text="${product.price}"></span> VND</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- <a th:href="@{/all-product-sorting/0?sortBy=best-seller}" class="btn btn-link mt-3">Xem tất cả sản phẩm bán chạy nhất</a> -->
+        </div>
+
+        <!-- Premium Products Section -->
+        <div class="mb-5">
+            <h2 class="mb-3">Sản phẩm thượng hạng</h2>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                <div class="col" th:each="product : ${premiumProducts}">
+                    <div class="card h-100">
+                        <img th:src="${product.mainImageUrl}" class="card-img-top" alt="Product Image"
+                            style="width: 100%; height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <a th:href="@{/product/{id}(id=${product.id})}">
+                                <h5 class="card-title" th:text="${product.name}"></h5>
+                            </a>
+                            <p class="card-text">Giá: <span th:text="${product.price}"></span> VND</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- <a th:href="@{/all-product-sorting/0?sortBy=price-desc}" class="btn btn-link mt-3">Xem tất cả sản phẩm thượng hạng</a> -->
+        </div>
 
         <h2>Danh mục sản phẩm</h2>
 
         <!-- Category Dropdown -->
-        <form method="get" th:action="@{${url}}">
-            <label for="category">Lọc theo danh mục:</label>
-            <select name="categoryId" id="category" class="form-select form-select-sm" style="width: auto;"
-                onchange="this.form.submit()">
-                <option value="0" th:text="'Tất cả danh mục'" th:selected="${categoryId == 0}"></option>
-                <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"
-                    th:selected="${category.id == categoryId}">
+        <div class="mb-3">
+            <label for="category" class="form-label">Lọc theo danh mục:</label>
+            <select name="categoryId" id="category" class="form-select" style="width: 250px;"
+                onchange="switchCategory(this.value)">
+                <option value="0">Tất cả danh mục</option>
+                <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}">
                 </option>
             </select>
-        </form>
+        </div>
 
         <!-- Products Cards -->
-        <div class="row row-cols-1 row-cols-md-3 g-4">
-            <div class="col" th:each="product : ${viewProductDto}">
-                <div class="card h-100">
-                    <img th:src="${product.mainImageUrl}" class="card-img-top" alt="Product Image"
-                        style="width: 100%; height: 200px; object-fit: cover;">
-                    <div class="card-body">
-                        <a th:href="@{/product/{id}(id=${product.id})}">
-                            <h5 class="card-title" th:text="${product.name}"></h5>
-                        </a>
-                        <p class="card-text">Giá: <span th:text="${product.price}"></span></p>
-                    </div>
-                </div>
-            </div>
+        <div class="row row-cols-1 row-cols-md-3 g-4" id="products-container">
+            <!-- Products will be populated by JavaScript -->
         </div>
+
+        <!-- Dynamic Category Button -->
+        <div class="text-center mt-4 mb-4">
+            <a id="view-all-button" href="/product-category-display/0" class="btn btn-primary btn-lg">
+                <i class="fas fa-th-large me-2"></i>Xem tất cả sản phẩm
+            </a>
+        </div>
+
+        <!-- JavaScript for Category Switching -->
+        <script th:src="@{/js/product-page/homepage-category-switcher.js}"></script>
+        <script th:inline="javascript">
+            // Initialize the category switcher with server data
+            document.addEventListener('DOMContentLoaded', function () {
+                const productsData = /*[[${productsByCategory}]]*/ {};
+                const categoriesData = /*[[${categories}]]*/[];
+
+                initializeCategorySwitcher(productsData, categoriesData);
+            });
+        </script>
 
         <!-- Pagination Display -->
-        <div class="d-flex justify-content-between mb-3">
-            <span>Trang hiện tại: <span th:text="${currentPage + 1}"></span> / <span th:text="${totalPages}"></span></span>
-        </div>
-
-        <!-- Pagination Controls -->
-        <div class="d-flex justify-content-between mt-3">
-            <a th:href="@{${url}(page=${currentPage - 1}, size=${viewProductDto.size}, categoryId=${categoryId})}"
-                th:if="${currentPage > 0}" class="btn btn-primary">Trước</a>
-            <a th:href="@{${url}(page=${currentPage + 1}, size=${viewProductDto.size}, categoryId=${categoryId})}"
-                th:if="${currentPage + 1 < totalPages}" class="btn btn-primary">Tiếp theo</a>
-        </div>
 
     </div>
 </div>
