@@ -1,12 +1,83 @@
 <!DOCTYPE html>
-<html lang="en"   xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Order Detail</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9fafc;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        span a {
+            display: inline-block;
+            padding: 8px 15px;
+            border: 2px solid #007bff;
+            border-radius: 6px;
+            background-color: #e9f3ff;
+            color: #007bff;
+            font-weight: bold;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        span a:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        thead {
+            background: #007bff;
+            color: #fff;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tbody tr:hover {
+            background: #f1f1f1;
+        }
+
+        img {
+            border-radius: 6px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        td a {
+            color: #333;
+            text-decoration: none;
+        }
+
+        td a:hover {
+            color: #007bff;
+        }
+    </style>
 </head>
 <body>
 <span>
-<a th:href="@{/customer/order-history}">Quay lại lịch sử mua hàng</a>
+    <a th:href="@{/customer/order-history}">← Quay lại lịch sử mua hàng</a>
 </span>
 <h1>Chi tiết đơn hàng</h1>
 <table>
@@ -32,6 +103,7 @@
         <td th:text="${item.product.price} + ' VND/' + ${item.product.unit.name}"></td>
         <td th:text="${item.quantity}"></td>
         <td th:text="${item.product.price * item.quantity} + ' VND'"></td>
+    </tr>
     </tbody>
 </table>
 </body>

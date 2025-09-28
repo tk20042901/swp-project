@@ -4,6 +4,31 @@
     <meta charset="UTF-8">
     <title>Order History</title>
     <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+    <style>
+        a.page-btn {
+            display: inline-block;
+            padding: 8px 15px;
+            margin: 0 5px;
+            border: 2px solid #007bff;
+            border-radius: 6px;
+            background-color: #e9f3ff;
+            color: #007bff;
+            font-weight: bold;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        a.page-btn:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        span.page-info {
+            font-weight: bold;
+            margin: 0 10px;
+            color: #333;
+        }
+    </style>
 </head>
 <body>
 <div class="container mt-4">
@@ -11,6 +36,8 @@
         <h1>Lịch sử đặt hàng</h1>
         <a th:href="@{/}" class="btn btn-secondary">← Trang chủ</a>
     </div>
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
     <div class="alert alert-info">
         <strong>Tổng số đơn hàng:</strong> <span th:text="${orders.totalElements}">0</span>
@@ -39,13 +66,12 @@
                           th:text="${#temporals.format(order.orderTime, 'dd/MM/yyyy HH:mm')}"></span>
 
                 </td>
-                <td>
-                    <!-- SAFE CHECK cho OrderStatus -->
-                    <span th:if="${order.orderStatus != null}"
-                          th:text="${order.orderStatus.name}"
-                          class="badge bg-primary"></span>
-                    <span th:if="${order.orderStatus == null}"
-                          class="badge bg-warning text-dark">Chưa cập nhật</span>
+                <td th:switch="${order.orderStatus.name}">
+                    <span th:case="'Đã Hủy'" class="badge bg-danger">Đã Hủy</span>
+                    <span th:case="'Chờ Xác Nhận'" class="badge bg-warning text-dark">Chờ Xác Nhận</span>
+                    <span th:case="'Đang Giao Hàng'" class="badge bg-success">Đang Giao Hàng</span>
+                    <span th:case="'Đang Chuẩn Bị Hàng'" class="badge bg-info text-dark">Đang Chuẩn Bị Hàng</span>
+                    <span th:case="*" class="badge bg-primary">Khác</span>
                 </td>
                 <td>
                     <strong th:text="${#numbers.formatInteger(order.totalAmount, 0, 'COMMA')} + ' VND'">60,000 VND</strong>
@@ -73,15 +99,17 @@
 
     <!-- Simple Pagination -->
     <a th:if="${orders.hasPrevious()}"
-       th:href="@{/customer/order-history(page=${orders.number - 1}, size=${orders.size})}">
-        Trước
+       th:href="@{/customer/order-history(page=${orders.number - 1}, size=${orders.size})}"
+       class="page-btn">
+        ← Trước
     </a>
 
-    <span>Trang [[${orders.number + 1}]] / [[${orders.totalPages}]]</span>
+    <span class="page-info">Trang [[${orders.number + 1}]] / [[${orders.totalPages}]]</span>
 
     <a th:if="${orders.hasNext()}"
-       th:href="@{/customer/order-history(page=${orders.number + 1}, size=${orders.size})}">
-        Sau
+       th:href="@{/customer/order-history(page=${orders.number + 1}, size=${orders.size})}"
+       class="page-btn">
+        Sau →
     </a>
 </div>
 
