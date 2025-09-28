@@ -219,7 +219,15 @@ public class CustomerController {
         model.addAttribute("orders",orders );
         return "pages/customer/order/order-history";
     }
+    @PostMapping("/order-history/cancel/{orderId}")
+    public String cancelOrder(@PathVariable Long orderId) {
+        Order order = orderService.getOrderById(orderId);
+        if(orderStatusService.isPendingConfirmationStatus(order)){
+            orderService.setOrderStatus(orderId,orderStatusService.getCancelledStatus());
+        }
 
+        return "redirect:/customer/order-history";
+    }
 
 
     @GetMapping("/order/order-detail/{orderId}")
