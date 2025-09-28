@@ -1,4 +1,4 @@
-package com.swp.project.controller.user;
+package com.swp.project.controller;
 
 
 import com.swp.project.dto.EditManagerDto;
@@ -46,7 +46,7 @@ public class AdminController {
         RedirectAttributes redirectAttributes) {
         Manager manager = managerService.getManagerById(id);
         if (manager == null) {
-            redirectAttributes.addFlashAttribute("failed", "Manager not found.");
+            redirectAttributes.addFlashAttribute("failed", "Không tìm thấy quản lý.");
             return "redirect:/admin/manage-manager";
         }
         EditManagerDto editManagerDto = new EditManagerDto();
@@ -84,7 +84,7 @@ public class AdminController {
         }
         try {
             managerService.createManager(managerRegisterDto);
-            redirectAttributes.addFlashAttribute("success", "Manager created successfully.");
+            redirectAttributes.addFlashAttribute("success", "Tạo quản lý thành công.");
         } 
         catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("failed", e.getMessage());
@@ -99,7 +99,7 @@ public class AdminController {
                               RedirectAttributes redirectAttributes) {
         try {
             managerService.updateManager(id, editManagerDto);
-            redirectAttributes.addFlashAttribute("success", "Manager updated successfully.");
+            redirectAttributes.addFlashAttribute("success", "Cập nhật quản lý thành công.");
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("failed", e.getMessage());
             return "redirect:/admin/edit-manager/" + id;

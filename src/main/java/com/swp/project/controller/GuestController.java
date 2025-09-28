@@ -7,14 +7,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.swp.project.dto.RegisterDto;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -41,6 +41,81 @@ public class GuestController {
     private final CustomerService customerService;
     private final static int PAGE_SIZE = 9;
     private final static int CAROUSEL_SIZE = 6;
+
+    @Value("${recaptcha.site-key}")
+    private String recaptchaSite;
+
+    @GetMapping("/login")
+    public String showLoginForm(Model model) {
+        model.addAttribute("siteKey", recaptchaSite);
+        return "/pages/guest/login";
+    }
+
+    @GetMapping("/register")
+    public String showRegisterForm(Model model) {
+        model.addAttribute("registerDto", new RegisterDto());
+        model.addAttribute("siteKey", recaptchaSite);
+        return "/pages/guest/register";
+    }
+
+    @PostMapping("/register")
+    public String processRegister(@Valid @ModelAttribute RegisterDto registerDto, BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("siteKey", recaptchaSite);
+            return "/pages/guest/register";
+        }
+        try {
+            customerService.register(registerDto);
+            redirectAttributes.addFlashAttribute("email", registerDto.getEmail());
+            return "redirect:/verify-otp";
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/register";
+        }
+    }
+
+    @GetMapping("/verify-otp")
+    public String showVerifyOtpForm(@ModelAttribute("email") String email,
+                                    Model model) {
+        if(email == null || email.isEmpty()){
+            return "redirect:/register";
+        }
+        model.addAttribute("email", email);
+        return "/pages/guest/verify-otp";
+    }
+
+    @PostMapping("/verify-otp")
+    public String verifyOtp(@RequestParam String email,
+                            @RequestParam String otp,
+                            Model model) {
+        try {
+            customerService.verifyOtp(email, otp);
+            return "redirect:/login?register_success";
+        } catch (RuntimeException e) {
+            model.addAttribute("email", email);
+            model.addAttribute("error", e.getMessage());
+            return "pages/guest/verify-otp";
+        }
+    }
+
+    @GetMapping("/forgot-password")
+    public String showForgotPasswordForm(Model model) {
+        model.addAttribute("siteKey", recaptchaSite);
+        return "/pages/guest/forgot-password";
+    }
+
+    @PostMapping("/forgot-password")
+    public String processForgotPassword(@RequestParam String email, RedirectAttributes redirectAttributes) {
+        try {
+            customerService.forgotPassword(email);
+            redirectAttributes.addFlashAttribute("success",
+                    "Mật khẩu mới vừa được gửi tới " + email);
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/forgot-password";
+    }
+
 
     @GetMapping({ "/" })
     public String getHomepage(Model model) {
@@ -128,36 +203,28 @@ public class GuestController {
         return "pages/guest/products-category";
     }
 
-    @GetMapping("/all-product-sorting/{categoryId}")
+    @GetMapping("/product-category-sorting")
     public String getAllProductsWithSorting(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "" + PAGE_SIZE) int size,
-            @PathVariable Long categoryId,
+            @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) String sortBy,
             Model model) {
+        Page<Product> productsPage =  productService.getProductsByCategoryWithPagingAndSorting(categoryId, page, size, sortBy);
+
+        // Add categories for the dropdown filter
+        List<Category> categories = categoryService.getAllCategories();
         
-        // Default to all products if no category specified
-        Long targetCategoryId = (categoryId != null) ? categoryId : 0L;
-        
-        // Use the same method that handles sorting before pagination
-        Page<Product> productsPage = productService.getProductsByCategoryWithPagingAndSorting(targetCategoryId, page, size, sortBy);
-        
-        Page<ViewProductDto> dtoPage = mapProductToViewProductDto(productsPage);
-        
-        // Get category name for display
-        Category category = categoryService.getCategoryById(targetCategoryId);
-        String categoryName = (category != null) ? category.getName() : "Tất cả sản phẩm";
-        
-        model.addAttribute("categoryId", targetCategoryId);
-        model.addAttribute("categoryName", categoryName);
-        model.addAttribute("viewProductDto", dtoPage);
+        model.addAttribute("viewProductDto", mapProductToViewProductDto(productsPage));
         model.addAttribute("totalElement", productsPage.getTotalElements());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", productsPage.getTotalPages());
+        model.addAttribute("categoryId", categoryId);
         model.addAttribute("sortBy", sortBy);
-        model.addAttribute("url", "/all-product-sorting");
+        model.addAttribute("categories", categories);
+        model.addAttribute("url", "/product-category-sorting");
         model.addAttribute("showSearchBar", true);
-        return "pages/guest/all-product-sorting";
+        return "pages/guest/product-category-sorting";
     }
 
     private Page<ViewProductDto> mapProductToViewProductDto(Page<Product> products) {

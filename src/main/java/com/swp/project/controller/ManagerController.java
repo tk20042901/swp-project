@@ -1,4 +1,4 @@
-package com.swp.project.controller.user;
+package com.swp.project.controller;
 
 import java.util.ArrayList;
 import java.util.List;
