@@ -17,7 +17,6 @@ public class PayOsWebhookController {
 
     private void orderConfirmed(Long orderId) {
         orderService.doWhenOrderConfirmed(orderId);
-        //TODO: send invoice email to customer
     }
 
     @PostMapping("/webhook")
