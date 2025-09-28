@@ -18,8 +18,7 @@ import com.swp.project.entity.address.CommuneWard;
 import com.swp.project.entity.address.ProvinceCity;
 import com.swp.project.entity.user.Seller;
 import com.swp.project.entity.user.Shipper;
-import com.swp.project.service.address.CommuneWardService;
-import com.swp.project.service.address.ProvinceCityService;
+import com.swp.project.service.AddressService;
 import com.swp.project.service.user.SellerService;
 import com.swp.project.service.user.ShipperService;
 
@@ -34,8 +33,7 @@ public class ManagerController {
 
     private final SellerService sellerService;
     private final ShipperService shipperService;
-    private final ProvinceCityService provinceCityService;
-    private final CommuneWardService communeWardService;
+    private final AddressService addressService;
 
     private final int numEachPage = 10;
 
@@ -219,7 +217,7 @@ public class ManagerController {
             Model model,
             HttpSession session) {
 
-        List<ProvinceCity> provinces = provinceCityService.findAll();
+        List<ProvinceCity> provinces = addressService.getAllProvinceCity();
         List<CommuneWard> wards = new ArrayList<>();
         StaffDto staffDto = (StaffDto) session.getAttribute("staffDto");
 
@@ -246,7 +244,7 @@ public class ManagerController {
             }
         }
         if (staffDto.getProvinceCity() != null) {
-            wards = communeWardService.findByProvinceCity((ProvinceCity) provinceCityService.getByCode(staffDto.getProvinceCity()));
+            wards = addressService.getAllCommuneWardByProvinceCityCode(staffDto.getProvinceCity());
         }
 
         session.setAttribute("provinces", provinces);
@@ -270,7 +268,7 @@ public class ManagerController {
         StaffDto staffDto = inputStaffDto;
         session.setAttribute("staffDto", staffDto);
 
-        model.addAttribute("wards", communeWardService.findByProvinceCity((ProvinceCity) provinceCityService.getByCode(staffDto.getProvinceCity())));
+        model.addAttribute("wards", addressService.getAllCommuneWardByProvinceCityCode(staffDto.getProvinceCity()));
 
         String managerRedirectUrl = "";
         String managerForwardUrl = "";
