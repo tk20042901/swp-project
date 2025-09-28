@@ -173,9 +173,10 @@ public class CustomerController {
         return "redirect:/customer/shopping-cart";
     }
     @PostMapping("/shopping-cart/remove")
-    public String removeFromCart(@RequestParam Long productId,
+    public String removeFromCart(@RequestParam Long productId, RedirectAttributes redirectAttributes,
                                  Principal principal) {
         customerService.removeItem(principal.getName(), productId);
+        redirectAttributes.addFlashAttribute("success", "Xóa sản phẩm khỏi giỏ hàng thành công");
         return "redirect:/customer/shopping-cart";
     }
 
@@ -220,10 +221,11 @@ public class CustomerController {
         return "pages/customer/order/order-history";
     }
     @PostMapping("/order-history/cancel/{orderId}")
-    public String cancelOrder(@PathVariable Long orderId) {
+    public String cancelOrder(@PathVariable Long orderId ,RedirectAttributes redirectAttributes) {
         Order order = orderService.getOrderById(orderId);
         if(orderStatusService.isPendingConfirmationStatus(order)){
             orderService.setOrderStatus(orderId,orderStatusService.getCancelledStatus());
+            redirectAttributes.addFlashAttribute("success","Hủy đơn hàng thành công");
         }
 
         return "redirect:/customer/order-history";
