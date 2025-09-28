@@ -284,10 +284,6 @@ public class ManagerController {
                 managerRedirectUrl = "redirect:/manager/manage-shipper";
                 managerForwardUrl = "pages/manager/manage-shipper";
                 break;
-            case "CustomerSupport":
-                managerRedirectUrl = "redirect:/manager/manage-customer-support";
-                managerForwardUrl = "pages/manager/manage-customer-support";
-                break;
         }
 
         if (submitButton == null) {
@@ -352,7 +348,6 @@ public class ManagerController {
         switch (newClassName) {
             case "Seller":
             case "Shipper":
-            case "CustomerSupport":
                 return managerRedirectUrl;
             default:
                 return "redirect:/manager/manage-seller";
