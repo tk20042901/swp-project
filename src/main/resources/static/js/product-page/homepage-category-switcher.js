@@ -91,7 +91,7 @@ function updateViewAllButton(categoryId) {
     
     const category = categories.find(c => c.id == categoryId);
 
-    button.href = `/product-category-display/${categoryId}`;
+    button.href = `/product-category-sorting?categoryId=${categoryId}`;
 
     if (categoryId == "0") {
         button.innerHTML = '<i class="fas fa-th-large me-2"></i>Xem tất cả sản phẩm';

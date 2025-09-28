@@ -63,10 +63,10 @@ public class ManagerService {
 
     public void updateManager(Long id, EditManagerDto updatedManager) {
         Manager existingManager = managerRepository.findById(id).orElseThrow(
-            () -> new IllegalArgumentException("Khong tìm thấy quản lý")
+            () -> new IllegalArgumentException("Không tìm thấy quản lý")
         );
         CommuneWard ward = communeWardRepository.findById(updatedManager.getCommuneWardCode())
-            .orElseThrow(() -> new RuntimeException("Khong tìm thấy xã"));
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy xã"));
         boolean isEnabled = Boolean.TRUE.equals(updatedManager.getStatus());
         if (!existingManager.getEmail().equals(updatedManager.getEmail()) && userRepository.existsByEmail(updatedManager.getEmail())) {
             throw new IllegalArgumentException("Mail đã được sử dụng");
@@ -92,7 +92,7 @@ public class ManagerService {
 
     public void createManager(ManagerRegisterDto registerDto) {
         CommuneWard ward = communeWardRepository.findById(registerDto.getCommuneWardCode())
-            .orElseThrow(() -> new RuntimeException("Khong tìm thấy xã"));
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy xã"));
         if (!registerDto.getConfirmPassword().equals(registerDto.getPassword())) {
             throw new RuntimeException("Mật khẩu và xác nhận mật khẩu không khớp");
         }
