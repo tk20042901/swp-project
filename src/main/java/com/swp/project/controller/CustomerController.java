@@ -1,4 +1,4 @@
-package com.swp.project.controller.user;
+package com.swp.project.controller;
 
 import com.swp.project.dto.UpdateShoppingCartDto;
 import com.swp.project.dto.ChangePasswordDto;
