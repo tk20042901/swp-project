@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Order History</title>
@@ -26,6 +26,7 @@
                 <th>Trạng thái</th>
                 <th>Tổng tiền</th>
                 <th>Chi tiết</th>
+                <th>Thao tác</th>
             </tr>
             </thead>
             <tbody>
@@ -53,6 +54,16 @@
                     <a th:href="@{'/customer/order/order-detail/' + ${order.id}}"
                        class="btn btn-sm btn-outline-primary">Chi tiết</a>
                 </td>
+                <a th:if="${order.orderStatus.name eq 'Chờ Thanh Toán'}"
+                   th:href="${order.paymentLink}">Thanh toán ngay</a>
+                <td>
+                    <form th:if="${order.orderStatus.name == 'Chờ Xác Nhận'}"
+                          th:action="@{'/customer/order-history/cancel/' + ${order.id}}"
+                          method="post" style="display:inline;"
+                          onsubmit="return confirm('Bạn có chắc muốn hủy đơn hàng này không?');">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Hủy</button>
+                    </form>
+                </td>
             </tr>
             </tbody>
         </table>
@@ -63,14 +74,14 @@
     <!-- Simple Pagination -->
     <a th:if="${orders.hasPrevious()}"
        th:href="@{/customer/order-history(page=${orders.number - 1}, size=${orders.size})}">
-        Previous
+        Trước
     </a>
 
     <span>Trang [[${orders.number + 1}]] / [[${orders.totalPages}]]</span>
 
     <a th:if="${orders.hasNext()}"
        th:href="@{/customer/order-history(page=${orders.number + 1}, size=${orders.size})}">
-        Next
+        Sau
     </a>
 </div>
 
