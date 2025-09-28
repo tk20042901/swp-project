@@ -128,36 +128,28 @@ public class GuestController {
         return "pages/guest/products-category";
     }
 
-    @GetMapping("/all-product-sorting/{categoryId}")
+    @GetMapping("/product-category-sorting")
     public String getAllProductsWithSorting(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "" + PAGE_SIZE) int size,
-            @PathVariable Long categoryId,
+            @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) String sortBy,
             Model model) {
+        Page<Product> productsPage =  productService.getProductsByCategoryWithPagingAndSorting(categoryId, page, size, sortBy);
+
+        // Add categories for the dropdown filter
+        List<Category> categories = categoryService.getAllCategories();
         
-        // Default to all products if no category specified
-        Long targetCategoryId = (categoryId != null) ? categoryId : 0L;
-        
-        // Use the same method that handles sorting before pagination
-        Page<Product> productsPage = productService.getProductsByCategoryWithPagingAndSorting(targetCategoryId, page, size, sortBy);
-        
-        Page<ViewProductDto> dtoPage = mapProductToViewProductDto(productsPage);
-        
-        // Get category name for display
-        Category category = categoryService.getCategoryById(targetCategoryId);
-        String categoryName = (category != null) ? category.getName() : "Tất cả sản phẩm";
-        
-        model.addAttribute("categoryId", targetCategoryId);
-        model.addAttribute("categoryName", categoryName);
-        model.addAttribute("viewProductDto", dtoPage);
+        model.addAttribute("viewProductDto", mapProductToViewProductDto(productsPage));
         model.addAttribute("totalElement", productsPage.getTotalElements());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", productsPage.getTotalPages());
+        model.addAttribute("categoryId", categoryId);
         model.addAttribute("sortBy", sortBy);
-        model.addAttribute("url", "/all-product-sorting");
+        model.addAttribute("categories", categories);
+        model.addAttribute("url", "/product-category-sorting");
         model.addAttribute("showSearchBar", true);
-        return "pages/guest/all-product-sorting";
+        return "pages/guest/product-category-sorting";
     }
 
     private Page<ViewProductDto> mapProductToViewProductDto(Page<Product> products) {

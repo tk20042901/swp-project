@@ -39,7 +39,7 @@ public class SecurityConfig {
             "/webhook/**",          // webhook
             "/ai/**" ,              // chatbot ai
             "/product-category-display/**" ,// danh mục sản phẩm
-            "/all-product-sorting/**"  
+            "/product-category-sorting"   // sắp xếp sản phẩm theo danh mục
     };
 
     private static final String[] ADMIN_ALLOWED = {
