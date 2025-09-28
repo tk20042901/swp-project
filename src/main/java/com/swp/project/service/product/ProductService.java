@@ -83,15 +83,15 @@ public class ProductService {
      * @param limit max number of products to return
      * @return sorted list of products
      */
-    public <T extends Comparable<T>> List<Product> sortProductsByProperty(List<Product> products, Function<Product, T> keyExtractor, boolean ascending, int limit) {
+    public <T extends Comparable<T>> Page<Product> sortProductsByProperty(Page<Product> products, Function<Product, T> keyExtractor, boolean ascending) {
         Comparator<Product> comparator = Comparator.comparing(keyExtractor);
         if (!ascending) {
             comparator = comparator.reversed();
         }
-        return products.stream()
+        List<Product> sortedProducts = products.getContent().stream()
                 .sorted(comparator)
-                .limit(limit)
                 .toList();
+        return convertListToPage(sortedProducts, products.getPageable());
     }
 
     public int getAvailableQuantity(Long productId) {
@@ -147,11 +147,77 @@ public class ProductService {
      * @param categoryId ID danh mục
      * @return Danh sách sản phẩm
      */
-    private List<Product> getProductsByCategory(List<Product> products,Long categoryId) {
+    public List<Product> getProductsByCategory(List<Product> products,Long categoryId) {
         return products.stream()
                 .filter(product -> product.getCategories().stream()
                         .anyMatch(category -> category.getId().equals(categoryId)))
                 .toList();
+    }
+
+    /**
+     * Lấy sản phẩm enable theo danh mục với phân trang và sắp xếp
+     * 
+     * @param categoryId ID danh mục
+     * @param page       Số trang
+     * @param size       Kích thước trang
+     * @param sortBy     Loại sắp xếp
+     * @return Trang sản phẩm
+     */
+    public Page<Product> getProductsByCategoryWithPagingAndSorting(Long categoryId, int page, int size, String sortBy) {
+        Pageable pageable = PageRequest.of(page, size);
+        List<Product> allProducts;
+        
+        if (categoryId == 0) {
+            allProducts = getAllEnabledProducts();
+        } else {
+            allProducts = getProductsByCategory(getAllEnabledProducts(), categoryId);
+        }
+        
+        // Apply sorting to the full list before pagination
+        if (sortBy != null) {
+            switch (sortBy) {
+                case "price-asc":
+                    allProducts = allProducts.stream()
+                        .sorted(Comparator.comparing(Product::getPrice))
+                        .toList();
+                    break;
+                case "price-desc":
+                    allProducts = allProducts.stream()
+                        .sorted(Comparator.comparing(Product::getPrice).reversed())
+                        .toList();
+                    break;
+                case "name-asc":
+                    allProducts = allProducts.stream()
+                        .sorted(Comparator.comparing(Product::getName))
+                        .toList();
+                    break;
+                case "name-desc":
+                    allProducts = allProducts.stream()
+                        .sorted(Comparator.comparing(Product::getName).reversed())
+                        .toList();
+                    break;
+                case "newest":
+                    allProducts = allProducts.stream()
+                        .sorted(Comparator.comparing(Product::getId).reversed())
+                        .toList();
+                    break;
+                case "oldest":
+                    allProducts = allProducts.stream()
+                        .sorted(Comparator.comparing(Product::getId))
+                        .toList();
+                    break;
+                case "best-seller":
+                    allProducts = allProducts.stream()
+                        .sorted((p1, p2) -> Integer.compare(getSoldQuantity(p2.getId()), getSoldQuantity(p1.getId())))
+                        .toList();
+                    break;
+                default:
+                    // No sorting applied
+                    break;
+            }
+        }
+        
+        return convertListToPage(allProducts, pageable);
     }
 
     /**
@@ -176,7 +242,7 @@ public class ProductService {
      * @param pageable Đối tượng Pageable chứa số trang và kích thước
      * @return Trang sản phẩm
      */
-    private Page<Product> convertListToPage(List<Product> products, Pageable pageable) {
+    public Page<Product> convertListToPage(List<Product> products, Pageable pageable) {
         // Tính index bắt đầu
         int start = (int) pageable.getOffset();
         // Tính index kết thúc, sử dụng Math.min để tránh IndexOutOfBoundsException
@@ -294,6 +360,20 @@ public class ProductService {
             }
         }
         return false;
+    }
+
+    public List<Product> sortBySaledProducts(List<Product> products, int limit) {
+        return products.stream()
+                .sorted((p1, p2) -> Integer.compare(getSoldQuantity(p2.getId()), getSoldQuantity(p1.getId())))
+                .limit(limit)
+                .toList();
+    }
+
+    public Page<Product> sortBySaledProducts(Page<Product> products) {
+        List<Product> sortedProducts = products.stream()
+                .sorted((p1, p2) -> Integer.compare(getSoldQuantity(p2.getId()), getSoldQuantity(p1.getId())))
+                .toList();
+        return convertListToPage(sortedProducts, products.getPageable());
     }
 
 }
