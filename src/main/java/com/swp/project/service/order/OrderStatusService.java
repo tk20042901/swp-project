@@ -1,12 +1,14 @@
 package com.swp.project.service.order;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.swp.project.entity.order.Order;
 import com.swp.project.entity.order.OrderStatus;
 import com.swp.project.repository.order.OrderStatusRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service

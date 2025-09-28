@@ -7,6 +7,10 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +27,7 @@ import com.swp.project.repository.user.SellerRepository;
 import com.swp.project.repository.user.ShipperRepository;
 import com.swp.project.repository.user.UserRepository;
 import com.swp.project.service.AddressService;
+import com.swp.project.service.order.OrderService;
 import com.swp.project.service.order.OrderStatusService;
 
 import lombok.Getter;
@@ -38,6 +43,7 @@ public class ShipperService {
     private final ManagerRepository managerRepository;
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
+    private final OrderService orderService;
     private final OrderStatusService orderStatusService;
     private final ApplicationEventPublisher eventPublisher;
     private final PasswordEncoder passwordEncoder;
@@ -189,26 +195,71 @@ public class ShipperService {
         return orderRepository.findAll();
     }
 
-    public List<Order> getPendingOrders(Principal principal) {
+    public Page<Order> getPendingOrders(Principal principal, int page, int size) {
         if (principal == null) {
             throw new RuntimeException("Người giao hàng không xác định");
         }
-        return orderRepository.findAll()
-                              .stream()
-                              .filter(order -> orderStatusService.isShippingStatus(order) &&
-                                               order.getShipper().getEmail().equals(principal.getName()))
-                              .toList();
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        // Nếu repository chưa có query riêng thì vẫn phải filter trong memory
+        List<Order> allOrders = orderRepository.findAll()
+            .stream()
+            .filter(order -> orderStatusService.isShippingStatus(order) &&
+                            order.getShipper() != null &&
+                            order.getShipper().getEmail().equals(principal.getName()))
+            .toList();
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), allOrders.size());
+        List<Order> pagedOrders = allOrders.subList(start, end);
+
+        return new PageImpl<>(pagedOrders, pageable, allOrders.size());
     }
 
-    public List<Order> getOtherOrders(Principal principal) {
+    public Page<Order> getOtherOrders(Principal principal, int page, int size) {
         if (principal == null) {
             throw new RuntimeException("Người giao hàng không xác định");
         }
-        return orderRepository.findAll()
-                              .stream()
-                              .filter(order -> (orderStatusService.isAwaitingShipmentStatus(order)) || 
-                                                (order.getShipper().getEmail().equals(principal.getName()) &&
-                                                 !orderStatusService.isShippingStatus(order)))
-                              .toList();
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        List<Order> allOrders = orderRepository.findAll()
+            .stream()
+            .filter(order -> orderStatusService.isAwaitingShipmentStatus(order) ||
+                            (order.getShipper() != null &&
+                            order.getShipper().getEmail().equals(principal.getName()) &&
+                            !orderStatusService.isShippingStatus(order)))
+            .toList();
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), allOrders.size());
+        List<Order> pagedOrders = allOrders.subList(start, end);
+
+        return new PageImpl<>(pagedOrders, pageable, allOrders.size());
+    }
+
+    public void markOrderAsDelivered(Long orderId, Principal principal) {
+        if (principal == null) {
+            throw new RuntimeException("Người giao hàng không xác định");
+        }
+        Order order = orderRepository.findById(orderId)
+                                     .orElseThrow(() -> new RuntimeException("Đơn hàng không tồn tại"));
+        if (!orderStatusService.isShippingStatus(order)) {
+            throw new RuntimeException("Đơn hàng không ở trạng thái đang giao");
+        }
+        orderService.updateOrderStatusToDelivered(order);
+        orderRepository.save(order);
+    }
+
+    public void deliverOrder(Long orderId, Principal principal) {
+        if (principal == null) {
+            throw new RuntimeException("Người giao hàng không xác định");
+        }
+        Order order = orderRepository.findById(orderId)
+                                     .orElseThrow(() -> new RuntimeException("Đơn hàng không tồn tại"));
+        if (!orderStatusService.isAwaitingShipmentStatus(order)) {
+            throw new RuntimeException("Đơn hàng không ở trạng thái chờ giao");
+        }
+        orderService.updateOrderStatusToShipping(order, principal.getName());
+        orderRepository.save(order);
     }
 }

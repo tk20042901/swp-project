@@ -1,17 +1,23 @@
 package com.swp.project.controller.user;
 
 import java.security.Principal;
-import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.swp.project.entity.order.Order;
 import com.swp.project.service.user.ShipperService;
 
 import lombok.RequiredArgsConstructor;
+
+
 
 @RequiredArgsConstructor
 @Controller
@@ -26,17 +32,54 @@ public class ShipperController {
 
     @GetMapping("/orders")
     public String shipperOrders(Model model,
-                                Principal principal) {
+                                Principal principal,
+                                @RequestParam(defaultValue = "1") int pageDelivering,
+                                @RequestParam(defaultValue = "1") int pageOther,
+                                @RequestParam(defaultValue = "10") int size) {
         try {
-            List<Order> deliveringOrders = shipperService.getPendingOrders(principal);
-            model.addAttribute("deliveringOrders", deliveringOrders);
+            // Lấy Page<Order> thay vì List<Order>
+            Page<Order> deliveringOrders = shipperService.getPendingOrders(principal, pageDelivering, size);
+            model.addAttribute("deliveringOrders", deliveringOrders.getContent());
+            model.addAttribute("currentPageDelivering", pageDelivering);
+            model.addAttribute("totalPagesDelivering", deliveringOrders.getTotalPages());
 
-            List<Order> otherOrders = shipperService.getOtherOrders(principal);
-            model.addAttribute("otherOrders", otherOrders);        
+            Page<Order> otherOrders = shipperService.getOtherOrders(principal, pageOther, size);
+            model.addAttribute("otherOrders", otherOrders.getContent());
+            model.addAttribute("currentPageOther", pageOther);
+            model.addAttribute("totalPagesOther", otherOrders.getTotalPages());
+
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
         }
         model.addAttribute("orderStatusService", shipperService.getOrderStatusService());
         return "pages/shipper/orders";
     }
+
+    @PostMapping("/orders/done/{orderId}")
+    public String donePost(@PathVariable Long orderId,
+                                 RedirectAttributes redirectAttributes,
+                                 Principal principal) {
+        try {
+            shipperService.markOrderAsDelivered(orderId, principal);
+            redirectAttributes.addFlashAttribute("msg", "Đơn hàng " + orderId + " đã được đánh dấu là hoàn thành.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/shipper/orders";
+    }
+
+    @PostMapping("/orders/deliver/{orderId}")
+    public String deliverPost(@PathVariable Long orderId,
+                                 RedirectAttributes redirectAttributes,
+                                 Principal principal) {
+        try {
+            shipperService.deliverOrder(orderId, principal);
+            redirectAttributes.addFlashAttribute("msg", "Đơn hàng " + orderId + " đã được nhận để giao.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/shipper/orders";
+    }
+    
+    
 }

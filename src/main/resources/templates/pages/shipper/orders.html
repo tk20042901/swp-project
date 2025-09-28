@@ -1,77 +1,144 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Danh sách đơn hàng</title>
+  <meta charset="UTF-8">
+  <title>Danh sách đơn hàng</title>
+  <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/style.css">
 </head>
-<body>
-<div class="alert alert-danger alert-dismissible fade show" th:hidden="${error == null}">
-    <strong>Thất bại!</strong> <span th:text="${error}"></span>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-<h1>Đơn hàng đang giao</h1>
-<table class="table">
-    <thead>
-    <tr>
-        <th>Mã đơn hàng</th>
-        <th>Khách hàng</th>
-        <th>Địa chỉ</th>
-        <th>Số điện thoại</th>
-        <th>Thời gian đặt hàng</th>
-        <th>Thời gian giao hàng</th>
-        <th>Trạng thái</th>
-        <th>Hành động</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="order : ${deliveringOrders}">
-        <td th:text="${order.id}"></td>
-        <td th:text="${order.customer.fullName}"></td>
-        <td th:text="${order.addressString}"></td>
-        <td th:text="${order.phoneNumber}"></td>
-        <td th:text="${order.orderTime}"></td>
-        <td th:text="${order.deliveredTime}"></td>
-        <td th:text="${order.orderStatus.name}"></td>
-        <td>
+<body class="auth-body">
+<div class="container py-4">
+  <!-- Alerts -->
+  <div class="alerts-stack mb-3">
+    <div class="alert alert-success alert-dismissible fade show" th:hidden="${msg == null}">
+      <strong>Thành công!</strong> <span th:text="${msg}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div class="alert alert-danger alert-dismissible fade show" th:hidden="${error == null}">
+      <strong>Thất bại!</strong> <span th:text="${error}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  </div>
+
+  <!-- Đơn hàng đang giao -->
+  <div class="auth-card p-4 shadow-sm mb-5">
+    <h1 class="h5 mb-3 text-primary">🚚 Đơn hàng đang giao</h1>
+    <div class="table-responsive">
+      <table class="table table-striped table-hover align-middle">
+        <thead class="table-light">
+        <tr>
+          <th>Mã đơn hàng</th>
+          <th>Khách hàng</th>
+          <th>Địa chỉ</th>
+          <th>Số điện thoại</th>
+          <th>Thời gian đặt hàng</th>
+          <th>Thời gian giao hàng</th>
+          <th>Trạng thái</th>
+          <th>Hành động</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${#lists.isEmpty(deliveringOrders)}">
+          <td colspan="8" class="text-center text-muted fst-italic">Không có đơn hàng nào đang giao.</td>
+        </tr>
+        <tr th:each="order : ${deliveringOrders}">
+          <td th:text="${order.id}"></td>
+          <td th:text="${order.customer.fullName}"></td>
+          <td th:text="${order.addressString}"></td>
+          <td th:text="${order.phoneNumber}"></td>
+          <td th:text="${order.orderTime}"></td>
+          <td th:text="${order.deliveredTime}"></td>
+          <td th:text="${order.orderStatus.name}"></td>
+          <td>
             <form th:action="@{/shipper/orders/done/{id}(id=${order.id})}" method="post">
-                <button type="submit" class="btn btn-success">Hoàn thành</button>
+              <button type="submit" class="btn btn-success btn-sm">✔ Hoàn thành</button>
             </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
-<hr/>
-<h1>Đơn hàng khác</h1>
-<hr/>
-<table class="table">
-    <thead>
-    <tr>
-        <th>Mã đơn hàng</th>
-        <th>Khách hàng</th>
-        <th>Địa chỉ</th>
-        <th>Số điện thoại</th>
-        <th>Thời gian đặt hàng</th>
-        <th>Thời gian giao hàng</th>
-        <th>Trạng thái</th>
-        <th>Hành động</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="order : ${otherOrders}">
-        <td th:text="${order.id}"></td>
-        <td th:text="${order.customer.fullName}"></td>
-        <td th:text="${order.addressString}"></td>
-        <td th:text="${order.phoneNumber}"></td>
-        <td th:text="${order.orderTime}"></td>
-        <td th:text="${order.deliveredTime}"></td>
-        <td th:text="${order.orderStatus.name}"></td>
-        <td colspan="8">
-            <form th:action="@{/shipper/orders/deliver/{id}(id=${order.id})}" method="post" th:if="${orderStatusService.isAwaitingShipmentStatus(order)}">
-                <button type="submit" class="btn">Giao hàng</button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination delivering -->
+    <nav th:if="${totalPagesDelivering > 1}">
+      <ul class="pagination justify-content-center">
+        <li class="page-item" th:classappend="${currentPageDelivering == 1} ? 'disabled'">
+          <a class="page-link" th:href="@{/shipper/orders(pageDelivering=${currentPageDelivering - 1}, pageOther=${currentPageOther})}">Trước</a>
+        </li>
+        <li class="page-item"
+            th:each="i : ${#numbers.sequence(1, totalPagesDelivering)}"
+            th:classappend="${i == currentPageDelivering} ? 'active'">
+          <a class="page-link" th:text="${i}"
+             th:href="@{/shipper/orders(pageDelivering=${i}, pageOther=${currentPageOther})}"></a>
+        </li>
+        <li class="page-item" th:classappend="${currentPageDelivering == totalPagesDelivering} ? 'disabled'">
+          <a class="page-link" th:href="@{/shipper/orders(pageDelivering=${currentPageDelivering + 1}, pageOther=${currentPageOther})}">Sau</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+  <!-- Đơn hàng khác -->
+  <div class="auth-card p-4 shadow-sm">
+    <h1 class="h5 mb-3 text-secondary">📦 Đơn hàng khác</h1>
+    <div class="table-responsive">
+      <table class="table table-striped table-hover align-middle">
+        <thead class="table-light">
+        <tr>
+          <th>Mã đơn hàng</th>
+          <th>Khách hàng</th>
+          <th>Địa chỉ</th>
+          <th>Số điện thoại</th>
+          <th>Thời gian đặt hàng</th>
+          <th>Thời gian giao hàng</th>
+          <th>Trạng thái</th>
+          <th>Hành động</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${#lists.isEmpty(otherOrders)}">
+          <td colspan="8" class="text-center text-muted fst-italic">Không có đơn hàng nào khác.</td>
+        </tr>
+        <tr th:each="order : ${otherOrders}">
+          <td th:text="${order.id}"></td>
+          <td th:text="${order.customer.fullName}"></td>
+          <td th:text="${order.addressString}"></td>
+          <td th:text="${order.phoneNumber}"></td>
+          <td th:text="${order.orderTime}"></td>
+          <td th:text="${order.deliveredTime}"></td>
+          <td th:text="${order.orderStatus.name}"></td>
+          <td>
+            <form th:action="@{/shipper/orders/deliver/{id}(id=${order.id})}"
+                  method="post"
+                  th:if="${orderStatusService.isAwaitingShipmentStatus(order)}">
+              <button type="submit" class="btn btn-primary btn-sm">🚀 Giao hàng</button>
             </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination other -->
+    <nav th:if="${totalPagesOther > 1}">
+      <ul class="pagination justify-content-center">
+        <li class="page-item" th:classappend="${currentPageOther == 1} ? 'disabled'">
+          <a class="page-link" th:href="@{/shipper/orders(pageDelivering=${currentPageDelivering}, pageOther=${currentPageOther - 1})}">Trước</a>
+        </li>
+        <li class="page-item"
+            th:each="i : ${#numbers.sequence(1, totalPagesOther)}"
+            th:classappend="${i == currentPageOther} ? 'active'">
+          <a class="page-link" th:text="${i}"
+             th:href="@{/shipper/orders(pageDelivering=${currentPageDelivering}, pageOther=${i})}"></a>
+        </li>
+        <li class="page-item" th:classappend="${currentPageOther == totalPagesOther} ? 'disabled'">
+          <a class="page-link" th:href="@{/shipper/orders(pageDelivering=${currentPageDelivering}, pageOther=${currentPageOther + 1})}">Sau</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+<script src="/js/bootstrap/bootstrap.bundle.min.js"></script>
 </body>
 </html>
