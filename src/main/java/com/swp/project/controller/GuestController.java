@@ -118,31 +118,22 @@ public class GuestController {
 
 
     @GetMapping({ "/" })
-    public String getHomepage(Model model) {
-        // Load products for each category (first 6 products)
-        Map<String, List<ViewProductDto>> productsByCategory = new HashMap<>();
-        
-        // All products (category "0")
-        Page<Product> allProductsPage = productService.getProductsWithPaging(0, CAROUSEL_SIZE);
-        productsByCategory.put("0", mapProductToViewProductDto(allProductsPage).getContent());
-        
-        // Each specific category
+    public String getHomepage(
+        @RequestParam(defaultValue = "0") Long categoryId,
+        Model model) {
+
         List<Category> categories = categoryService.getAllCategories();
-        for (Category category : categories) {
-            Page<Product> categoryProductsPage = productService.getProductsByCategoryWithPaging(category.getId(), 0, CAROUSEL_SIZE);
-            productsByCategory.put(category.getId().toString(), mapProductToViewProductDto(categoryProductsPage).getContent());
-        }
+        Page<Product> productsByCategory = productService.getProductsByCategoryWithPagingAndSorting(categoryId, 0, CAROUSEL_SIZE, "default");
         
         // Static sections (newest, most sold, premium)
         Page<Product> newestProducts = productService.getProductsByCategoryWithPagingAndSorting(0L, 0, CAROUSEL_SIZE, "newest");
         Page<Product> mostSoldProducts = productService.getProductsByCategoryWithPagingAndSorting(0L, 0, CAROUSEL_SIZE, "best-seller");
-        Page<Product> premiumProducts = productService.getProductsByCategoryWithPagingAndSorting(0L, 0, CAROUSEL_SIZE, "price-desc");
 
-        model.addAttribute("productsByCategory", productsByCategory);
+        model.addAttribute("productByCategory", mapProductToViewProductDto(productsByCategory));
         model.addAttribute("newestProducts", mapProductToViewProductDto(newestProducts));
         model.addAttribute("mostSoldProducts", mapProductToViewProductDto(mostSoldProducts));
-        model.addAttribute("premiumProducts", mapProductToViewProductDto(premiumProducts));
         model.addAttribute("categories", categories);
+        model.addAttribute("categoryId", categoryId);
         model.addAttribute("url", "/");
         model.addAttribute("showSearchBar", true);
         return "pages/guest/homepage";
@@ -173,34 +164,6 @@ public class GuestController {
         model.addAttribute("url", "/search-product" + (keyword != null ? "?keyword=" + keyword : ""));
         model.addAttribute("showSearchBar", true);
         return "pages/guest/search-result";
-    }
-
-    @GetMapping("/product-category-display/{categoryId}")
-    public String getProductsByCategory(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "" + PAGE_SIZE) int size,
-            @PathVariable Long categoryId,
-            @RequestParam(required = false) String sortBy,
-            Model model) {
-        
-        Page<Product> productsPage = productService.getProductsByCategoryWithPagingAndSorting(categoryId, page, size, sortBy);
-        
-        Page<ViewProductDto> dtoPage = mapProductToViewProductDto(productsPage);
-        
-        // Get category name for display
-        Category category = categoryService.getCategoryById(categoryId);
-        String categoryName = (category != null) ? category.getName() : "Tất cả sản phẩm";
-        
-        model.addAttribute("categoryId", categoryId);
-        model.addAttribute("categoryName", categoryName);
-        model.addAttribute("viewProductDto", dtoPage);
-        model.addAttribute("totalElement", productsPage.getTotalElements());
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", productsPage.getTotalPages());
-        model.addAttribute("sortBy", sortBy);
-        model.addAttribute("url", "/product-category-display/" + categoryId);
-        model.addAttribute("showSearchBar", true);
-        return "pages/guest/products-category";
     }
 
     @GetMapping("/product-category-sorting")

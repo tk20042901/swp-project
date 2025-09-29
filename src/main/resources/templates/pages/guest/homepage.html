@@ -5,6 +5,41 @@
 
         <h1>Chào mừng đến với trang chủ FruitShop</h1>
 
+        <h2>Danh mục sản phẩm</h2>
+        <!-- Category Dropdown Filter -->
+        <form class="d-flex align-items-center gap-2 mb-4" th:action="@{/}" method="get">
+            <label for="category" class="mb-0">Lọc theo danh mục:</label>
+            <select name="categoryId" id="category" class="form-select form-select-sm" style="width: auto;"
+                    onchange="this.form.submit()">
+                <option value="0" th:text="'Tất cả danh mục'" th:selected="${categoryId == null or categoryId == 0}">Tất cả danh mục</option>
+                <option th:each="category : ${categories}"
+                        th:value="${category.id}"
+                        th:text="${category.name}"
+                        th:selected="${category.id == categoryId}">
+                </option>
+            </select>
+        </form>
+
+        <!-- Top 6 Products Section -->
+        <div class="mb-5">
+            <h2 class="mb-3">Danh Sach San Pham</h2>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                <div class="col" th:each="product : ${productByCategory}">
+                    <div class="card h-100">
+                        <img th:src="${product.mainImageUrl}" class="card-img-top" alt="Product Image"
+                            style="width: 100%; height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <a th:href="@{/product/{id}(id=${product.id})}">
+                                <h5 class="card-title" th:text="${product.name}"></h5>
+                            </a>
+                            <p class="card-text">Giá: <span th:text="${product.price}"></span> VND</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
         <!-- Newest Products Section -->
         <div class="mb-5">
             <h2 class="mb-3">Sản phẩm mới nhất</h2>
@@ -45,64 +80,6 @@
             <a th:href="@{/product-category-sorting?sortBy=best-seller&categoryId=0}" class="btn btn-link mt-3">Xem tất cả sản phẩm bán chạy nhất</a>
         </div>
 
-        <!-- Premium Products Section -->
-        <div class="mb-5">
-            <h2 class="mb-3">Sản phẩm thượng hạng</h2>
-            <div class="row row-cols-1 row-cols-md-3 g-4">
-                <div class="col" th:each="product : ${premiumProducts}">
-                    <div class="card h-100">
-                        <img th:src="${product.mainImageUrl}" class="card-img-top" alt="Product Image"
-                            style="width: 100%; height: 200px; object-fit: cover;">
-                        <div class="card-body">
-                            <a th:href="@{/product/{id}(id=${product.id})}">
-                                <h5 class="card-title" th:text="${product.name}"></h5>
-                            </a>
-                            <p class="card-text">Giá: <span th:text="${product.price}"></span> VND</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <a th:href="@{/product-category-sorting?sortBy=price-desc&categoryId=0}" class="btn btn-link mt-3">Xem tất cả sản phẩm thượng hạng</a>
-        </div>
-
-        <h2>Danh mục sản phẩm</h2>
-
-        <!-- Category Dropdown -->
-        <div class="mb-3">
-            <label for="category" class="form-label">Lọc theo danh mục:</label>
-            <select name="categoryId" id="category" class="form-select" style="width: 250px;"
-                onchange="switchCategory(this.value)">
-                <option value="0">Tất cả danh mục</option>
-                <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}">
-                </option>
-            </select>
-        </div>
-
-        <!-- Products Cards -->
-        <div class="row row-cols-1 row-cols-md-3 g-4" id="products-container">
-            <!-- Products will be populated by JavaScript -->
-        </div>
-
-        <!-- Dynamic Category Button -->
-        <div class="text-center mt-4 mb-4">
-            <a id="view-all-button" href="/product-category-display/0" class="btn btn-primary btn-lg">
-                <i class="fas fa-th-large me-2"></i>Xem tất cả sản phẩm
-            </a>
-        </div>
-
-        <!-- JavaScript for Category Switching -->
-        <script th:src="@{/js/product-page/homepage-category-switcher.js}"></script>
-        <script th:inline="javascript">
-            // Initialize the category switcher with server data
-            document.addEventListener('DOMContentLoaded', function () {
-                const productsData = /*[[${productsByCategory}]]*/ {};
-                const categoriesData = /*[[${categories}]]*/[];
-
-                initializeCategorySwitcher(productsData, categoriesData);
-            });
-        </script>
-
-        <!-- Pagination Display -->
 
     </div>
 </div>
