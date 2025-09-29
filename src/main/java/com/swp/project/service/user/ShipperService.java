@@ -93,10 +93,6 @@ public class ShipperService {
         }
     }
 
-    public void findAll() {
-        results = shipperRepository.findAll();
-    }
-
     public void save(Shipper shipper) { shipperRepository.save(shipper);
     }
 
@@ -191,11 +187,7 @@ public class ShipperService {
         }
     }
 
-    public List<Order> getAllOrders() {
-        return orderRepository.findAll();
-    }
-
-    public Page<Order> getPendingOrders(Principal principal, int page, int size) {
+    public Page<Order> getDeliveringOrders(Principal principal, int page, int size) {
         if (principal == null) {
             throw new RuntimeException("Người giao hàng không xác định");
         }
@@ -206,7 +198,8 @@ public class ShipperService {
             .stream()
             .filter(order -> orderStatusService.isShippingStatus(order) &&
                             order.getShipper() != null &&
-                            order.getShipper().getEmail().equals(principal.getName()))
+                            order.getShipper().getEmail().equals(principal.getName()) &&
+                            orderStatusService.isShippingStatus(order))
             .toList();
 
         int start = (int) pageable.getOffset();
@@ -216,7 +209,7 @@ public class ShipperService {
         return new PageImpl<>(pagedOrders, pageable, allOrders.size());
     }
 
-    public Page<Order> getOtherOrders(Principal principal, int page, int size) {
+    public Page<Order> getPendingOrders(Principal principal, int page, int size) {
         if (principal == null) {
             throw new RuntimeException("Người giao hàng không xác định");
         }
@@ -224,10 +217,7 @@ public class ShipperService {
 
         List<Order> allOrders = orderRepository.findAll()
             .stream()
-            .filter(order -> orderStatusService.isAwaitingShipmentStatus(order) ||
-                            (order.getShipper() != null &&
-                            order.getShipper().getEmail().equals(principal.getName()) &&
-                            !orderStatusService.isShippingStatus(order)))
+            .filter(orderStatusService::isAwaitingShipmentStatus)
             .toList();
 
         int start = (int) pageable.getOffset();
@@ -256,6 +246,9 @@ public class ShipperService {
         }
         Order order = orderRepository.findById(orderId)
                                      .orElseThrow(() -> new RuntimeException("Đơn hàng không tồn tại"));
+        if (order.getShipper() != null) {
+            throw new RuntimeException("Đơn hàng đã có người nhận giao");
+        }
         if (!orderStatusService.isAwaitingShipmentStatus(order)) {
             throw new RuntimeException("Đơn hàng không ở trạng thái chờ giao");
         }

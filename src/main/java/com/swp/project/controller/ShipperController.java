@@ -34,19 +34,19 @@ public class ShipperController {
     public String shipperOrders(Model model,
                                 Principal principal,
                                 @RequestParam(defaultValue = "1") int pageDelivering,
-                                @RequestParam(defaultValue = "1") int pageOther,
+                                @RequestParam(defaultValue = "1") int pagePending,
                                 @RequestParam(defaultValue = "10") int size) {
         try {
             // Lấy Page<Order> thay vì List<Order>
-            Page<Order> deliveringOrders = shipperService.getPendingOrders(principal, pageDelivering, size);
+            Page<Order> deliveringOrders = shipperService.getDeliveringOrders(principal, pageDelivering, size);
             model.addAttribute("deliveringOrders", deliveringOrders.getContent());
             model.addAttribute("currentPageDelivering", pageDelivering);
             model.addAttribute("totalPagesDelivering", deliveringOrders.getTotalPages());
 
-            Page<Order> otherOrders = shipperService.getOtherOrders(principal, pageOther, size);
-            model.addAttribute("otherOrders", otherOrders.getContent());
-            model.addAttribute("currentPageOther", pageOther);
-            model.addAttribute("totalPagesOther", otherOrders.getTotalPages());
+            Page<Order> pendingOrders = shipperService.getPendingOrders(principal, pagePending, size);
+            model.addAttribute("pendingOrders", pendingOrders.getContent());
+            model.addAttribute("currentPagePending", pagePending);
+            model.addAttribute("totalPagesPending", pendingOrders.getTotalPages());
 
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());

@@ -48,7 +48,6 @@ public class ManagerController {
             @RequestParam(value = "subpageIndex", required = false) Integer subpageIndex,
             @RequestParam(value = "queryName", required = false) String queryName,
             @RequestParam(value = "queryCid", required = false) String queryCid,
-            Model model,
             HttpSession session) {
         if (session.getAttribute("k") == null) {
             session.setAttribute("k", 1);
@@ -111,7 +110,6 @@ public class ManagerController {
             @RequestParam(value = "subpageIndex", required = false) Integer subpageIndex,
             @RequestParam(value = "queryName", required = false) String queryName,
             @RequestParam(value = "queryCid", required = false) String queryCid,
-            Model model,
             HttpSession session) {
         if (session.getAttribute("k") == null) {
             session.setAttribute("k", 1);
@@ -171,8 +169,7 @@ public class ManagerController {
     @PostMapping("/manage-seller")
     public String manageSeller(
             @RequestParam("email") String email,
-            RedirectAttributes redirectAttributes,
-            HttpSession session) {
+            RedirectAttributes redirectAttributes) {
         try {
             Seller seller = sellerService.getByEmail(email);
 
@@ -191,8 +188,7 @@ public class ManagerController {
     @PostMapping("/manage-shipper")
     public String manageShipper(
             @RequestParam("email") String email,
-            RedirectAttributes redirectAttributes,
-            HttpSession session) {
+            RedirectAttributes redirectAttributes) {
         try {
             Shipper shipper = shipperService.getByEmail(email);
 
@@ -257,7 +253,7 @@ public class ManagerController {
 
     @PostMapping("/edit-staff")
     public String editStaff(
-            @Valid @ModelAttribute("staffDto") StaffDto inputStaffDto,
+            @Valid @ModelAttribute("staffDto") StaffDto staffDto,
             BindingResult bindingResult,
             @RequestParam("newClassName") String newClassName,
             @RequestParam(value = "submitButton", required = false) String submitButton,
@@ -265,24 +261,20 @@ public class ManagerController {
             Model model,
             HttpSession session) {
 
-        StaffDto staffDto = inputStaffDto;
         session.setAttribute("staffDto", staffDto);
 
         model.addAttribute("wards", addressService.getAllCommuneWardByProvinceCityCode(staffDto.getProvinceCity()));
 
         String managerRedirectUrl = "";
-        String managerForwardUrl = "";
         String editRedirectUrl = "redirect:/manager/edit-staff";
         String editForwardUrl = "pages/manager/edit-staff";
 
         switch (newClassName) {
             case "Seller":
                 managerRedirectUrl = "redirect:/manager/manage-seller";
-                managerForwardUrl = "pages/manager/manage-seller";
                 break;
             case "Shipper":
                 managerRedirectUrl = "redirect:/manager/manage-shipper";
-                managerForwardUrl = "pages/manager/manage-shipper";
                 break;
         }
 
@@ -295,12 +287,13 @@ public class ManagerController {
                 return editForwardUrl;
             }
             try {
-                if (newClassName != null && !newClassName.isEmpty()) {
+                if (!newClassName.isEmpty()) {
 
                     switch (newClassName) {
                         case "Seller":
                             try {
                                 sellerService.add(staffDto);
+                                sellerService.setSellerStatus(staffDto.getId(), staffDto.isEnabled());
                                 sellerService.findByNameAndCid(
                                         session.getAttribute("queryName").toString(),
                                         session.getAttribute("queryCid").toString());
@@ -317,6 +310,7 @@ public class ManagerController {
                         case "Shipper":
                             try {
                                 shipperService.add(staffDto);
+                                shipperService.setShipperStatus(staffDto.getId(), staffDto.isEnabled());
                                 shipperService.findByNameAndCid(
                                         session.getAttribute("queryName").toString(),
                                         session.getAttribute("queryCid").toString());
