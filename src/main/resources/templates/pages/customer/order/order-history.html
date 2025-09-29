@@ -40,8 +40,8 @@
     <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
     <div class="alert alert-info">
-        <strong>Tổng số đơn hàng:</strong> <span th:text="${orders.totalElements}">0</span>
-
+        <strong>Tổng số đơn hàng:</strong> <span th:text="${orders.totalElements}">0</span><br>
+        <strong>Số tiền đã thanh toán:</strong> <span th:text="${totalSpent}"></span>
     </div>
 
     <div class="table-responsive">
@@ -71,7 +71,7 @@
                     <span th:case="'Chờ Xác Nhận'" class="badge bg-warning text-dark">Chờ Xác Nhận</span>
                     <span th:case="'Đang Giao Hàng'" class="badge bg-success">Đang Giao Hàng</span>
                     <span th:case="'Đang Chuẩn Bị Hàng'" class="badge bg-info text-dark">Đang Chuẩn Bị Hàng</span>
-                    <span th:case="*" class="badge bg-primary">Khác</span>
+                    <span th:case="'Đã Giao Hàng'" class="badge bg-primary">Đã Giao Hàng</span>
                 </td>
                 <td>
                     <strong th:text="${#numbers.formatInteger(order.totalAmount, 0, 'COMMA')} + ' VND'">60,000 VND</strong>
