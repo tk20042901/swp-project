@@ -32,9 +32,9 @@
 </head>
 <body>
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="mb-4">
+        <a th:href="@{/}" class="btn btn-secondary mb-2">← Trang chủ</a>
         <h1>Lịch sử đặt hàng</h1>
-        <a th:href="@{/}" class="btn btn-secondary">← Trang chủ</a>
     </div>
     <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
     <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
@@ -72,6 +72,7 @@
                     <span th:case="'Đang Giao Hàng'" class="badge bg-success">Đang Giao Hàng</span>
                     <span th:case="'Đang Chuẩn Bị Hàng'" class="badge bg-info text-dark">Đang Chuẩn Bị Hàng</span>
                     <span th:case="'Đã Giao Hàng'" class="badge bg-primary">Đã Giao Hàng</span>
+                    <span th:case="'Chờ Thanh Toán'" class="badge bg-secondary text-light">Chờ Thanh Toán</span>
                 </td>
                 <td>
                     <strong th:text="${#numbers.formatInteger(order.totalAmount, 0, 'COMMA')} + ' VND'">60,000 VND</strong>
@@ -80,9 +81,11 @@
                     <a th:href="@{'/customer/order/order-detail/' + ${order.id}}"
                        class="btn btn-sm btn-outline-primary">Chi tiết</a>
                 </td>
-                <a th:if="${order.orderStatus.name eq 'Chờ Thanh Toán'}"
-                   th:href="${order.paymentLink}">Thanh toán ngay</a>
+
                 <td>
+                    <a th:if="${order.orderStatus.name == 'Chờ Thanh Toán'}"
+                       th:href="${order.paymentLink}"
+                       class="btn btn-sm btn-success fw-bold px-3">Thanh toán ngay</a>
                     <form th:if="${order.orderStatus.name == 'Chờ Xác Nhận'}"
                           th:action="@{'/customer/order-history/cancel/' + ${order.id}}"
                           method="post" style="display:inline;"
