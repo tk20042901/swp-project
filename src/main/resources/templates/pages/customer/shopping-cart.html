@@ -27,6 +27,10 @@
         </tr>
         </thead>
         <tbody>
+        <tr>
+        <tr th:if="${#lists.isEmpty(cartItems)}">
+            <td colspan="6" class="text-center">Chưa có sản phẩm nào trong giỏ hàng.</td>
+        </tr>
         <tr th:each="item : ${cartItems}">
             <td>
                 <form th:action="@{/customer/shopping-cart/select}" method="post">
