@@ -217,6 +217,14 @@ public class CustomerController {
     @GetMapping("/order-history")
     public String getOrderHistory(Model model, Principal principal, @RequestParam(defaultValue = "0")int page, @RequestParam(defaultValue = "5")int size){
         Page<Order> orders=customerService.getOrdersByCustomerEmail(principal.getName(),page,size);
+
+        int totalSpent=0;
+        for(Order order : orders.getContent()){
+            if(orderStatusService.isDeliveredStatus(order)){
+                totalSpent+=order.getTotalAmount();
+            }
+        }
+        model.addAttribute("totalSpent",totalSpent);
         model.addAttribute("orders",orders );
         return "pages/customer/order/order-history";
     }
