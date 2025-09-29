@@ -87,8 +87,7 @@ public class OrderService {
 
     @Transactional
     public void setOrderStatus(Long orderId, OrderStatus orderStatus) {
-        Order order = orderRepository.findById(orderId).orElse(null);
-        assert order != null;
+        Order order = getOrderById(orderId);
         order.setOrderStatus(orderStatus);
         orderRepository.save(order);
     }
