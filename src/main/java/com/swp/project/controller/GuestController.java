@@ -293,16 +293,11 @@ public class GuestController {
             Model model,
             RedirectAttributes redirectAttributes,
             Principal principal) {
-        if (principal == null) {
-            redirectAttributes.addFlashAttribute("error", "Bạn phải đăng nhập để thêm sản phẩm vào giỏ hàng");
+        try {
+            customerService.addShoppingCartItem(principal, productId, quantity);
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
             return "redirect:/product/" + productId;
-        } else {
-            try {
-                customerService.addShoppingCartItem(principal.getName(), productId, quantity);
-            } catch (Exception ex) {
-                redirectAttributes.addFlashAttribute("error", ex.getMessage());
-                return "redirect:/product/" + productId;
-            }
         }
         redirectAttributes.addFlashAttribute("msg", "Thêm sản phẩm vào giỏ hàng thành công");
         return "redirect:/product/" + productId;

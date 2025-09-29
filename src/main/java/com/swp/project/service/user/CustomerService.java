@@ -1,6 +1,7 @@
 package com.swp.project.service.user;
 
 
+import java.security.Principal;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.List;
@@ -246,19 +247,23 @@ public class CustomerService {
         return orderRepository.findByCustomer(customer,pageable);
     }
 
-    public void addShoppingCartItem(String name, Long productId, int quantity) {
-        Customer customer = customerRepository.getByEmail(name);
-        if (customer == null) {
-            throw new RuntimeException("Khách hàng có email " + name + " không tìm thấy");
+    public void addShoppingCartItem(Principal principal, Long productId, int quantity) {
+        if (principal == null) {
+            throw new RuntimeException("Bạn phải đăng nhập để thêm sản phẩm vào giỏ hàng");
         }
 
-        ShoppingCartItem existingItem = shoppingCartItemRepository.findByCustomer_EmailAndProduct_Id(name, productId);
+        Customer customer = customerRepository.getByEmail(principal.getName());
+        if (customer == null) {
+            throw new RuntimeException("Khách hàng có email " + principal.getName() + " không tìm thấy");
+        }
+
+        ShoppingCartItem existingItem = shoppingCartItemRepository.findByCustomer_EmailAndProduct_Id(principal.getName(), productId);
 
         if (existingItem != null) {
             if (existingItem.getQuantity() + quantity > productService.getAvailableQuantity(productId)) {
                 throw new RuntimeException("Số lượng sản phẩm trong giỏ hàng vượt quá số lượng tồn kho");
             }
-            updateCartQuantity(name, productId, quantity + existingItem.getQuantity());
+            updateCartQuantity(principal.getName(), productId, quantity + existingItem.getQuantity());
         } else {
             if (quantity > productService.getAvailableQuantity(productId)) {
                 throw new RuntimeException("Số lượng sản phẩm trong giỏ hàng vượt quá số lượng tồn kho");
