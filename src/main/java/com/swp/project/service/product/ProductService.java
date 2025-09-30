@@ -211,6 +211,9 @@ public class ProductService {
                         .sorted((p1, p2) -> Integer.compare(getSoldQuantity(p2.getId()), getSoldQuantity(p1.getId())))
                         .toList();
                     break;
+                case "default":
+                    allProducts = allProducts.stream().toList();
+                    break;
                 default:
                     // No sorting applied
                     break;

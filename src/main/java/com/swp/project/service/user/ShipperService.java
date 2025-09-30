@@ -2,9 +2,7 @@ package com.swp.project.service.user;
 
 import java.security.Principal;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -185,6 +183,23 @@ public class ShipperService {
         else {
             results = shipperRepository.findByFullnameContainsAndCidContains(name, cid);
         }
+    }
+
+    public void autoAssignShipperToOrder(Long orderId) {
+        Order order = orderService.getOrderById(orderId);
+        Map<Shipper, Long> shipperOrderCount = new HashMap<>();
+        shipperRepository.findAll().forEach(shipper ->
+                shipperOrderCount.put(shipper,
+                        orderRepository.countByShipperAndOrderStatus(
+                                shipper,
+                                orderStatusService.getShippingStatus()
+                        )
+                )
+        );
+        Shipper assignedShipper = Collections.min
+                (shipperOrderCount.entrySet(), Map.Entry.comparingByValue()).getKey();
+        order.setShipper(assignedShipper);
+        orderRepository.save(order);
     }
 
     public Page<Order> getDeliveringOrders(Principal principal, int page, int size) {
