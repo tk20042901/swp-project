@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.swp.project.entity.order.Order;
+import com.swp.project.service.order.OrderService;
 import com.swp.project.service.user.ShipperService;
 
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,9 @@ import lombok.RequiredArgsConstructor;
 @Controller
 @RequestMapping("/shipper")
 public class ShipperController {
+
     private final ShipperService shipperService;
+    private final OrderService orderService;
 
     @GetMapping("")
     public String shipperMain() {
@@ -34,7 +37,6 @@ public class ShipperController {
     public String shipperOrders(Model model,
                                 Principal principal,
                                 @RequestParam(defaultValue = "1") int pageDelivering,
-                                @RequestParam(defaultValue = "1") int pagePending,
                                 @RequestParam(defaultValue = "10") int size) {
         try {
             // Lấy Page<Order> thay vì List<Order>
@@ -42,11 +44,6 @@ public class ShipperController {
             model.addAttribute("deliveringOrders", deliveringOrders.getContent());
             model.addAttribute("currentPageDelivering", pageDelivering);
             model.addAttribute("totalPagesDelivering", deliveringOrders.getTotalPages());
-
-            Page<Order> pendingOrders = shipperService.getPendingOrders(principal, pagePending, size);
-            model.addAttribute("pendingOrders", pendingOrders.getContent());
-            model.addAttribute("currentPagePending", pagePending);
-            model.addAttribute("totalPagesPending", pendingOrders.getTotalPages());
 
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
@@ -68,17 +65,21 @@ public class ShipperController {
         return "redirect:/shipper/orders";
     }
 
-    @PostMapping("/orders/deliver/{orderId}")
-    public String deliverPost(@PathVariable Long orderId,
-                                 RedirectAttributes redirectAttributes,
-                                 Principal principal) {
+    @GetMapping("/orders/{orderId}")
+    public String viewOrderDetails(@PathVariable Long orderId,
+                                   Model model,
+                                   Principal principal,
+                                   RedirectAttributes redirectAttributes) {
         try {
-            shipperService.deliverOrder(orderId, principal);
-            redirectAttributes.addFlashAttribute("msg", "Đơn hàng " + orderId + " đã được nhận để giao.");
+            Order order = orderService.getOrderByOrderId(orderId);
+            Long totalAmount = orderService.calculateTotalAmount(order);
+            model.addAttribute("order", order);
+            model.addAttribute("totalAmount", totalAmount);
+            return "pages/shipper/order_details";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/shipper/orders";
         }
-        return "redirect:/shipper/orders";
     }
     
     

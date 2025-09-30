@@ -3,7 +3,10 @@ package com.swp.project.service.user;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -187,6 +190,23 @@ public class ShipperService {
         }
     }
 
+    public void autoAssignShipperToOrder(Long orderId) {
+        Order order = orderService.getOrderById(orderId);
+        Map<Shipper, Long> shipperOrderCount = new HashMap<>();
+        shipperRepository.findAll().forEach(shipper ->
+                shipperOrderCount.put(shipper,
+                        orderRepository.countByShipperAndOrderStatus(
+                                shipper,
+                                orderStatusService.getShippingStatus()
+                        )
+                )
+        );
+        Shipper assignedShipper = Collections.min
+                (shipperOrderCount.entrySet(), Map.Entry.comparingByValue()).getKey();
+        order.setShipper(assignedShipper);
+        orderRepository.save(order);
+    }
+
     public Page<Order> getDeliveringOrders(Principal principal, int page, int size) {
         if (principal == null) {
             throw new RuntimeException("Người giao hàng không xác định");
@@ -200,24 +220,6 @@ public class ShipperService {
                             order.getShipper() != null &&
                             order.getShipper().getEmail().equals(principal.getName()) &&
                             orderStatusService.isShippingStatus(order))
-            .toList();
-
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), allOrders.size());
-        List<Order> pagedOrders = allOrders.subList(start, end);
-
-        return new PageImpl<>(pagedOrders, pageable, allOrders.size());
-    }
-
-    public Page<Order> getPendingOrders(Principal principal, int page, int size) {
-        if (principal == null) {
-            throw new RuntimeException("Người giao hàng không xác định");
-        }
-        Pageable pageable = PageRequest.of(page - 1, size);
-
-        List<Order> allOrders = orderRepository.findAll()
-            .stream()
-            .filter(orderStatusService::isAwaitingShipmentStatus)
             .toList();
 
         int start = (int) pageable.getOffset();

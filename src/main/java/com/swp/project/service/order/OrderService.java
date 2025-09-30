@@ -87,8 +87,7 @@ public class OrderService {
 
     @Transactional
     public void setOrderStatus(Long orderId, OrderStatus orderStatus) {
-        Order order = orderRepository.findById(orderId).orElse(null);
-        assert order != null;
+        Order order = getOrderById(orderId);
         order.setOrderStatus(orderStatus);
         orderRepository.save(order);
     }
@@ -214,4 +213,15 @@ public class OrderService {
                                 .sum())
                         .sum();
         }
+
+    public Order getOrderByOrderId(Long orderId) {
+        return orderRepository.findById(orderId).orElseThrow(() ->
+                new RuntimeException("Không tìm thấy đơn hàng với ID: " + orderId));
+    }
+
+    public Long calculateTotalAmount(Order order) {
+        return order.getOrderItem().stream()
+                .mapToLong(item -> item.getProduct().getPrice() * item.getQuantity())
+                .sum();
+    }
 }

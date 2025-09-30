@@ -49,4 +49,7 @@ public class Product implements Serializable {
     @JsonIgnore
     @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
     private List<ProductBatch> productBatches;
+
+    @Transient
+    private int totalQuantity;
 }
