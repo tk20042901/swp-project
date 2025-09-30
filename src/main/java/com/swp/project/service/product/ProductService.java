@@ -379,4 +379,14 @@ public class ProductService {
         return convertListToPage(sortedProducts, products.getPageable());
     }
 
+    public Page<Product> GetAllProductList(int page, int size){
+        Pageable pageable = PageRequest.of(page,size);
+        Page<Product> products= productRepository.findAll(pageable);
+        products.forEach(product -> {
+            int availableQuantity= getAvailableQuantity(product.getId());
+            product.setTotalQuantity(availableQuantity);
+        });
+        return products;
+    }
+
 }

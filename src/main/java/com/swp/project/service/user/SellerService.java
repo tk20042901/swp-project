@@ -5,7 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.swp.project.entity.product.Product;
+import com.swp.project.repository.product.ProductRepository;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +40,7 @@ public class SellerService {
     private final PasswordEncoder passwordEncoder;
     private final AddressService addressService;
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    private final ProductRepository productRepository;
 
     private List<Seller> results = new ArrayList<>();
 
@@ -177,4 +183,6 @@ public class SellerService {
     public Seller getSellerByEmail(String email) {
         return sellerRepository.findByEmail(email);
     }
+
+
 }
