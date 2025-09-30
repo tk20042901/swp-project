@@ -213,4 +213,15 @@ public class OrderService {
                                 .sum())
                         .sum();
         }
+
+    public Order getOrderByOrderId(Long orderId) {
+        return orderRepository.findById(orderId).orElseThrow(() ->
+                new RuntimeException("Không tìm thấy đơn hàng với ID: " + orderId));
+    }
+
+    public Long calculateTotalAmount(Order order) {
+        return order.getOrderItem().stream()
+                .mapToLong(item -> item.getProduct().getPrice() * item.getQuantity())
+                .sum();
+    }
 }

@@ -232,7 +232,8 @@ public class ShipperService {
 
         List<Order> allOrders = orderRepository.findAll()
             .stream()
-            .filter(orderStatusService::isAwaitingShipmentStatus)
+            .filter(order -> orderStatusService.isAwaitingShipmentStatus(order) &&
+                            order.getShipper() == null)
             .toList();
 
         int start = (int) pageable.getOffset();
