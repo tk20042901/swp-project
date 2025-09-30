@@ -2,7 +2,12 @@ package com.swp.project.service.user;
 
 import java.security.Principal;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -215,25 +220,6 @@ public class ShipperService {
                             order.getShipper() != null &&
                             order.getShipper().getEmail().equals(principal.getName()) &&
                             orderStatusService.isShippingStatus(order))
-            .toList();
-
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), allOrders.size());
-        List<Order> pagedOrders = allOrders.subList(start, end);
-
-        return new PageImpl<>(pagedOrders, pageable, allOrders.size());
-    }
-
-    public Page<Order> getPendingOrders(Principal principal, int page, int size) {
-        if (principal == null) {
-            throw new RuntimeException("Người giao hàng không xác định");
-        }
-        Pageable pageable = PageRequest.of(page - 1, size);
-
-        List<Order> allOrders = orderRepository.findAll()
-            .stream()
-            .filter(order -> orderStatusService.isAwaitingShipmentStatus(order) &&
-                            order.getShipper() == null)
             .toList();
 
         int start = (int) pageable.getOffset();
