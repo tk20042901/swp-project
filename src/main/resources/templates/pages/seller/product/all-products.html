@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en"  xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>All products</title>
+</head>
+<body>
+<a th:href="@{/}">Trang chủ</a>
+<h1>Danh sách các sản phẩm</h1>
+<table>
+    <thead>
+    <tr>
+        <th>Sản phẩm</th>
+        <th>Mô tả</th>
+        <th>Giá</th>
+        <th>Danh mục</th>
+        <th>Số lượng</th>
+        <th>Trạng thái</th>
+        <th>Thao tác</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="product : ${products}">
+        <td><img th:src="@{${product.main_image_url}}">
+         <span th:text="${product.name}"></span></td>
+        <td th:text="${product.description}"></td>
+        <td th:text="${product.price}+'VND/'+${product.unit.name}"></td>
+        <td>
+            <span th:each="category, iterStat : ${product.categories}">
+                <span th:text="${category.name}"></span>
+                <span th:if="${!iterStat.last}">, </span>
+            </span>
+        </td>
+        <td th:text="${product.totalQuantity}"></td>
+        <td th:text="${product.enabled? 'Đang bán' : 'Ngừng bán'}"></td>
+
+    </tr>
+    </tbody>
+</table>
+<div>
+    <a th:if="${products.hasPrevious()}"
+    th:href="@{/seller/all-products (page=${products.number - 1},size=${products.size})}">
+        Trước
+    </a>
+    <span> Trang [[${products.number + 1}]] / [[${products.totalPages}]] </span>
+    <a th:if="${products.hasNext()}"
+         th:href="@{/seller/all-products (page=${products.number + 1},size=${products.size})}">
+            Sau
+    </a>
+</div>
+</body>
+</html>

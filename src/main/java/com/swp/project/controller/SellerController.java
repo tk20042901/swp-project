@@ -2,8 +2,11 @@ package com.swp.project.controller;
 
 import com.swp.project.dto.SellerSearchOrderDto;
 import com.swp.project.entity.order.Order;
+import com.swp.project.entity.product.Product;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.order.OrderStatusService;
+import com.swp.project.service.product.ProductService;
+import com.swp.project.service.user.SellerService;
 import com.swp.project.service.user.ShipperService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +25,8 @@ public class SellerController {
     private final OrderStatusService orderStatusService;
     private final OrderService orderService;
     private final ShipperService shipperService;
+    private final SellerService sellerService;
+    private final ProductService productService;
 
     @GetMapping("")
     public String sellerMain() {
@@ -97,5 +102,11 @@ public class SellerController {
                 "Cập nhật trạng thái đơn hàng thành Đang giao hàng thành công.\n" +
                         "Hệ thống đã tự động phân công Shipper cho đơn hàng.");
         return "redirect:/seller/all-orders";
+    }
+    @GetMapping("/all-products")
+    public String getAllProductList(Model model,@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5")int size){
+    Page<Product> products = productService.GetAllProductList(page,size);
+    model.addAttribute("products",products);
+    return "pages/seller/product/all-products";
     }
 }
