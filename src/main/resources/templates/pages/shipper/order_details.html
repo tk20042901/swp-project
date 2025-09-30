@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chi tiết đơn hàng</title>
+  <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="auth-body">
+<div class="container py-5">
+  <div class="auth-card p-4 shadow-sm">
+    <div th:object="${order}">
+      <h1 class="h4 mb-4 text-primary">🧾 Chi tiết đơn hàng</h1>
+
+      <p><strong>Mã đơn hàng:</strong> <span th:text="*{id}"></span></p>
+      <p><strong>Tên khách hàng:</strong> <span th:text="*{fullName}"></span></p>
+      <p><strong>Địa chỉ giao hàng:</strong> <span th:text="*{addressString}"></span></p>
+
+      <h2 class="h5 mt-4">📦 Thông tin sản phẩm</h2>
+      <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>STT</th>
+              <th>Sản phẩm</th>
+              <th>Đơn giá</th>
+              <th>Số lượng</th>
+              <th>Thành tiền</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="item, iterStat : *{orderItem}">
+              <td th:text="${iterStat.index + 1}"></td>
+              <td th:text="${item.product.name}"></td>
+              <td th:text="${item.product.price + 'đ / ' + item.product.unit.name}"></td>
+              <td th:text="${item.quantity}"></td>
+              <td th:text="${item.product.price * item.quantity + 'đ'}"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Tổng tiền -->
+      <div class="text-end mt-3">
+        <h4 class="text-danger">
+          Tổng cộng: <span th:text="${totalAmount}"></span> đ
+        </h4>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/js/bootstrap/bootstrap.bundle.min.js"></script>
+</body>
+</html>

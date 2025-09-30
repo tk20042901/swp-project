@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="auth-body">
+<a href="/shipper" class="btn btn-light position-absolute top-0 start-0 m-3">← Quay lại</a>
 <div class="container py-4">
   <!-- Alerts -->
   <div class="alerts-stack mb-3">
@@ -28,12 +29,8 @@
         <thead class="table-light">
         <tr>
           <th>Mã đơn hàng</th>
-          <th>Khách hàng</th>
-          <th>Địa chỉ</th>
-          <th>Số điện thoại</th>
-          <th>Thời gian đặt hàng</th>
-          <th>Thời gian giao hàng</th>
-          <th>Trạng thái</th>
+          <th>Email</th>
+          <th>Chi tiết</th>
           <th>Hành động</th>
         </tr>
         </thead>
@@ -43,12 +40,12 @@
         </tr>
         <tr th:each="order : ${deliveringOrders}">
           <td th:text="${order.id}"></td>
-          <td th:text="${order.customer.fullName}"></td>
-          <td th:text="${order.addressString}"></td>
-          <td th:text="${order.phoneNumber}"></td>
-          <td th:text="${order.orderTime}"></td>
-          <td th:text="${order.deliveredTime}"></td>
-          <td th:text="${order.orderStatus.name}"></td>
+          <td th:text="${order.customer.email}"></td>
+          <td>
+            <a th:href="@{/shipper/orders/{id}(id=${order.id})}">
+              <button class="btn btn-outline-secondary btn-sm">Xem chi tiết</button>
+            </a>
+          </td>
           <td>
             <form th:action="@{/shipper/orders/done/{id}(id=${order.id})}" method="post">
               <button type="submit" class="btn btn-success btn-sm">✔ Hoàn thành</button>
@@ -86,12 +83,8 @@
         <thead class="table-light">
         <tr>
           <th>Mã đơn hàng</th>
-          <th>Khách hàng</th>
-          <th>Địa chỉ</th>
-          <th>Số điện thoại</th>
-          <th>Thời gian đặt hàng</th>
-          <th>Thời gian giao hàng</th>
-          <th>Trạng thái</th>
+          <th>Email</th>
+          <th>Chi tiết</th>
           <th>Hành động</th>
         </tr>
         </thead>
@@ -101,17 +94,17 @@
         </tr>
         <tr th:each="order : ${pendingOrders}">
           <td th:text="${order.id}"></td>
-          <td th:text="${order.customer.fullName}"></td>
-          <td th:text="${order.addressString}"></td>
-          <td th:text="${order.phoneNumber}"></td>
-          <td th:text="${order.orderTime}"></td>
-          <td th:text="${order.deliveredTime}"></td>
-          <td th:text="${order.orderStatus.name}"></td>
+          <td th:text="${order.customer.email}"></td>
+          <td>
+            <a th:href="@{/shipper/orders/{id}(id=${order.id})}">
+              <button class="btn btn-outline-secondary btn-sm">Xem chi tiết</button>
+            </a>
+          </td>
           <td>
             <form th:action="@{/shipper/orders/deliver/{id}(id=${order.id})}"
                   method="post"
                   th:if="${orderStatusService.isAwaitingShipmentStatus(order)}">
-              <button type="submit" class="btn btn-primary btn-sm">🚀 Giao hàng</button>
+              <button type="submit" class="btn btn-primary btn-sm">🚀 Giao</button>
             </form>
           </td>
         </tr>
