@@ -26,7 +26,7 @@
             <div class="row row-cols-1 row-cols-md-3 g-4">
                 <div class="col" th:each="product : ${productByCategory}">
                     <div class="card h-100">
-                        <img th:src="${product.mainImageUrl}" class="card-img-top" alt="Product Image"
+                        <img th:src="${product.main_image_url}" class="card-img-top" alt="Product Image"
                             style="width: 100%; height: 200px; object-fit: cover;">
                         <div class="card-body">
                             <a th:href="@{/product/{id}(id=${product.id})}">
@@ -46,7 +46,7 @@
             <div class="row row-cols-1 row-cols-md-3 g-4">
                 <div class="col" th:each="product : ${newestProducts}">
                     <div class="card h-100">
-                        <img th:src="${product.mainImageUrl}" class="card-img-top" alt="Product Image"
+                        <img th:src="${product.main_image_url}" class="card-img-top" alt="Product Image"
                             style="width: 100%; height: 200px; object-fit: cover;">
                         <div class="card-body">
                             <a th:href="@{/product/{id}(id=${product.id})}">
@@ -66,7 +66,7 @@
             <div class="row row-cols-1 row-cols-md-3 g-4">
                 <div class="col" th:each="product : ${mostSoldProducts}">
                     <div class="card h-100">
-                        <img th:src="${product.mainImageUrl}" class="card-img-top" alt="Product Image"
+                        <img th:src="${product.main_image_url}" class="card-img-top" alt="Product Image"
                             style="width: 100%; height: 200px; object-fit: cover;">
                         <div class="card-body">
                             <a th:href="@{/product/{id}(id=${product.id})}">

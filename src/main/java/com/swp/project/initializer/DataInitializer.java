@@ -4,8 +4,7 @@ package com.swp.project.initializer;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import com.swp.project.service.CustomerAiService;
-import com.swp.project.service.product.ProductService;
+
 import com.swp.project.service.user.AdminService;
 import com.swp.project.service.user.CustomerService;
 import com.swp.project.service.user.ManagerService;
