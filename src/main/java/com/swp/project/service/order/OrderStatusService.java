@@ -36,10 +36,6 @@ public class OrderStatusService {
         return orderStatusRepository.findByName("Đang Chuẩn Bị Hàng");
     }
 
-    public OrderStatus getAwaitingShipmentStatus() {
-        return orderStatusRepository.findByName("Chờ Giao Hàng");
-    }
-
     public OrderStatus getShippingStatus() {
         return orderStatusRepository.findByName("Đang Giao Hàng");
     }
@@ -62,10 +58,6 @@ public class OrderStatusService {
 
     public boolean isProcessingStatus(Order order) {
         return order.getOrderStatus().getName().equals("Đang Chuẩn Bị Hàng");
-    }
-
-    public boolean isAwaitingShipmentStatus(Order order) {
-        return order.getOrderStatus().getName().equals("Chờ Giao Hàng");
     }
 
     public boolean isShippingStatus(Order order) {
