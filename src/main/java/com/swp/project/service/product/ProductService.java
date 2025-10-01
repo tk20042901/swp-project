@@ -1,19 +1,15 @@
 package com.swp.project.service.product;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 import com.swp.project.dto.ViewProductDto;
 import com.swp.project.entity.order.OrderItem;
 import com.swp.project.repository.order.OrderItemRepository;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -82,25 +78,6 @@ public class ProductService {
         }
     }
 
-        /**
-     * Universal sort method for Product properties
-     *
-     * @param products List of products to sort
-     * @param keyExtractor Function to extract the property to sort by
-     * @param ascending true for ascending, false for descending
-     * @return sorted list of products
-     */
-    public <T extends Comparable<T>> Page<Product> sortProductsByProperty(Page<Product> products, Function<Product, T> keyExtractor, boolean ascending) {
-        Comparator<Product> comparator = Comparator.comparing(keyExtractor);
-        if (!ascending) {
-            comparator = comparator.reversed();
-        }
-        List<Product> sortedProducts = products.getContent().stream()
-                .sorted(comparator)
-                .toList();
-        return convertListToPage(sortedProducts, products.getPageable());
-    }
-
 
     public int getAvailableQuantity(Long productId) {
         int productBatchQuantity = productBatchService.getByProductId(productId)
@@ -140,10 +117,6 @@ public class ProductService {
         }
     }
 
-    /**
-     * Optimized method to get all homepage product data in a single batch
-     * This reduces the number of database calls from 3 to 1 for better performance
-     */
     public Map<String, Page<ViewProductDto>> getHomepageProductsBatch(Long categoryId, int size) {
         Map<String, Page<ViewProductDto>> results = new HashMap<>();
         
