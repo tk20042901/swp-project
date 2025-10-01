@@ -1,6 +1,7 @@
 package com.swp.project.service.product;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +47,7 @@ public class ProductService {
             "best-seller", Sort.by("soldQuantity").descending(),
             "default", Sort.unsorted());
 
+
     public void saveProduct(Product product) {
         productRepository.save(product);
 
@@ -75,6 +77,7 @@ public class ProductService {
             productBatchService.updateProductBatch(productBatch);
         }
     }
+
 
     public int getAvailableQuantity(Long productId) {
         int productBatchQuantity = productBatchService.getByProductId(productId)
@@ -112,6 +115,24 @@ public class ProductService {
         } else {
             return productRepository.findViewProductDtoByCategoryIdAndEnabled(categoryId, true, pageable);
         }
+    }
+
+    public Map<String, Page<ViewProductDto>> getHomepageProductsBatch(Long categoryId, int size) {
+        Map<String, Page<ViewProductDto>> results = new HashMap<>();
+        
+        // Get products by category
+        Page<ViewProductDto> productsByCategory = getViewProductsByCategoryWithPagingAndSorting(categoryId, 0, size, "default");
+        results.put("productByCategory", productsByCategory);
+        
+        // Get newest products
+        Page<ViewProductDto> newestProducts = getViewProductsByCategoryWithPagingAndSorting(0L, 0, size, "newest");
+        results.put("newestProducts", newestProducts);
+        
+        // Get most sold products
+        Page<ViewProductDto> mostSoldProducts = getViewProductsByCategoryWithPagingAndSorting(0L, 0, size, "best-seller");
+        results.put("mostSoldProducts", mostSoldProducts);
+        
+        return results;
     }
 
     public List<Product> getRelatedProducts(Long id, int limit) {
