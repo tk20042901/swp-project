@@ -80,7 +80,6 @@ public class ProductService {
      * @param products List of products to sort
      * @param keyExtractor Function to extract the property to sort by
      * @param ascending true for ascending, false for descending
-     * @param limit max number of products to return
      * @return sorted list of products
      */
     public <T extends Comparable<T>> Page<Product> sortProductsByProperty(Page<Product> products, Function<Product, T> keyExtractor, boolean ascending) {
@@ -108,7 +107,7 @@ public class ProductService {
         return productBatchQuantity - pendingPaymentQuantity;
     }
 
-    public ShoppingCartItem getAllShoppingCartItemByCustomerIdAndProductId(String email, Long productId) {
+    public ShoppingCartItem getShoppingCartItemByCustomerEmailAndProductId(String email, Long productId) {
         return shoppingCartItemRepository.findByCustomer_EmailAndProduct_Id(email, productId);
     }
 
