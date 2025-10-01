@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Product-detail</title>
+</head>
+<body>
+<a th:href="@{/}">Trang chủ</a>
+
+<h1 th:text="${'Chi tiết sản phẩm ' + product.name}"></h1>
+
+<table>
+    <thead>
+    <tr>
+        <th>Sản phẩm</th>
+        <th>Mô tả</th>
+        <th>Giá thành</th>
+        <th>Số lượng</th>
+        <th>Danh mục</th>
+        <th>Trạng thái</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>
+            <img th:src="${product.main_image_url}" alt="Product Image" style="max-width: 150px; max-height: 150px;">
+            <span th:text="${product.name}"></span>
+        </td>
+        <td th:text="${product.description}"></td>
+        <td th:text="${product.price + ' VND/' + (product.unit != null ? product.unit.name : '')}"></td>
+        <td th:text="${availableQuantity}"></td>
+        <td>
+            <span th:each="category, iterStat : ${product.categories}">
+                <span th:text="${category.name}"></span>
+                <span th:if="${!iterStat.last}">, </span>
+            </span>
+        </td>
+        <td th:text="${product.enabled ? 'Đang bán' : 'Ngừng bán'}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<h3>Danh sách các lô hàng</h3>
+<table>
+    <thead>
+    <tr>
+        <th>Mã lô hàng</th>
+        <th>Số lượng</th>
+        <th>Hạn sử dụng</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="batch : ${product.productBatches}">
+        <td th:text="${batch.id}"></td>
+        <td th:text="${batch.quantity}"></td>
+        <td th:text="${batch.expiredDate != null ? #temporals.format(batch.expiredDate, 'dd/MM/yyyy') : 'N/A'}"></td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
