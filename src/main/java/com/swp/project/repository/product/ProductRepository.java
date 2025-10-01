@@ -25,7 +25,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findDistinctByCategoriesInAndIdNot(List<Category> categories, Long id, Pageable pageable);
 
     @Query("""
-        SELECT NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url) 
+        SELECT NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url, p.soldQuantity) 
         FROM Product p JOIN p.categories c 
         WHERE c.id = :categoryId AND p.enabled = :enabled
     """)
@@ -36,7 +36,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     );
 
     @Query("""
-        SELECT  NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url) 
+        SELECT  NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url, p.soldQuantity) 
         FROM Product p JOIN p.categories c 
         WHERE c.id = :categoryId AND p.enabled = :enabled
     """)
@@ -46,7 +46,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     );
 
     @Query("""
-        SELECT  NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url) 
+        SELECT  NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url, p.soldQuantity) 
         FROM Product p 
         WHERE p.enabled = :enabled
     """)
@@ -56,7 +56,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     );
 
     @Query("""
-        SELECT  NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url) 
+        SELECT  NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url, p.soldQuantity) 
         FROM Product p 
         WHERE p.enabled = :enabled
     """)
@@ -65,7 +65,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     );
 
     @Query(""" 
-        SELECT NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url) 
+        SELECT NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url, p.soldQuantity) 
         FROM Product p 
         JOIN p.categories c 
         WHERE p.enabled = :enabled
@@ -80,21 +80,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     );
 
     @Query(""" 
-        SELECT NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url) 
-        FROM Product p 
-        JOIN p.categories c 
-        WHERE p.enabled = :enabled
-        AND c.id = :categoryId
-        AND LOWER(FUNCTION('unaccent', p.name)) LIKE LOWER(FUNCTION('unaccent', CONCAT('%', :keyword, '%')))
-    """)
-    List<ViewProductDto> findViewProductDtoByProductNameAndCategoryIdAndEnabled(
-        @Param("keyword") String keyword,
-        @Param("enabled") boolean enabled,
-        @Param("categoryId") Long categoryId
-    );
-
-    @Query(""" 
-        SELECT  NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url) 
+        SELECT  NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url, p.soldQuantity) 
         FROM Product p 
         WHERE p.enabled = :enabled
         AND LOWER(FUNCTION('unaccent', p.name)) LIKE LOWER(FUNCTION('unaccent', CONCAT('%', :keyword, '%')))
@@ -105,16 +91,30 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         Pageable pageable
     );
 
-    @Query(""" 
-        SELECT NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url) 
-        FROM Product p 
-        WHERE p.enabled = :enabled
-        AND LOWER(FUNCTION('unaccent', p.name)) LIKE LOWER(FUNCTION('unaccent', CONCAT('%', :keyword, '%')))
-    """)
-    List<ViewProductDto> findViewProductDtoByProductNameAndEnabled(
-        @Param("keyword") String keyword,
-        @Param("enabled") boolean enabled
-    );
-
     List<Product> findAllByEnabled(boolean enabled);
+
+    /**
+     * Optimized query to get homepage products in batches
+     * This method returns different product sets based on sort criteria to reduce database calls
+     */
+    @Query(value = """
+        (SELECT p.id, p.name, p.price, p.main_image_url, p.sold_quantity, 'newest' as sort_type
+         FROM products p 
+         WHERE p.enabled = true 
+         ORDER BY p.id DESC 
+         LIMIT :limit)
+        UNION ALL
+        (SELECT p.id, p.name, p.price, p.main_image_url, p.sold_quantity, 'best-seller' as sort_type
+         FROM products p 
+         WHERE p.enabled = true 
+         ORDER BY p.sold_quantity DESC 
+         LIMIT :limit)
+        UNION ALL
+        (SELECT p.id, p.name, p.price, p.main_image_url, p.sold_quantity, 'default' as sort_type
+         FROM products p 
+         WHERE p.enabled = true 
+         ORDER BY p.id 
+         LIMIT :limit)
+        """, nativeQuery = true)
+    List<Object[]> findHomepageProductsBatch(@Param("limit") int limit);
 }

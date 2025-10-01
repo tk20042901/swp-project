@@ -2,83 +2,127 @@
     xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
     <div layout:fragment="content">
-
-        <h1><span th:text="${Title}"></span></h1>
-        <h2>Có <span th:text="${totalElement}"></span> sản phẩm phù hợp</h2>
-
-
-
-        <!-- Category Dropdown -->
-        <form method="get" th:action="@{${url}}">
-            <label for="category">Lọc theo danh mục:</label>
-            <input type="hidden" name="sortBy" th:value="${sortBy}" /> <!-- Preserve the sort option -->
-            <input th:if="${hadKeyword}" type="hidden" name="keyword" th:value="${keyword}" />
-            <select name="categoryId" id="category" class="form-select form-select-sm" style="width: auto;"
-                onchange="this.form.submit()">
-                <option value="0" th:text="'Tất cả danh mục'" th:selected="${categoryId == 0}"></option>
-                <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"
-                    th:selected="${category.id == categoryId}">
-                </option>
-            </select>
-        </form>
-
-        <!-- Sorting Dropdown -->
-        <div class="mb-3 d-flex align-items-center">
-            <label for="sortOption" class="form-label me-2">Sắp xếp theo:</label>
-            <form method="get" th:action="@{${url}}" class="d-flex">
-                <input type="hidden" name="categoryId" th:value="${categoryId}" />
-                <input th:if="${hadKeyword}" type="hidden" name="keyword" th:value="${keyword}" />
-                <select name="sortBy" id="sortOption" class="form-select form-select-sm me-2" style="width: auto;"
-                    onchange="this.form.submit()">
-                    <option value="default" th:selected="${sortBy == null or sortBy == 'default'}">Mặc định</option>
-                    <option value="price-asc" th:selected="${sortBy == 'price-asc'}">Giá: Thấp đến cao</option>
-                    <option value="price-desc" th:selected="${sortBy == 'price-desc'}">Giá: Cao đến thấp</option>
-                    <option value="name-asc" th:selected="${sortBy == 'name-asc'}">Tên: A-Z</option>
-                    <option value="name-desc" th:selected="${sortBy == 'name-desc'}">Tên: Z-A</option>
-                    <option value="newest" th:selected="${sortBy == 'newest'}">Mới nhất</option>
-                    <option value="oldest" th:selected="${sortBy == 'oldest'}">Cũ nhất</option>
-                    <option value="best-seller" th:selected="${sortBy == 'best-seller'}">Bán chạy nhất</option>
-                </select>
-            </form>
-        </div>
-
-        <!-- Products Table -->
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>ID Sản Phẩm</th>
-                    <th>Ảnh</th>
-                    <th>Tên sản phẩm</th>
-                    <th>Giá</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="product : ${viewProductDto}">
-                    <td th:text="${product.id}"></td>
-                    <td><img th:src="${product.main_image_url}" alt="Product Image" style="width: 100px; height: auto;">
-                    </td>
-                    <td>
-                        <a th:href="@{/product/{id}(id=${product.id})}" th:text="${product.name}"></a>
-                    </td>
-                    <td th:text="${product.price}"></td>
-                </tr>
-            </tbody>
-        </table>
-
-        <!-- Pagination Controls -->
-        <div class="d-flex justify-content-between mt-3">
-            <a th:href="@{${url}(page=${viewProductDto.number - 1}, size=${viewProductDto.size}, categoryId=${categoryId}, sortBy=${sortBy})}"
-                th:if="${!viewProductDto.first}" class="btn btn-primary">Trước</a>
-            <span th:if="${viewProductDto.first}"></span>
-            
-            <div class="align-self-center">
-                <span>Trang <span th:text="${viewProductDto.number + 1}"></span> / <span th:text="${viewProductDto.totalPages}"></span></span>
+        <!-- Header Section -->
+        <div class="product-header text-center">
+            <div class="container">
+                <h1 class="mb-3" th:text="${Title}">Trang danh sách sản phẩm</h1>
+                <div class="stats-badge">
+                    Tìm thấy <span th:text="${totalElement}">0</span> sản phẩm phù hợp
+                </div>
             </div>
-            
-            <a th:href="@{${url}(page=${viewProductDto.number + 1}, size=${viewProductDto.size}, categoryId=${categoryId}, sortBy=${sortBy})}"
-                th:if="${!viewProductDto.last}" class="btn btn-primary">Tiếp theo</a>
-            <span th:if="${viewProductDto.last}"></span>
         </div>
+
+        <div class="container">
+            <!-- Breadcrumb Navigation -->
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb bg-light p-3 rounded">
+                    <li class="breadcrumb-item">
+                        <a href="/" class="text-decoration-none">
+                            <i class="fas fa-home"></i> Trang chủ
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item" th:if="${hadKeyword}">
+                        <a href="/product-category-sorting" class="text-decoration-none">
+                            <i class="fas fa-th-large"></i> Sản phẩm
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page" th:if="${hadKeyword}">
+                        <i class="fas fa-search"></i> Tìm kiếm: "<span th:text="${keyword}"></span>"
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page" th:unless="${hadKeyword}">
+                        <i class="fas fa-th-large"></i> Danh sách sản phẩm
+                    </li>
+                </ol>
+            </nav>
+
+            <!-- Enhanced Filter Section -->
+            <div class="filter-section">
+                <div class="filter-form">
+                    <!-- Category Filter -->
+                    <div class="filter-group">
+                        <form method="get" th:action="@{${url}}">
+                            <label for="category" class="filter-label">
+                                <i class="fas fa-tags"></i> Lọc theo danh mục:
+                            </label>
+                            <input type="hidden" name="sortBy" th:value="${sortBy}" />
+                            <input th:if="${hadKeyword}" type="hidden" name="keyword" th:value="${keyword}" />
+                            <select name="categoryId" id="category" class="filter-select" onchange="this.form.submit()">
+                                <option value="0" th:text="'🏷️ Tất cả danh mục'" th:selected="${categoryId == 0}"></option>
+                                <option th:each="category : ${categories}" th:value="${category.id}" 
+                                        th:text="'📁 ' + ${category.name}" th:selected="${category.id == categoryId}">
+                                </option>
+                            </select>
+                        </form>
+                    </div>
+
+                    <!-- Sort Filter -->
+                    <div class="filter-group">
+                        <form method="get" th:action="@{${url}}">
+                            <label for="sortOption" class="filter-label">
+                                <i class="fas fa-sort"></i> Sắp xếp theo:
+                            </label>
+                            <input type="hidden" name="categoryId" th:value="${categoryId}" />
+                            <input th:if="${hadKeyword}" type="hidden" name="keyword" th:value="${keyword}" />
+                            <select name="sortBy" id="sortOption" class="filter-select" onchange="this.form.submit()">
+                                <option value="default" th:selected="${sortBy == null or sortBy == 'default'}">⚪ Mặc định</option>
+                                <option value="price-asc" th:selected="${sortBy == 'price-asc'}">💰 Giá: Thấp → Cao</option>
+                                <option value="price-desc" th:selected="${sortBy == 'price-desc'}">💎 Giá: Cao → Thấp</option>
+                                <option value="name-asc" th:selected="${sortBy == 'name-asc'}">🔤 Tên: A → Z</option>
+                                <option value="name-desc" th:selected="${sortBy == 'name-desc'}">🔡 Tên: Z → A</option>
+                                <option value="newest" th:selected="${sortBy == 'newest'}">✨ Mới nhất</option>
+                                <option value="oldest" th:selected="${sortBy == 'oldest'}">📅 Cũ nhất</option>
+                                <option value="best-seller" th:selected="${sortBy == 'best-seller'}">🔥 Bán chạy nhất</option>
+                            </select>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enhanced Product Grid -->
+            <div class="product-grid">
+                <div th:each="product : ${viewProductDto}" class="product-card">
+                    <img th:src="${product.main_image_url}" alt="Product Image" class="product-image">
+                    <div class="product-info">
+                        <a th:href="@{/product/{id}(id=${product.id})}" class="product-name" th:text="${product.name}">
+                            Product Name
+                        </a>
+                        <div class="product-price">
+                            <span th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}">0</span> ₫
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enhanced Pagination -->
+            <div class="pagination-wrapper" th:if="${viewProductDto.totalPages > 1}">
+                <a th:href="@{${url}(page=${viewProductDto.number - 1}, size=${viewProductDto.size}, categoryId=${categoryId}, sortBy=${sortBy}, keyword=${keyword})}"
+                   th:if="${!viewProductDto.first}" class="btn btn-primary btn-pagination">
+                    <i class="fas fa-chevron-left"></i> Trang trước
+                </a>
+                
+                <div class="pagination-info">
+                    <i class="fas fa-file-alt"></i> 
+                    Trang <strong th:text="${viewProductDto.number + 1}">1</strong> / 
+                    <strong th:text="${viewProductDto.totalPages}">1</strong>
+                </div>
+                
+                <a th:href="@{${url}(page=${viewProductDto.number + 1}, size=${viewProductDto.size}, categoryId=${categoryId}, sortBy=${sortBy}, keyword=${keyword})}"
+                   th:if="${!viewProductDto.last}" class="btn btn-primary btn-pagination">
+                    Trang sau <i class="fas fa-chevron-right"></i>
+                </a>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${viewProductDto.totalElements == 0}" class="empty-state text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-search" style="font-size: 4rem; color: #cbd5e0;"></i>
+                </div>
+                <h3 class="text-muted">Không tìm thấy sản phẩm nào</h3>
+                <p class="text-muted">Hãy thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác</p>
+                <a href="/product-category-sorting" class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i> Xem tất cả sản phẩm
+                </a>
+            </div>
         </div>
     </div>
 </div>
