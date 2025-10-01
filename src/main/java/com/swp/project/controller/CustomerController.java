@@ -8,6 +8,7 @@ import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.service.AddressService;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.order.OrderStatusService;
+import com.swp.project.service.order.PaymentMethodService;
 import com.swp.project.service.product.ProductService;
 import com.swp.project.service.user.CustomerService;
 import jakarta.servlet.http.HttpSession;
@@ -27,6 +28,8 @@ import java.security.Principal;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import vn.payos.PayOS;
@@ -44,6 +47,7 @@ public class CustomerController {
     private final ProductService productService;
     private final OrderService orderService;
     private final OrderStatusService orderStatusService;
+    private final PaymentMethodService paymentMethodService;
     private final PayOS payOS;
 
     @GetMapping("/account-manager")
@@ -207,8 +211,10 @@ public class CustomerController {
     public String checkOut(@RequestParam List<Long> cartIds,
                            Model model,
                            Principal principal) {
-        List<ShoppingCartItem> shoppingCartItems = cartIds.stream().map(cartId ->
-                productService.getAllShoppingCartItemByCustomerIdAndProductId(principal.getName(), cartId))
+        List<ShoppingCartItem> shoppingCartItems = cartIds.stream()
+                .map(cartId -> productService
+                        .getShoppingCartItemByCustomerEmailAndProductId(principal.getName(), cartId))
+                .filter(Objects::nonNull)
                 .toList();
         model.addAttribute("shoppingCartItems", shoppingCartItems);
         return "redirect:/customer/order-info";
@@ -259,6 +265,7 @@ public class CustomerController {
             }
             model.addAttribute("deliveryInfoDto", deliveryInfoDto);
         }
+        model.addAttribute("paymentMethods", paymentMethodService.getAllPaymentMethods());
         model.addAttribute("provinceCities", addressService.getAllProvinceCity());
         model.addAttribute("shoppingCartItems", shoppingCartItems);
         model.addAttribute("totalAmount", shoppingCartItems.stream()
@@ -270,7 +277,7 @@ public class CustomerController {
     public String processOrder(@Valid @ModelAttribute DeliveryInfoDto deliveryInfoDto,
                                BindingResult bindingResult,
                                @ModelAttribute("shoppingCartItems") List<ShoppingCartItem> shoppingCartItems,
-                               @RequestParam(name = "payment_method") String paymentMethod,
+                               @RequestParam(required = false) String paymentMethodId,
                                @RequestParam(required = false) String confirm,
                                Model model,
                                RedirectAttributes redirectAttributes,
@@ -285,6 +292,7 @@ public class CustomerController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("deliveryInfoDto", deliveryInfoDto);
+            model.addAttribute("paymentMethods", paymentMethodService.getAllPaymentMethods());
             model.addAttribute("provinceCities", addressService.getAllProvinceCity());
             model.addAttribute("wards", addressService
                     .getAllCommuneWardByProvinceCityCode(deliveryInfoDto.getProvinceCityCode()));
@@ -293,10 +301,15 @@ public class CustomerController {
             return "/pages/customer/order/order-info";
         }
 
+        if(paymentMethodId == null || paymentMethodId.isEmpty()){
+            redirectAttributes.addFlashAttribute("paymentMethodError", "Vui lòng chọn phương thức thanh toán");
+            return "redirect:/customer/order-info";
+        }
+
         sessionStatus.setComplete();
 
         try {
-            if (paymentMethod.equals("cod")) {
+            if (paymentMethodId.equals("COD")) {
                 orderService.createCodOrder(principal.getName(), shoppingCartItems,deliveryInfoDto);
                 return "redirect:/customer/order-success";
             } else {

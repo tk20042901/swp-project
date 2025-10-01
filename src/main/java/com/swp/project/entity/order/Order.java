@@ -40,6 +40,9 @@ public class Order {
     @Builder.Default
     private LocalDateTime orderTime = LocalDateTime.now();
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    private PaymentMethod paymentMethod;
+
     private String paymentLink;
 
     private LocalDateTime paymentExpiredTime;

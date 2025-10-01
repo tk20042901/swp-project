@@ -93,14 +93,12 @@
                                   th:classappend="${order.orderStatus.name} == 'Chờ Xác Nhận' ? ' bg-secondary' :
                                                    (${order.orderStatus.name} == 'Chờ Thanh Toán' ? ' bg-secondary' :
                                                    (${order.orderStatus.name} == 'Đang Chuẩn Bị Hàng' ? ' bg-warning text-dark-emphasis' :
-                                                   (${order.orderStatus.name} == 'Chờ Giao Hàng' ? ' bg-info' :
                                                    (${order.orderStatus.name} == 'Đang Giao Hàng' ? ' bg-primary' :
-                                                   (${order.orderStatus.name} == 'Đã Giao Hàng' ? ' bg-success' : ' bg-danger')))))"
+                                                   (${order.orderStatus.name} == 'Đã Giao Hàng' ? ' bg-success' : ' bg-danger'))))"
                                   th:text="${order.orderStatus.name}"></span>
                         </td>
                         <td class="text-end">
-                            <a class="btn btn-sm btn-outline-primary" th:href="@{'/seller/order-detail/'+${order.id}}">Chi
-                                tiết</a>
+                            <a class="btn btn-sm btn-outline-primary" th:href="@{'/seller/order-detail/'+${order.id}}">Chi tiết</a>
                         </td>
                     </tr>
                     </tbody>
