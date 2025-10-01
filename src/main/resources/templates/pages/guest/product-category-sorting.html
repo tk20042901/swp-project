@@ -3,7 +3,7 @@
 
     <div layout:fragment="content">
 
-        <h1>Trang sản phẩm</h1>
+        <h1><span th:text="${Title}"></span></h1>
         <h2>Có <span th:text="${totalElement}"></span> sản phẩm phù hợp</h2>
 
 
@@ -12,6 +12,7 @@
         <form method="get" th:action="@{${url}}">
             <label for="category">Lọc theo danh mục:</label>
             <input type="hidden" name="sortBy" th:value="${sortBy}" /> <!-- Preserve the sort option -->
+            <input th:if="${hadKeyword}" type="hidden" name="keyword" th:value="${keyword}" />
             <select name="categoryId" id="category" class="form-select form-select-sm" style="width: auto;"
                 onchange="this.form.submit()">
                 <option value="0" th:text="'Tất cả danh mục'" th:selected="${categoryId == 0}"></option>
@@ -25,7 +26,8 @@
         <div class="mb-3 d-flex align-items-center">
             <label for="sortOption" class="form-label me-2">Sắp xếp theo:</label>
             <form method="get" th:action="@{${url}}" class="d-flex">
-                <input type="hidden" name="categoryId" th:value="${categoryId}" /> <!-- Preserve the category -->
+                <input type="hidden" name="categoryId" th:value="${categoryId}" />
+                <input th:if="${hadKeyword}" type="hidden" name="keyword" th:value="${keyword}" />
                 <select name="sortBy" id="sortOption" class="form-select form-select-sm me-2" style="width: auto;"
                     onchange="this.form.submit()">
                     <option value="default" th:selected="${sortBy == null or sortBy == 'default'}">Mặc định</option>
@@ -53,7 +55,7 @@
             <tbody>
                 <tr th:each="product : ${viewProductDto}">
                     <td th:text="${product.id}"></td>
-                    <td><img th:src="${product.mainImageUrl}" alt="Product Image" style="width: 100px; height: auto;">
+                    <td><img th:src="${product.main_image_url}" alt="Product Image" style="width: 100px; height: auto;">
                     </td>
                     <td>
                         <a th:href="@{/product/{id}(id=${product.id})}" th:text="${product.name}"></a>
