@@ -1,14 +1,19 @@
 package com.swp.project.service.product;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import com.swp.project.dto.ViewProductDto;
 import com.swp.project.entity.order.OrderItem;
 import com.swp.project.repository.order.OrderItemRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -45,6 +50,7 @@ public class ProductService {
             "oldest", Sort.by("id").ascending(),
             "best-seller", Sort.by("soldQuantity").descending(),
             "default", Sort.unsorted());
+
 
     public void saveProduct(Product product) {
         productRepository.save(product);
@@ -112,6 +118,28 @@ public class ProductService {
         } else {
             return productRepository.findViewProductDtoByCategoryIdAndEnabled(categoryId, true, pageable);
         }
+    }
+
+    /**
+     * Optimized method to get all homepage product data in a single batch
+     * This reduces the number of database calls from 3 to 1 for better performance
+     */
+    public Map<String, Page<ViewProductDto>> getHomepageProductsBatch(Long categoryId, int size) {
+        Map<String, Page<ViewProductDto>> results = new HashMap<>();
+        
+        // Get products by category
+        Page<ViewProductDto> productsByCategory = getViewProductsByCategoryWithPagingAndSorting(categoryId, 0, size, "default");
+        results.put("productByCategory", productsByCategory);
+        
+        // Get newest products
+        Page<ViewProductDto> newestProducts = getViewProductsByCategoryWithPagingAndSorting(0L, 0, size, "newest");
+        results.put("newestProducts", newestProducts);
+        
+        // Get most sold products
+        Page<ViewProductDto> mostSoldProducts = getViewProductsByCategoryWithPagingAndSorting(0L, 0, size, "best-seller");
+        results.put("mostSoldProducts", mostSoldProducts);
+        
+        return results;
     }
 
     public List<Product> getRelatedProducts(Long id, int limit) {

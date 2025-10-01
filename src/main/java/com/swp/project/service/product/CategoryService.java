@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public List<Category> getAllCategories() {
         return categoryRepository.findAll();
@@ -25,8 +26,6 @@ public class CategoryService {
     public Category getCategoryById(Long id) {
         return categoryRepository.findById(id).orElse(null);
     }
-
-    private final ApplicationEventPublisher eventPublisher;
 
     public void addCategory(Category category) {
         categoryRepository.save(category);

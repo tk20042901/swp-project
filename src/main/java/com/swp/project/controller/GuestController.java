@@ -2,10 +2,10 @@ package com.swp.project.controller;
 
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import com.swp.project.dto.RegisterDto;
 import jakarta.validation.Valid;
@@ -121,22 +121,22 @@ public class GuestController {
     public String getHomepage(
         @RequestParam(defaultValue = "0") Long categoryId,
         Model model) {
-
-        List<Category> categories = categoryService.getAllCategories();
-        Page<ViewProductDto> productsByCategory = productService.getViewProductsByCategoryWithPagingAndSorting(categoryId,0,CAROUSEL_SIZE,"default");
+        try {
+            List<Category> categories = categoryService.getAllCategories();
+            Map<String, Page<ViewProductDto>> homepageProducts = productService.getHomepageProductsBatch(categoryId, CAROUSEL_SIZE);
+            model.addAttribute("productByCategory", homepageProducts.get("productByCategory"));
+            model.addAttribute("newestProducts", homepageProducts.get("newestProducts"));
+            model.addAttribute("mostSoldProducts", homepageProducts.get("mostSoldProducts"));
+            model.addAttribute("categories", categories);
+            model.addAttribute("categoryId", categoryId);
+            model.addAttribute("url", "/");
+            model.addAttribute("Title", "Trang danh sách sản phẩm");
+            model.addAttribute("showSearchBar", true);
+            
+        } catch (Exception e) {
+           System.out.println(e.getMessage());
+        }
         
-        // Static sections (newest, most sold, premium)
-        Page<ViewProductDto> newestProducts = productService.getViewProductsByCategoryWithPagingAndSorting(0L, 0, CAROUSEL_SIZE, "newest");
-        Page<ViewProductDto> mostSoldProducts = productService.getViewProductsByCategoryWithPagingAndSorting(0L, 0, CAROUSEL_SIZE, "best-seller");
-
-        model.addAttribute("productByCategory", productsByCategory);
-        model.addAttribute("newestProducts", newestProducts);
-        model.addAttribute("mostSoldProducts", mostSoldProducts);
-        model.addAttribute("categories", categories);
-        model.addAttribute("categoryId", categoryId);
-        model.addAttribute("url", "/");
-        model.addAttribute("Title", "Trang danh sách sản phẩm");
-        model.addAttribute("showSearchBar", true);
         return "pages/guest/homepage";
     }
 
@@ -148,8 +148,15 @@ public class GuestController {
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "default") String sortBy,
             Model model) {
+        
+        // Handle empty or null keywords
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return "redirect:/product-category-sorting?categoryId=" + categoryId + "&sortBy=" + sortBy;
+        }
+        
         Page<ViewProductDto> products = productService.searchViewProductDto(keyword,categoryId,page,size,sortBy);      
         List<Category> categories = categoryService.getUniqueCategoriesBaseOnPageOfProduct(productService.searchViewProductDto(keyword,0L,page,size,"default").getContent());
+        
         model.addAttribute("viewProductDto", products);
         model.addAttribute("totalElement", products.getTotalElements());
         model.addAttribute("currentPage", page);
@@ -157,7 +164,7 @@ public class GuestController {
         model.addAttribute("categoryId", categoryId);
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("categories", categories);
-        model.addAttribute("Title", "Trang tìm kiếm");
+        model.addAttribute("Title", "Kết quả tìm kiếm cho \"" + keyword + "\"");
         model.addAttribute("url", "/search-product");
         model.addAttribute("keyword", keyword);
         model.addAttribute("hadKeyword", true);

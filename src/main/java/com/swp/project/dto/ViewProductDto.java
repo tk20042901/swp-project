@@ -16,5 +16,6 @@ public class ViewProductDto {
     private String name;
     private Integer price;
     private String main_image_url;
+    private Integer soldQuantity;
     // Getters and Setters
 }
