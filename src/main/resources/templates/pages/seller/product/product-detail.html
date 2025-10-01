@@ -3,6 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <title>Product-detail</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        h1, h3 {
+            margin: 20px 0 10px;
+            color: #444;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            background: #fff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        thead {
+            background-color: #007bff;
+            color: white;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f3f6fa;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        img {
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .total-quantity {
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 10px;
+            text-align: right;
+            color: #222;
+        }
+    </style>
 </head>
 <body>
 <a th:href="@{/}">Trang chủ</a>
@@ -15,7 +76,6 @@
         <th>Sản phẩm</th>
         <th>Mô tả</th>
         <th>Giá thành</th>
-        <th>Số lượng</th>
         <th>Danh mục</th>
         <th>Trạng thái</th>
     </tr>
@@ -28,7 +88,6 @@
         </td>
         <td th:text="${product.description}"></td>
         <td th:text="${product.price + ' VND/' + (product.unit != null ? product.unit.name : '')}"></td>
-        <td th:text="${availableQuantity}"></td>
         <td>
             <span th:each="category, iterStat : ${product.categories}">
                 <span th:text="${category.name}"></span>
@@ -54,6 +113,26 @@
         <td th:text="${batch.id}"></td>
         <td th:text="${batch.quantity}"></td>
         <td th:text="${batch.expiredDate != null ? #temporals.format(batch.expiredDate, 'dd/MM/yyyy') : 'N/A'}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<div class="total-quantity">
+    Tổng số lượng: <span th:text="${availableQuantity}"></span>
+</div>
+
+<h3>Hình ảnh bổ sung</h3>
+<table>
+    <thead>
+    <tr>
+        <th>Hình ảnh bổ sung</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="image : ${product.sub_images}">
+        <td>
+            <img th:src="${image.sub_image_url}" alt="Additional Image" style="max-width: 150px; max-height: 150px;">
+        </td>
     </tr>
     </tbody>
 </table>
