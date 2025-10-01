@@ -99,7 +99,8 @@ public class SellerController {
         orderService.setOrderStatus(orderId, orderStatusService.getShippingStatus());
         shipperService.autoAssignShipperToOrder(orderId);
         redirectAttributes.addFlashAttribute("msg",
-                "Cập nhật trạng thái đơn hàng thành Đang giao hàng thành công");
+                "Cập nhật trạng thái đơn hàng thành Đang giao hàng thành công.\n" +
+                        "Hệ thống đã tự động phân công Shipper cho đơn hàng.");
         return "redirect:/seller/all-orders";
     }
     @GetMapping("/all-products")
