@@ -1,21 +1,17 @@
 package com.swp.project.service.product;
 
-import java.text.Normalizer;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 import com.swp.project.dto.ViewProductDto;
 import com.swp.project.entity.order.OrderItem;
 import com.swp.project.repository.order.OrderItemRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,7 +43,7 @@ public class ProductService {
             "name-desc", Sort.by("name").descending(),
             "newest", Sort.by("id").descending(),
             "oldest", Sort.by("id").ascending(),
-            "best-seller", Sort.by("best-seller"),
+            "best-seller", Sort.by("soldQuantity").descending(),
             "default", Sort.unsorted());
 
     public void saveProduct(Product product) {
@@ -59,14 +55,6 @@ public class ProductService {
 
     public Product getProductById(Long id) {
         return productRepository.findById(id).orElse(null);
-    }
-
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
-    }
-
-    public Page<Product> getAllProducts(Pageable pageable) {
-        return productRepository.findAll(pageable);
     }
 
     @Transactional
@@ -119,45 +107,10 @@ public class ProductService {
             Long categoryId, int page, int size, String sortBy) {
 
         Pageable pageable = PageRequest.of(page, size, SORT_OPTIONS.getOrDefault(sortBy, Sort.unsorted()));
-        return loadProductsByCategoryWithSorting(categoryId, true, pageable);
-    }
-
-    /**
-     * Lấy view sản phẩm bằng categoryId + sorting có paging
-     * 
-     * @param categoryId
-     * @param enabled
-     * @param sort
-     * @param pageable
-     * @return
-     */
-    private Page<ViewProductDto> loadProductsByCategoryWithSorting(Long categoryId, boolean enabled,
-            Pageable pageable) {
-        if (pageable.getSort().getOrderFor("best-seller") != null) {
-            List<ViewProductDto> allProducts;
-            if (categoryId == 0) {
-                allProducts = productRepository.findAllViewProductDtoByEnabled(enabled);
-            } else {
-                allProducts = productRepository.findViewProductDtoByCategoryIdAndEnabled(categoryId, enabled);
-            }
-
-            List<ViewProductDto> sorted = allProducts.stream()
-                    .sorted((p1, p2) -> Integer.compare(
-                            orderRepository.getSoldQuantity(p2.getId()),
-                            orderRepository.getSoldQuantity(p1.getId())))
-                    .toList();
-
-            int start = (int) pageable.getOffset();
-            int end = Math.min(start + pageable.getPageSize(), sorted.size());
-            List<ViewProductDto> pageContent = sorted.subList(start, end);
-            return new PageImpl<>(pageContent, pageable, sorted.size());
-        }
-
-        // Normal sorting for other cases
         if (categoryId == 0) {
-            return productRepository.findAllViewProductDtoByEnabled(enabled, pageable);
+            return productRepository.findAllViewProductDtoByEnabled(true, pageable);
         } else {
-            return productRepository.findViewProductDtoByCategoryIdAndEnabled(categoryId, enabled, pageable);
+            return productRepository.findViewProductDtoByCategoryIdAndEnabled(categoryId, true, pageable);
         }
     }
 
@@ -214,13 +167,6 @@ public class ProductService {
             String sortBy) {
 
         Pageable pageable = PageRequest.of(page, size, SORT_OPTIONS.get(sortBy));
-
-        //TODO: Best-seller sorting
-        if ("best-seller".equals(sortBy)) {
-            pageable = PageRequest.of(page, size,SORT_OPTIONS.get("default"));
-        }
-
-        // Normal sorting
         if (categoryId == 0) {
             return productRepository.findViewProductDtoByProductNameAndEnabled(keyword, true, pageable);
         }
@@ -229,14 +175,8 @@ public class ProductService {
                 keyword, true, categoryId, pageable);
     }
 
-    public Page<Product> GetAllProductList(int page, int size){
-        Pageable pageable = PageRequest.of(page,size);
-        Page<Product> products= productRepository.findAll(pageable);
-        products.forEach(product -> {
-            int availableQuantity= getAvailableQuantity(product.getId());
-            product.setTotalQuantity(availableQuantity);
-        });
-        return products;
+    public Page<Product> GetAllProductList(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return productRepository.findAll(pageable);
     }
-
 }

@@ -3,9 +3,6 @@ package com.swp.project.repository.product;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -28,7 +25,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findDistinctByCategoriesInAndIdNot(List<Category> categories, Long id, Pageable pageable);
 
     @Query("""
-        SELECT DISTINCT NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url) 
+        SELECT NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url) 
         FROM Product p JOIN p.categories c 
         WHERE c.id = :categoryId AND p.enabled = :enabled
     """)
@@ -39,7 +36,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     );
 
     @Query("""
-        SELECT DISTINCT NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url) 
+        SELECT  NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url) 
         FROM Product p JOIN p.categories c 
         WHERE c.id = :categoryId AND p.enabled = :enabled
     """)
@@ -49,7 +46,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     );
 
     @Query("""
-        SELECT DISTINCT NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url) 
+        SELECT  NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url) 
         FROM Product p 
         WHERE p.enabled = :enabled
     """)
@@ -59,7 +56,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     );
 
     @Query("""
-        SELECT DISTINCT NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url) 
+        SELECT  NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url) 
         FROM Product p 
         WHERE p.enabled = :enabled
     """)
@@ -68,7 +65,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     );
 
     @Query(""" 
-        SELECT DISTINCT NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url) 
+        SELECT NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url) 
         FROM Product p 
         JOIN p.categories c 
         WHERE p.enabled = :enabled
@@ -83,7 +80,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     );
 
     @Query(""" 
-        SELECT DISTINCT NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url) 
+        SELECT NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url) 
         FROM Product p 
         JOIN p.categories c 
         WHERE p.enabled = :enabled
@@ -97,7 +94,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     );
 
     @Query(""" 
-        SELECT DISTINCT NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url) 
+        SELECT  NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url) 
         FROM Product p 
         WHERE p.enabled = :enabled
         AND LOWER(FUNCTION('unaccent', p.name)) LIKE LOWER(FUNCTION('unaccent', CONCAT('%', :keyword, '%')))
@@ -109,7 +106,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     );
 
     @Query(""" 
-        SELECT DISTINCT NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url) 
+        SELECT NEW com.swp.project.dto.ViewProductDto(p.id, p.name, p.price, p.main_image_url) 
         FROM Product p 
         WHERE p.enabled = :enabled
         AND LOWER(FUNCTION('unaccent', p.name)) LIKE LOWER(FUNCTION('unaccent', CONCAT('%', :keyword, '%')))
@@ -120,6 +117,4 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     );
 
     List<Product> findAllByEnabled(boolean enabled);
-    List<Product> findDistinctByCategoriesInAndIdNot(List<Category> categories, Long id, PageRequest of);
-
 }
