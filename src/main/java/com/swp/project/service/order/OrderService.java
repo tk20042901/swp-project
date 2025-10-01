@@ -39,6 +39,7 @@ public class OrderService {
     private final OrderStatusService orderStatusService;
     private final ShoppingCartItemRepository shoppingCartItemRepository;
     private final AddressService addressService;
+    private final PaymentMethodService paymentMethodService;
 
     public Page<Order> getAllOrder() {
         Pageable pageable = PageRequest.of(0,10, Sort.by("id").ascending());
@@ -106,6 +107,7 @@ public class OrderService {
                 .deleteByCustomerEmailAndProductId(customerEmail, i.getProduct().getId()));
 
         Order order = orderRepository.save(Order.builder()
+                .paymentMethod(paymentMethodService.getCodMethod())
                 .orderStatus(orderStatusService.getPendingConfirmationStatus())
                 .fullName(deliveryInfoDto.getFullName())
                 .phoneNumber(deliveryInfoDto.getPhone())
@@ -137,6 +139,7 @@ public class OrderService {
                 .deleteByCustomerEmailAndProductId(customerEmail, i.getProduct().getId()));
 
         Order order = orderRepository.save(Order.builder()
+                .paymentMethod(paymentMethodService.getQrMethod())
                 .paymentExpiredTime(LocalDateTime.now().plusMinutes(15)) // QR expires in 15 minutes
                 .orderStatus(orderStatusService.getPendingPaymentStatus())
                 .fullName(deliveryInfoDto.getFullName())
