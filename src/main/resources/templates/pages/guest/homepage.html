@@ -2,90 +2,193 @@
     xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
     <div layout:fragment="content">
-
-        <h1>Chào mừng đến với trang chủ FruitShop</h1>
-
-        <h2>Danh mục sản phẩm</h2>
-        <!-- Category Dropdown Filter -->
-        <form class="d-flex align-items-center gap-2 mb-4" th:action="@{/}" method="get">
-            <label for="category" class="mb-0">Lọc theo danh mục:</label>
-            <select name="categoryId" id="category" class="form-select form-select-sm" style="width: auto;"
-                onchange="this.form.submit()">
-                <option value="0" th:text="'Tất cả danh mục'" th:selected="${categoryId == null or categoryId == 0}">Tất
-                    cả danh mục</option>
-                <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"
-                    th:selected="${category.id == categoryId}">
-                </option>
-            </select>
-        </form>
-
-        <!-- Top 6 Products Section -->
-        <div class="mb-5">
-            <h2 class="mb-3">Danh Sach San Pham</h2>
-            <div class="row row-cols-1 row-cols-md-3 g-4">
-                <div class="col" th:each="product : ${productByCategory}">
-                    <div class="card h-100">
-                        <img th:src="${product.main_image_url}" class="card-img-top" alt="Product Image"
-                            style="width: 100%; height: 200px; object-fit: cover;">
-                        <div class="card-body">
-                            <a th:href="@{/product/{id}(id=${product.id})}">
-                                <h5 class="card-title" th:text="${product.name}"></h5>
-                            </a>
-                            <p class="card-text">Giá: <span th:text="${product.price}"></span> VND</p>
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <div class="container">
+                    <h1 class="hero-title">
+                        <i class="fas fa-leaf"></i> Chào mừng đến với FruitShop
+                    </h1>
+                    <p class="hero-subtitle">
+                        Khám phá những sản phẩm tươi ngon, chất lượng cao với giá cả hợp lý
+                    </p>
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <span class="stat-number" th:text="${totalElement ?: '36+'}">36+</span>
+                            <span class="stat-label">Sản phẩm</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">3.6★</span>
+                            <span class="stat-label">Đánh giá</span>
                         </div>
                     </div>
                 </div>
             </div>
-            <a th:href="@{/product-category-sorting(sortBy='default', categoryId=${categoryId})}"
-                class="btn btn-link mt-3">
-                Xem tất cả sản phẩm mới nhất
-            </a>
+        </section>
 
-        </div>
+        <div class="container">
+            <!-- Category Filter Section -->
+            <section class="filter-section">
+                <form class="d-flex align-items-center gap-3 justify-content-center flex-wrap" th:action="@{/}" method="get">
+                    <label for="category" class="filter-title">
+                        <i class="fas fa-filter"></i> Lọc theo danh mục:
+                    </label>
+                    <select name="categoryId" id="category" class="filter-select" onchange="this.form.submit()">
+                        <option value="0" th:text="'🏷️ Tất cả danh mục'" th:selected="${categoryId == null or categoryId == 0}">
+                            🏷️ Tất cả danh mục
+                        </option>
+                        <option th:each="category : ${categories}" th:value="${category.id}" 
+                                th:text="'📁 ' + ${category.name}" th:selected="${category.id == categoryId}">
+                        </option>
+                    </select>
+                </form>
+            </section>
 
-
-        <!-- Newest Products Section -->
-        <div class="mb-5">
-            <h2 class="mb-3">Sản phẩm mới nhất</h2>
-            <div class="row row-cols-1 row-cols-md-3 g-4">
-                <div class="col" th:each="product : ${newestProducts}">
-                    <div class="card h-100">
-                        <img th:src="${product.main_image_url}" class="card-img-top" alt="Product Image"
-                            style="width: 100%; height: 200px; object-fit: cover;">
-                        <div class="card-body">
-                            <a th:href="@{/product/{id}(id=${product.id})}">
-                                <h5 class="card-title" th:text="${product.name}"></h5>
-                            </a>
-                            <p class="card-text">Giá: <span th:text="${product.price}"></span> VND</p>
+            <!-- Featured Products Section -->
+            <section class="product-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="section-icon">🌟</span>
+                        Sản phẩm nổi bật
+                    </h2>
+                    <a th:href="@{/product-category-sorting(sortBy='default', categoryId=${categoryId})}" 
+                       class="view-all-btn">
+                        <i class="fas fa-arrow-right"></i> Xem tất cả
+                    </a>
+                </div>
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    <div class="col" th:each="product, iterStat : ${productByCategory}">
+                        <div class="card product-card h-100">
+                            <div class="product-image">
+                                <img th:src="${product.main_image_url}" class="card-img-top" alt="Product Image">
+                                <div class="product-badge" th:if="${iterStat.index < 3}">Nổi bật</div>
+                            </div>
+                            <div class="card-body product-info">
+                                <a th:href="@{/product/{id}(id=${product.id})}" class="product-title">
+                                    <span th:text="${product.name}">Product Name</span>
+                                </a>
+                                <div class="product-price">
+                                    <span th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}">0</span>
+                                </div>
+                            </div>
+                            <div class="quick-actions">
+                                <button class="quick-btn" title="Xem nhanh">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="quick-btn" title="Thêm vào giỏ">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <a th:href="@{/product-category-sorting?sortBy=newest&categoryId=0}" class="btn btn-link mt-3">Xem tất cả
-                sản phẩm mới nhất</a>
-        </div>
+            </section>
 
-        <!-- Most Sold Products Section -->
-        <div class="mb-5">
-            <h2 class="mb-3">Sản phẩm bán chạy nhất</h2>
-            <div class="row row-cols-1 row-cols-md-3 g-4">
-                <div class="col" th:each="product : ${mostSoldProducts}">
-                    <div class="card h-100">
-                        <img th:src="${product.main_image_url}" class="card-img-top" alt="Product Image"
-                            style="width: 100%; height: 200px; object-fit: cover;">
-                        <div class="card-body">
-                            <a th:href="@{/product/{id}(id=${product.id})}">
-                                <h5 class="card-title" th:text="${product.name}"></h5>
-                            </a>
-                            <p class="card-text">Giá: <span th:text="${product.price}"></span> VND</p>
+            <!-- Newest Products Section -->
+            <section class="product-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="section-icon">✨</span>
+                        Sản phẩm mới nhất
+                    </h2>
+                    <a href="/product-category-sorting?sortBy=newest&categoryId=0" class="view-all-btn">
+                        <i class="fas fa-arrow-right"></i> Xem tất cả
+                    </a>
+                </div>
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    <div class="col" th:each="product, iterStat : ${newestProducts}">
+                        <div class="card product-card h-100">
+                            <div class="product-image">
+                                <img th:src="${product.main_image_url}" class="card-img-top" alt="Product Image">
+                                <div class="product-badge" style="background: linear-gradient(45deg, #2196F3, #1976D2);">Mới</div>
+                            </div>
+                            <div class="card-body product-info">
+                                <a th:href="@{/product/{id}(id=${product.id})}" class="product-title">
+                                    <span th:text="${product.name}">Product Name</span>
+                                </a>
+                                <div class="product-price">
+                                    <span th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}">0</span>
+                                </div>
+                            </div>
+                            <div class="quick-actions">
+                                <button class="quick-btn" title="Xem nhanh">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="quick-btn" title="Thêm vào giỏ">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <a th:href="@{/product-category-sorting?sortBy=best-seller&categoryId=0}" class="btn btn-link mt-3">Xem tất
-                cả sản phẩm bán chạy nhất</a>
+            </section>
+
+            <!-- Best Selling Products Section -->
+            <section class="product-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="section-icon">🔥</span>
+                        Sản phẩm bán chạy nhất
+                    </h2>
+                    <a href="/product-category-sorting?sortBy=best-seller&categoryId=0" class="view-all-btn">
+                        <i class="fas fa-arrow-right"></i> Xem tất cả
+                    </a>
+                </div>
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    <div class="col" th:each="product, iterStat : ${mostSoldProducts}">
+                        <div class="card product-card h-100">
+                            <div class="product-image">
+                                <img th:src="${product.main_image_url}" class="card-img-top" alt="Product Image">
+                                <div class="product-badge" style="background: linear-gradient(45deg, #FF5722, #D84315);">
+                                    Bán chạy
+                                </div>
+                            </div>
+                            <div class="card-body product-info">
+                                <a th:href="@{/product/{id}(id=${product.id})}" class="product-title">
+                                    <span th:text="${product.name}">Product Name</span>
+                                </a>
+                                <div class="product-price">
+                                    <span th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}">0</span>
+                                    <span class="badge bg-danger ms-2" th:if="${product.soldQuantity > 0}">
+                                        <i class="fas fa-fire"></i> <span th:text="${product.soldQuantity}">0</span> đã bán
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="quick-actions">
+                                <button class="quick-btn" title="Xem nhanh">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="quick-btn" title="Thêm vào giỏ">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Categories Showcase -->
+            <section class="categories-showcase">
+                <div class="text-center">
+                    <h2 class="section-title justify-content-center">
+                        <span class="section-icon">📂</span>
+                        Khám phá danh mục
+                    </h2>
+                    <p class="text-muted">Tìm kiếm sản phẩm theo danh mục yêu thích</p>
+                </div>
+                <div class="category-grid">
+                    <a th:each="category : ${categories}" 
+                       th:href="@{/product-category-sorting(categoryId=${category.id})}" 
+                       class="category-item">
+                        <div class="category-icon">
+                            <i class="fas fa-apple-alt" th:if="${category.name.toLowerCase().contains('fruit') or category.name.toLowerCase().contains('trái')}"></i>
+                            <i class="fas fa-carrot" th:if="${category.name.toLowerCase().contains('vegetable') or category.name.toLowerCase().contains('rau')}"></i>
+                            <i class="fas fa-seedling" th:unless="${category.name.toLowerCase().contains('fruit') or category.name.toLowerCase().contains('trái') or category.name.toLowerCase().contains('vegetable') or category.name.toLowerCase().contains('rau')}"></i>
+                        </div>
+                        <div class="category-name" th:text="${category.name}">Category Name</div>
+                    </a>
+                </div>
+            </section>
         </div>
-
-
     </div>
 </div>

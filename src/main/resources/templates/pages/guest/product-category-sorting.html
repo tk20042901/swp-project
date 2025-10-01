@@ -83,7 +83,6 @@
                 <div th:each="product : ${viewProductDto}" class="product-card">
                     <img th:src="${product.main_image_url}" alt="Product Image" class="product-image">
                     <div class="product-info">
-                        <div class="product-id">ID: #<span th:text="${product.id}"></span></div>
                         <a th:href="@{/product/{id}(id=${product.id})}" class="product-name" th:text="${product.name}">
                             Product Name
                         </a>

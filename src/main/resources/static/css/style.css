@@ -1,10 +1,17 @@
-/* Auth page friendly theme */
+/* CSS Variables for consistent theming */
 :root {
   --auth-bg-start: #f6f9fc;
   --auth-bg-end: #e9f0ff;
   --auth-card-radius: 14px;
   --auth-shadow: 0 10px 25px rgba(16, 24, 40, 0.08);
-  --focus-ring: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); /* bootstrap primary */
+  --focus-ring: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  --scrollbar-track: rgba(16, 24, 40, 0.04);
+  --scrollbar-thumb: rgba(16, 24, 40, 0.18);
+  --scrollbar-thumb-hover: rgba(16, 24, 40, 0.28);
+  --primary-color: #0d6efd;
+  --primary-hover: #0a58ca;
+  --bg-subtle: #e7f1ff;
+  --bg-secondary: #f1f3f5;
 }
 
 /* Subtle, friendly background */
