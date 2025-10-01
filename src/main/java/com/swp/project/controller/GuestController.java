@@ -123,18 +123,19 @@ public class GuestController {
         Model model) {
 
         List<Category> categories = categoryService.getAllCategories();
-        Page<Product> productsByCategory = productService.getProductsByCategoryWithPagingAndSorting(categoryId, 0, CAROUSEL_SIZE, "default");
+        Page<ViewProductDto> productsByCategory = productService.getViewProductsByCategoryWithPagingAndSorting(categoryId,0,CAROUSEL_SIZE,"default");
         
         // Static sections (newest, most sold, premium)
-        Page<Product> newestProducts = productService.getProductsByCategoryWithPagingAndSorting(0L, 0, CAROUSEL_SIZE, "newest");
-        Page<Product> mostSoldProducts = productService.getProductsByCategoryWithPagingAndSorting(0L, 0, CAROUSEL_SIZE, "best-seller");
+        Page<ViewProductDto> newestProducts = productService.getViewProductsByCategoryWithPagingAndSorting(0L, 0, CAROUSEL_SIZE, "newest");
+        Page<ViewProductDto> mostSoldProducts = productService.getViewProductsByCategoryWithPagingAndSorting(0L, 0, CAROUSEL_SIZE, "best-seller");
 
-        model.addAttribute("productByCategory", mapProductToViewProductDto(productsByCategory));
-        model.addAttribute("newestProducts", mapProductToViewProductDto(newestProducts));
-        model.addAttribute("mostSoldProducts", mapProductToViewProductDto(mostSoldProducts));
+        model.addAttribute("productByCategory", productsByCategory);
+        model.addAttribute("newestProducts", newestProducts);
+        model.addAttribute("mostSoldProducts", mostSoldProducts);
         model.addAttribute("categories", categories);
         model.addAttribute("categoryId", categoryId);
         model.addAttribute("url", "/");
+        model.addAttribute("Title", "Trang danh sách sản phẩm");
         model.addAttribute("showSearchBar", true);
         return "pages/guest/homepage";
     }
@@ -143,61 +144,53 @@ public class GuestController {
     public String searchProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "" + PAGE_SIZE) int size,
-            @RequestParam(required = false) Long categoryId,
+            @RequestParam(defaultValue = "0") Long categoryId,
             @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "default") String sortBy,
             Model model) {
-        Page<Product> productsPage;
-        if (keyword != null && !keyword.isEmpty() && categoryId != null && categoryId != 0) {
-            productsPage = productService.searchProductsThenSortByCategoryWithPaging(keyword, categoryId, page, size);
-            model.addAttribute("keyword", keyword);
-            model.addAttribute("categoryId", categoryId);
-        } else {
-            productsPage = productService.searchProductsWithPaging(keyword, page, size);
-            model.addAttribute("keyword", keyword);
-            model.addAttribute("categoryId", 0);
-        }
-        model.addAttribute("viewProductDto", mapProductToViewProductDto(productsPage));
-        model.addAttribute("categories", categoryService
-                .getUniqueCategoriesBaseOnPageOfProduct(productService.searchProductsWithPaging(keyword, page, size)));
-
-        model.addAttribute("totalElement", productsPage.getTotalElements());
-        model.addAttribute("url", "/search-product" + (keyword != null ? "?keyword=" + keyword : ""));
+        Page<ViewProductDto> products = productService.searchViewProductDto(keyword,categoryId,page,size,sortBy);      
+        List<Category> categories = categoryService.getUniqueCategoriesBaseOnPageOfProduct(productService.searchViewProductDto(keyword,0L,page,size,"default").getContent());
+        model.addAttribute("viewProductDto", products);
+        model.addAttribute("totalElement", products.getTotalElements());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", products.getTotalPages());
+        model.addAttribute("categoryId", categoryId);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("categories", categories);
+        model.addAttribute("Title", "Trang tìm kiếm");
+        model.addAttribute("url", "/search-product");
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("hadKeyword", true);
         model.addAttribute("showSearchBar", true);
-        return "pages/guest/search-result";
+        return "pages/guest/product-category-sorting";
     }
 
     @GetMapping("/product-category-sorting")
     public String getAllProductsWithSorting(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "" + PAGE_SIZE) int size,
-            @RequestParam(required = false) Long categoryId,
+            @RequestParam(defaultValue = "0") Long categoryId,
             @RequestParam(required = false) String sortBy,
             Model model) {
-        Page<Product> productsPage =  productService.getProductsByCategoryWithPagingAndSorting(categoryId, page, size, sortBy);
 
         // Add categories for the dropdown filter
         List<Category> categories = categoryService.getAllCategories();
+        Page<ViewProductDto> productsPage = productService.getViewProductsByCategoryWithPagingAndSorting(categoryId, page, size, sortBy);
         
-        model.addAttribute("viewProductDto", mapProductToViewProductDto(productsPage));
+        model.addAttribute("viewProductDto", productsPage);
         model.addAttribute("totalElement", productsPage.getTotalElements());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", productsPage.getTotalPages());
         model.addAttribute("categoryId", categoryId);
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("categories", categories);
+        model.addAttribute("Title", "Trang danh sách sản phẩm");
         model.addAttribute("url", "/product-category-sorting");
         model.addAttribute("showSearchBar", true);
         return "pages/guest/product-category-sorting";
     }
 
-    private Page<ViewProductDto> mapProductToViewProductDto(Page<Product> products) {
-        return products.map(product -> ViewProductDto.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .price(product.getPrice().doubleValue())
-                .mainImageUrl(product.getMain_image_url())
-                .build());
-    }
+
     
 
     @GetMapping("/product/{id}")

@@ -1,15 +1,14 @@
 package com.swp.project.service.product;
 
+import com.swp.project.dto.ViewProductDto;
 import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.Product;
 import com.swp.project.listener.event.ProductRelatedUpdateEvent;
 import com.swp.project.repository.product.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.data.domain.Page;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -27,23 +26,6 @@ public class CategoryService {
         return categoryRepository.findById(id).orElse(null);
     }
 
-    /**
-     * Lấy danh sách các danh mục duy nhất dựa trên trang sản phẩm đã cho.
-     *
-     * @param productsPage trang sản phẩm
-     * @return danh sách các danh mục duy nhất liên kết với các sản phẩm trong trang
-     */
-    public List<Category> getUniqueCategoriesBaseOnPageOfProduct(Page<Product> productsPage) {
-        List<Category> categories = new ArrayList<>();
-        for (Product product : productsPage.getContent()) {
-            for (Category category : product.getCategories()) {
-                if (!categories.contains(category)) {
-                    categories.add(category);
-                }
-            }
-        }
-        return categories;
-    }
     private final ApplicationEventPublisher eventPublisher;
 
     public void addCategory(Category category) {
@@ -56,5 +38,10 @@ public class CategoryService {
         for (Product product : getCategoryById(category.getId()).getProducts()) {
             eventPublisher.publishEvent(new ProductRelatedUpdateEvent(product.getId()));
         }
+    }
+
+    public List<Category> getUniqueCategoriesBaseOnPageOfProduct(List<ViewProductDto> content) {
+        List<Long> ids = content.stream().map(ViewProductDto::getId).toList();
+        return categoryRepository.findDistinctCategoriesByProductIds(ids);
     }
 }
