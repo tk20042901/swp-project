@@ -251,9 +251,6 @@ public class ShipperService {
         if (order.getShipper() != null) {
             throw new RuntimeException("Đơn hàng đã có người nhận giao");
         }
-        if (!orderStatusService.isAwaitingShipmentStatus(order)) {
-            throw new RuntimeException("Đơn hàng không ở trạng thái chờ giao");
-        }
         orderService.updateOrderStatusToShipping(order, principal.getName());
         orderRepository.save(order);
     }
