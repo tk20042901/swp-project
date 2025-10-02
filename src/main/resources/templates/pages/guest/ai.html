@@ -2,7 +2,7 @@
     xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
     <div layout:fragment="content" class="bg-light chat-page-content h-100">
         <div class="row justify-content-center h-100">
-            <div class="col-12 col-md-10 col-lg-8 d-flex flex-column h-100 py-3">
+            <div class="col-12 col-md-10 col-lg-8 d-flex flex-column py-3">
                 <!-- Errors -->
                 <div th:if="${error}" class="alert alert-warning mb-3" role="alert" th:text="${error}"></div>
 
@@ -13,9 +13,7 @@
                             <div class="avatar-circle bg-primary text-white flex-shrink-0">AI</div>
                             <div class="bubble bubble-assistant">
                                 <div class="message-text" data-md="true">
-                                    Xin chào! Mình là FruitShop AI Chatbot. Hãy nhập câu hỏi hoặc tải ảnh sản
-                                    phẩm để
-                                    được hỗ trợ nhé.
+                                    Xin chào! Mình là FruitShop AI Chatbot. Hãy nhập câu hỏi hoặc tải ảnh sản phẩm để được hỗ trợ nhé.
                                 </div>
                             </div>
                         </li>

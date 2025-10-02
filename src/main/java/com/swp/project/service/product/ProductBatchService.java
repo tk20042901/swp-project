@@ -34,8 +34,7 @@ public class ProductBatchService {
     public void updateProductBatch(ProductBatch productBatch) {
         productBatchRepository.save(productBatch);
 
-        eventPublisher.publishEvent(new ProductRelatedUpdateEvent
-                (getProductBatchById(productBatch.getId()).getProduct().getId()));
+        eventPublisher.publishEvent(new ProductRelatedUpdateEvent(productBatch.getProduct().getId()));
     }
 
 

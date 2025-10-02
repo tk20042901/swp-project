@@ -1,6 +1,8 @@
 package com.swp.project.initializer;
 
 
+import com.swp.project.service.CustomerAiService;
+import com.swp.project.service.product.ProductService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +24,8 @@ public class DataInitializer implements CommandLineRunner {
     private final ManagerService managerService;
     private final SellerService sellerService;
     private final ShipperService shipperService;
+    private final ProductService productService;
+    private final CustomerAiService customerAiService;
 
 
     @Override

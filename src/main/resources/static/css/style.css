@@ -136,7 +136,6 @@
 
 /* Chat UI styles */
 .chat-messages {
-  max-height: clamp(320px, 55vh, 620px);
   overflow-y: auto;
   overflow-x: hidden;
   padding: .5rem 0 .5rem .25rem; /* remove right padding so scrollbar hugs the edge */
@@ -193,11 +192,6 @@
   outline: none;
   box-shadow: 0 0 0 .2rem rgba(13,110,253,.25);
   border-radius: 4px;
-}
-.message-text a[target="_blank"]::after {
-  content: " \2197"; /* ↗ */
-  opacity: .6;
-  font-size: .85em;
 }
 .md-code {
   background: rgba(16,24,40,.04);
