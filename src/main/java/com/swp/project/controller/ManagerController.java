@@ -293,7 +293,9 @@ public class ManagerController {
                         case "Seller":
                             try {
                                 sellerService.add(staffDto);
-                                sellerService.setSellerStatus(staffDto.getId(), staffDto.isEnabled());
+                                if (staffDto.getId() != 0) {
+                                    sellerService.setSellerStatus(staffDto.getId(), staffDto.isEnabled());
+                                }
                                 sellerService.findByNameAndCid(
                                         session.getAttribute("queryName").toString(),
                                         session.getAttribute("queryCid").toString());
@@ -310,7 +312,9 @@ public class ManagerController {
                         case "Shipper":
                             try {
                                 shipperService.add(staffDto);
-                                shipperService.setShipperStatus(staffDto.getId(), staffDto.isEnabled());
+                                if (staffDto.getId() != 0) {
+                                    shipperService.setShipperStatus(staffDto.getId(), staffDto.isEnabled());
+                                }
                                 shipperService.findByNameAndCid(
                                         session.getAttribute("queryName").toString(),
                                         session.getAttribute("queryCid").toString());
