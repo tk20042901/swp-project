@@ -204,4 +204,19 @@ public class ProductService {
         Pageable pageable = PageRequest.of(page, size);
         return productRepository.findAll(pageable);
     }
+
+    public Page<Product> searchProductForSeller(String name, Boolean enabled, Pageable pageable){
+        boolean hasName= name != null && !name.trim().isEmpty();
+        boolean hasEnabled= enabled != null;
+
+        if(hasName && hasEnabled){
+            return productRepository.findByNameContainingIgnoreCaseAndEnabled(name, enabled, pageable);
+        } else if(hasName){
+            return productRepository.findByNameContainingIgnoreCase(name, pageable);
+        } else if(hasEnabled){
+            return productRepository.findByEnabled(enabled, pageable);
+        } else {
+            return productRepository.findAll(pageable);
+        }
+    }
 }

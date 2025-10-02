@@ -117,4 +117,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
          LIMIT :limit)
         """, nativeQuery = true)
     List<Object[]> findHomepageProductsBatch(@Param("limit") int limit);
+
+    Page<Product> findByNameContainingIgnoreCaseAndEnabled(String name, Boolean enabled, Pageable pageable);
+
+    Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);
+
+    Page<Product> findByEnabled(Boolean enabled, Pageable pageable);
 }
