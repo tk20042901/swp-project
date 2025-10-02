@@ -28,8 +28,8 @@
     <div class="row g-2 mb-3">
         <div class="col-md-4">
             <form th:action="@{/manager/manage-shipper}" method="get" class="d-flex flex-wrap gap-1">
-                <input name="queryName" th:value="${queryName}" hidden>
-                <input name="queryCid" th:value="${queryCid}" hidden>
+                <input name="queryName" th:value="${session.queryName}" hidden>
+                <input name="queryCid" th:value="${session.queryCid}" hidden>
                 <div th:with="pageNumber=${(session.list.size() / session.numEachPage) + (session.list.size() % session.numEachPage == 0 ? 0 : 1)}">
                     <div th:if="${0 < pageNumber && pageNumber <= 10}" style="display: flex;">
                         <div th:each="index : ${#numbers.sequence(1, pageNumber)}"
@@ -84,7 +84,7 @@
 
         <div class="col-md-4">
             <form th:action="@{/manager/manage-shipper}" method="get" class="d-flex gap-2">
-                <input type="text" name="queryName" class="form-control" th:value="${sesison.queryName}" placeholder="Tìm theo họ tên">
+                <input type="text" name="queryName" class="form-control" th:value="${session.queryName}" placeholder="Tìm theo họ tên">
                 <input type="text" name="queryCid" class="form-control" th:value="${session.queryCid}" placeholder="Tìm theo số CCCD">
                 <button type="submit" name="clickedButton" value="search" class="btn btn-dark">Tìm</button>
             </form>

@@ -7,10 +7,10 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Random;
 import java.util.regex.Pattern;
-import org.springframework.data.domain.Pageable;
-import com.swp.project.service.product.ProductService;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,6 +33,7 @@ import com.swp.project.repository.user.CustomerRepository;
 import com.swp.project.repository.user.UserRepository;
 import com.swp.project.service.AddressService;
 import com.swp.project.service.EmailService;
+import com.swp.project.service.product.ProductService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -274,6 +275,17 @@ public class CustomerService {
             newItem.setQuantity(quantity);
             shoppingCartItemRepository.save(newItem);
         }
+    }
+
+    public int getProductQuantityInCart(Principal principal, Long id) {
+        if (principal == null) {
+            return 0;
+        }
+        ShoppingCartItem existingItem = shoppingCartItemRepository.findByCustomer_EmailAndProduct_Id(principal.getName(), id);
+        if (existingItem != null) {
+            return existingItem.getQuantity();
+        }
+        return 0;
     }
 
 }

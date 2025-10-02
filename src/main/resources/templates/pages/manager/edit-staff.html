@@ -24,7 +24,6 @@
         <form th:action="@{/manager/edit-staff}" method="post" th:object="${staffDto}" class="needs-validation">
             <input type="text" name="newClassName" th:value="${session.newClassName}" hidden>
             <input th:field="*{id}" hidden>
-            <input th:field="*{encodedPassword}" hidden>
 
             <div class="mb-3">
                 <label class="form-label">Email</label>
