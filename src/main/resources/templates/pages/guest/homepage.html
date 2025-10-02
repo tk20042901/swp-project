@@ -14,7 +14,7 @@
                     </p>
                     <div class="hero-stats">
                         <div class="stat-item">
-                            <span class="stat-number" th:text="${totalElement ?: '36+'}">36+</span>
+                            <span class="stat-number">36+</span>
                             <span class="stat-label">Sản phẩm</span>
                         </div>
                         <div class="stat-item">
@@ -44,12 +44,13 @@
                 </form>
             </section>
 
-            <!-- Featured Products Section -->
+            <!--Products Section -->
             <section class="product-section">
                 <div class="section-header">
                     <h2 class="section-title">
                         <span class="section-icon">🌟</span>
-                        Sản phẩm nổi bật
+                        <span th:if="${categoryId == 0}" th:text="'Tất cả sản phẩm'"></span>
+                        <span th:if="${categoryId != 0}" th:text="'Xem sản phẩm theo danh mục'"></span>
                     </h2>
                     <a th:href="@{/product-category-sorting(sortBy='default', categoryId=${categoryId})}" 
                        class="view-all-btn">
@@ -61,7 +62,6 @@
                         <div class="card product-card h-100">
                             <div class="product-image">
                                 <img th:src="${product.main_image_url}" class="card-img-top" alt="Product Image">
-                                <div class="product-badge" th:if="${iterStat.index < 3}">Nổi bật</div>
                             </div>
                             <div class="card-body product-info">
                                 <a th:href="@{/product/{id}(id=${product.id})}" class="product-title">
@@ -70,14 +70,6 @@
                                 <div class="product-price">
                                     <span th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}">0</span>
                                 </div>
-                            </div>
-                            <div class="quick-actions">
-                                <button class="quick-btn" title="Xem nhanh">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="quick-btn" title="Thêm vào giỏ">
-                                    <i class="fas fa-shopping-cart"></i>
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -110,14 +102,7 @@
                                     <span th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}">0</span>
                                 </div>
                             </div>
-                            <div class="quick-actions">
-                                <button class="quick-btn" title="Xem nhanh">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="quick-btn" title="Thêm vào giỏ">
-                                    <i class="fas fa-shopping-cart"></i>
-                                </button>
-                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -154,14 +139,7 @@
                                     </span>
                                 </div>
                             </div>
-                            <div class="quick-actions">
-                                <button class="quick-btn" title="Xem nhanh">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="quick-btn" title="Thêm vào giỏ">
-                                    <i class="fas fa-shopping-cart"></i>
-                                </button>
-                            </div>
+                        
                         </div>
                     </div>
                 </div>
@@ -181,9 +159,7 @@
                        th:href="@{/product-category-sorting(categoryId=${category.id})}" 
                        class="category-item">
                         <div class="category-icon">
-                            <i class="fas fa-apple-alt" th:if="${category.name.toLowerCase().contains('fruit') or category.name.toLowerCase().contains('trái')}"></i>
-                            <i class="fas fa-carrot" th:if="${category.name.toLowerCase().contains('vegetable') or category.name.toLowerCase().contains('rau')}"></i>
-                            <i class="fas fa-seedling" th:unless="${category.name.toLowerCase().contains('fruit') or category.name.toLowerCase().contains('trái') or category.name.toLowerCase().contains('vegetable') or category.name.toLowerCase().contains('rau')}"></i>
+                            <i class="fas fa-apple-alt"></i>
                         </div>
                         <div class="category-name" th:text="${category.name}">Category Name</div>
                     </a>
