@@ -48,6 +48,10 @@ public class ProductService {
             "default", Sort.unsorted());
 
 
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
+    }
+
     public void saveProduct(Product product) {
         productRepository.save(product);
 
