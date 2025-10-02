@@ -11,6 +11,8 @@ import com.swp.project.service.user.ShipperService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -104,9 +106,16 @@ public class SellerController {
         return "redirect:/seller/all-orders";
     }
     @GetMapping("/all-products")
-    public String getAllProductList(Model model,@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5")int size){
-    Page<Product> products = productService.GetAllProductList(page,size);
-    model.addAttribute("products",products);
+    public String getAllProductList(@RequestParam(required = false) String name,
+                                    @RequestParam(required = false) Boolean enabled ,
+                                    @RequestParam(defaultValue = "0") int page,
+                                    @RequestParam(defaultValue = "5")int size,
+                                    Model model){
+        Pageable pageable= PageRequest.of(page,size);
+        Page<Product> products= productService.searchProductForSeller(name, enabled, pageable);
+        model.addAttribute("products", products);
+        model.addAttribute("name", name);
+        model.addAttribute("enabled", enabled);
     return "pages/seller/product/all-products";
     }
     @GetMapping("/product/product-detail/{productId}")
