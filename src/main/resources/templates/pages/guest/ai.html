@@ -1,24 +1,6 @@
-<!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>AI Chatbot</title>
-    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body class="bg-light chat-page">
-<header class="chat-header border-bottom">
-    <div class="container-xxl py-3 d-flex align-items-center justify-content-between">
-        <div>
-            <h5 class="mb-0">FruitShop AI chatbot</h5>
-            <small class="text-muted">Hỏi đáp với AI về các loại hoa quả trong FruitShop…</small>
-        </div>
-        <a th:href="@{/}" class="btn btn-sm btn-outline-secondary">Về trang chủ</a>
-    </div>
-</header>
-
-<main class="chat-main">
-    <div class="container-xxl h-100">
+<div layout:decorate="~{layouts/customer-layout}" xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+    <div layout:fragment="content" class="bg-light chat-page-content h-100">
         <div class="row justify-content-center h-100">
             <div class="col-12 col-md-10 col-lg-8 d-flex flex-column h-100 py-3">
                 <!-- Errors -->
@@ -31,30 +13,32 @@
                             <div class="avatar-circle bg-primary text-white flex-shrink-0">AI</div>
                             <div class="bubble bubble-assistant">
                                 <div class="message-text" data-md="true">
-                                    Xin chào! Mình là FruitShop AI Chatbot. Hãy nhập câu hỏi hoặc tải ảnh sản phẩm để được hỗ trợ nhé.
+                                    Xin chào! Mình là FruitShop AI Chatbot. Hãy nhập câu hỏi hoặc tải ảnh sản
+                                    phẩm để
+                                    được hỗ trợ nhé.
                                 </div>
                             </div>
                         </li>
 
-                        <li th:each="message : ${conversation}"
-                            th:with="isUser=${message.author == 'user'}"
+                        <li th:each="message : ${conversation}" th:with="isUser=${message.author == 'user'}"
                             class="mb-3">
                             <div class="d-flex align-items-start gap-2"
-                                 th:classappend="${isUser} ? 'justify-content-end' : ''">
+                                th:classappend="${isUser} ? 'justify-content-end' : ''">
                                 <!-- Avatar -->
                                 <div class="avatar-circle flex-shrink-0"
-                                     th:classappend="${isUser} ? 'bg-secondary text-white order-2' : 'bg-primary text-white'"
-                                     th:text="${isUser} ? 'Bạn' : 'AI'">AI</div>
+                                    th:classappend="${isUser} ? 'bg-secondary text-white order-2' : 'bg-primary text-white'"
+                                    th:text="${isUser} ? 'Bạn' : 'AI'">AI</div>
 
                                 <!-- Bubble -->
-                                <div class="bubble" th:classappend="${isUser} ? 'bubble-user order-1' : 'bubble-assistant'">
+                                <div class="bubble"
+                                    th:classappend="${isUser} ? 'bubble-user order-1' : 'bubble-assistant'">
                                     <!-- If assistant supports simple Markdown, render it on client side safely -->
-                                    <div class="message-text" th:attr="data-md=${!isUser}"
-                                         th:text="${message.content}">...</div>
+                                    <div class="message-text" th:attr="data-md=${!isUser}" th:text="${message.content}">
+                                        ...</div>
                                     <div th:if="${message.image}" class="mt-2 text-center">
                                         <img class="chat-image" loading="lazy" decoding="async" width="200" height="200"
-                                             th:src="'data:' + ${message.mimeType} + ';base64,' + ${message.image}"
-                                             alt="Ảnh người dùng gửi"/>
+                                            th:src="'data:' + ${message.mimeType} + ';base64,' + ${message.image}"
+                                            alt="Ảnh người dùng gửi" />
                                     </div>
                                 </div>
                             </div>
@@ -63,14 +47,15 @@
                 </div>
 
                 <!-- Composer -->
-                <form id="chatForm" th:action="@{/ai}" method="post" enctype="multipart/form-data" class="chat-composer">
+                <form id="chatForm" th:action="@{/ai}" method="post" enctype="multipart/form-data"
+                    class="chat-composer">
                     <input type="hidden" name="conversationId" th:value="${conversationId}">
                     <div class="d-flex align-items-end gap-2">
                         <div class="flex-grow-1">
                             <label class="visually-hidden" for="chatInput">Câu hỏi</label>
                             <textarea id="chatInput" class="form-control" name="q" rows="2"
-                                      placeholder="Nhập câu hỏi... (Shift+Enter để xuống dòng)"
-                                      autocomplete="off" autofocus></textarea>
+                                placeholder="Nhập câu hỏi... (Shift+Enter để xuống dòng)" autocomplete="off"
+                                autofocus></textarea>
                         </div>
 
                         <div class="d-flex align-items-center gap-2">
@@ -86,111 +71,109 @@
                     <!-- Preview (image) -->
                     <div id="preview" class="mt-2 d-none">
                         <div class="small text-muted mb-1">Ảnh đính kèm:</div>
-                        <img id="previewImg" src="data:," class="img-thumbnail" alt="Xem trước ảnh" style="max-height: 160px;">
+                        <img id="previewImg" src="data:," class="img-thumbnail" alt="Xem trước ảnh"
+                            style="max-height: 160px;">
                     </div>
                 </form>
             </div>
         </div>
-    </div>
-</main>
+        <script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
+        <script th:inline="none">
+            // Auto-scroll to bottom
+            const chatMessages = document.getElementById('chatMessages');
+            function scrollToBottom() {
+                if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
 
-<script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
-<script th:inline="none">
-    // Auto-scroll to bottom
-    const chatMessages = document.getElementById('chatMessages');
-    function scrollToBottom() {
-        if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
+            //Markdown rendering (limited): bold, italic, links, unordered lists
+            function renderMarkdown(md) {
+                let html = md || '';
 
-    //Markdown rendering (limited): bold, italic, links, unordered lists
-    function renderMarkdown(md) {
-        let html = md || '';
+                // Tách các khối bằng hai hoặc nhiều dấu xuống dòng
+                const blocks = html.trim().split(/\n\n+/);
 
-        // Tách các khối bằng hai hoặc nhiều dấu xuống dòng
-        const blocks = html.trim().split(/\n\n+/);
+                return blocks.map(block => {
+                    // Xử lý danh sách không sắp xếp
+                    // Kiểm tra nếu tất cả các dòng trong khối đều bắt đầu bằng '* '
+                    const lines = block.split('\n');
+                    if (lines.every(line => line.trim().startsWith('* '))) {
+                        const listItems = lines.map(line => {
+                            // Xóa ký tự '* ' ở đầu và xử lý inline markdown
+                            let itemContent = line.trim().substring(2);
+                            // Liên kết: [text](url) -> <a href="url">text</a>
+                            itemContent = itemContent.replace(/\[([^\]]+)]\(([^)]+)\)/g,
+                                '<a href="$2" target="_blank" rel="noopener noreferrer nofollow">$1</a>');
+                            // In đậm: **text** -> <strong>text</strong>
+                            itemContent = itemContent.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+                            // In nghiêng: *text* -> <em>text</em>
+                            itemContent = itemContent.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+                            return `<li>${itemContent}</li>`;
+                        }).join('');
+                        return `<ul class="list-unstyled m-0">${listItems}</ul>`;
+                    }
 
-        return blocks.map(block => {
-            // Xử lý danh sách không sắp xếp
-            // Kiểm tra nếu tất cả các dòng trong khối đều bắt đầu bằng '* '
-            const lines = block.split('\n');
-            if (lines.every(line => line.trim().startsWith('* '))) {
-                const listItems = lines.map(line => {
-                    // Xóa ký tự '* ' ở đầu và xử lý inline markdown
-                    let itemContent = line.trim().substring(2);
+                    // Xử lý đoạn văn
+                    // Thay thế các ký tự xuống dòng đơn lẻ bằng thẻ <br> để giữ nguyên định dạng
+                    let paragraphContent = block.replace(/\n/g, '<br>');
+
                     // Liên kết: [text](url) -> <a href="url">text</a>
-                    itemContent = itemContent.replace(/\[([^\]]+)]\(([^)]+)\)/g,
+                    paragraphContent = paragraphContent.replace(/\[([^\]]+)]\(([^)]+)\)/g,
                         '<a href="$2" target="_blank" rel="noopener noreferrer nofollow">$1</a>');
                     // In đậm: **text** -> <strong>text</strong>
-                    itemContent = itemContent.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+                    paragraphContent = paragraphContent.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
                     // In nghiêng: *text* -> <em>text</em>
-                    itemContent = itemContent.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-                    return `<li>${itemContent}</li>`;
+                    paragraphContent = paragraphContent.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+                    return `<p>${paragraphContent}</p>`;
                 }).join('');
-                return `<ul class="list-unstyled m-0">${listItems}</ul>`;
             }
 
-            // Xử lý đoạn văn
-            // Thay thế các ký tự xuống dòng đơn lẻ bằng thẻ <br> để giữ nguyên định dạng
-            let paragraphContent = block.replace(/\n/g, '<br>');
-
-            // Liên kết: [text](url) -> <a href="url">text</a>
-            paragraphContent = paragraphContent.replace(/\[([^\]]+)]\(([^)]+)\)/g,
-                '<a href="$2" target="_blank" rel="noopener noreferrer nofollow">$1</a>');
-            // In đậm: **text** -> <strong>text</strong>
-            paragraphContent = paragraphContent.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-            // In nghiêng: *text* -> <em>text</em>
-            paragraphContent = paragraphContent.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-
-            return `<p>${paragraphContent}</p>`;
-        }).join('');
-    }
-
-    function hydrateMarkdown() {
-        document.querySelectorAll('[data-md="true"]').forEach(el => {
-            const raw = el.textContent || '';
-            el.innerHTML = renderMarkdown(raw);
-        });
-    }
-
-    // Textarea behavior: Enter to send, Shift+Enter for newline
-    const form = document.getElementById('chatForm');
-    const input = document.getElementById('chatInput');
-    const sendButton = document.getElementById('sendButton');
-    if (input && form) {
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                form.requestSubmit();
+            function hydrateMarkdown() {
+                document.querySelectorAll('[data-md="true"]').forEach(el => {
+                    const raw = el.textContent || '';
+                    el.innerHTML = renderMarkdown(raw);
+                });
             }
-        });
-    }
-    if (form && sendButton) {
-        form.addEventListener('submit', () => {
-            sendButton.disabled = true;
-            sendButton.textContent = 'Đang gửi...';
-        });
-    }
 
-    // Image preview
-    const imageInput = document.getElementById('imageInput');
-    const preview = document.getElementById('preview');
-    const previewImg = document.getElementById('previewImg');
-    if (imageInput && preview && previewImg) {
-        imageInput.addEventListener('change', (e) => {
-            const file = e.target.files && e.target.files[0];
-            if (file) {
-                previewImg.src = URL.createObjectURL(file);
-                preview.classList.remove('d-none');
-            } else {
-                previewImg.src = 'data:,';
-                preview.classList.add('d-none');
+            // Textarea behavior: Enter to send, Shift+Enter for newline
+            const form = document.getElementById('chatForm');
+            const input = document.getElementById('chatInput');
+            const sendButton = document.getElementById('sendButton');
+            if (input && form) {
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        form.requestSubmit();
+                    }
+                });
             }
-        });
-    }
+            if (form && sendButton) {
+                form.addEventListener('submit', () => {
+                    sendButton.disabled = true;
+                    sendButton.textContent = 'Đang gửi...';
+                });
+            }
 
-    // Initial
-    hydrateMarkdown();
-    scrollToBottom();
-</script>
-</body>
-</html>
+            // Image preview
+            const imageInput = document.getElementById('imageInput');
+            const preview = document.getElementById('preview');
+            const previewImg = document.getElementById('previewImg');
+            if (imageInput && preview && previewImg) {
+                imageInput.addEventListener('change', (e) => {
+                    const file = e.target.files && e.target.files[0];
+                    if (file) {
+                        previewImg.src = URL.createObjectURL(file);
+                        preview.classList.remove('d-none');
+                    } else {
+                        previewImg.src = 'data:,';
+                        preview.classList.add('d-none');
+                    }
+                });
+            }
+
+            // Initial
+            hydrateMarkdown();
+            scrollToBottom();
+        </script>
+    </div>
+</div>
