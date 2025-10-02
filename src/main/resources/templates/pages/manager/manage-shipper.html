@@ -84,8 +84,8 @@
 
         <div class="col-md-4">
             <form th:action="@{/manager/manage-shipper}" method="get" class="d-flex gap-2">
-                <input type="text" name="queryName" class="form-control" th:value="${queryName}" placeholder="Tìm theo họ tên">
-                <input type="text" name="queryCid" class="form-control" th:value="${queryCid}" placeholder="Tìm theo số CCCD">
+                <input type="text" name="queryName" class="form-control" th:value="${sesison.queryName}" placeholder="Tìm theo họ tên">
+                <input type="text" name="queryCid" class="form-control" th:value="${session.queryCid}" placeholder="Tìm theo số CCCD">
                 <button type="submit" name="clickedButton" value="search" class="btn btn-dark">Tìm</button>
             </form>
         </div>

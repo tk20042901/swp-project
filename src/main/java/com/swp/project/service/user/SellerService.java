@@ -5,12 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.swp.project.entity.product.Product;
 import com.swp.project.repository.product.ProductRepository;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -154,7 +150,7 @@ public class SellerService {
                 results.sort((o1, o2) -> k * o1.getCid().compareTo(o2.getCid()));
                 break;
             case "address":
-                results.sort((o1, o2) -> k * o1.getCommuneWard().toString().compareTo(o2.getCommuneWard().toString()));
+                results.sort((o1, o2) -> k * o1.getAddress().compareTo(o2.getAddress()));
                 break;
             case "enabled":
                 results.sort((o1, o2) -> {
