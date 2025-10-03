@@ -27,7 +27,7 @@
             border-collapse: collapse;
             margin-bottom: 25px;
             background: #fff;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
             overflow: hidden;
         }
@@ -53,7 +53,7 @@
 
         img {
             border-radius: 6px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
 
         .total-quantity {
@@ -66,14 +66,15 @@
     </style>
 </head>
 <body>
-<a th:href="@{/}">Trang chủ</a>
+<a th:href="@{/seller/all-products}">Tất cả sản phẩm</a>
 
 <h1 th:text="${'Chi tiết sản phẩm ' + product.name}"></h1>
 
 <table>
     <thead>
     <tr>
-        <th>Sản phẩm</th>
+        <th>Ảnh sản phẩm</th>
+        <th>Tên sản phẩm</th>
         <th>Mô tả</th>
         <th>Giá thành</th>
         <th>Danh mục</th>
@@ -84,7 +85,8 @@
     <tr>
         <td>
             <img th:src="${product.main_image_url}" alt="Product Image" style="max-width: 150px; max-height: 150px;">
-            <span th:text="${product.name}"></span>
+        </td>
+        <td><span th:text="${product.name}"></span></td>
         </td>
         <td th:text="${product.description}"></td>
         <td th:text="${product.price + ' VND/' + (product.unit != null ? product.unit.name : '')}"></td>
@@ -129,8 +131,9 @@
     </tr>
     </thead>
     <tbody>
-    <tr th:each="image : ${product.sub_images}">
+    <tr th:each="image, iterStat :  ${product.sub_images}">
         <td>
+            <span th:text="${iterStat.index+1}"></span>
             <img th:src="${image.sub_image_url}" alt="Additional Image" style="max-width: 150px; max-height: 150px;">
         </td>
     </tr>
