@@ -23,6 +23,7 @@ public class PayOsWebhookController {
         Long orderId = paymentData.getOrderCode();
         orderService.doWhenOrderConfirmed(orderId);
         Order order = orderService.getOrderById(orderId);
+        orderService.createBillForOrder(order);
         emailService.sendSimpleEmail(order.getCustomer().getEmail(),
                 "Xác nhận thanh toán cho đơn hàng " + orderId + " thành công",
                 "Đơn hàng " + orderId + " đã được thanh toán thành công với số tiền "
@@ -32,9 +33,9 @@ public class PayOsWebhookController {
     }
 
     @PostMapping("/webhook")
-    public void payosWebhook(@RequestBody Webhook body) {
+    public void payosWebhook(@RequestBody Webhook data) {
         try {
-            orderConfirmed(payOS.verifyPaymentWebhookData(body));
+            orderConfirmed(payOS.verifyPaymentWebhookData(data));
         } catch (Exception e) {
             e.printStackTrace();
         }
