@@ -1,6 +1,7 @@
 package com.swp.project.entity.product;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.swp.project.listener.VectorStorable;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Entity
-public class Category implements Serializable {
+public class Category implements Serializable, VectorStorable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

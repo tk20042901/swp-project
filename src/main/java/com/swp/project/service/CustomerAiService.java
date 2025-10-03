@@ -5,6 +5,7 @@ import com.swp.project.dto.AiMessageDto;
 import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.ProductBatch;
+import com.swp.project.listener.VectorStorable;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -175,12 +176,102 @@ public class CustomerAiService {
         return sb.toString();
     }
 
-    @Transactional
-    public void saveProductToVectorStore(Product product) {
-        String documentId = UUID.nameUUIDFromBytes(product.getId().toString().getBytes()).toString();
-        Document document = new Document(documentId, getProductContent(product), Collections.emptyMap());
-        vectorStore.add(List.of(document));
+    /**
+     * Generate vector content for Category entities.
+     * 
+     * @param category the category entity
+     * @return formatted content for vector storage
+     */
+    private String getCategoryContent(Category category) {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append("Đây là thông tin về danh mục sản phẩm trong cửa hàng. ");
+        sb.append("Tên danh mục: ").append(category.getName()).append(". ");
+        
+        if (category.getProducts() != null && !category.getProducts().isEmpty()) {
+            sb.append("Danh mục này có ").append(category.getProducts().size()).append(" sản phẩm. ");
+            
+            // Add first few product names as examples
+            String productNames = category.getProducts().stream()
+                    .limit(5) // Only show first 5 products
+                    .map(Product::getName)
+                    .collect(Collectors.joining(", "));
+            sb.append("Một số sản phẩm tiêu biểu: ").append(productNames);
+            
+            if (category.getProducts().size() > 5) {
+                sb.append(" và ").append(category.getProducts().size() - 5).append(" sản phẩm khác");
+            }
+            sb.append(". ");
+        } else {
+            sb.append("Danh mục này hiện chưa có sản phẩm nào. ");
+        }
+        
+        sb.append("Link danh mục: /category/").append(category.getId()).append(". ");
+        return sb.toString();
     }
+
+    /**
+     * Generic method to save any VectorStorable entity to vector store.
+     * Content generation is handled centrally based on entity type.
+     * 
+     * @param <T> the entity type that extends VectorStorable
+     * @param entity the entity to save to vector store
+     */
+    @Transactional
+    public <T extends VectorStorable> void saveEntityToVectorStore(T entity) {
+        try {
+            String documentId = UUID.nameUUIDFromBytes(entity.getId().toString().getBytes()).toString();
+            String content = generateVectorContent(entity);
+            Document document = new Document(documentId, content, Collections.emptyMap());
+            vectorStore.add(List.of(document));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to save entity to vector store: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Remove entity from vector store by ID.
+     * 
+     * @param entityId the ID of the entity to remove
+     */
+    @Transactional
+    public void removeEntityFromVectorStore(Long entityId) {
+        try {
+            String documentId = UUID.nameUUIDFromBytes(entityId.toString().getBytes()).toString();
+            vectorStore.delete(List.of(documentId));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to remove entity from vector store: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Centralized content generation for different entity types.
+     * This method determines the appropriate content format based on entity type.
+     * 
+     * @param <T> the entity type that extends VectorStorable
+     * @param entity the entity to generate content for
+     * @return the content string for vector storage
+     */
+    private <T extends VectorStorable> String generateVectorContent(T entity) {
+        if (entity instanceof Product product) {
+            return getProductContent(product);
+        } else if (entity instanceof Category category) {
+            return getCategoryContent(category);
+        }
+        // Add more entity types as needed:
+        // else if (entity instanceof Supplier supplier) {
+        //     return getSupplierContent(supplier);
+        // }
+        // else if (entity instanceof ProductUnit unit) {
+        //     return getProductUnitContent(unit);
+        // }
+        else {
+            throw new UnsupportedOperationException(
+                "No content generator found for entity type: " + entity.getClass().getSimpleName() + 
+                ". Please add a condition for this entity type in generateVectorContent() method.");
+        }
+    }
+
 
     public void ask (String conversationId, String q, MultipartFile image, List<AiMessageDto> conversation) {
         if (q == null || q.isBlank()) {
