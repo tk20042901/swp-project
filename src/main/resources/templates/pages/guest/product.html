@@ -2,19 +2,19 @@
      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
     <div layout:fragment="content">
+        
+        <div class="alerts-stack" style="height: 0px; width: fit-content; margin: 0px 50px 0px auto;">
+            <div class="alert alert-success alert-dismissible fade show" th:hidden="${msg == null}">
+                <strong>Thành công!</strong> <span th:text="${msg}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div class="alert alert-danger alert-dismissible fade show" th:hidden="${error == null}">
+                <strong>Thất bại!</strong> <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
 
         <div class="container py-5">
-
-            <div class="alerts-stack">
-                <div class="alert alert-success alert-dismissible fade show" th:hidden="${msg == null}">
-                    <strong>Thành công!</strong> <span th:text="${msg}"></span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                <div class="alert alert-danger alert-dismissible fade show" th:hidden="${error == null}">
-                    <strong>Thất bại!</strong> <span th:text="${error}"></span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            </div>
 
             <div class="auth-card p-4 mx-auto shadow">
                 <div class="row g-4">
