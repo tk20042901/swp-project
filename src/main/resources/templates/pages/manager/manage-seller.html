@@ -10,19 +10,18 @@
 <body class="auth-body">
 <div class="container py-4">
     <a href="/manager" class="btn btn-link mb-3">← Quay về trang chủ</a>
-
+    <div class="alerts-stack" style="height: 0px; width: fit-content; margin: 0px 50px 0px auto;">
+        <div class="alert alert-success alert-dismissible fade show" th:hidden="${msg == null}">
+            <strong>Thành công!</strong> <span th:text="${msg}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div class="alert alert-danger alert-dismissible fade show" th:hidden="${error == null}">
+            <strong>Thất bại!</strong> <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h4 brand">Quản lí người bán</h1>
-        <div class="alerts-stack">
-            <div class="alert alert-success alert-dismissible fade show" th:hidden="${msg == null}">
-                <strong>Thành công!</strong> <span th:text="${msg}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            <div class="alert alert-danger alert-dismissible fade show" th:hidden="${error == null}">
-                <strong>Thất bại!</strong> <span th:text="${error}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        </div>
     </div>
 
     <div class="row g-2 mb-3">
