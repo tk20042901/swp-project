@@ -33,4 +33,20 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             """)
     int getSoldQuantity(@Param("productId") Long productId);
 
+    @Query("SELECT SUM(oi.quantity) FROM OrderItem oi WHERE oi.order.orderStatus.name='Đã Giao Hàng'")
+    Long getTotalUnitSold();
+
+    @Query("SELECT SUM(oi.quantity * oi.product.price) FROM OrderItem oi WHERE DATE(oi.order.orderTime)= CURRENT_DATE AND" +
+            " oi.order.orderStatus.name='Đã Giao Hàng'")
+    Long getRevenueToday();
+
+    @Query("SELECT SUM(oi.quantity * oi.product.price) FROM OrderItem oi WHERE oi.order.orderStatus.name='Đã Giao Hàng' AND" +
+            " oi.order.orderTime >= DATE_TRUNC('week', current_date ) ")
+    Long getRevenueThisWeek();
+
+    @Query("SELECT SUM(oi.quantity * oi.product.price) FROM OrderItem oi WHERE oi.order.orderStatus.name='Đã Giao Hàng' AND" +
+            " oi.order.orderTime >= DATE_TRUNC('month', current_date ) ")
+    Long getRevenueThisMonth();
+
+
 }
