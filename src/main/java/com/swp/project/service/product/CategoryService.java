@@ -4,6 +4,7 @@ import com.swp.project.dto.ViewProductDto;
 import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.Product;
 import com.swp.project.listener.event.ProductRelatedUpdateEvent;
+import com.swp.project.listener.event.VectorUpdateEvent;
 import com.swp.project.repository.product.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -32,9 +33,15 @@ public class CategoryService {
     }
 
     public void updateCategory(Category category) {
-        categoryRepository.save(category);
+        Category savedCategory = categoryRepository.save(category);
 
+        // Publish vector update event for the category itself
+        eventPublisher.publishEvent(new VectorUpdateEvent<>(savedCategory, VectorUpdateEvent.UpdateType.UPDATE));
+
+        // Also update all products in this category since category info affects product vector content
         for (Product product : getCategoryById(category.getId()).getProducts()) {
+            eventPublisher.publishEvent(new VectorUpdateEvent<>(product, VectorUpdateEvent.UpdateType.UPDATE));
+            // Keep old event for backward compatibility
             eventPublisher.publishEvent(new ProductRelatedUpdateEvent(product.getId()));
         }
     }

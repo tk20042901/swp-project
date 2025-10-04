@@ -1,41 +1,252 @@
 <!DOCTYPE html>
-<html lang="en"  xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>All products</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f9f9f9;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"], select {
+            padding: 8px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 8px 12px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+            margin-left: 10px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            background: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+            /* bỏ background ở đây để không ghi đè header */
+        }
+
+        table thead th {
+            background-color: #6a0dad !important; /* tím */
+            color: white !important;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fdfdfd;
+        }
+
+        tr:nth-child(odd) {
+            background-color: #f7f7f7;
+        }
+
+        td img {
+            max-width: 80px;
+            border-radius: 4px;
+        }
+
+        .no-result {
+            text-align: center;
+            padding: 16px;
+            font-size: 15px;
+            font-weight: bold;
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        /* trạng thái màu */
+        .status-true {
+            color: #28a745; /* xanh lá */
+            font-weight: bold;
+        }
+
+        .status-false {
+            color: #dc3545; /* đỏ */
+            font-weight: bold;
+        }
+
+        /* pagination */
+        .pagination {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .pagination a, .pagination span {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 0 4px;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #007bff;
+            transition: all 0.2s ease;
+        }
+
+        .pagination a:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .pagination span {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+        .product-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px; /* khoảng cách giữa ảnh và tên */
+            padding: 10px 0;
+        }
+
+        .product-cell img {
+            width: 80px;
+            height: 80px;
+            margin-left: 20px;
+            object-fit: cover; /* cắt ảnh gọn */
+            border-radius: 6px; /* bo góc cho ảnh */
+            border: 1px solid #ddd;
+        }
+        .home-link {
+            display: inline-block;
+            padding: 8px 14px;
+            background-color: #6c757d; /* xám trung tính */
+            color: white;
+            font-weight: bold;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .home-link:hover {
+            background-color: #5a6268; /* xám đậm hơn khi hover */
+            text-decoration: none;
+        }
+
+        .table-link {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: #007bff; /* xanh dương */
+            color: white;
+            border-radius: 4px;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .table-link:hover {
+            background-color: #0056b3; /* xanh đậm hơn khi hover */
+            transform: scale(1.05);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+
+        }
+
+    </style>
 </head>
 <body>
-<a th:href="@{/}">Trang chủ</a>
+<a th:href="@{/}" class="home-link">Trang chủ</a>
 <h1>Danh sách các sản phẩm</h1>
+
+<form th:action="@{/seller/all-products}" method="get">
+    <input type="text" name="name" th:value="${name}" placeholder="Tìm theo tên" required>
+    <select name="enabled">
+        <option th:value="''">Trạng thái</option>
+        <option th:value="true" th:selected="${enabled == true}">Đang bán</option>
+        <option th:value="false" th:selected="${enabled == false}">Ngừng bán</option>
+    </select>
+    <button type="submit">Tìm kiếm</button>
+    <span th:if="${(name != null and !#strings.isEmpty(name)) or enabled != null}">
+        <a th:href="@{/seller/all-products}">Bỏ tìm kiếm</a>
+    </span>
+</form>
+
 <table>
     <thead>
     <tr>
+        <th>Mã sản phẩm</th>
         <th>Sản phẩm</th>
         <th>Trạng thái</th>
         <th>Chi tiết</th>
     </tr>
     </thead>
     <tbody>
+
+    <tr th:if="${products.isEmpty()}">
+        <td colspan="4" class="no-result">Không có sản phẩm phù hợp</td>
+    </tr>
+
     <tr th:each="product : ${products}">
-        <td><img th:src="@{${product.main_image_url}}">
-         <span th:text="${product.name}"></span></td>
-        <td th:text="${product.enabled? 'Đang bán' : 'Ngừng bán'}"></td>
+        <td th:text="${product.id}"></td>
+        <td class="product-cell">
+            <img th:src="@{${product.main_image_url}}" alt="Ảnh sản phẩm">
+            <span th:text="${product.name}"></span>
+        </td>
+        <td th:classappend="${product.enabled} ? 'status-true' : 'status-false'"
+            th:text="${product.enabled? 'Đang bán' : 'Ngừng bán'}">
+        </td>
         <td>
-            <a th:href="@{/seller/product/product-detail/{id}(id=${product.id})}">Chi tiết</a>
+            <a th:href="@{/seller/product/product-detail/{id}(id=${product.id})}"
+               class="table-link">Chi tiết</a>
         </td>
     </tr>
     </tbody>
 </table>
-<div>
+
+<div class="pagination">
     <a th:if="${products.hasPrevious()}"
-    th:href="@{/seller/all-products (page=${products.number - 1},size=${products.size})}">
+       th:href="@{/seller/all-products (page=${products.number - 1},size=${products.size},name=${name},enabled=${enabled})}">
         Trước
     </a>
     <span> Trang [[${products.number + 1}]] / [[${products.totalPages}]] </span>
     <a th:if="${products.hasNext()}"
-         th:href="@{/seller/all-products (page=${products.number + 1},size=${products.size})}">
-            Sau
+       th:href="@{/seller/all-products (page=${products.number + 1},size=${products.size},name=${name},enabled=${enabled})}">
+        Sau
     </a>
 </div>
+
 </body>
 </html>

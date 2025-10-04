@@ -4,6 +4,7 @@ package com.swp.project.entity.order;
 import com.swp.project.entity.address.CommuneWard;
 import com.swp.project.entity.user.Customer;
 import com.swp.project.entity.user.Shipper;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,7 +20,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @Builder
 @Entity
 @Table(name = "orders")
-public class Order {
+public class Order{
     @Id
     @Builder.Default
     private Long id = ThreadLocalRandom.current().nextLong(10000,100000);

@@ -20,6 +20,8 @@ import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.ProductBatch;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.listener.event.ProductRelatedUpdateEvent;
+import com.swp.project.listener.event.VectorUpdateEvent;
+import com.swp.project.listener.event.VectorUpdateEvent.UpdateType;
 import com.swp.project.repository.order.OrderRepository;
 import com.swp.project.repository.product.ProductRepository;
 import com.swp.project.repository.shopping_cart.ShoppingCartItemRepository;
@@ -47,16 +49,31 @@ public class ProductService {
             "best-seller", Sort.by("soldQuantity").descending(),
             "default", Sort.unsorted());
 
-
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
 
+    // Ví dụ hàm saveProduct sử dụng VectorUpdateEvent
     public void saveProduct(Product product) {
-        productRepository.save(product);
+        Product savedProduct = productRepository.save(product);
+        eventPublisher.publishEvent(new VectorUpdateEvent<>(savedProduct, UpdateType.CREATE));
+    }
 
-        eventPublisher
-                .publishEvent(new ProductRelatedUpdateEvent(productRepository.findByName(product.getName()).getId()));
+    // Ví dụ hàm deleteProduct sử dụng VectorUpdateEvent
+    public void deleteProduct(Long id) {
+        productRepository.deleteById(id);
+        eventPublisher.publishEvent(new VectorUpdateEvent<>(new Product() {
+            {
+                setId(id);
+            }
+        }, UpdateType.DELETE));
+    }
+
+    // Ví dụ hàm updateProduct sử dụng VectorUpdateEvent
+    public void updateProduct(Product product) {
+        // Trung id => update
+        Product savedProduct = productRepository.save(product);
+        eventPublisher.publishEvent(new VectorUpdateEvent<>(savedProduct, UpdateType.UPDATE));
     }
 
     public Product getProductById(Long id) {
@@ -81,7 +98,6 @@ public class ProductService {
             productBatchService.updateProductBatch(productBatch);
         }
     }
-
 
     public int getAvailableQuantity(Long productId) {
         int productBatchQuantity = productBatchService.getByProductId(productId)
@@ -123,19 +139,21 @@ public class ProductService {
 
     public Map<String, Page<ViewProductDto>> getHomepageProductsBatch(Long categoryId, int size) {
         Map<String, Page<ViewProductDto>> results = new HashMap<>();
-        
+
         // Get products by category
-        Page<ViewProductDto> productsByCategory = getViewProductsByCategoryWithPagingAndSorting(categoryId, 0, size, "default");
+        Page<ViewProductDto> productsByCategory = getViewProductsByCategoryWithPagingAndSorting(categoryId, 0, size,
+                "default");
         results.put("productByCategory", productsByCategory);
-        
+
         // Get newest products
         Page<ViewProductDto> newestProducts = getViewProductsByCategoryWithPagingAndSorting(0L, 0, size, "newest");
         results.put("newestProducts", newestProducts);
-        
+
         // Get most sold products
-        Page<ViewProductDto> mostSoldProducts = getViewProductsByCategoryWithPagingAndSorting(0L, 0, size, "best-seller");
+        Page<ViewProductDto> mostSoldProducts = getViewProductsByCategoryWithPagingAndSorting(0L, 0, size,
+                "best-seller");
         results.put("mostSoldProducts", mostSoldProducts);
-        
+
         return results;
     }
 
@@ -203,5 +221,20 @@ public class ProductService {
     public Page<Product> GetAllProductList(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return productRepository.findAll(pageable);
+    }
+
+    public Page<Product> searchProductForSeller(String name, Boolean enabled, Pageable pageable) {
+        boolean hasName = name != null && !name.trim().isEmpty();
+        boolean hasEnabled = enabled != null;
+
+        if (hasName && hasEnabled) {
+            return productRepository.findByNameContainingIgnoreCaseAndEnabled(name, enabled, pageable);
+        } else if (hasName) {
+            return productRepository.findByNameContainingIgnoreCase(name, pageable);
+        } else if (hasEnabled) {
+            return productRepository.findByEnabled(enabled, pageable);
+        } else {
+            return productRepository.findAll(pageable);
+        }
     }
 }

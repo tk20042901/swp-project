@@ -5,6 +5,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.swp.project.entity.order.Bill;
+import com.swp.project.repository.order.BillRepository;
+import com.swp.project.service.SettingService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +43,8 @@ public class OrderService {
     private final ShoppingCartItemRepository shoppingCartItemRepository;
     private final AddressService addressService;
     private final PaymentMethodService paymentMethodService;
+    private final SettingService settingService;
+    private final BillRepository billRepository;
 
     public Page<Order> getAllOrder() {
         Pageable pageable = PageRequest.of(0,10, Sort.by("id").ascending());
@@ -183,6 +188,18 @@ public class OrderService {
         Order order = getOrderById(orderId);
         order.getOrderItem().forEach(item ->
                 productService.pickProductInProductBatch(item.getProduct().getId(), item.getQuantity()));
+    }
+
+    public void createBillForOrder(Order order) {
+        Bill bill = Bill.builder()
+                .paymentTime(LocalDateTime.now())
+                .shopName(settingService.getShopName())
+                .shopAddress(settingService.getShopAddress())
+                .shopPhone(settingService.getShopPhone())
+                .shopEmail(settingService.getShopEmail())
+                .order(order)
+                .build();
+        billRepository.save(bill);
     }
 
     public void updateOrderStatusToDelivered(Order order) {
