@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.swp.project.entity.order.Bill;
+import com.swp.project.entity.product.Product;
 import com.swp.project.repository.order.BillRepository;
+import com.swp.project.repository.product.ProductRepository;
 import com.swp.project.service.SettingService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -45,6 +47,7 @@ public class OrderService {
     private final PaymentMethodService paymentMethodService;
     private final SettingService settingService;
     private final BillRepository billRepository;
+    private final ProductRepository productRepository;
 
     public Page<Order> getAllOrder() {
         Pageable pageable = PageRequest.of(0,10, Sort.by("id").ascending());
@@ -244,4 +247,55 @@ public class OrderService {
                 .mapToLong(item -> item.getProduct().getPrice() * item.getQuantity())
                 .sum();
     }
+
+    public long getTotalOrders(){
+        return orderRepository.count();
+    }
+    public long getTotalDeliveredOrders(){
+        return orderRepository.findAll().stream()
+                .filter(order -> orderStatusService.isDeliveredStatus(order))
+                .count();
+    }
+
+    public long getTotalProcessingOrders(){
+        return orderRepository.findAll().stream()
+                .filter(order -> orderStatusService.isProcessingStatus(order))
+                .count();
+    }
+
+    public long getTotalPendingOrders(){
+        return orderRepository.findAll().stream()
+                .filter(order -> orderStatusService.isPendingConfirmationStatus(order)
+                        || orderStatusService.isPendingPaymentStatus(order))
+                .count();
+    }
+
+    public long getTotalCancelledOrders(){
+        return orderRepository.findAll().stream()
+                .filter(order -> orderStatusService.isCancelledStatus(order))
+                .count();
+    }
+
+    public long getUnitSold(){
+        long total =0;
+        for(Product p : productRepository.findAll()){
+            if(p.getSoldQuantity() != null)
+            total += getSoldQuantity(p.getId());
+        }
+        return total;
+    }
+
+    public long getRevenueToday(){
+        Long revenue = orderRepository.getRevenueToday();
+        return revenue;
+
+    }public long getRevenueThisMonth(){
+        Long revenue = orderRepository.getRevenueThisMonth();
+        return revenue;
+
+    }public long getRevenueThisWeek() {
+        Long revenue = orderRepository.getRevenueThisWeek();
+        return revenue;
+    }
+
 }
