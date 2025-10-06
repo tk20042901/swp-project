@@ -339,7 +339,7 @@ public class CustomerController {
                     .buyerPhone(order.getCustomer().getPhoneNumber())
                     .buyerAddress(order.getAddressString())
                     .amount(order.getTotalAmount())
-                    .expiredAt(order.getPaymentExpiredTime().atZone(ZoneId.systemDefault()).toEpochSecond())
+                    .expiredAt(order.getPaymentExpiredAt().atZone(ZoneId.systemDefault()).toEpochSecond())
                     .items(items)
                     .description("FruitShop " + order.getId())
                     .returnUrl("http://localhost:8080/customer/order-success")

@@ -14,23 +14,23 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
-    Page<Order> searchByCustomer_EmailContainsAndOrderTimeBetween(String customer_email, LocalDateTime toDate,
-            LocalDateTime fromDate, Pageable pageable);
+    Page<Order> searchByCustomer_EmailContainsAndOrderAtBetween(String customer_email, LocalDateTime toDate,
+                                                                LocalDateTime fromDate, Pageable pageable);
 
-    Page<Order> searchByOrderStatus_IdAndCustomer_EmailContainsAndOrderTimeBetween(Long statusId, String customer_email, LocalDateTime toDate, LocalDateTime fromDate, Pageable pageable);
+    Page<Order> searchByOrderStatus_IdAndCustomer_EmailContainsAndOrderAtBetween(Long statusId, String customer_email, LocalDateTime toDate, LocalDateTime fromDate, Pageable pageable);
 
     Long countByShipperAndOrderStatus(Shipper shipper, OrderStatus orderStatus);
 
-    List<Order> findByOrderStatusAndPaymentExpiredTimeBefore(OrderStatus pendingPaymentStatus, LocalDateTime now);
+    List<Order> findByOrderStatusAndPaymentExpiredAtBefore(OrderStatus pendingPaymentStatus, LocalDateTime now);
 
     Page<Order> findByCustomer(Customer customer, Pageable pageable);
 
     @Query("""
-        SELECT COALESCE(SUM(oi.quantity), 0) 
-        FROM Order o JOIN o.orderItem oi 
+        SELECT COALESCE(SUM(oi.quantity), 0)
+        FROM Order o JOIN o.orderItem oi
         WHERE o.orderStatus.name = 'Đã Giao Hàng'
         AND oi.product.id = :productId
-            """)
+        """)
     int getSoldQuantity(@Param("productId") Long productId);
 
     @Query("SELECT SUM(oi.quantity) FROM OrderItem oi WHERE oi.order.orderStatus.name='Đã Giao Hàng'")
@@ -40,7 +40,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         SELECT coalesce(Sum(oi.quantity * oi.product.price),0)
         From OrderItem oi
         Where oi.order.orderStatus.name ='Đã giao hàng'
-        And function('DATE',oi.order.orderTime)= current_date
+        And function('DATE',oi.order.orderAt)= current_date
 """)
     Long getRevenueToday();
 
@@ -48,7 +48,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         SELECT COALESCE(SUM(oi.quantity * oi.product.price), 0)
         FROM OrderItem oi
         WHERE oi.order.orderStatus.name = 'Đã Giao Hàng'
-          AND oi.order.orderTime >= FUNCTION('DATE_TRUNC', 'week', CURRENT_DATE)
+          AND oi.order.orderAt >= FUNCTION('DATE_TRUNC', 'week', CURRENT_DATE)
     """)
     Long getRevenueThisWeek();
 
@@ -57,7 +57,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         SELECT COALESCE(SUM(oi.quantity * oi.product.price), 0)
         FROM OrderItem oi
         WHERE oi.order.orderStatus.name = 'Đã Giao Hàng'
-          AND oi.order.orderTime >= FUNCTION('DATE_TRUNC', 'month', CURRENT_DATE)
+          AND oi.order.orderAt >= FUNCTION('DATE_TRUNC', 'month', CURRENT_DATE)
     """)
     Long getRevenueThisMonth();
 

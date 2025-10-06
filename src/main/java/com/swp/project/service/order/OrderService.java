@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.swp.project.entity.order.Bill;
+import com.swp.project.entity.order.shipping.Shipping;
 import com.swp.project.entity.product.Product;
 import com.swp.project.repository.order.BillRepository;
 import com.swp.project.repository.product.ProductRepository;
 import com.swp.project.service.SettingService;
+import com.swp.project.service.order.shipping.ShippingStatusService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -45,6 +47,7 @@ public class OrderService {
     private final ShoppingCartItemRepository shoppingCartItemRepository;
     private final AddressService addressService;
     private final PaymentMethodService paymentMethodService;
+    private final ShippingStatusService shippingStatusService;
     private final SettingService settingService;
     private final BillRepository billRepository;
     private final ProductRepository productRepository;
@@ -64,7 +67,7 @@ public class OrderService {
                 10,
                 Sort.by("id").ascending());
         if (sellerSearchOrderDto.getStatusId() == null || sellerSearchOrderDto.getStatusId() == 0) {
-            return orderRepository.searchByCustomer_EmailContainsAndOrderTimeBetween(
+            return orderRepository.searchByCustomer_EmailContainsAndOrderAtBetween(
                     sellerSearchOrderDto.getCustomerEmail() == null
                             ? ""
                             : sellerSearchOrderDto.getCustomerEmail(),
@@ -76,7 +79,7 @@ public class OrderService {
                             : sellerSearchOrderDto.getToDate().atTime(23,59),
                     pageable);
         }
-        return orderRepository.searchByOrderStatus_IdAndCustomer_EmailContainsAndOrderTimeBetween(
+        return orderRepository.searchByOrderStatus_IdAndCustomer_EmailContainsAndOrderAtBetween(
                 sellerSearchOrderDto.getStatusId(),
                 sellerSearchOrderDto.getCustomerEmail() == null
                         ? ""
@@ -148,7 +151,7 @@ public class OrderService {
 
         Order order = orderRepository.save(Order.builder()
                 .paymentMethod(paymentMethodService.getQrMethod())
-                .paymentExpiredTime(LocalDateTime.now().plusMinutes(15)) // QR expires in 15 minutes
+                .paymentExpiredAt(LocalDateTime.now().plusMinutes(15)) // QR expires in 15 minutes
                 .orderStatus(orderStatusService.getPendingPaymentStatus())
                 .fullName(deliveryInfoDto.getFullName())
                 .phoneNumber(deliveryInfoDto.getPhone())
@@ -169,7 +172,7 @@ public class OrderService {
     @Scheduled(fixedRate = 300000) // cancel expired qr orders every 5 minutes
     @Transactional
     public void cancelExpiredQrOrders() {
-        List<Order> expiredOrders = orderRepository.findByOrderStatusAndPaymentExpiredTimeBefore(
+        List<Order> expiredOrders = orderRepository.findByOrderStatusAndPaymentExpiredAtBefore(
                 orderStatusService.getPendingPaymentStatus(), LocalDateTime.now());
         expiredOrders.forEach(order -> setOrderStatus(order.getId(), orderStatusService.getCancelledStatus()));
         orderRepository.saveAll(expiredOrders);
@@ -207,7 +210,9 @@ public class OrderService {
 
     public void updateOrderStatusToDelivered(Order order) {
         order.setOrderStatus(orderStatusService.getDeliveredStatus());
-        order.setDeliveredTime(LocalDateTime.now());
+        order.addShippingStatus(Shipping.builder()
+                .shippingStatus(shippingStatusService.getDeliveredStatus())
+                .build());
         orderRepository.save(order);
     }
 
@@ -216,11 +221,13 @@ public class OrderService {
         order.setShipper(shipperRepository.findByEmail(email));
         orderRepository.save(order);
     }
+
     public List<Order> getSuccessOrder() {
         return orderRepository.findAll().stream()
                 .filter(order -> orderStatusService.isDeliveredStatus(order))
                 .collect(Collectors.toList());
     }
+
     public List<Order> getOrderByProductId(List<Order> orders, Long productId) {
         return orders.stream()
                 .filter(order -> order.getOrderItem().stream()
