@@ -100,17 +100,27 @@ public class SellerService {
             }
             Seller seller;
             try {
-                seller = Seller.builder()
-                        .id(staffDto.getId() != 0 ? staffDto.getId() : null)
-                        .email(staffDto.getEmail())
-                        .password(staffDto.getId() != 0  ? staffDto.getEncodedPassword() : passwordEncoder.encode(staffDto.getPassword()))
-                        .fullname(staffDto.getFullname())
-                        .birthDate(staffDto.getBirthDate())
-                        .cid(staffDto.getCid())
-                        .communeWard(addressService.getCommuneWardByCode(staffDto.getCommuneWard()))
-                        .specificAddress(staffDto.getSpecificAddress())
-                        .enabled(staffDto.isEnabled())
-                        .build();
+                if (staffDto.getId() == 0) {
+                    seller = Seller.builder()
+                            .email(staffDto.getEmail())
+                            .password(passwordEncoder.encode(staffDto.getPassword()))
+                            .fullname(staffDto.getFullname())
+                            .birthDate(staffDto.getBirthDate())
+                            .cid(staffDto.getCid())
+                            .communeWard(addressService.getCommuneWardByCode(staffDto.getCommuneWard()))
+                            .specificAddress(staffDto.getSpecificAddress())
+                            .enabled(staffDto.isEnabled())
+                            .build();
+                } else {
+                    seller = getSellerById(staffDto.getId());
+                    seller.setEmail(staffDto.getEmail());
+                    seller.setFullname(staffDto.getFullname());
+                    seller.setBirthDate(staffDto.getBirthDate());
+                    seller.setCid(staffDto.getCid());
+                    seller.setCommuneWard(addressService.getCommuneWardByCode(staffDto.getCommuneWard()));
+                    seller.setSpecificAddress(staffDto.getSpecificAddress());
+                    seller.setEnabled(staffDto.isEnabled());
+                }
             } catch (Exception e) {
                 throw new RuntimeException(e.getMessage());
             }

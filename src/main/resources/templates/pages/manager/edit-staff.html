@@ -85,7 +85,7 @@
                 <div class="text-danger small" th:errors="*{specificAddress}"></div>
             </div>
 
-            <div class="mb-3">
+            <div class="mb-3" th:if="*{id != 0}">
                 <label class="form-label">Mở khóa?</label>
                 <input class="form-check-input" type="radio" th:field="*{enabled}" th:value="true"> Có
                 <input class="form-check-input" type="radio" th:field="*{enabled}" th:value="false"> Không

@@ -8,18 +8,18 @@
 </head>
 <body class="auth-body">
 <a href="/shipper" class="btn btn-light position-absolute top-0 start-0 m-3">← Quay lại</a>
+<!-- Alerts -->
+<div class="alerts-stack" style="height: 0px; width: fit-content; margin: 0px 50px 0px auto;">
+    <div class="alert alert-success alert-dismissible fade show" th:hidden="${msg == null}">
+        <strong>Thành công!</strong> <span th:text="${msg}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div class="alert alert-danger alert-dismissible fade show" th:hidden="${error == null}">
+        <strong>Thất bại!</strong> <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+</div>
 <div class="container py-4">
-  <!-- Alerts -->
-  <div class="alerts-stack" style="height: 0px; width: fit-content; margin: 0px 50px 0px auto;">
-      <div class="alert alert-success alert-dismissible fade show" th:hidden="${msg == null}">
-          <strong>Thành công!</strong> <span th:text="${msg}"></span>
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      </div>
-      <div class="alert alert-danger alert-dismissible fade show" th:hidden="${error == null}">
-          <strong>Thất bại!</strong> <span th:text="${error}"></span>
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      </div>
-  </div>
 
   <!-- Đơn hàng đang giao -->
   <br>
