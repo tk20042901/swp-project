@@ -2,6 +2,7 @@ package com.swp.project.entity.order;
 
 
 import com.swp.project.entity.address.CommuneWard;
+import com.swp.project.entity.order.shipping.Shipping;
 import com.swp.project.entity.user.Customer;
 import com.swp.project.entity.user.Shipper;
 
@@ -39,16 +40,17 @@ public class Order{
 
     @Column(nullable = false)
     @Builder.Default
-    private LocalDateTime orderTime = LocalDateTime.now();
+    private LocalDateTime orderAt = LocalDateTime.now();
 
     @ManyToOne(fetch = FetchType.EAGER)
     private PaymentMethod paymentMethod;
 
     private String paymentLink;
 
-    private LocalDateTime paymentExpiredTime;
+    private LocalDateTime paymentExpiredAt;
 
-    private LocalDateTime deliveredTime;
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<Shipping> shipping;
 
     @Column(length = 50)
     private String fullName;
@@ -61,6 +63,10 @@ public class Order{
 
     @Column(length = 100)
     private String specificAddress;
+
+    public void addShippingStatus(Shipping shippingStatus){
+        shipping.add(shippingStatus);
+    }
 
     public int getTotalAmount(){
         return orderItem.stream()
