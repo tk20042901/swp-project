@@ -27,8 +27,6 @@ public class StaffDto implements Serializable {
     @Size(min = 6, max = 50, message = "Mật khẩu phải có độ dài từ 6 đến 50 ký tự")
     private String password;
 
-    private String encodedPassword;
-
     @NotBlank(message = "Tên không được để trống")
     private String fullname;
 
@@ -49,14 +47,13 @@ public class StaffDto implements Serializable {
     @NotBlank(message = "Địa chỉ cụ thể không để trống")
     private String specificAddress;
 
-    private boolean enabled;
+    private boolean enabled = true;
 
     public StaffDto parse(Seller seller) {
         return StaffDto.builder()
                 .id(seller.getId())
                 .email(seller.getEmail())
                 .password("placeholder")
-                .encodedPassword(seller.getPassword())
                 .fullname(seller.getFullname())
                 .birthDate(seller.getBirthDate())
                 .cid(seller.getCid())
@@ -72,7 +69,6 @@ public class StaffDto implements Serializable {
                 .id(shipper.getId())
                 .email(shipper.getEmail())
                 .password("placeholder")
-                .encodedPassword(shipper.getPassword())
                 .fullname(shipper.getFullname())
                 .birthDate(shipper.getBirthDate())
                 .cid(shipper.getCid())

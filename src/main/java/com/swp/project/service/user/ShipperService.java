@@ -155,17 +155,27 @@ public class ShipperService {
             }
             Shipper shipper;
             try {
-                shipper = Shipper.builder()
-                        .id(staffDto.getId() != 0 ? staffDto.getId() : null)
-                        .email(staffDto.getEmail())
-                        .password(staffDto.getId() != 0  ? staffDto.getEncodedPassword() : passwordEncoder.encode(staffDto.getPassword()))
-                        .fullname(staffDto.getFullname())
-                        .birthDate(staffDto.getBirthDate())
-                        .cid(staffDto.getCid())
-                        .communeWard(addressService.getCommuneWardByCode(staffDto.getCommuneWard()))
-                        .specificAddress(staffDto.getSpecificAddress())
-                        .enabled(staffDto.isEnabled())
-                        .build();
+                if(staffDto.getId() == 0) {
+                    shipper = Shipper.builder()
+                            .email(staffDto.getEmail())
+                            .password(passwordEncoder.encode(staffDto.getPassword()))
+                            .fullname(staffDto.getFullname())
+                            .birthDate(staffDto.getBirthDate())
+                            .cid(staffDto.getCid())
+                            .communeWard(addressService.getCommuneWardByCode(staffDto.getCommuneWard()))
+                            .specificAddress(staffDto.getSpecificAddress())
+                            .enabled(staffDto.isEnabled())
+                            .build();
+                } else {
+                    shipper = getShipperById(staffDto.getId());
+                    shipper.setEmail(staffDto.getEmail());
+                    shipper.setFullname(staffDto.getFullname());
+                    shipper.setBirthDate(staffDto.getBirthDate());
+                    shipper.setCid(staffDto.getCid());
+                    shipper.setCommuneWard(addressService.getCommuneWardByCode(staffDto.getCommuneWard()));
+                    shipper.setSpecificAddress(staffDto.getSpecificAddress());
+                    shipper.setEnabled(staffDto.isEnabled());
+                }
             } catch (Exception e) {
                 throw new RuntimeException(e.getMessage());
             }
@@ -242,16 +252,4 @@ public class ShipperService {
         orderRepository.save(order);
     }
 
-    public void deliverOrder(Long orderId, Principal principal) {
-        if (principal == null) {
-            throw new RuntimeException("Người giao hàng không xác định");
-        }
-        Order order = orderRepository.findById(orderId)
-                                     .orElseThrow(() -> new RuntimeException("Đơn hàng không tồn tại"));
-        if (order.getShipper() != null) {
-            throw new RuntimeException("Đơn hàng đã có người nhận giao");
-        }
-        orderService.updateOrderStatusToShipping(order, principal.getName());
-        orderRepository.save(order);
-    }
 }
