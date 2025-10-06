@@ -36,17 +36,29 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("SELECT SUM(oi.quantity) FROM OrderItem oi WHERE oi.order.orderStatus.name='Đã Giao Hàng'")
     Long getTotalUnitSold();
 
-    @Query("SELECT SUM(oi.quantity * oi.product.price) FROM OrderItem oi WHERE DATE(oi.order.orderTime)= CURRENT_DATE AND" +
-            " oi.order.orderStatus.name='Đã Giao Hàng'")
+   @Query("""
+        SELECT coalesce(Sum(oi.quantity * oi.product.price),0)
+        From OrderItem oi
+        Where oi.order.orderStatus.name ='Đã giao hàng'
+        And function('DATE',oi.order.orderTime)= current_date
+""")
     Long getRevenueToday();
 
-    @Query("SELECT SUM(oi.quantity * oi.product.price) FROM OrderItem oi WHERE oi.order.orderStatus.name='Đã Giao Hàng' AND" +
-            " oi.order.orderTime >= DATE_TRUNC('week', current_date ) ")
+    @Query("""
+        SELECT COALESCE(SUM(oi.quantity * oi.product.price), 0)
+        FROM OrderItem oi
+        WHERE oi.order.orderStatus.name = 'Đã Giao Hàng'
+          AND oi.order.orderTime >= FUNCTION('DATE_TRUNC', 'week', CURRENT_DATE)
+    """)
     Long getRevenueThisWeek();
 
-    @Query("SELECT SUM(oi.quantity * oi.product.price) FROM OrderItem oi WHERE oi.order.orderStatus.name='Đã Giao Hàng' AND" +
-            " oi.order.orderTime >= DATE_TRUNC('month', current_date ) ")
-    Long getRevenueThisMonth();
 
+    @Query("""
+        SELECT COALESCE(SUM(oi.quantity * oi.product.price), 0)
+        FROM OrderItem oi
+        WHERE oi.order.orderStatus.name = 'Đã Giao Hàng'
+          AND oi.order.orderTime >= FUNCTION('DATE_TRUNC', 'month', CURRENT_DATE)
+    """)
+    Long getRevenueThisMonth();
 
 }
