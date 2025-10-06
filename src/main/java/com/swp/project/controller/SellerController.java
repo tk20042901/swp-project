@@ -126,4 +126,10 @@ public class SellerController {
         model.addAttribute("product",product);
         return "pages/seller/product/product-detail";
     }
+
+    @GetMapping("/statistic-report/overview")
+    public String getOverviewReport(Model model){
+        model.addAttribute("unitSold",orderService.getUnitSold());
+        return "pages/seller/statistic-report/overview";
+    }
 }

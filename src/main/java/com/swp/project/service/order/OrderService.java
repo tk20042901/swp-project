@@ -285,15 +285,16 @@ public class OrderService {
         return total;
     }
 
-    public long getRevenueToday(){
+    public long getRevenueToday() {
         Long revenue = orderRepository.getRevenueToday();
         return revenue;
-
-    }public long getRevenueThisMonth(){
+    }
+    public long getRevenueThisMonth(){
         Long revenue = orderRepository.getRevenueThisMonth();
         return revenue;
 
-    }public long getRevenueThisWeek() {
+    }
+    public long getRevenueThisWeek() {
         Long revenue = orderRepository.getRevenueThisWeek();
         return revenue;
     }
