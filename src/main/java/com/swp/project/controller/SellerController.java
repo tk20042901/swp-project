@@ -1,11 +1,15 @@
 package com.swp.project.controller;
 
 import com.swp.project.dto.SellerSearchOrderDto;
+import com.swp.project.dto.UpdateProductDto;
 import com.swp.project.entity.order.Order;
+import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.Product;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.order.OrderStatusService;
+import com.swp.project.service.product.CategoryService;
 import com.swp.project.service.product.ProductService;
+import com.swp.project.service.product.ProductUnitService;
 import com.swp.project.service.seller_request.SellerRequestService;
 import com.swp.project.service.user.ShipperService;
 import jakarta.validation.Valid;
@@ -19,6 +23,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Controller
@@ -30,6 +36,8 @@ public class SellerController {
     private final ShipperService shipperService;
     private final ProductService productService;
     private final SellerRequestService sellerRequestService;
+    private final ProductUnitService unitService;
+    private final CategoryService categoryService;
 
     @GetMapping("")
     public String sellerMain() {
@@ -139,6 +147,84 @@ public class SellerController {
         model.addAttribute("unitSold", orderService.getUnitSold());
         return "pages/seller/statistic-report/overview";
     }
+    @GetMapping("/seller-update-product")
+    public String showUpdateProductForm(
+        @RequestParam(required = false) Long productId,
+        Model model) {
+        Product product;
+        UpdateProductDto dto = new UpdateProductDto();
+        if(productId == null){
+            product = productService.getFirstEnabledProduct();
+        }else{
+            product = productService.getProductById(productId);
+        }
+        dto.setId(product.getId());
+        dto.setName(product.getName());
+        dto.setPrice(product.getPrice());
+        dto.setUnit(product.getUnit());
+        dto.setCategories(product.getCategories().stream().map(Category::getId).toList());
+        dto.setDescription(product.getDescription());
+        dto.setEnabled(product.isEnabled());
+
+        model.addAttribute("units", unitService.getAllUnits());
+        model.addAttribute("categories", categoryService.getAllCategories());
+        model.addAttribute("products", productService.getAllProducts());
+        model.addAttribute("selectedProduct", product);
+        model.addAttribute("updateProductDto", dto);
+        return "pages/seller/product/update-product";
+    }
+    @PostMapping("/seller-update-product")
+    public String handleUpdateProduct(
+        @Valid @ModelAttribute UpdateProductDto updateProductDto,
+        BindingResult bindingResult,
+        RedirectAttributes redirectAttributes,
+        Principal principal,
+        Model model) {
+        
+        if (bindingResult.hasErrors()) {
+            System.out.println("Binding result has errors:");
+            return "redirect:/seller/seller-update-product/" + updateProductDto.getId();
+        }
+        try {
+            Product oldProduct = productService.getProductById(updateProductDto.getId());
+            List<Category> categories = new ArrayList<>();
+            for(Long catId : updateProductDto.getCategories()) {
+                categories.add(categoryService.getCategoryById(catId));
+            }
+            Product updateProduct = new Product();
+            updateProduct.setId(updateProductDto.getId());
+            updateProduct.setName(updateProductDto.getName());
+            updateProduct.setDescription(updateProductDto.getDescription());
+            updateProduct.setPrice(updateProductDto.getPrice());
+            updateProduct.setUnit(unitService.getProductUnitById(updateProductDto.getUnit().getId()));
+            updateProduct.setEnabled(updateProductDto.getEnabled());
+            updateProduct.setCategories(categories);
+            updateProduct.setMain_image_url(oldProduct.getMain_image_url());
+            updateProduct.setSub_images(oldProduct.getSub_images());
+            updateProduct.setProductBatches(oldProduct.getProductBatches());
+            updateProduct.setTotalQuantity(oldProduct.getTotalQuantity());
+
+
+            if(updateProduct.equals(oldProduct)) {
+                throw new Exception("Không có thay đổi nào để cập nhật");
+            }
+
+            sellerRequestService.saveUpdateRequest(
+                oldProduct,
+                updateProduct,
+                principal.getName());
+
+            redirectAttributes.addFlashAttribute("msg", "Yêu cầu cập nhật sản phẩm đã được gửi đến quản lý");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            if (updateProductDto.getId() != null) {
+                return "redirect:/seller/seller-update-product/" + updateProductDto.getId();
+            } else {
+                return "redirect:/seller/seller-update-product";
+            }
+        }
+        return "redirect:/seller";
+    }
 
     @PostMapping("seller-product-request")
     public String sellerRequest(
@@ -160,8 +246,6 @@ public class SellerController {
                 // All sellers can update all products since they work collaboratively
                 sellerRequestService.saveUpdateRequest(existingProduct, product, principal.getName());
                 redirectAttributes.addFlashAttribute("msg", "Yêu cầu cập nhật sản phẩm đã được gửi đến quản lý");
-            } else {
-                redirectAttributes.addFlashAttribute("error", "Loại yêu cầu không hợp lệ");
             }
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra khi xử lý yêu cầu: " + e.getMessage());

@@ -51,6 +51,10 @@ public class ProductService {
         return productRepository.findAll();
     }
 
+    public Product getFirstEnabledProduct(){
+        return productRepository.findFirstByEnabledOrderByIdAsc(true);
+    }
+
     // Ví dụ hàm saveProduct sử dụng VectorUpdateEvent
     public void saveProduct(Product product) {
         Product savedProduct = productRepository.save(product);
