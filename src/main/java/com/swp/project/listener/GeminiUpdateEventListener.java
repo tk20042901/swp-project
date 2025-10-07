@@ -1,6 +1,8 @@
 package com.swp.project.listener;
 
-import com.swp.project.listener.event.GeminiUpdateEvent;
+import com.swp.project.entity.product.Product;
+import com.swp.project.listener.event.GeminiUpdateCategoryEvent;
+import com.swp.project.listener.event.GeminiUpdateProductEvent;
 import com.swp.project.service.CustomerAiService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,27 +21,13 @@ public class GeminiUpdateEventListener {
 
     private final CustomerAiService customerAiService;
 
-    /**
-     * Handles vector update cho các entity implementing VectorStorable.
-     * 
-     * @param event the vector update event containing entity and operation type
-     */
     @EventListener
-    public void onVectorUpdateEvent(GeminiUpdateEvent<?> event) {
-        try {
-            switch (event.type()) {
-                case CREATE, UPDATE -> {
-                    customerAiService.saveEntityToVectorStore(event.entity());
-                }
-                case DELETE -> {
-                    customerAiService.removeEntityFromVectorStore(event.entity().getId());
-                }
-            }
-        } catch (Exception e) {
-            log.error("Failed to update vector store for {} with ID: {}. Error: {}", 
-                     event.entity().getClass().getSimpleName(), 
-                     event.entity().getId(), 
-                     e.getMessage());
-        }
+    public void onVectorProductUpdateEvent(GeminiUpdateProductEvent event) {
+        customerAiService.saveProductToVectorStore(event.product());
+    }
+
+    @EventListener
+    public void onVectorCategoryUpdateEvent(GeminiUpdateCategoryEvent event) {
+        customerAiService.saveCategoryToVectorStore(event.category());
     }
 }
