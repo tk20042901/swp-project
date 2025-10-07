@@ -6,7 +6,7 @@ import com.swp.project.entity.product.Product;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.order.OrderStatusService;
 import com.swp.project.service.product.ProductService;
-import com.swp.project.service.seller_request.SellerRequestService;
+import com.swp.project.service.user.SellerService;
 import com.swp.project.service.user.ShipperService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import java.security.Principal;
 
 @RequiredArgsConstructor
 @Controller
@@ -28,8 +27,8 @@ public class SellerController {
     private final OrderStatusService orderStatusService;
     private final OrderService orderService;
     private final ShipperService shipperService;
+    private final SellerService sellerService;
     private final ProductService productService;
-    private final SellerRequestService sellerRequestService;
 
     @GetMapping("")
     public String sellerMain() {
@@ -37,11 +36,9 @@ public class SellerController {
     }
 
     @GetMapping("/all-orders")
-    public String sellerProducts(
-        @Valid @ModelAttribute SellerSearchOrderDto sellerSearchOrderDto,
-            BindingResult bindingResult,
-            Model model,
-            Principal principal) {
+    public String sellerProducts(@Valid @ModelAttribute SellerSearchOrderDto sellerSearchOrderDto,
+                                 BindingResult bindingResult,
+                                 Model model) {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("orders", orderService.getAllOrder());
@@ -70,9 +67,8 @@ public class SellerController {
 
     @GetMapping("/order-detail/{orderId}")
     public String orderDetail(@PathVariable Long orderId, Model model) {
-        if (orderService.isOrderItemQuantityMoreThanAvailable(orderId)) {
-            model.addAttribute("warning",
-                    "Cảnh báo: Một số sản phẩm trong đơn hàng này có số lượng lớn hơn số lượng hiện có trong kho.");
+        if(orderService.isOrderItemQuantityMoreThanAvailable(orderId)) {
+            model.addAttribute("warning", "Cảnh báo: Một số sản phẩm trong đơn hàng này có số lượng lớn hơn số lượng hiện có trong kho.");
         }
         model.addAttribute("orderStatusService", orderStatusService);
         model.addAttribute("order", orderService.getOrderById(orderId));
@@ -81,8 +77,8 @@ public class SellerController {
 
     @PostMapping("/update-pending-order-status")
     public String updatePendingOrderStatus(@RequestParam Long orderId,
-            @RequestParam String action,
-            RedirectAttributes redirectAttributes) {
+                                           @RequestParam String action,
+                                           RedirectAttributes redirectAttributes) {
         if (action.equals("accept")) {
             if (orderService.isOrderItemQuantityMoreThanAvailable(orderId)) {
                 redirectAttributes.addFlashAttribute("error",
@@ -101,7 +97,7 @@ public class SellerController {
 
     @PostMapping("/update-processing-order-status")
     public String updateProcessingOrderStatus(@RequestParam Long orderId,
-            RedirectAttributes redirectAttributes) {
+                                              RedirectAttributes redirectAttributes) {
         orderService.updateOrderStatusToShipping(orderService.getOrderById(orderId));
         redirectAttributes.addFlashAttribute("msg",
                 "Cập nhật trạng thái đơn hàng thành Đang giao hàng thành công.\n" +
@@ -111,62 +107,31 @@ public class SellerController {
 
     @GetMapping("/all-products")
     public String getAllProductList(@RequestParam(required = false) String name,
-            @RequestParam(required = false) Boolean enabled,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size,
-            Model model) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Product> products = productService.searchProductForSeller(name, enabled, pageable);
+                                    @RequestParam(required = false) Boolean enabled ,
+                                    @RequestParam(defaultValue = "0") int page,
+                                    @RequestParam(defaultValue = "5")int size,
+                                    Model model){
+        Pageable pageable= PageRequest.of(page,size);
+        Page<Product> products= productService.searchProductForSeller(name, enabled, pageable);
         model.addAttribute("products", products);
         model.addAttribute("name", name);
         model.addAttribute("enabled", enabled);
-        return "pages/seller/product/all-products";
+    return "pages/seller/product/all-products";
     }
-
     @GetMapping("/product/product-detail/{productId}")
-    public String getProductDetail(@PathVariable("productId") Long id, Model model, Principal principal) {
-        Product product = productService.getProductById(id);
-        // All sellers can access all products since they work collaboratively
+    public String getProductDetail(@PathVariable("productId") Long id, Model model){
+        Product product= productService.getProductById(id);
         int availableQuantity = productService.getAvailableQuantity(id);
-        model.addAttribute("availableQuantity", availableQuantity);
-        model.addAttribute("product", product);
+        model.addAttribute("availableQuantity",availableQuantity);
+        model.addAttribute("product",product);
         return "pages/seller/product/product-detail";
     }
 
     @GetMapping("/statistic-report/overview")
-    public String getOverviewReport(Model model) {
-        model.addAttribute("unitSold", orderService.getUnitSold());
+    public String getOverviewReport(Model model){
+        model.addAttribute("unitSold",orderService.getUnitSold());
+        model.addAttribute("nearlySoldOutProducts", orderService.getNearlySoldOutProduct());
+        model.addAttribute("nearlyExpiredProducts", orderService.getNearlyExpiredProduct());
         return "pages/seller/statistic-report/overview";
     }
-
-    @PostMapping("seller-product-request")
-    public String sellerRequest(
-            @RequestParam String requestType,
-            @RequestParam(required = false) Long productId,
-            @ModelAttribute Product product,
-            Principal principal,
-            RedirectAttributes redirectAttributes) {
-        try {
-            if (requestType.equals("add")) {
-                sellerRequestService.saveAddRequest(product, principal.getName());
-                redirectAttributes.addFlashAttribute("msg", "Yêu cầu thêm sản phẩm đã được gửi đến quản lý");
-            } else if (requestType.equals("update")) {
-                if (productId == null) {
-                    redirectAttributes.addFlashAttribute("error", "ID sản phẩm không hợp lệ");
-                    return "redirect:/seller/all-products";
-                }
-                Product existingProduct = productService.getProductById(productId);
-                // All sellers can update all products since they work collaboratively
-                sellerRequestService.saveUpdateRequest(existingProduct, product, principal.getName());
-                redirectAttributes.addFlashAttribute("msg", "Yêu cầu cập nhật sản phẩm đã được gửi đến quản lý");
-            } else {
-                redirectAttributes.addFlashAttribute("error", "Loại yêu cầu không hợp lệ");
-            }
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra khi xử lý yêu cầu: " + e.getMessage());
-        }
-
-        return "redirect:/seller/all-products";
-    }
-
 }
