@@ -1,7 +1,7 @@
 package com.swp.project.entity.product;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.swp.project.listener.VectorStorable;
+import com.swp.project.entity.GeminiStorable;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -17,7 +17,7 @@ import org.hibernate.annotations.Formula;
 @AllArgsConstructor
 @Builder
 @Entity
-public class Product implements Serializable, VectorStorable {
+public class Product implements Serializable, GeminiStorable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

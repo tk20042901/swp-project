@@ -2,10 +2,11 @@ package com.swp.project.service;
 
 import com.google.cloud.vertexai.VertexAI;
 import com.swp.project.dto.AiMessageDto;
+import com.swp.project.entity.GeminiStorable;
 import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.ProductBatch;
-import com.swp.project.listener.VectorStorable;
+
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -218,7 +219,7 @@ public class CustomerAiService {
      * @param entity the entity to save to vector store
      */
     @Transactional
-    public <T extends VectorStorable> void saveEntityToVectorStore(T entity) {
+    public <T extends GeminiStorable> void saveEntityToVectorStore(T entity) {
         try {
             String documentId = UUID.nameUUIDFromBytes(entity.getId().toString().getBytes()).toString();
             String content = generateVectorContent(entity);
@@ -252,26 +253,19 @@ public class CustomerAiService {
      * @param entity the entity to generate content for
      * @return the content string for vector storage
      */
-    private <T extends VectorStorable> String generateVectorContent(T entity) {
+    private <T extends GeminiStorable> String generateVectorContent(T entity) {
         if (entity instanceof Product product) {
             return getProductContent(product);
         } else if (entity instanceof Category category) {
             return getCategoryContent(category);
         }
-        // Add more entity types as needed:
-        // else if (entity instanceof Supplier supplier) {
-        //     return getSupplierContent(supplier);
-        // }
-        // else if (entity instanceof ProductUnit unit) {
-        //     return getProductUnitContent(unit);
-        // }
+        // ProductUnit is not stored in vector store - only used for updating related products
         else {
             throw new UnsupportedOperationException(
                 "No content generator found for entity type: " + entity.getClass().getSimpleName() + 
                 ". Please add a condition for this entity type in generateVectorContent() method.");
         }
     }
-
 
     public void ask (String conversationId, String q, MultipartFile image, List<AiMessageDto> conversation) {
         if (q == null || q.isBlank()) {

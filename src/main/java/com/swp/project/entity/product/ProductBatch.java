@@ -6,13 +6,16 @@ import lombok.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import com.swp.project.entity.GeminiStorable;
+
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Entity
-public class ProductBatch implements Serializable {
+public class ProductBatch implements Serializable,GeminiStorable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

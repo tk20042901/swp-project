@@ -24,8 +24,8 @@ public class DataInitializer implements CommandLineRunner {
     private final ManagerService managerService;
     private final SellerService sellerService;
     private final ShipperService shipperService;
-    private final ProductService productService;
-    private final CustomerAiService customerAiService;
+    // private final ProductService productService;
+    // private final CustomerAiService customerAiService;
 
 
     @Override
