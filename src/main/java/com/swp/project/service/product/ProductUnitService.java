@@ -2,7 +2,7 @@ package com.swp.project.service.product;
 
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.ProductUnit;
-import com.swp.project.listener.event.GeminiUpdateEvent;
+import com.swp.project.listener.event.GeminiUpdateProductEvent;
 import com.swp.project.repository.product.ProductUnitRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -25,9 +25,8 @@ public class ProductUnitService {
 
     public void updateProductUnit(ProductUnit productUnit) {
         productUnitRepository.save(productUnit);
-        // But we need to update all related products since unit info affects product vector content
         for(Product product : getProductUnitById(productUnit.getId()).getProducts()) {
-             eventPublisher.publishEvent(new GeminiUpdateEvent<Product>(product, GeminiUpdateEvent.UpdateType.UPDATE));
+             eventPublisher.publishEvent(new GeminiUpdateProductEvent(product));
         }
     }
 }

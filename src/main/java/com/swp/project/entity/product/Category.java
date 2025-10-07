@@ -1,7 +1,6 @@
 package com.swp.project.entity.product;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.swp.project.entity.GeminiStorable;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Entity
-public class Category implements Serializable, GeminiStorable {
+public class Category implements Serializable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
