@@ -8,10 +8,12 @@ import java.util.stream.Collectors;
 import com.swp.project.entity.order.Bill;
 import com.swp.project.entity.order.shipping.Shipping;
 import com.swp.project.entity.product.Product;
+import com.swp.project.entity.product.ProductBatch;
 import com.swp.project.repository.order.BillRepository;
 import com.swp.project.repository.product.ProductRepository;
 import com.swp.project.service.SettingService;
 import com.swp.project.service.order.shipping.ShippingStatusService;
+import com.swp.project.service.user.ShipperService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -51,6 +53,7 @@ public class OrderService {
     private final SettingService settingService;
     private final BillRepository billRepository;
     private final ProductRepository productRepository;
+    private final ShipperService shipperService;
 
     public Page<Order> getAllOrder() {
         Pageable pageable = PageRequest.of(0,10, Sort.by("id").ascending());
@@ -184,14 +187,13 @@ public class OrderService {
     }
 
     @Transactional
-    public void doWhenOrderConfirmed(Long orderId) {
-        pickProductForOrder(orderId);
-        setOrderStatus(orderId, orderStatusService.getProcessingStatus());
+    public void doWhenOrderConfirmed(Order order) {
+        pickProductForOrder(order);
+        order.setOrderStatus(orderStatusService.getProcessingStatus());
     }
 
     @Transactional
-    public void pickProductForOrder(Long orderId) {
-        Order order = getOrderById(orderId);
+    public void pickProductForOrder(Order order) {
         order.getOrderItem().forEach(item ->
                 productService.pickProductInProductBatch(item.getProduct().getId(), item.getQuantity()));
     }
@@ -206,6 +208,14 @@ public class OrderService {
                 .order(order)
                 .build();
         billRepository.save(bill);
+    }
+    public void updateOrderStatusToShipping(Order order) {
+        order.setOrderStatus(orderStatusService.getShippingStatus());
+        order.addShippingStatus(Shipping.builder()
+                .shippingStatus(shippingStatusService.getAwaitingPickupStatus())
+                .build());
+        shipperService.autoAssignShipperToOrder(order);
+        orderRepository.save(order);
     }
 
     public void updateOrderStatusToDelivered(Order order) {
@@ -306,4 +316,12 @@ public class OrderService {
         return revenue;
     }
 
+    public List<ProductBatch> getNearlyExpiredProduct(){
+        return orderRepository.findingNearlyExpiredProduct();
+    }
+
+    public List<ProductBatch> getNearlySoldOutProduct(){
+        int unitsoldOut = 20;
+        return orderRepository.findingNearlySoldOutProduct(unitsoldOut);
+    }
 }
