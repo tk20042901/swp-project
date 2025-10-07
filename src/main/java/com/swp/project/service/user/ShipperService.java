@@ -200,8 +200,7 @@ public class ShipperService {
         }
     }
 
-    public void autoAssignShipperToOrder(Long orderId) {
-        Order order = orderService.getOrderById(orderId);
+    public void autoAssignShipperToOrder(Order order) {
         Map<Shipper, Long> shipperOrderCount = new HashMap<>();
         shipperRepository.findAll().forEach(shipper ->
                 shipperOrderCount.put(shipper,

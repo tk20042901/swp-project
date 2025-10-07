@@ -10,6 +10,7 @@ import com.swp.project.service.user.SellerService;
 import com.swp.project.service.user.ShipperService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -83,7 +84,7 @@ public class SellerController {
             if(orderService.isOrderItemQuantityMoreThanAvailable(orderId)) {
                 redirectAttributes.addFlashAttribute("error", "Lỗi: Một số sản phẩm trong đơn hàng vừa chấp nhận có số lượng lớn hơn số lượng hiện có trong kho. Tác vụ bị hủy.");
             } else {
-                orderService.doWhenOrderConfirmed(orderId);
+                orderService.doWhenOrderConfirmed(orderService.getOrderById(orderId));
                 redirectAttributes.addFlashAttribute
                         ("msg", "Chấp nhận đơn hàng thành công");
             }
@@ -98,11 +99,9 @@ public class SellerController {
     @PostMapping("/update-processing-order-status")
     public String updateProcessingOrderStatus(@RequestParam Long orderId,
                                               RedirectAttributes redirectAttributes) {
-        orderService.setOrderStatus(orderId, orderStatusService.getShippingStatus());
-        shipperService.autoAssignShipperToOrder(orderId);
+        orderService.updateOrderStatusToShipping(orderService.getOrderById(orderId));
         redirectAttributes.addFlashAttribute("msg",
-                "Cập nhật trạng thái đơn hàng thành Đang giao hàng thành công.\n" +
-                        "Hệ thống đã tự động phân công Shipper cho đơn hàng.");
+                "Cập nhật trạng thái đơn hàng thành Đang giao hàng thành công. Hệ thống đã tự động phân công Shipper cho đơn hàng.");
         return "redirect:/seller/all-orders";
     }
     @GetMapping("/all-products")
