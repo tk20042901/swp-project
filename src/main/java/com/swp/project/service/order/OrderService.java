@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import com.swp.project.entity.order.Bill;
 import com.swp.project.entity.order.shipping.Shipping;
 import com.swp.project.entity.product.Product;
+import com.swp.project.entity.product.ProductBatch;
 import com.swp.project.repository.order.BillRepository;
 import com.swp.project.repository.product.ProductRepository;
 import com.swp.project.service.SettingService;
@@ -315,4 +316,12 @@ public class OrderService {
         return revenue;
     }
 
+    public List<ProductBatch> getNearlyExpiredProduct(){
+        return orderRepository.findingNearlyExpiredProduct();
+    }
+
+    public List<ProductBatch> getNearlySoldOutProduct(){
+        int unitsoldOut = 20;
+        return orderRepository.findingNearlySoldOutProduct(unitsoldOut);
+    }
 }

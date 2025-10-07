@@ -8,12 +8,45 @@
 <a th:href="@{/}">Trang chủ</a>
 <h1>Thống kê</h1>
 <span th:text="${'Số sản phẩm đã bán được: '+ unitSold}"></span>
+
+<h1>Sản phẩm sắp hết hàng</h1>
 <table>
     <thead>
     <tr>
-
+        <th>Mã sản phẩm</th>
+        <th>Sản phẩm</th>
+         <th>Số lượng còn lại</th>
     </tr>
     </thead>
+    <tbody>
+    <tr th:each="item : ${nearlySoldOutProducts}">
+        <td th:text="${item.product.id}"></td>
+        <td>
+            <img th:src="${item.product.main_image_url}">
+            <span th:text = "${item.product.name}"></span>
+        </td>
+        <td th:text="${item.product.totalQuantity}"></td>
+    </tr>
+    </tbody>
+</table>
+<h1>Sản phẩm sắp hết hạn</h1>
+<table>
+    <thead>
+    <tr>
+        <th>Mã sản phẩm</th>
+        <th>Sản phẩm</th>
+        <th>Hạn sử dụng</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="item : ${nearlyExpiredProducts}">
+        <td th:text="${item.product.id}"></td>
+        <td>
+            <img th:src="${item.product.main_image_url}">
+            <span th:text = "${item.product.name}"></span>
+        </td>
+        <td th:text="${#temporals.format(item.expiredDate,'dd/MM/yyyy')}"></td>
+    </tbody>
 </table>
 </body>
 </html>

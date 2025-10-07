@@ -2,6 +2,7 @@ package com.swp.project.repository.order;
 
 import com.swp.project.entity.order.Order;
 import com.swp.project.entity.order.OrderStatus;
+import com.swp.project.entity.product.ProductBatch;
 import com.swp.project.entity.user.Customer;
 import com.swp.project.entity.user.Shipper;
 import org.springframework.data.domain.Page;
@@ -61,4 +62,20 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     """)
     Long getRevenueThisMonth();
 
+    @Query(value = """
+    SELECT * 
+    FROM product_batch
+    WHERE expired_date 
+          BETWEEN CURRENT_DATE 
+          AND CURRENT_DATE +  INTERVAL '5 day'
+    """, nativeQuery = true)
+    List<ProductBatch> findingNearlyExpiredProduct();
+
+    @Query("""
+        SELECT pb
+        FROM ProductBatch pb
+        WHERE pb.quantity <= :unitSoldOut
+        ORDER BY pb.quantity ASC
+    """)
+    List<ProductBatch> findingNearlySoldOutProduct(@Param("unitSoldOut") int unitSoldOut);
 }
