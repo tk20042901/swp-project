@@ -21,8 +21,8 @@ public class PayOsWebhookController {
 
     private void orderConfirmed(WebhookData paymentData) {
         Long orderId = paymentData.getOrderCode();
-        orderService.doWhenOrderConfirmed(orderId);
         Order order = orderService.getOrderById(orderId);
+        orderService.doWhenOrderConfirmed(order);
         orderService.createBillForOrder(order);
         emailService.sendSimpleEmail(order.getCustomer().getEmail(),
                 "Xác nhận thanh toán cho đơn hàng " + orderId + " thành công",

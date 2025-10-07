@@ -88,7 +88,7 @@ public class SellerController {
                 redirectAttributes.addFlashAttribute("error",
                         "Lỗi: Một số sản phẩm trong đơn hàng vừa chấp nhận có số lượng lớn hơn số lượng hiện có trong kho. Tác vụ bị hủy.");
             } else {
-                orderService.doWhenOrderConfirmed(orderId);
+                orderService.doWhenOrderConfirmed(orderService.getOrderById(orderId));
                 redirectAttributes.addFlashAttribute("msg", "Chấp nhận đơn hàng thành công");
             }
         } else if (action.equals("reject")) {
@@ -102,8 +102,7 @@ public class SellerController {
     @PostMapping("/update-processing-order-status")
     public String updateProcessingOrderStatus(@RequestParam Long orderId,
             RedirectAttributes redirectAttributes) {
-        orderService.setOrderStatus(orderId, orderStatusService.getShippingStatus());
-        shipperService.autoAssignShipperToOrder(orderId);
+        orderService.updateOrderStatusToShipping(orderService.getOrderById(orderId));
         redirectAttributes.addFlashAttribute("msg",
                 "Cập nhật trạng thái đơn hàng thành Đang giao hàng thành công.\n" +
                         "Hệ thống đã tự động phân công Shipper cho đơn hàng.");

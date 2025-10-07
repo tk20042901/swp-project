@@ -12,6 +12,7 @@ import com.swp.project.repository.order.BillRepository;
 import com.swp.project.repository.product.ProductRepository;
 import com.swp.project.service.SettingService;
 import com.swp.project.service.order.shipping.ShippingStatusService;
+import com.swp.project.service.user.ShipperService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -50,6 +51,7 @@ public class OrderService {
     private final ShippingStatusService shippingStatusService;
     private final SettingService settingService;
     private final BillRepository billRepository;
+    private final ShipperService shipperService;
     private final ProductRepository productRepository;
 
     public Page<Order> getAllOrder() {
@@ -184,14 +186,13 @@ public class OrderService {
     }
 
     @Transactional
-    public void doWhenOrderConfirmed(Long orderId) {
-        pickProductForOrder(orderId);
-        setOrderStatus(orderId, orderStatusService.getProcessingStatus());
+    public void doWhenOrderConfirmed(Order order) {
+        pickProductForOrder(order);
+        order.setOrderStatus(orderStatusService.getProcessingStatus());
     }
 
     @Transactional
-    public void pickProductForOrder(Long orderId) {
-        Order order = getOrderById(orderId);
+    public void pickProductForOrder(Order order) {
         order.getOrderItem().forEach(item ->
                 productService.pickProductInProductBatch(item.getProduct().getId(), item.getQuantity()));
     }
@@ -206,6 +207,14 @@ public class OrderService {
                 .order(order)
                 .build();
         billRepository.save(bill);
+    }
+    public void updateOrderStatusToShipping(Order order) {
+        order.setOrderStatus(orderStatusService.getShippingStatus());
+        order.addShippingStatus(Shipping.builder()
+                .shippingStatus(shippingStatusService.getAwaitingPickupStatus())
+                .build());
+        shipperService.autoAssignShipperToOrder(order);
+        orderRepository.save(order);
     }
 
     public void updateOrderStatusToDelivered(Order order) {
