@@ -2,7 +2,6 @@ package com.swp.project.service;
 
 import com.google.cloud.vertexai.VertexAI;
 import com.swp.project.dto.AiMessageDto;
-import com.swp.project.entity.GeminiStorable;
 import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.ProductBatch;
@@ -211,59 +210,26 @@ public class CustomerAiService {
         return sb.toString();
     }
 
-    /**
-     * Generic method to save any VectorStorable entity to vector store.
-     * Content generation is handled centrally based on entity type.
-     * 
-     * @param <T> the entity type that extends VectorStorable
-     * @param entity the entity to save to vector store
-     */
     @Transactional
-    public <T extends GeminiStorable> void saveEntityToVectorStore(T entity) {
+    public void saveProductToVectorStore(Product product) {
         try {
-            String documentId = UUID.nameUUIDFromBytes(entity.getId().toString().getBytes()).toString();
-            String content = generateVectorContent(entity);
+            String documentId = UUID.nameUUIDFromBytes(product.getId().toString().getBytes()).toString();
+            String content = getProductContent(product);
             Document document = new Document(documentId, content, Collections.emptyMap());
             vectorStore.add(List.of(document));
         } catch (Exception e) {
             throw new RuntimeException("Failed to save entity to vector store: " + e.getMessage(), e);
         }
     }
-
-    /**
-     * Remove entity from vector store by ID.
-     * 
-     * @param entityId the ID of the entity to remove
-     */
     @Transactional
-    public void removeEntityFromVectorStore(Long entityId) {
+    public void saveCategoryToVectorStore(Category category) {
         try {
-            String documentId = UUID.nameUUIDFromBytes(entityId.toString().getBytes()).toString();
-            vectorStore.delete(List.of(documentId));
+            String documentId = UUID.nameUUIDFromBytes(category.getId().toString().getBytes()).toString();
+            String content = getCategoryContent(category);
+            Document document = new Document(documentId, content, Collections.emptyMap());
+            vectorStore.add(List.of(document));
         } catch (Exception e) {
-            throw new RuntimeException("Failed to remove entity from vector store: " + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * Centralized content generation for different entity types.
-     * This method determines the appropriate content format based on entity type.
-     * 
-     * @param <T> the entity type that extends VectorStorable
-     * @param entity the entity to generate content for
-     * @return the content string for vector storage
-     */
-    private <T extends GeminiStorable> String generateVectorContent(T entity) {
-        if (entity instanceof Product product) {
-            return getProductContent(product);
-        } else if (entity instanceof Category category) {
-            return getCategoryContent(category);
-        }
-        // ProductUnit is not stored in vector store - only used for updating related products
-        else {
-            throw new UnsupportedOperationException(
-                "No content generator found for entity type: " + entity.getClass().getSimpleName() + 
-                ". Please add a condition for this entity type in generateVectorContent() method.");
+            throw new RuntimeException("Failed to save entity to vector store: " + e.getMessage(), e);
         }
     }
 

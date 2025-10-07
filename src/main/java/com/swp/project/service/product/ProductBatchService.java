@@ -1,8 +1,6 @@
 package com.swp.project.service.product;
 
 import com.swp.project.entity.product.ProductBatch;
-import com.swp.project.listener.event.GeminiUpdateEvent;
-import com.swp.project.listener.event.GeminiUpdateEvent.UpdateType;
 import com.swp.project.repository.product.ProductBatchRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -27,15 +25,12 @@ public class ProductBatchService {
     }
 
     public void addProductBatch(ProductBatch productBatch) {
-        ProductBatch savedProductBatch = productBatchRepository.save(productBatch);
-
-        eventPublisher.publishEvent(new GeminiUpdateEvent<ProductBatch>(savedProductBatch, UpdateType.CREATE));
+        productBatchRepository.save(productBatch);
     }
 
     public void updateProductBatch(ProductBatch productBatch) {
-        ProductBatch savedProductBatch = productBatchRepository.save(productBatch);
+        productBatchRepository.save(productBatch);
 
-        eventPublisher.publishEvent(new GeminiUpdateEvent<ProductBatch>(savedProductBatch, UpdateType.UPDATE));
     }
 
 
