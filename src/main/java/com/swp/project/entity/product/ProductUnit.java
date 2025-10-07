@@ -12,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(exclude = {"products"})
 @Entity
 public class ProductUnit implements Serializable {
     @Id

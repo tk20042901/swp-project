@@ -52,8 +52,8 @@ public class OrderService {
     private final ShippingStatusService shippingStatusService;
     private final SettingService settingService;
     private final BillRepository billRepository;
-    private final ShipperService shipperService;
     private final ProductRepository productRepository;
+    private final ShipperService shipperService;
 
     public Page<Order> getAllOrder() {
         Pageable pageable = PageRequest.of(0,10, Sort.by("id").ascending());

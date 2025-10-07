@@ -15,6 +15,7 @@ import org.hibernate.annotations.Formula;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(exclude = {"sub_images", "productBatches", "soldQuantity", "totalQuantity"})
 @Entity
 public class Product implements Serializable{
     @Id
@@ -53,6 +54,7 @@ public class Product implements Serializable{
     @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
     private List<ProductBatch> productBatches;
 
+    
     @Transient
     private int totalQuantity;
 

@@ -5,6 +5,9 @@ import com.swp.project.entity.product.ProductUnit;
 import com.swp.project.listener.event.GeminiUpdateProductEvent;
 import com.swp.project.repository.product.ProductUnitRepository;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +20,9 @@ public class ProductUnitService {
 
     public ProductUnit getProductUnitById(Long id){
         return productUnitRepository.findById(id).orElse(null);
+    }
+    public List<ProductUnit> getAllUnits(){
+        return productUnitRepository.findAll();
     }
 
     public void addProductUnit(ProductUnit productUnit) {

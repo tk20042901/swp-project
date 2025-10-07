@@ -30,9 +30,6 @@ public class ProductBatchService {
 
     public void updateProductBatch(ProductBatch productBatch) {
         productBatchRepository.save(productBatch);
-
     }
-
-
 
 }
