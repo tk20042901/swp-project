@@ -1,6 +1,6 @@
 package com.swp.project.listener;
 
-import com.swp.project.listener.event.VectorUpdateEvent;
+import com.swp.project.listener.event.GeminiUpdateEvent;
 import com.swp.project.service.CustomerAiService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Component
 @Slf4j
-public class VectorUpdateEventListener {
+public class GeminiUpdateEventListener {
 
     private final CustomerAiService customerAiService;
 
@@ -25,7 +25,7 @@ public class VectorUpdateEventListener {
      * @param event the vector update event containing entity and operation type
      */
     @EventListener
-    public void onVectorUpdateEvent(VectorUpdateEvent<?> event) {
+    public void onVectorUpdateEvent(GeminiUpdateEvent<?> event) {
         try {
             switch (event.type()) {
                 case CREATE, UPDATE -> {

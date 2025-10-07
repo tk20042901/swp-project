@@ -1,7 +1,7 @@
-package com.swp.project.listener;
+package com.swp.project.entity;
 
 
-public interface VectorStorable {
+public interface GeminiStorable {
     /**
      * Get the unique identifier of the entity.
      * @return the entity ID
