@@ -184,7 +184,6 @@ public class ShipperService {
         }
     }
 
-
     private boolean existsCid(String cid) {
         return sellerRepository.findByCid(cid) != null ||
                 shipperRepository.findByCid(cid) != null ||
