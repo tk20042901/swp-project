@@ -1,9 +1,19 @@
 package com.swp.project.service.product;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.text.Normalizer;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.imageio.ImageIO;
 
 import com.swp.project.dto.ViewProductDto;
 import com.swp.project.entity.order.OrderItem;
@@ -15,9 +25,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.ProductBatch;
+import com.swp.project.entity.product.SubImage;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.listener.event.GeminiUpdateProductEvent;
 import com.swp.project.repository.order.OrderRepository;
@@ -37,6 +49,7 @@ public class ProductService {
     private final OrderItemRepository orderItemRepository;
     private final ShoppingCartItemRepository shoppingCartItemRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private static final String TEMPORARY_PATH = "src/main/resources/static/images/temporary-products/";
     private static final Map<String, Sort> SORT_OPTIONS = Map.of(
             "price-asc", Sort.by("price").ascending(),
             "price-desc", Sort.by("price").descending(),
@@ -51,7 +64,7 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public Product getFirstEnabledProduct(){
+    public Product getFirstEnabledProduct() {
         return productRepository.findFirstByEnabledOrderByIdAsc(true);
     }
 
@@ -228,4 +241,97 @@ public class ProductService {
             return productRepository.findAll(pageable);
         }
     }
+
+    public Product getLastProduct() {
+        return productRepository.findTopByOrderByIdDesc();
+    }
+
+    public static String toSlugName(String input) {
+        String normalized = Normalizer.normalize(input, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "");
+
+        normalized = normalized.toLowerCase();
+
+        normalized = normalized.replaceAll("[^a-z0-9]+", "-");
+
+        normalized = normalized.replaceAll("^-|-$", "");
+
+        return normalized;
+    }
+
+    public static String getMainImageUrl(
+            MultipartFile imageFile,
+            String productFileName) throws IOException {
+        if (imageFile.isEmpty()) {
+            return null;
+        }
+        if (ImageIO.read(imageFile.getInputStream()) == null) {
+            throw new IllegalArgumentException("File không phải là hình ảnh hợp lệ");
+        }
+        String fruitName = ProductService.toSlugName(productFileName);
+        String uploadDir = TEMPORARY_PATH + fruitName + "/";
+
+        File dir = new File(uploadDir);
+        if (!dir.exists())
+            dir.mkdirs();
+
+        String fileName = fruitName + ".jpg";
+        Path filePath = Paths.get(uploadDir + fileName);
+        Files.copy(imageFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        return "images/" + fruitName + "/" + fileName;
+    }
+
+    public static String getSubImageUrl(
+            MultipartFile imageFile,
+            String productFileName,
+            int imageNumber) throws IOException {
+        imageNumber = Math.abs(imageNumber);
+        if (imageFile.isEmpty()) {
+            return null;
+        }
+        if (ImageIO.read(imageFile.getInputStream()) == null) {
+            throw new IllegalArgumentException("File không phải là hình ảnh hợp lệ");
+        }
+        String fruitName = ProductService.toSlugName(productFileName);
+        String uploadDir = TEMPORARY_PATH + fruitName + "/";
+
+        File dir = new File(uploadDir);
+        if (!dir.exists())
+            dir.mkdirs();
+
+        String fileName = fruitName + "-" + imageNumber + ".jpg";
+        Path filePath = Paths.get(uploadDir + fileName);
+        Files.copy(imageFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        return "images/" + fruitName + "/" + fileName;
+    }
+
+    public void checkUniqueProductName(String name) throws Exception {
+        Product existingProduct = productRepository.findByName(name);
+        if (existingProduct != null) {
+            throw new Exception("Tên sản phẩm đã tồn tại. Vui lòng chọn tên khác.");
+        }
+    }
+
+    public List<SubImage> getSubImageList(List<MultipartFile> extraImages, String productFileName, Product product)
+            throws Exception {
+        List<SubImage> images = new ArrayList<>();
+        int imageNumber = 1;
+        for (MultipartFile file : extraImages) {
+            if (file.isEmpty()) {
+                continue;
+            }
+            String url = getSubImageUrl(file, productFileName, imageNumber);
+            SubImage img = new SubImage();
+            img.setProduct(product);
+            img.setSub_image_url(url);
+            images.add(img);
+            imageNumber++; 
+        }
+        return images;
+    }
+
+    
+
 }

@@ -8,9 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SubImageRepository extends JpaRepository<SubImage,Integer> {
 
-
-
-
-
-
+   
 }
