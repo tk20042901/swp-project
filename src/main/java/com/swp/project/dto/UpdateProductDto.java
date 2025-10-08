@@ -25,4 +25,6 @@ public class UpdateProductDto {
     private Boolean enabled;
 
     private List<Long> categories;
+
+    private String mainImage; // URL của ảnh chính
 }

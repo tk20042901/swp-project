@@ -74,50 +74,32 @@
             margin-bottom: 15px;
         }
 
-        .current-images {
-            margin-bottom: 15px;
+        .file-input-group {
+            margin-top: 10px;
         }
 
-        .current-images h4 {
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .image-preview {
-            display: inline-block;
-            margin: 5px;
-            border: 2px solid #ddd;
+        .file-input-group input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
             border-radius: 4px;
-            padding: 5px;
-            background-color: #f9f9f9;
+            font-size: 14px;
         }
 
-        .image-preview img {
-            max-width: 150px;
-            max-height: 150px;
-            display: block;
-        }
-
-        .image-preview p {
-            text-align: center;
-            margin: 5px 0 0 0;
-            font-size: 12px;
+        .file-input-group small {
             color: #666;
-        }
-
-        .sub-images-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+            font-size: 12px;
+            margin-top: 5px;
+            display: block;
         }
     </style>
 </head>
 
 <body>
-    <h1>Yêu cầu cập nhật sản phẩm</h1>
+    <h1>Yêu cầu tạo sản phẩm</h1>
     <h3 th:if="${error}" th:text="${error}" class="error"></h3>
-
-    <form th:action="@{/seller/seller-update-product}" method="post" th:object="${updateProductDto}">
+    <form th:action="@{/seller/seller-create-product}" method="post" th:object="${productDto}"
+        enctype="multipart/form-data">
 
         <input type="hidden" th:field="*{id}" />
 
@@ -133,7 +115,7 @@
 
         <div class="form-group">
             <label for="price">Giá:</label>
-            <input type="number" th:field="*{price}" id="productPrice" min="0" step="0.01" required />
+            <input type="number" th:field="*{price}" id="productPrice" min="0" required />
         </div>
 
         <div class="form-group">
@@ -164,33 +146,14 @@
         </div>
         <div class="form-group">
             <label>Hình ảnh chính:</label>
-            <!-- Display current main image -->
-            <div class="current-images" th:if="${selectedProduct != null and selectedProduct.main_image_url != null}">
-                <h4>Hình ảnh hiện tại:</h4>
-                <div class="image-preview">
-                    <img th:src="@{${selectedProduct.main_image_url}}" alt="Hình ảnh chính hiện tại">
-                    <p>Hình ảnh chính</p>
-                </div>
-            </div>
             <input type="file" name="image" accept="image/*">
-            <small style="color: #666;">Chọn file mới để thay thế hình ảnh hiện tại (để trống nếu không muốn thay đổi)</small>
+            <small style="color: #666;">Chọn hình ảnh chính cho sản phẩm</small>
         </div>
         <div class="form-group">
             <label>Hình ảnh phụ (nếu có):</label>
-            <!-- Display current sub images -->
-            <div class="current-images" th:if="${selectedProduct != null and selectedProduct.sub_images != null and !selectedProduct.sub_images.isEmpty()}">
-                <h4>Hình ảnh phụ hiện tại:</h4>
-                <div class="sub-images-container">
-                    <div class="image-preview" th:each="subImage, iterStat : ${selectedProduct.sub_images}">
-                        <img th:src="@{${subImage.sub_image_url}}" alt="Hình ảnh phụ hiện tại">
-                        <p th:text="'Ảnh phụ ' + ${iterStat.index + 1}">Ảnh phụ</p>
-                    </div>
-                </div>
-            </div>
             <input type="file" name="extraImages" accept="image/*" multiple>
-            <small style="color: #666;">Chọn file mới để thay thế tất cả hình ảnh phụ hiện tại (để trống nếu không muốn thay đổi)</small>
+            <small style="color: #666;">Chọn nhiều hình ảnh phụ cho sản phẩm (có thể chọn nhiều file cùng lúc)</small>
         </div>
-
         <button type="submit">Gửi yêu cầu</button>
     </form>
 </body>

@@ -125,4 +125,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Page<Product> findByEnabled(Boolean enabled, Pageable pageable);
 
     Product findFirstByEnabledOrderByIdAsc(boolean enabled);
+
+    Product findTopByOrderByIdDesc();
 }
