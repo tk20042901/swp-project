@@ -1,5 +1,6 @@
 package com.swp.project.service.order;
 
+import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -319,5 +320,23 @@ public class OrderService {
     public List<ProductBatch> getNearlySoldOutProduct(){
         int unitsoldOut = 20;
         return orderRepository.findingNearlySoldOutProduct(unitsoldOut);
+    }
+
+    public void markOrderAsDelivered(Long orderId, Principal principal) {
+        if (principal == null) {
+            throw new RuntimeException("Người giao hàng không xác định");
+        }
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Đơn hàng không tồn tại"));
+        if (!orderStatusService.isShippingStatus(order)) {
+            throw new RuntimeException("Đơn hàng không ở trạng thái đang giao");
+        }
+
+        // Update order status to delivered directly instead of calling OrderService
+        order.setOrderStatus(orderStatusService.getDeliveredStatus());
+        order.addShippingStatus(Shipping.builder()
+                .shippingStatus(shippingStatusService.getDeliveredStatus())
+                .build());
+        orderRepository.save(order);
     }
 }

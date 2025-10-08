@@ -33,8 +33,8 @@ public class ShipperController {
         return "pages/shipper/index";
     }
 
-    @GetMapping("/orders")
-    public String shipperOrders(Model model,
+    @GetMapping("/delivering_orders")
+    public String shipperDeliveringOrders(Model model,
                                 Principal principal,
                                 @RequestParam(defaultValue = "1") int pageDelivering,
                                 @RequestParam(defaultValue = "10") int size) {
@@ -48,16 +48,35 @@ public class ShipperController {
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
         }
-        model.addAttribute("orderStatusService", shipperService.getOrderStatusService());
-        return "pages/shipper/orders";
+        // model.addAttribute("orderStatusService", shipperService.getOrderStatusService());
+        return "pages/shipper/delivering_orders";
     }
 
-    @PostMapping("/orders/done/{orderId}")
+    @GetMapping("/done_orders")
+    public String shipperDoneOrders(Model model,
+                                Principal principal,
+                                @RequestParam(defaultValue = "1") int pageDone,
+                                @RequestParam(defaultValue = "10") int size) {
+        try {
+            // Lấy Page<Order> thay vì List<Order>
+            Page<Order> doneOrders = shipperService.getDoneOrders(principal, pageDone, size);
+            model.addAttribute("doneOrders", doneOrders.getContent());
+            model.addAttribute("currentPageDone", pageDone);
+            model.addAttribute("totalPagesDone", doneOrders.getTotalPages());
+
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+        }
+        // model.addAttribute("orderStatusService", shipperService.getOrderStatusService());
+        return "pages/shipper/done_orders";
+    }
+
+    @PostMapping("/done/{orderId}")
     public String donePost(@PathVariable Long orderId,
                                  RedirectAttributes redirectAttributes,
                                  Principal principal) {
         try {
-            shipperService.markOrderAsDelivered(orderId, principal);
+            orderService.markOrderAsDelivered(orderId, principal);
             redirectAttributes.addFlashAttribute("msg", "Đơn hàng " + orderId + " đã được đánh dấu là hoàn thành.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
@@ -78,7 +97,7 @@ public class ShipperController {
             return "pages/shipper/order_details";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/shipper/orders";
+            return "redirect:/shipper/delivering_orders";
         }
     }
     
