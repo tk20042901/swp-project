@@ -65,11 +65,11 @@ public class SellerRequestService {
         String entityName = sellerRequest.getEntityName();
         if(requestTypeName.equals(sellerRequestTypeService.getAddType().getName())) {
             if(entityName.equals(ProductUnit.class.getSimpleName())) {
-                excuteAddProductUnitRequest(requestContent);
+                executeAddProductUnitRequest(requestContent);
             }
         } else if(requestTypeName.equals(sellerRequestTypeService.getUpdateType().getName())) {
             if(entityName.equals(ProductUnit.class.getSimpleName())) {
-                excuteUpdateProductUnitRequest(requestContent);
+                executeUpdateProductUnitRequest(requestContent);
             }
         }
     }
@@ -80,12 +80,12 @@ public class SellerRequestService {
         sellerRequestRepository.save(sellerRequest);
     }
 
-    public void excuteAddProductUnitRequest(String requestContent) throws JsonProcessingException {
+    public void executeAddProductUnitRequest(String requestContent) throws JsonProcessingException {
         ProductUnit productUnit = objectMapper.readValue(requestContent, ProductUnit.class);
         productUnitService.addProductUnit(productUnit);
     }
 
-    public void excuteUpdateProductUnitRequest(String requestContent) throws JsonProcessingException {
+    public void executeUpdateProductUnitRequest(String requestContent) throws JsonProcessingException {
         ProductUnit productUnit = objectMapper.readValue(requestContent, ProductUnit.class);
         productUnitService.updateProductUnit(productUnit);
     }

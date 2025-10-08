@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.swp.project.dto.StaffDto;
 import com.swp.project.entity.order.Order;
+import com.swp.project.entity.order.shipping.Shipping;
 import com.swp.project.entity.user.Shipper;
 import com.swp.project.listener.event.UserDisabledEvent;
 import com.swp.project.repository.address.CommuneWardRepository;
@@ -30,8 +31,8 @@ import com.swp.project.repository.user.SellerRepository;
 import com.swp.project.repository.user.ShipperRepository;
 import com.swp.project.repository.user.UserRepository;
 import com.swp.project.service.AddressService;
-import com.swp.project.service.order.OrderService;
 import com.swp.project.service.order.OrderStatusService;
+import com.swp.project.service.order.shipping.ShippingStatusService;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -46,8 +47,8 @@ public class ShipperService {
     private final ManagerRepository managerRepository;
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
-    private final OrderService orderService;
     private final OrderStatusService orderStatusService;
+    private final ShippingStatusService shippingStatusService;
     private final ApplicationEventPublisher eventPublisher;
     private final PasswordEncoder passwordEncoder;
     private final AddressService addressService;
@@ -199,8 +200,7 @@ public class ShipperService {
         }
     }
 
-    public void autoAssignShipperToOrder(Long orderId) {
-        Order order = orderService.getOrderById(orderId);
+    public void autoAssignShipperToOrder(Order order) {
         Map<Shipper, Long> shipperOrderCount = new HashMap<>();
         shipperRepository.findAll().forEach(shipper ->
                 shipperOrderCount.put(shipper,
@@ -247,7 +247,12 @@ public class ShipperService {
         if (!orderStatusService.isShippingStatus(order)) {
             throw new RuntimeException("Đơn hàng không ở trạng thái đang giao");
         }
-        orderService.updateOrderStatusToDelivered(order);
+        
+        // Update order status to delivered directly instead of calling OrderService
+        order.setOrderStatus(orderStatusService.getDeliveredStatus());
+        order.addShippingStatus(Shipping.builder()
+                .shippingStatus(shippingStatusService.getDeliveredStatus())
+                .build());
         orderRepository.save(order);
     }
 

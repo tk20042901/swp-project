@@ -1,7 +1,6 @@
 package com.swp.project.entity.product;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.swp.project.entity.GeminiStorable;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -16,8 +15,9 @@ import org.hibernate.annotations.Formula;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(exclude = {"sub_images", "productBatches", "soldQuantity", "totalQuantity"})
 @Entity
-public class Product implements Serializable, GeminiStorable {
+public class Product implements Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -54,6 +54,7 @@ public class Product implements Serializable, GeminiStorable {
     @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
     private List<ProductBatch> productBatches;
 
+    
     @Transient
     private int totalQuantity;
 

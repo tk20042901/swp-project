@@ -19,8 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.ProductBatch;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
-import com.swp.project.listener.event.GeminiUpdateEvent;
-import com.swp.project.listener.event.GeminiUpdateEvent.UpdateType;
+import com.swp.project.listener.event.GeminiUpdateProductEvent;
 import com.swp.project.repository.order.OrderRepository;
 import com.swp.project.repository.product.ProductRepository;
 import com.swp.project.repository.shopping_cart.ShoppingCartItemRepository;
@@ -52,27 +51,20 @@ public class ProductService {
         return productRepository.findAll();
     }
 
+    public Product getFirstEnabledProduct(){
+        return productRepository.findFirstByEnabledOrderByIdAsc(true);
+    }
+
     // Ví dụ hàm saveProduct sử dụng VectorUpdateEvent
     public void saveProduct(Product product) {
         Product savedProduct = productRepository.save(product);
-        eventPublisher.publishEvent(new GeminiUpdateEvent<>(savedProduct, UpdateType.CREATE));
-    }
-
-    // Ví dụ hàm deleteProduct sử dụng VectorUpdateEvent
-    public void deleteProduct(Long id) {
-        productRepository.deleteById(id);
-        eventPublisher.publishEvent(new GeminiUpdateEvent<>(new Product() {
-            {
-                setId(id);
-            }
-        }, UpdateType.DELETE));
+        eventPublisher.publishEvent(new GeminiUpdateProductEvent(savedProduct));
     }
 
     // Ví dụ hàm updateProduct sử dụng VectorUpdateEvent
     public void updateProduct(Product product) {
-        // Trung id => update
         Product savedProduct = productRepository.save(product);
-        eventPublisher.publishEvent(new GeminiUpdateEvent<>(savedProduct, UpdateType.UPDATE));
+        eventPublisher.publishEvent(new GeminiUpdateProductEvent(savedProduct));
     }
 
     public Product getProductById(Long id) {

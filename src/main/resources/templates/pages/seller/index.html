@@ -7,10 +7,12 @@
 </head>
 <body>
     <p>Seller</p>
+    <h4 th:if="${msg}" th:text="${msg}" style="color: green;"></h4>
     <form th:action="@{/logout}" method="post">
         <button type="submit" class="btn">Đăng xuất</button>
     </form>
     <a th:href="@{/seller/all-products}">Tất cả sản phẩm</a>
+    <a th:href="@{/seller/seller-update-product}">Cập nhật sản phẩm</a>
     <a th:href="@{/seller/all-orders}">Tất cả đơn hàng</a>
     <a th:href="@{/seller/statistic-report/overview}">Thống kê</a>
     <script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>

@@ -3,8 +3,7 @@ package com.swp.project.service.product;
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.ProductBatch;
 import com.swp.project.entity.product.Supplier;
-import com.swp.project.listener.event.GeminiUpdateEvent;
-import com.swp.project.listener.event.GeminiUpdateEvent.UpdateType;
+import com.swp.project.listener.event.GeminiUpdateProductEvent;
 import com.swp.project.repository.product.SupplierRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -35,7 +34,7 @@ public class SupplierService {
                 .distinct()
                 .toList();
         for(Product product : relatedProducts) {
-            eventPublisher.publishEvent(new GeminiUpdateEvent<Product>(product, UpdateType.UPDATE));
+            eventPublisher.publishEvent(new GeminiUpdateProductEvent(product));
         }
     }
 

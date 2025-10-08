@@ -2,9 +2,12 @@ package com.swp.project.service.product;
 
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.ProductUnit;
-import com.swp.project.listener.event.GeminiUpdateEvent;
+import com.swp.project.listener.event.GeminiUpdateProductEvent;
 import com.swp.project.repository.product.ProductUnitRepository;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +21,9 @@ public class ProductUnitService {
     public ProductUnit getProductUnitById(Long id){
         return productUnitRepository.findById(id).orElse(null);
     }
+    public List<ProductUnit> getAllUnits(){
+        return productUnitRepository.findAll();
+    }
 
     public void addProductUnit(ProductUnit productUnit) {
         productUnitRepository.save(productUnit);
@@ -25,9 +31,8 @@ public class ProductUnitService {
 
     public void updateProductUnit(ProductUnit productUnit) {
         productUnitRepository.save(productUnit);
-        // But we need to update all related products since unit info affects product vector content
         for(Product product : getProductUnitById(productUnit.getId()).getProducts()) {
-             eventPublisher.publishEvent(new GeminiUpdateEvent<Product>(product, GeminiUpdateEvent.UpdateType.UPDATE));
+             eventPublisher.publishEvent(new GeminiUpdateProductEvent(product));
         }
     }
 }

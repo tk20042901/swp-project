@@ -3,7 +3,8 @@ package com.swp.project.service.product;
 import com.swp.project.dto.ViewProductDto;
 import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.Product;
-import com.swp.project.listener.event.GeminiUpdateEvent;
+import com.swp.project.listener.event.GeminiUpdateCategoryEvent;
+import com.swp.project.listener.event.GeminiUpdateProductEvent;
 import com.swp.project.repository.product.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -35,11 +36,11 @@ public class CategoryService {
         Category savedCategory = categoryRepository.save(category);
 
         // Publish vector update event for the category itself
-        eventPublisher.publishEvent(new GeminiUpdateEvent<>(savedCategory, GeminiUpdateEvent.UpdateType.UPDATE));
+        eventPublisher.publishEvent(new GeminiUpdateCategoryEvent(savedCategory));
 
         // Also update all products in this category since category info affects product vector content
         for (Product product : getCategoryById(category.getId()).getProducts()) {
-            eventPublisher.publishEvent(new GeminiUpdateEvent<>(product, GeminiUpdateEvent.UpdateType.UPDATE));
+            eventPublisher.publishEvent(new GeminiUpdateProductEvent(product));
         }
     }
 
