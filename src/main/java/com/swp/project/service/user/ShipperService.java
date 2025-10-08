@@ -185,7 +185,6 @@ public class ShipperService {
         }
     }
 
-
     private boolean existsCid(String cid) {
         return sellerRepository.findByCid(cid) != null ||
                 shipperRepository.findByCid(cid) != null ||
@@ -236,24 +235,6 @@ public class ShipperService {
         List<Order> pagedOrders = allOrders.subList(start, end);
 
         return new PageImpl<>(pagedOrders, pageable, allOrders.size());
-    }
-
-    public void markOrderAsDelivered(Long orderId, Principal principal) {
-        if (principal == null) {
-            throw new RuntimeException("Người giao hàng không xác định");
-        }
-        Order order = orderRepository.findById(orderId)
-                                     .orElseThrow(() -> new RuntimeException("Đơn hàng không tồn tại"));
-        if (!orderStatusService.isShippingStatus(order)) {
-            throw new RuntimeException("Đơn hàng không ở trạng thái đang giao");
-        }
-        
-        // Update order status to delivered directly instead of calling OrderService
-        order.setOrderStatus(orderStatusService.getDeliveredStatus());
-        order.addShippingStatus(Shipping.builder()
-                .shippingStatus(shippingStatusService.getDeliveredStatus())
-                .build());
-        orderRepository.save(order);
     }
 
 }
