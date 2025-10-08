@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Danh sách đơn hàng đang giao</title>
+  <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="auth-body">
+<a href="/shipper" class="btn btn-light position-absolute top-0 start-0 m-3">← Quay lại</a>
+<!-- Alerts -->
+<div class="alerts-stack" style="height: 0px; width: fit-content; margin: 0px 50px 0px auto;">
+    <div class="alert alert-success alert-dismissible fade show" th:hidden="${msg == null}">
+        <strong>Thành công!</strong> <span th:text="${msg}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div class="alert alert-danger alert-dismissible fade show" th:hidden="${error == null}">
+        <strong>Thất bại!</strong> <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+</div>
+<div class="container py-4">
+
+  <!-- Đơn hàng đang giao -->
+  <br>
+  <br>
+  <div class="auth-card p-4 shadow-sm mb-5">
+    <h1 class="h5 mb-3 text-primary">🚚 Đơn hàng đang giao</h1>
+
+    <h5 th:if="${deliveringOrders.size() > 0}" class="mb-3">Tổng đơn hàng: <span th:text="${deliveringOrders.size()}">0</span></h5>
+
+    <div class="table-responsive">
+      <table class="table table-striped table-hover align-middle">
+        <thead class="table-light">
+        <tr>
+          <th>Mã đơn hàng</th>
+          <th>Email</th>
+          <th>Chi tiết</th>
+          <th>Hành động</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${#lists.isEmpty(deliveringOrders)}">
+          <td colspan="8" class="text-center text-muted fst-italic">Không có đơn hàng nào đang giao.</td>
+        </tr>
+        <tr th:each="order : ${deliveringOrders}">
+          <td th:text="${order.id}"></td>
+          <td th:text="${order.customer.email}"></td>
+          <td>
+            <a th:href="@{/shipper/orders/{id}(id=${order.id})}">
+              <button class="btn btn-outline-secondary btn-sm">Xem chi tiết</button>
+            </a>
+          </td>
+          <td>
+            <form th:action="@{/shipper/done/{id}(id=${order.id})}" method="post">
+              <button type="submit" class="btn btn-success btn-sm">✔ Hoàn thành</button>
+            </form>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination delivering -->
+    <nav th:if="${totalPagesDelivering > 1}">
+      <ul class="pagination justify-content-center">
+        <li class="page-item" th:classappend="${currentPageDelivering == 1} ? 'disabled'">
+          <a class="page-link" th:href="@{/shipper/orders(pageDelivering=${currentPageDelivering - 1}, pageOther=${currentPageOther})}">Trước</a>
+        </li>
+        <li class="page-item"
+            th:each="i : ${#numbers.sequence(1, totalPagesDelivering)}"
+            th:classappend="${i == currentPageDelivering} ? 'active'">
+          <a class="page-link" th:text="${i}"
+             th:href="@{/shipper/orders(pageDelivering=${i}, pageOther=${currentPageOther})}"></a>
+        </li>
+        <li class="page-item" th:classappend="${currentPageDelivering == totalPagesDelivering} ? 'disabled'">
+          <a class="page-link" th:href="@{/shipper/orders(pageDelivering=${currentPageDelivering + 1}, pageOther=${currentPageOther})}">Sau</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+<script src="/js/bootstrap/bootstrap.bundle.min.js"></script>
+</body>
+</html>

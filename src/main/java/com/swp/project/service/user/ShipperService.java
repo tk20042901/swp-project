@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.swp.project.dto.StaffDto;
 import com.swp.project.entity.order.Order;
-import com.swp.project.entity.order.shipping.Shipping;
 import com.swp.project.entity.user.Shipper;
 import com.swp.project.listener.event.UserDisabledEvent;
 import com.swp.project.repository.address.CommuneWardRepository;
@@ -229,6 +228,28 @@ public class ShipperService {
                             order.getShipper() != null &&
                             order.getShipper().getEmail().equals(principal.getName()) &&
                             orderStatusService.isShippingStatus(order))
+            .toList();
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), allOrders.size());
+        List<Order> pagedOrders = allOrders.subList(start, end);
+
+        return new PageImpl<>(pagedOrders, pageable, allOrders.size());
+    }
+
+    public Page<Order> getDoneOrders(Principal principal, int pageDone, int size) {
+        if (principal == null) {
+            throw new RuntimeException("Người giao hàng không xác định");
+        }
+        Pageable pageable = PageRequest.of(pageDone - 1, size);
+
+        // Nếu repository chưa có query riêng thì vẫn phải filter trong memory
+        List<Order> allOrders = orderRepository.findAll()
+            .stream()
+            .filter(order -> orderStatusService.isDeliveredStatus(order) &&
+                            order.getShipper() != null &&
+                            order.getShipper().getEmail().equals(principal.getName()) &&
+                            orderStatusService.isDeliveredStatus(order))
             .toList();
 
         int start = (int) pageable.getOffset();
