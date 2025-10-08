@@ -91,7 +91,7 @@
 
         <div class="col-md-4 text-end">
             <form th:action="@{/manager/edit-staff}" method="get">
-                <button type="submit" name="clickedButton" value="Seller" class="btn btn-success">Thêm người giao hàng</button>
+                <button type="submit" name="clickedButton" value="Shipper" class="btn btn-success">Thêm người giao hàng</button>
             </form>
         </div>
     </div>
@@ -162,7 +162,7 @@
                         </form>
                         <form th:action="@{/manager/edit-staff}" method="get">
                             <input name="email" th:value="*{email}" hidden>
-                            <button type="submit" name="clickedButton" value="Seller" class="btn btn-sm btn-outline-success">Sửa</button>
+                            <button type="submit" name="clickedButton" value="Shipper" class="btn btn-sm btn-outline-success">Sửa</button>
                         </form>
                     </div>
                 </td>

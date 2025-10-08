@@ -57,7 +57,7 @@ public class ShipperController {
                                  RedirectAttributes redirectAttributes,
                                  Principal principal) {
         try {
-            shipperService.markOrderAsDelivered(orderId, principal);
+            orderService.markOrderAsDelivered(orderId, principal);
             redirectAttributes.addFlashAttribute("msg", "Đơn hàng " + orderId + " đã được đánh dấu là hoàn thành.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
