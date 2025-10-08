@@ -62,8 +62,8 @@
                     <strong th:text="${order.id}"></strong>
                 </td>
                 <td>
-                    <span th:if="${order.orderTime != null}"
-                          th:text="${#temporals.format(order.orderTime, 'dd/MM/yyyy HH:mm')}"></span>
+                    <span th:if="${order.orderAt != null}"
+                          th:text="${#temporals.format(order.orderAt, 'dd/MM/yyyy HH:mm')}"></span>
 
                 </td>
                 <td th:switch="${order.orderStatus.name}">
@@ -75,7 +75,7 @@
                     <span th:case="'Chờ Thanh Toán'" class="badge bg-secondary text-light">Chờ Thanh Toán</span>
                 </td>
                 <td>
-                    <strong th:text="${#numbers.formatInteger(order.totalAmount, 0, 'COMMA')} + ' VND'">60,000 VND</strong>
+                    <strong th:text="${#numbers.formatInteger(order.totalAmount, 0, 'COMMA')} + ' VND'"></strong>
                 </td>
                 <td>
                     <a th:href="@{'/customer/order/order-detail/' + ${order.id}}"

@@ -79,6 +79,24 @@
 <span>
     <a th:href="@{/customer/order-history}">← Quay lại lịch sử mua hàng</a>
 </span>
+<table>
+    <thead>
+    <tr>
+        <th>Trạng thái giao hàng</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:if="${#lists.isEmpty(order.shipping)}">
+        <td colspan="2" class="text-center">Chưa có cập nhật trạng thái giao hàng.</td>
+    </tr>
+    <tr th:each=" item : ${order.shipping}">
+        <td>
+        <span th:text="${item.shippingStatus}"></span>
+        <span th:text="${'Cập nhật vào lúc' + #temporals.format(item.occurredAt,'dd/MM/yyyy')}"></span>
+        </td>
+    </tr>
+    </tbody>
+</table>
 <h1>Chi tiết đơn hàng</h1>
 <table>
     <thead>

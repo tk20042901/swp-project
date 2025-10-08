@@ -244,7 +244,7 @@ public class CustomerService {
     @Transactional
     public Page<Order> getOrdersByCustomerEmail(String email, int page, int size) {
         Customer customer = customerRepository.getByEmail(email);
-        Pageable pageable = PageRequest.of(page,size, Sort.by("orderTime").descending());
+        Pageable pageable = PageRequest.of(page,size, Sort.by("orderAt").descending());
         return orderRepository.findByCustomer(customer,pageable);
     }
 
