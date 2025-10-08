@@ -91,7 +91,7 @@
     </tr>
     <tr th:each=" item : ${order.shipping}">
         <td>
-        <span th:text="${item.shippingStatus}"></span>
+        <span th:text="${item.shippingStatus.description}"></span>
         <span th:text="${'Cập nhật vào lúc' + #temporals.format(item.occurredAt,'dd/MM/yyyy')}"></span>
         </td>
     </tr>
