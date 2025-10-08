@@ -214,7 +214,6 @@ public class ShipperService {
         Shipper assignedShipper = Collections.min
                 (shipperOrderCount.entrySet(), Map.Entry.comparingByValue()).getKey();
         order.setShipper(assignedShipper);
-        orderRepository.save(order);
     }
 
     public Page<Order> getDeliveringOrders(Principal principal, int page, int size) {

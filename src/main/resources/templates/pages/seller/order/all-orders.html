@@ -87,7 +87,7 @@
                     <tr th:each="order : ${orders}">
                         <td th:text="${order.id}"></td>
                         <td th:text="${order.customer.email}"></td>
-                        <td th:text="${#temporals.format(order.orderTime, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td th:text="${#temporals.format(order.orderAt, 'dd/MM/yyyy HH:mm')}"></td>
                         <td>
                             <span class="badge"
                                   th:classappend="${order.orderStatus.name} == 'Chờ Xác Nhận' ? ' bg-secondary' :

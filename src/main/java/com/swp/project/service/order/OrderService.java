@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import com.swp.project.entity.order.Bill;
 import com.swp.project.entity.order.shipping.Shipping;
+import com.swp.project.entity.order.shipping.ShippingStatus;
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.ProductBatch;
 import com.swp.project.repository.order.BillRepository;
@@ -31,7 +32,6 @@ import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.repository.order.OrderRepository;
 import com.swp.project.repository.shopping_cart.ShoppingCartItemRepository;
 import com.swp.project.repository.user.CustomerRepository;
-import com.swp.project.repository.user.ShipperRepository;
 import com.swp.project.service.AddressService;
 import com.swp.project.service.product.ProductService;
 
@@ -43,7 +43,6 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
-    private final ShipperRepository shipperRepository;
     private final ProductService productService;
     private final OrderStatusService orderStatusService;
     private final ShoppingCartItemRepository shoppingCartItemRepository;
@@ -189,7 +188,7 @@ public class OrderService {
     @Transactional
     public void doWhenOrderConfirmed(Order order) {
         pickProductForOrder(order);
-        order.setOrderStatus(orderStatusService.getProcessingStatus());
+        setOrderStatus(order.getId(), orderStatusService.getProcessingStatus());
     }
 
     @Transactional
@@ -209,26 +208,23 @@ public class OrderService {
                 .build();
         billRepository.save(bill);
     }
+
+    private void addShippingStatusToOrder(Order order, ShippingStatus shippingStatus) {
+        order.addShippingStatus(Shipping.builder()
+                .shippingStatus(shippingStatus)
+                .build());
+    }
+
     public void updateOrderStatusToShipping(Order order) {
         order.setOrderStatus(orderStatusService.getShippingStatus());
-        order.addShippingStatus(Shipping.builder()
-                .shippingStatus(shippingStatusService.getAwaitingPickupStatus())
-                .build());
+        addShippingStatusToOrder(order, shippingStatusService.getAwaitingPickupStatus());
         shipperService.autoAssignShipperToOrder(order);
         orderRepository.save(order);
     }
 
     public void updateOrderStatusToDelivered(Order order) {
         order.setOrderStatus(orderStatusService.getDeliveredStatus());
-        order.addShippingStatus(Shipping.builder()
-                .shippingStatus(shippingStatusService.getDeliveredStatus())
-                .build());
-        orderRepository.save(order);
-    }
-
-    public void updateOrderStatusToShipping(Order order, String email) {
-        order.setOrderStatus(orderStatusService.getShippingStatus());
-        order.setShipper(shipperRepository.findByEmail(email));
+        addShippingStatusToOrder(order, shippingStatusService.getDeliveredStatus());
         orderRepository.save(order);
     }
 
