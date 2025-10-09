@@ -19,17 +19,18 @@
             <div class="auth-card p-4 mx-auto shadow">
                 <div class="row g-4">
                     <!-- Hình ảnh chính -->
-                    <div class="col-lg-5 product-main text-center">
-                        <img th:src="${product.main_image_url}" alt="Sản phẩm">
+                    <div class="col-lg-6 product-main text-center">
+                        <img th:src="${product.main_image_url}" alt="Sản phẩm" style="width: 100%;">
                         <div class="product-thumbnails mt-3 d-flex justify-content-center gap-2 flex-wrap">
                             <img th:each="subImage : ${subImages}"
                                  th:src="${subImage.sub_image_url}"
-                                 alt="Ảnh phụ">
+                                 alt="Ảnh phụ"
+                                 class="col-3">
                         </div>
                     </div>
 
                     <!-- Thông tin sản phẩm -->
-                    <div class="col-lg-7">
+                    <div class="col-lg-6">
                         <h1 class="h4 mb-3 text-primary fw-bold" th:text="${product.name}"></h1>
 
                         <div class="mb-3">
@@ -58,17 +59,15 @@
                         <h3 class="h5 mb-4 text-secondary fw-bold">Sản phẩm liên quan</h3>
                         <div class="row g-4">
                             <div class="col-md-4" th:each="relatedProduct : ${relatedProducts}">
-                                <div class="card product-card h-100">
+                                <a class="card product-card h-100" th:href="@{/product/{id}(id=${relatedProduct.id})}" style="text-decoration: none;">
                                     <div class="product-image">
                                         <img th:src="${relatedProduct.main_image_url}" class="card-img-top" alt="Sản phẩm liên quan">
                                     </div>
                                     <div class="card-body d-flex flex-column product-info">
-                                        <a th:href="@{/product/{id}(id=${product.id})}" class="product-title">
-                                            <span th:text="${relatedProduct.name}">Product Name</span>
-                                        </a>
+                                        <h5 style="font-weight: bold;" th:text="${relatedProduct.name}">Product Name</h5>
                                         <p class="card-text text-danger fw-bold" th:text="${relatedProduct.price} + ' đ'"></p>
                                     </div>
-                                </div>
+                                </a>
                             </div>
                         </div>
                     </div>

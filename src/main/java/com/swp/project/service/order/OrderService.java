@@ -6,16 +6,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.swp.project.entity.order.Bill;
-import com.swp.project.entity.order.shipping.Shipping;
-import com.swp.project.entity.order.shipping.ShippingStatus;
-import com.swp.project.entity.product.Product;
-import com.swp.project.entity.product.ProductBatch;
-import com.swp.project.repository.order.BillRepository;
-import com.swp.project.repository.product.ProductRepository;
-import com.swp.project.service.SettingService;
-import com.swp.project.service.order.shipping.ShippingStatusService;
-import com.swp.project.service.user.ShipperService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,15 +16,25 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.swp.project.dto.DeliveryInfoDto;
 import com.swp.project.dto.SellerSearchOrderDto;
+import com.swp.project.entity.order.Bill;
 import com.swp.project.entity.order.Order;
 import com.swp.project.entity.order.OrderItem;
 import com.swp.project.entity.order.OrderStatus;
+import com.swp.project.entity.order.shipping.Shipping;
+import com.swp.project.entity.order.shipping.ShippingStatus;
+import com.swp.project.entity.product.Product;
+import com.swp.project.entity.product.ProductBatch;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
+import com.swp.project.repository.order.BillRepository;
 import com.swp.project.repository.order.OrderRepository;
+import com.swp.project.repository.product.ProductRepository;
 import com.swp.project.repository.shopping_cart.ShoppingCartItemRepository;
 import com.swp.project.repository.user.CustomerRepository;
 import com.swp.project.service.AddressService;
+import com.swp.project.service.SettingService;
+import com.swp.project.service.order.shipping.ShippingStatusService;
 import com.swp.project.service.product.ProductService;
+import com.swp.project.service.user.ShipperService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -322,13 +322,47 @@ public class OrderService {
         return orderRepository.findingNearlySoldOutProduct(unitsoldOut);
     }
 
+    public void markOrderAsPickedUp(Long orderId, Principal principal) {
+        if (principal == null) {
+            throw new RuntimeException("Người giao hàng không xác định");
+        }
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Đơn hàng không tồn tại"));
+        if (!shippingStatusService.isAwaitingPickupStatus(order.getCurrentShippingStatus())) {
+            throw new RuntimeException("Đơn hàng không ở trạng thái đang lấy hàng");
+        }
+
+        // Update shipping status to picked up
+        order.addShippingStatus(Shipping.builder()
+                .shippingStatus(shippingStatusService.getPickedUpStatus())
+                .build());
+        orderRepository.save(order);
+    }
+
+    public void markOrderAsShipping(Long orderId, Principal principal) {
+        if (principal == null) {
+            throw new RuntimeException("Người giao hàng không xác định");
+        }
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Đơn hàng không tồn tại"));
+        if (!shippingStatusService.isPickedUpStatus(order.getCurrentShippingStatus())) {
+            throw new RuntimeException("Đơn hàng không ở trạng thái đã lấy hàng");
+        }
+
+        // Update shipping status to shipping
+        order.addShippingStatus(Shipping.builder()
+                .shippingStatus(shippingStatusService.getShippingStatus())
+                .build());
+        orderRepository.save(order);
+    }
+
     public void markOrderAsDelivered(Long orderId, Principal principal) {
         if (principal == null) {
             throw new RuntimeException("Người giao hàng không xác định");
         }
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Đơn hàng không tồn tại"));
-        if (!orderStatusService.isShippingStatus(order)) {
+        if (!shippingStatusService.isShippingStatus(order.getCurrentShippingStatus())) {
             throw new RuntimeException("Đơn hàng không ở trạng thái đang giao");
         }
 

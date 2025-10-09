@@ -52,8 +52,17 @@
             </a>
           </td>
           <td>
-            <form th:action="@{/shipper/done/{id}(id=${order.id})}" method="post">
-              <button type="submit" class="btn btn-success btn-sm">✔ Hoàn thành</button>
+            <!-- Button to mark as picked up -->
+            <form th:action="@{/shipper/mark/{id}(id=${order.id})}" method="post" th:if="orderStatusService.isAwaitingPickupStatus(order.currentShippingStatus)">
+              <button type="submit" class="btn btn-success btn-sm">Đã lấy hàng</button>
+            </form>
+            <!-- Button to mark as shipping -->
+            <form th:action="@{/shipper/mark/{id}(id=${order.id})}" method="post" th:if="orderStatusService.isShippingStatus(order.currentShippingStatus)">
+              <button type="submit" class="btn btn-success btn-sm">Đang giao hàng</button>
+            </form>
+            <!-- Button to mark as delivered -->
+            <form th:action="@{/shipper/mark/{id}(id=${order.id})}" method="post" th:if="orderStatusService.isShippingStatus(order.currentShippingStatus)">
+              <button type="submit" class="btn btn-success btn-sm">Hoàn thành</button>
             </form>
           </td>
         </tr>

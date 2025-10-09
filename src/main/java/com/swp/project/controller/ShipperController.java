@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.swp.project.entity.order.Order;
+import com.swp.project.entity.order.shipping.ShippingStatus;
 import com.swp.project.service.order.OrderService;
+import com.swp.project.service.order.shipping.ShippingStatusService;
 import com.swp.project.service.user.ShipperService;
 
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ public class ShipperController {
 
     private final ShipperService shipperService;
     private final OrderService orderService;
+    private final ShippingStatusService shippingStatusService;
 
     @GetMapping("")
     public String shipperMain() {
@@ -48,7 +51,7 @@ public class ShipperController {
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
         }
-        // model.addAttribute("orderStatusService", shipperService.getOrderStatusService());
+        model.addAttribute("orderStatusService", shipperService.getOrderStatusService());
         return "pages/shipper/delivering_orders";
     }
 
@@ -71,17 +74,28 @@ public class ShipperController {
         return "pages/shipper/done_orders";
     }
 
-    @PostMapping("/done/{orderId}")
-    public String donePost(@PathVariable Long orderId,
+    @PostMapping("/mark/{orderId}")
+    public String markOrder(@PathVariable Long orderId,
                                  RedirectAttributes redirectAttributes,
                                  Principal principal) {
         try {
-            orderService.markOrderAsDelivered(orderId, principal);
-            redirectAttributes.addFlashAttribute("msg", "Đơn hàng " + orderId + " đã được đánh dấu là hoàn thành.");
+            ShippingStatus shippingStatus = orderService.getOrderByOrderId(orderId).getCurrentShippingStatus();
+            if (shippingStatusService.isAwaitingPickupStatus(shippingStatus)) {
+                orderService.markOrderAsPickedUp(orderId, principal);
+                redirectAttributes.addFlashAttribute("msg", "Đơn hàng " + orderId + " đã được đánh dấu là đã lấy hàng.");
+            } else if (shippingStatusService.isPickedUpStatus(shippingStatus)) {
+                orderService.markOrderAsShipping(orderId, principal);
+                redirectAttributes.addFlashAttribute("msg", "Đơn hàng " + orderId + " đã được đánh dấu là đang giao hàng.");
+            } else if (shippingStatusService.isShippingStatus(shippingStatus)) {
+                orderService.markOrderAsDelivered(orderId, principal);
+                redirectAttributes.addFlashAttribute("msg", "Đơn hàng " + orderId + " đã được đánh dấu là hoàn thành.");
+            } else {
+                throw new Exception("Trạng thái đơn hàng không hợp lệ để thực hiện hành động này.");
+            }
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
-        return "redirect:/shipper/orders";
+        return "redirect:/shipper/delivering_orders";
     }
 
     @GetMapping("/orders/{orderId}")
