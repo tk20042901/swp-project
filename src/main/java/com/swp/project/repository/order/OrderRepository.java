@@ -46,6 +46,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 """)
     Long getRevenueToday();
 
+
+
     @Query("""
         SELECT COALESCE(SUM(oi.quantity * oi.product.price), 0)
         FROM OrderItem oi
@@ -68,7 +70,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     FROM product_batch
     WHERE expired_date 
           BETWEEN CURRENT_DATE 
-          AND CURRENT_DATE +  INTERVAL '5 day'
+          AND CURRENT_DATE +  INTERVAL '5 day'  
     """, nativeQuery = true)
     List<ProductBatch> findingNearlyExpiredProduct();
 
@@ -90,4 +92,12 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         AND o.orderAt BETWEEN :start AND :end
 """)
     Long getRevenueBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    @Query("""
+    SELECT COALESCE(SUM(oi.quantity * oi.product.price), 0)
+    FROM OrderItem oi
+    WHERE oi.order.orderStatus.name = 'Đã Giao Hàng'
+      AND function('DATE', oi.order.orderAt) = :date
+""")
+    Long getRevenueByDate(@Param("date") LocalDateTime date);
 }
