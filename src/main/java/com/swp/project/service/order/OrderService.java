@@ -1,6 +1,7 @@
 package com.swp.project.service.order;
 
 import java.security.Principal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -301,6 +302,67 @@ public class OrderService {
         int unitsoldOut = 20;
         return orderRepository.findingNearlySoldOutProduct(unitsoldOut);
     }
+
+    public long getRevenueYesterday(){
+        LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
+        Long revenueYesterday = orderRepository.getRevenueByDate(yesterday);
+        return revenueYesterday;
+    }
+
+    public long getRevenueLastWeek(){
+        LocalDateTime startOfThisWeek = LocalDateTime.now().with(DayOfWeek.MONDAY);
+        LocalDateTime lastWeek = startOfThisWeek.minusWeeks(1);
+        LocalDateTime endOfWeek = lastWeek.plusDays(6);
+        Long revenueLastWeek = orderRepository.getRevenueBetween(lastWeek, endOfWeek);
+        return revenueLastWeek;
+    }
+
+    public long getRevenueLastMonth(){
+        LocalDateTime startOfThisMonth = LocalDateTime.now().withDayOfMonth(1);
+        LocalDateTime lastMonth = startOfThisMonth.minusMonths(1);
+        LocalDateTime endOfMonth = lastMonth.withDayOfMonth(lastMonth.toLocalDate().lengthOfMonth());
+        Long revenueLastMonth = orderRepository.getRevenueBetween(lastMonth, endOfMonth);
+        return revenueLastMonth;
+    }
+    public double getDailyPercentageChange(){
+        long today = getRevenueToday();
+        long yesterday = getRevenueYesterday();
+        if(yesterday == 0){
+            return 100.0;
+        }
+        if(today == 0){
+            return 0;
+        }
+        double percentageChange = ((double)(today - yesterday) / yesterday) * 100;
+        return Math.round(percentageChange * 100.0)/100.0;
+    }
+
+    public double getWeeklyPercentageChange(){
+        long thisWeek = getRevenueThisWeek();
+        long lastWeek = getRevenueLastWeek();
+        if(lastWeek == 0) {
+            return 100.0;
+        }
+        if(thisWeek == 0) {
+            return 0;
+        }
+        double percentageChange = ((double)(thisWeek - lastWeek) / lastWeek) * 100;
+        return Math.round(percentageChange * 100.0)/100.0;
+    }
+
+    public double getMonthlyPercentageChange(){
+        long thisMonth = getRevenueThisMonth();
+        long lastMonth = getRevenueLastMonth();
+        if(lastMonth == 0) {
+            return 100.0;
+        }
+        if(thisMonth == 0) {
+            return 0;
+        }
+        double percentageChange = ((double)(thisMonth - lastMonth) / lastMonth) * 100;
+        return Math.round(percentageChange * 100.0)/100.0;
+    }
+
 
     public void markOrderStatusAsShipping(Order order) {
         order.setOrderStatus(orderStatusService.getShippingStatus());
