@@ -21,7 +21,6 @@ import com.swp.project.entity.order.Order;
 import com.swp.project.entity.order.OrderItem;
 import com.swp.project.entity.order.OrderStatus;
 import com.swp.project.entity.order.shipping.Shipping;
-import com.swp.project.entity.order.shipping.ShippingStatus;
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.ProductBatch;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
@@ -210,28 +209,6 @@ public class OrderService {
         billRepository.save(bill);
     }
 
-    private void addShippingStatusToOrder(Order order, ShippingStatus shippingStatus) {
-        order.addShippingStatus(Shipping.builder()
-                .shippingStatus(shippingStatus)
-                .build());
-    }
-
-    public void updateOrderStatusToShipping(Order order) {
-        order.setOrderStatus(orderStatusService.getShippingStatus());
-        addShippingStatusToOrder(order, shippingStatusService.getAwaitingPickupStatus());
-        shipperService.autoAssignShipperToOrder(order);
-        orderRepository.save(order);
-    }
-
-    public void updateOrderStatusToDelivered(Order order) {
-        order.setOrderStatus(orderStatusService.getDeliveredStatus());
-        addShippingStatusToOrder(order, shippingStatusService.getDeliveredStatus());
-        orderRepository.save(order);
-        if(paymentMethodService.isCodMethod(order.getPaymentMethod())) {
-            createBillForOrder(order);
-        }
-    }
-
     public List<Order> getSuccessOrder() {
         return orderRepository.findAll().stream()
                 .filter(order -> orderStatusService.isDeliveredStatus(order))
@@ -325,7 +302,16 @@ public class OrderService {
         return orderRepository.findingNearlySoldOutProduct(unitsoldOut);
     }
 
-    public void markOrderAsPickedUp(Long orderId, Principal principal) {
+    public void markOrderStatusAsShipping(Order order) {
+        order.setOrderStatus(orderStatusService.getShippingStatus());
+        order.addShippingStatus(Shipping.builder()
+                .shippingStatus(shippingStatusService.getAwaitingPickupStatus())
+                .build());
+        shipperService.autoAssignShipperToOrder(order);
+        orderRepository.save(order);
+    }
+
+    public void markOrderShippingStatusAsPickedUp(Long orderId, Principal principal) {
         if (principal == null) {
             throw new RuntimeException("Người giao hàng không xác định");
         }
@@ -342,7 +328,7 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-    public void markOrderAsShipping(Long orderId, Principal principal) {
+    public void markOrderShippingStatusAsShipping(Long orderId, Principal principal) {
         if (principal == null) {
             throw new RuntimeException("Người giao hàng không xác định");
         }
@@ -359,7 +345,7 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-    public void markOrderAsDelivered(Long orderId, Principal principal) {
+    public void markOrderStatusAsDelivered(Long orderId, Principal principal) {
         if (principal == null) {
             throw new RuntimeException("Người giao hàng không xác định");
         }
@@ -369,12 +355,17 @@ public class OrderService {
             throw new RuntimeException("Đơn hàng không ở trạng thái đang giao");
         }
 
-        // Update order status to delivered directly instead of calling OrderService
+        // Update order status to deliver directly instead of calling OrderService
         order.setOrderStatus(orderStatusService.getDeliveredStatus());
         order.addShippingStatus(Shipping.builder()
                 .shippingStatus(shippingStatusService.getDeliveredStatus())
                 .build());
         orderRepository.save(order);
+
+        // If COD, create bill after order is delivered
+        if(paymentMethodService.isCodMethod(order.getPaymentMethod())) {
+            createBillForOrder(order);
+        }
     }
 
     public int countShippedOrdersXMonthsAgo(Principal principal, int monthsAgo) {
