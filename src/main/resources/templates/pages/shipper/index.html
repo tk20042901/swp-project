@@ -10,6 +10,18 @@
     <form th:action="@{/logout}" method="post">
         <button type="submit" class="btn">Đăng xuất</button>
     </form>
+
+    <div class="alerts-stack" style="height: 0px; width: fit-content; margin: 0px 50px 0px auto;">
+        <div class="alert alert-success alert-dismissible fade show" th:hidden="${msg == null}">
+            <strong>Thành công!</strong> <span th:text="${msg}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div class="alert alert-danger alert-dismissible fade show" th:hidden="${error == null}">
+            <strong>Thất bại!</strong> <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+
     <h1>Thống kê đơn hàng đã giao</h1>
     <table>
         <thead>
@@ -20,22 +32,22 @@
             </tr>
         </thead>
         <tbody>
+            <tr th:each="i : ${#numbers.sequence(11,1)}">
+                <td th:text="${i} + ' tháng trước'"></td>
+                <td th:text="${orderService.countDoneOrdersXMonthsAgo(principal, i)}">0</td>
+                <td th:text="${orderService.countPercentageComparedToThePreviousMonth(principal, i)} + '%'">0%</td>
+            </tr>
             <tr>
                 <td>Tháng này</td>
-                <td th:text="${orderService.countShippedOrdersXMonthsAgo(principal, 0)}">0</td>
+                <td th:text="${orderService.countDoneOrdersXMonthsAgo(principal, 0)}">0</td>
                 <td th:text="${orderService.countPercentageComparedToThePreviousMonth(principal, 0)} + '%'">0%</td>
-            </tr>
-            <tr th:each="i : ${#numbers.sequence(1,5)}">
-                <td th:text="${i} + ' tháng trước'"></td>
-                <td th:text="${orderService.countShippedOrdersXMonthsAgo(principal, i)}">0</td>
-                <td th:text="${orderService.countPercentageComparedToThePreviousMonth(principal, i)} + '%'">0%</td>
             </tr>
 
         </tbody>
     </table>
     <script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
-    <a href="/shipper/delivering_orders">Danh sách đơn hàng đang giao</a>
+    <a href="/shipper/delivering-orders">Danh sách đơn hàng đang giao</a>
     <br>
-    <a href="/shipper/done_orders">Danh sách đơn hàng đã giao</a>
+    <a href="/shipper/done-orders">Danh sách đơn hàng đã giao</a>
 </body>
 </html>

@@ -1,6 +1,8 @@
 package com.swp.project.entity.order;
 
 
+import java.time.LocalDate;
+
 import com.swp.project.entity.address.CommuneWard;
 import com.swp.project.entity.order.shipping.Shipping;
 import com.swp.project.entity.user.Customer;
@@ -14,7 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.swp.project.entity.order.shipping.ShippingStatus;
+import com.swp.project.service.order.shipping.ShippingStatusService;
 
 @Getter
 @Setter
@@ -87,5 +92,17 @@ public class Order{
     public ShippingStatus getCurrentShippingStatus(){
         if (shipping == null || shipping.isEmpty()) return null;
         return getCurrentShipping().getShippingStatus();
+    }
+
+    public String getShippedAt(){
+        if (shipping == null || shipping.isEmpty()) return null;
+        for (int i = shipping.size() - 1; i >= 0; i--){
+            if (shipping.get(i).getShippingStatus().getDescription().equals("Đã Giao Hàng")){
+                LocalDateTime occurredAt = shipping.get(i).getOccurredAt();
+                return "Ngày " + occurredAt.getDayOfMonth() + " tháng " + occurredAt.getMonthValue() + " năm " + occurredAt.getYear() + 
+                       " lúc " + String.format("%02d", occurredAt.getHour()) + ":" + String.format("%02d", occurredAt.getMinute());
+            }
+        }
+        return "Chưa giao";
     }
 }

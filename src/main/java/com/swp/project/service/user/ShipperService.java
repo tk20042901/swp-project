@@ -1,6 +1,5 @@
 package com.swp.project.service.user;
 
-import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,10 +9,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -214,48 +209,5 @@ public class ShipperService {
         order.setShipper(assignedShipper);
     }
 
-    public Page<Order> getDeliveringOrders(Principal principal, int page, int size) {
-        if (principal == null) {
-            throw new RuntimeException("Người giao hàng không xác định");
-        }
-        Pageable pageable = PageRequest.of(page - 1, size);
-
-        // Nếu repository chưa có query riêng thì vẫn phải filter trong memory
-        List<Order> allOrders = orderRepository.findAll()
-            .stream()
-            .filter(order -> orderStatusService.isShippingStatus(order) &&
-                            order.getShipper() != null &&
-                            order.getShipper().getEmail().equals(principal.getName()) &&
-                            orderStatusService.isShippingStatus(order))
-            .toList();
-
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), allOrders.size());
-        List<Order> pagedOrders = allOrders.subList(start, end);
-
-        return new PageImpl<>(pagedOrders, pageable, allOrders.size());
-    }
-
-    public Page<Order> getDoneOrders(Principal principal, int pageDone, int size) {
-        if (principal == null) {
-            throw new RuntimeException("Người giao hàng không xác định");
-        }
-        Pageable pageable = PageRequest.of(pageDone - 1, size);
-
-        // Nếu repository chưa có query riêng thì vẫn phải filter trong memory
-        List<Order> allOrders = orderRepository.findAll()
-            .stream()
-            .filter(order -> orderStatusService.isDeliveredStatus(order) &&
-                            order.getShipper() != null &&
-                            order.getShipper().getEmail().equals(principal.getName()) &&
-                            orderStatusService.isDeliveredStatus(order))
-            .toList();
-
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), allOrders.size());
-        List<Order> pagedOrders = allOrders.subList(start, end);
-
-        return new PageImpl<>(pagedOrders, pageable, allOrders.size());
-    }
 
 }

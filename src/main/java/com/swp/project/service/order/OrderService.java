@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -54,6 +55,8 @@ public class OrderService {
     private final BillRepository billRepository;
     private final ProductRepository productRepository;
     private final ShipperService shipperService;
+
+    private List<Order> results = List.of();
 
     public Page<Order> getAllOrder() {
         Pageable pageable = PageRequest.of(0,10, Sort.by("id").ascending());
@@ -374,11 +377,11 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-    public int countShippedOrdersXMonthsAgo(Principal principal, int monthsAgo) {
+    public int countDoneOrdersXMonthsAgo(Principal principal, int monthsAgo) {
         if (principal == null) {
             throw new RuntimeException("Người giao hàng không xác định");
         }
-        return (int) orderRepository.findByShipper_email(principal.getName())
+        return (int) results
         .stream()
         .filter(order -> orderStatusService.isDeliveredStatus(order))
         .filter(order -> order.getCurrentShipping().getOccurredAt().getMonth() == LocalDate.now().minusMonths(monthsAgo).getMonth()
@@ -387,14 +390,72 @@ public class OrderService {
     }
 
     public int countPercentageComparedToThePreviousMonth(Principal principal, int monthsAgo) {
-        int currentMonthCount = countShippedOrdersXMonthsAgo(principal, monthsAgo);
-        int previousMonthCount = countShippedOrdersXMonthsAgo(principal, monthsAgo + 1);
+        int currentMonthCount = countDoneOrdersXMonthsAgo(principal, monthsAgo);
+        int previousMonthCount = countDoneOrdersXMonthsAgo(principal, monthsAgo + 1);
 
         if (previousMonthCount == 0) {
             return currentMonthCount == 0 ? 0 : 100; // If both are 0, return 0%, else return 100%
         }
 
         return (int) (((double) (currentMonthCount - previousMonthCount) / previousMonthCount) * 100);
+    }
+
+    
+    public Page<Order> getDeliveringOrders(Principal principal, int page, int size) {
+        if (principal == null) {
+            throw new RuntimeException("Người giao hàng không xác định");
+        }
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        // Nếu repository chưa có query riêng thì vẫn phải filter trong memory
+        List<Order> allOrders = orderRepository.findAll()
+            .stream()
+            .filter(order -> orderStatusService.isShippingStatus(order) &&
+                            order.getShipper() != null &&
+                            order.getShipper().getEmail().equals(principal.getName()) &&
+                            orderStatusService.isShippingStatus(order))
+            .toList();
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), allOrders.size());
+        List<Order> pagedOrders = allOrders.subList(start, end);
+
+        return new PageImpl<>(pagedOrders, pageable, allOrders.size());
+    }
+
+    public Page<Order> getDoneOrders(Principal principal, int pageDone, int size) {
+        if (principal == null) {
+            throw new RuntimeException("Người giao hàng không xác định");
+        }
+        Pageable pageable = PageRequest.of(pageDone - 1, size);
+
+        // Nếu repository chưa có query riêng thì vẫn phải filter trong memory
+        List<Order> allOrders = orderRepository.findAll()
+            .stream()
+            .filter(order -> orderStatusService.isDeliveredStatus(order) &&
+                            order.getShipper() != null &&
+                            order.getShipper().getEmail().equals(principal.getName()) &&
+                            orderStatusService.isDeliveredStatus(order))
+            .toList();
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), allOrders.size());
+        List<Order> pagedOrders = allOrders.subList(start, end);
+
+        return new PageImpl<>(pagedOrders, pageable, allOrders.size());
+    }
+
+    public void loadDoneOrders(Principal principal) {
+        if (principal == null) {
+            throw new RuntimeException("Người giao hàng không xác định");
+        }
+        results = orderRepository.findAll().stream()
+                .filter(order -> orderStatusService.isDeliveredStatus(order) &&
+                        order.getShipper() != null &&
+                        order.getShipper().getEmail().equals(principal.getName()) &&
+                        orderStatusService.isDeliveredStatus(order))
+                .toList();
+
     }
 
 }
