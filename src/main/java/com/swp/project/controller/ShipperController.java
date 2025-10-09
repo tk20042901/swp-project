@@ -83,13 +83,13 @@ public class ShipperController {
         try {
             ShippingStatus shippingStatus = orderService.getOrderByOrderId(orderId).getCurrentShippingStatus();
             if (shippingStatusService.isAwaitingPickupStatus(shippingStatus)) {
-                orderService.markOrderAsPickedUp(orderId, principal);
+                orderService.markOrderShippingStatusAsPickedUp(orderId, principal);
                 redirectAttributes.addFlashAttribute("msg", "Đơn hàng " + orderId + " đã được đánh dấu là đã lấy hàng.");
             } else if (shippingStatusService.isPickedUpStatus(shippingStatus)) {
-                orderService.markOrderAsShipping(orderId, principal);
+                orderService.markOrderShippingStatusAsShipping(orderId, principal);
                 redirectAttributes.addFlashAttribute("msg", "Đơn hàng " + orderId + " đã được đánh dấu là đang giao hàng.");
             } else if (shippingStatusService.isShippingStatus(shippingStatus)) {
-                orderService.markOrderAsDelivered(orderId, principal);
+                orderService.markOrderStatusAsDelivered(orderId, principal);
                 redirectAttributes.addFlashAttribute("msg", "Đơn hàng " + orderId + " đã được đánh dấu là hoàn thành.");
             } else {
                 throw new Exception("Trạng thái đơn hàng không hợp lệ để thực hiện hành động này.");
@@ -103,7 +103,6 @@ public class ShipperController {
     @GetMapping("/orders/{orderId}")
     public String viewOrderDetails(@PathVariable Long orderId,
                                    Model model,
-                                   Principal principal,
                                    RedirectAttributes redirectAttributes) {
         try {
             Order order = orderService.getOrderByOrderId(orderId);
