@@ -227,6 +227,9 @@ public class OrderService {
         order.setOrderStatus(orderStatusService.getDeliveredStatus());
         addShippingStatusToOrder(order, shippingStatusService.getDeliveredStatus());
         orderRepository.save(order);
+        if(paymentMethodService.isCodMethod(order.getPaymentMethod())) {
+            createBillForOrder(order);
+        }
     }
 
     public List<Order> getSuccessOrder() {
