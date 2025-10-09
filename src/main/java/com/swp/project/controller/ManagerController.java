@@ -3,6 +3,7 @@ package com.swp.project.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.swp.project.service.order.OrderService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -36,6 +37,7 @@ public class ManagerController {
     private final AddressService addressService;
 
     private final int numEachPage = 10;
+    private final OrderService orderService;
 
     @GetMapping("")
     public String index() {
@@ -351,4 +353,19 @@ public class ManagerController {
                 return "redirect:/manager/manage-seller";
         }
     }
+
+    @GetMapping("/statistic-report")
+        public String getManagerStastisticReport(Model model){
+        Long totalUnitSold = orderService.getUnitSold();
+        Long revenueToday = orderService.getRevenueToday();
+        Long revenueThisWeek = orderService.getRevenueThisWeek();
+        Long revenueThisMonth = orderService.getRevenueThisMonth();
+        model.addAttribute("totalUnitSold", totalUnitSold == null ? 0 : totalUnitSold);
+        model.addAttribute("revenueToday", revenueToday == null ? 0 : revenueToday);
+        model.addAttribute("revenueThisWeek", revenueThisWeek == null ? 0 : revenueThisWeek);
+        model.addAttribute("revenueThisMonth", revenueThisMonth == null ? 0 : revenueThisMonth);
+        return "pages/manager/statistic-report";
+
+        }
+
 }

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Statistic-report</title>
+</head>
+<body>
+<a th:href="@{/}">Trang chủ</a>
+<h1>Tổng quan</h1>
+<span th:text="'Số lượng sản phẩm đã bán được: '+ ${totalUnitSold}"></span>
+<table>
+    <thead>
+    <tr>
+        <th>Doanh thu cửa hàng</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td th:text="${'Doanh thu ngày hôm nay: '+ revenueToday}"></td>
+    </tr>
+    <tr>
+        <td th:text="${'Doanh thu tuần này: '+ revenueThisWeek}"></td>
+    </tr>
+    <tr>
+        <td th:text="${'Doanh thu tháng này: '+ revenueThisMonth}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

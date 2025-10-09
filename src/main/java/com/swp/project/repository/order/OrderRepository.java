@@ -81,4 +81,13 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<ProductBatch> findingNearlySoldOutProduct(@Param("unitSoldOut") int unitSoldOut);
 
     public List<Order> findByShipper_email(String name);
+
+    @Query("""
+        SELECT COALESCE(SUM(oi.quantity * oi.product.price), 0)
+        FROM OrderItem oi
+        JOIN oi.order o
+        WHERE o.orderStatus.name='Đã giao hàng'
+        AND o.orderAt BETWEEN :start AND :end
+""")
+    Long getRevenueBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }
