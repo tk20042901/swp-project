@@ -32,7 +32,9 @@ public class ShipperController {
     private final ShippingStatusService shippingStatusService;
 
     @GetMapping("")
-    public String shipperMain() {
+    public String shipperMain(Model model, Principal principal) {
+        model.addAttribute("orderService", orderService);
+        model.addAttribute("principal", principal);
         return "pages/shipper/index";
     }
 
