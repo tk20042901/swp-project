@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import com.swp.project.entity.order.shipping.ShippingStatus;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -75,5 +77,10 @@ public class Order{
 
     public String getAddressString(){
         return specificAddress + ", " + communeWard.getName() + ", " + communeWard.getProvinceCity().getName();
+    }
+
+    public ShippingStatus getCurrentShippingStatus(){
+        if (shipping == null || shipping.isEmpty()) return null;
+        return shipping.getLast().getShippingStatus();
     }
 }
