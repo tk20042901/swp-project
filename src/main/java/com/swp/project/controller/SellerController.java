@@ -145,6 +145,7 @@ public class SellerController {
     @GetMapping("/statistic-report/overview")
     public String getOverviewReport(Model model) {
         model.addAttribute("unitSold", orderService.getUnitSold());
+        model.addAttribute("totalCanceledOrder", orderService.getTotalCancelledOrders());
         model.addAttribute("nearlySoldOutProducts", orderService.getNearlySoldOutProduct());
         model.addAttribute("nearlyExpiredProducts", orderService.getNearlyExpiredProduct());
         return "pages/seller/statistic-report/overview";
