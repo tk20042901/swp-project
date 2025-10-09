@@ -10,6 +10,29 @@
     <form th:action="@{/logout}" method="post">
         <button type="submit" class="btn">Đăng xuất</button>
     </form>
+    <h1>Thống kê đơn hàng đã giao</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Tháng</th>
+                <th>Số đơn hàng đã giao</th>
+                <th>Tỷ lệ so với tháng trước đó</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Tháng này</td>
+                <td th:text="${orderService.countShippedOrdersXMonthsAgo(principal, 0)}">0</td>
+                <td th:text="${orderService.countPercentageComparedToThePreviousMonth(principal, 0)} + '%'">0%</td>
+            </tr>
+            <tr th:each="i : ${#numbers.sequence(1,5)}">
+                <td th:text="${i} + ' tháng trước'"></td>
+                <td th:text="${orderService.countShippedOrdersXMonthsAgo(principal, i)}">0</td>
+                <td th:text="${orderService.countPercentageComparedToThePreviousMonth(principal, i)} + '%'">0%</td>
+            </tr>
+
+        </tbody>
+    </table>
     <script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
     <a href="/shipper/delivering_orders">Danh sách đơn hàng đang giao</a>
     <br>

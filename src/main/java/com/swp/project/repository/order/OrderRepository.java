@@ -1,18 +1,19 @@
 package com.swp.project.repository.order;
 
-import com.swp.project.entity.order.Order;
-import com.swp.project.entity.order.OrderStatus;
-import com.swp.project.entity.product.ProductBatch;
-import com.swp.project.entity.user.Customer;
-import com.swp.project.entity.user.Shipper;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import com.swp.project.entity.order.Order;
+import com.swp.project.entity.order.OrderStatus;
+import com.swp.project.entity.product.ProductBatch;
+import com.swp.project.entity.user.Customer;
+import com.swp.project.entity.user.Shipper;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
     Page<Order> searchByCustomer_EmailContainsAndOrderAtBetween(String customer_email, LocalDateTime toDate,
@@ -78,4 +79,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         ORDER BY pb.quantity ASC
     """)
     List<ProductBatch> findingNearlySoldOutProduct(@Param("unitSoldOut") int unitSoldOut);
+
+    public List<Order> findByShipper_email(String name);
 }

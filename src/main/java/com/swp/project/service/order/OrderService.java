@@ -373,4 +373,28 @@ public class OrderService {
                 .build());
         orderRepository.save(order);
     }
+
+    public int countShippedOrdersXMonthsAgo(Principal principal, int monthsAgo) {
+        if (principal == null) {
+            throw new RuntimeException("Người giao hàng không xác định");
+        }
+        return (int) orderRepository.findByShipper_email(principal.getName())
+        .stream()
+        .filter(order -> orderStatusService.isDeliveredStatus(order))
+        .filter(order -> order.getCurrentShipping().getOccurredAt().getMonth() == LocalDate.now().minusMonths(monthsAgo).getMonth()
+                && order.getCurrentShipping().getOccurredAt().getYear() == LocalDate.now().getYear())
+        .count();
+    }
+
+    public int countPercentageComparedToThePreviousMonth(Principal principal, int monthsAgo) {
+        int currentMonthCount = countShippedOrdersXMonthsAgo(principal, monthsAgo);
+        int previousMonthCount = countShippedOrdersXMonthsAgo(principal, monthsAgo + 1);
+
+        if (previousMonthCount == 0) {
+            return currentMonthCount == 0 ? 0 : 100; // If both are 0, return 0%, else return 100%
+        }
+
+        return (int) (((double) (currentMonthCount - previousMonthCount) / previousMonthCount) * 100);
+    }
+
 }
