@@ -44,6 +44,11 @@
         <strong>Số tiền đã thanh toán:</strong> <span th:text="${totalSpent}"></span>
     </div>
 
+    <div>
+        <form th:action="@{customer/order-history}" method = get>
+
+        </form>
+    </div>
     <div class="table-responsive">
         <table class="table table-striped">
             <thead class="table-dark">
@@ -67,12 +72,12 @@
 
                 </td>
                 <td th:switch="${order.orderStatus.name}">
-                    <span th:case="'Đã Hủy'" class="badge bg-danger">Đã Hủy</span>
                     <span th:case="'Chờ Xác Nhận'" class="badge bg-warning text-dark">Chờ Xác Nhận</span>
-                    <span th:case="'Đang Giao Hàng'" class="badge bg-success">Đang Giao Hàng</span>
-                    <span th:case="'Đang Chuẩn Bị Hàng'" class="badge bg-info text-dark">Đang Chuẩn Bị Hàng</span>
-                    <span th:case="'Đã Giao Hàng'" class="badge bg-primary">Đã Giao Hàng</span>
                     <span th:case="'Chờ Thanh Toán'" class="badge bg-secondary text-light">Chờ Thanh Toán</span>
+                    <span th:case="'Đang Chuẩn Bị Hàng'" class="badge bg-info text-dark">Đang Chuẩn Bị Hàng</span>
+                    <span th:case="'Đang Giao Hàng'" class="badge bg-primary">Đang Giao Hàng</span>
+                    <span th:case="'Đã Giao Hàng'" class="badge bg-success">Đã Giao Hàng</span>
+                    <span th:case="'Đã Hủy'" class="badge bg-danger">Đã Hủy</span>
                 </td>
                 <td>
                     <strong th:text="${#numbers.formatInteger(order.totalAmount, 0, 'COMMA')} + ' VND'"></strong>
