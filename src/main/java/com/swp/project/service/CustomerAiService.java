@@ -176,40 +176,6 @@ public class CustomerAiService {
         return sb.toString();
     }
 
-    /**
-     * Generate vector content for Category entities.
-     * 
-     * @param category the category entity
-     * @return formatted content for vector storage
-     */
-    private String getCategoryContent(Category category) {
-        StringBuilder sb = new StringBuilder();
-        
-        sb.append("Đây là thông tin về danh mục sản phẩm trong cửa hàng. ");
-        sb.append("Tên danh mục: ").append(category.getName()).append(". ");
-        
-        if (category.getProducts() != null && !category.getProducts().isEmpty()) {
-            sb.append("Danh mục này có ").append(category.getProducts().size()).append(" sản phẩm. ");
-            
-            // Add first few product names as examples
-            String productNames = category.getProducts().stream()
-                    .limit(5) // Only show first 5 products
-                    .map(Product::getName)
-                    .collect(Collectors.joining(", "));
-            sb.append("Một số sản phẩm tiêu biểu: ").append(productNames);
-            
-            if (category.getProducts().size() > 5) {
-                sb.append(" và ").append(category.getProducts().size() - 5).append(" sản phẩm khác");
-            }
-            sb.append(". ");
-        } else {
-            sb.append("Danh mục này hiện chưa có sản phẩm nào. ");
-        }
-        
-        sb.append("Link danh mục: /category/").append(category.getId()).append(". ");
-        return sb.toString();
-    }
-
     @Transactional
     public void saveProductToVectorStore(Product product) {
         try {
@@ -218,18 +184,7 @@ public class CustomerAiService {
             Document document = new Document(documentId, content, Collections.emptyMap());
             vectorStore.add(List.of(document));
         } catch (Exception e) {
-            throw new RuntimeException("Failed to save entity to vector store: " + e.getMessage(), e);
-        }
-    }
-    @Transactional
-    public void saveCategoryToVectorStore(Category category) {
-        try {
-            String documentId = UUID.nameUUIDFromBytes(category.getId().toString().getBytes()).toString();
-            String content = getCategoryContent(category);
-            Document document = new Document(documentId, content, Collections.emptyMap());
-            vectorStore.add(List.of(document));
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to save entity to vector store: " + e.getMessage(), e);
+            throw new RuntimeException("Lỗi khi lưu sản phẩm vào Vector Store: " + e.getMessage());
         }
     }
 

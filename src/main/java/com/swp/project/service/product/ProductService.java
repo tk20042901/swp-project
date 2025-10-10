@@ -31,7 +31,7 @@ import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.ProductBatch;
 import com.swp.project.entity.product.SubImage;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
-import com.swp.project.listener.event.GeminiUpdateProductEvent;
+import com.swp.project.listener.event.ProductRelatedUpdateEvent;
 import com.swp.project.repository.order.OrderRepository;
 import com.swp.project.repository.product.ProductRepository;
 import com.swp.project.repository.shopping_cart.ShoppingCartItemRepository;
@@ -49,6 +49,7 @@ public class ProductService {
     private final OrderItemRepository orderItemRepository;
     private final ShoppingCartItemRepository shoppingCartItemRepository;
     private final ApplicationEventPublisher eventPublisher;
+
     private static final String TEMPORARY_PATH = "src/main/resources/static/images/temporary-products/";
     private static final Map<String, Sort> SORT_OPTIONS = Map.of(
             "price-asc", Sort.by("price").ascending(),
@@ -68,16 +69,14 @@ public class ProductService {
         return productRepository.findFirstByEnabledOrderByIdAsc(true);
     }
 
-    // Ví dụ hàm saveProduct sử dụng VectorUpdateEvent
-    public void saveProduct(Product product) {
+    public void add(Product product) {
         Product savedProduct = productRepository.save(product);
-        eventPublisher.publishEvent(new GeminiUpdateProductEvent(savedProduct));
+        eventPublisher.publishEvent(new ProductRelatedUpdateEvent(savedProduct));
     }
 
-    // Ví dụ hàm updateProduct sử dụng VectorUpdateEvent
-    public void updateProduct(Product product) {
+    public void update(Product product) {
         Product savedProduct = productRepository.save(product);
-        eventPublisher.publishEvent(new GeminiUpdateProductEvent(savedProduct));
+        eventPublisher.publishEvent(new ProductRelatedUpdateEvent(savedProduct));
     }
 
     public Product getProductById(Long id) {
@@ -99,7 +98,7 @@ public class ProductService {
                 quantity -= productBatch.getQuantity();
                 productBatch.setQuantity(0);
             }
-            productBatchService.updateProductBatch(productBatch);
+            productBatchService.update(productBatch);
         }
     }
 
