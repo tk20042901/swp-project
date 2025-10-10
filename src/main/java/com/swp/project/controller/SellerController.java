@@ -11,8 +11,6 @@ import com.swp.project.service.product.CategoryService;
 import com.swp.project.service.product.ProductService;
 import com.swp.project.service.product.ProductUnitService;
 import com.swp.project.service.seller_request.SellerRequestService;
-import com.swp.project.service.user.SellerService;
-import com.swp.project.service.user.ShipperService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -35,8 +33,6 @@ public class SellerController {
 
     private final OrderStatusService orderStatusService;
     private final OrderService orderService;
-    private final ShipperService shipperService;
-    private final SellerService sellerService;
     private final ProductService productService;
     private final ProductUnitService unitService;
     private final CategoryService categoryService;
@@ -112,7 +108,7 @@ public class SellerController {
     @PostMapping("/update-processing-order-status")
     public String updateProcessingOrderStatus(@RequestParam Long orderId,
             RedirectAttributes redirectAttributes) {
-        orderService.updateOrderStatusToShipping(orderService.getOrderById(orderId));
+        orderService.markOrderStatusAsShipping(orderService.getOrderById(orderId));
         redirectAttributes.addFlashAttribute("msg",
                 "Cập nhật trạng thái đơn hàng thành Đang giao hàng thành công.\n" +
                         "Hệ thống đã tự động phân công Shipper cho đơn hàng.");
@@ -180,8 +176,8 @@ public class SellerController {
             RedirectAttributes redirectAttributes,
             Principal principal,
             @RequestParam("image") MultipartFile imageFile,
-            @RequestParam List<MultipartFile> extraImages,
-            Model model) {
+            @RequestParam List<MultipartFile> extraImages
+    ) {
 
         if (bindingResult.hasErrors()) {
             System.out.println("Binding result has errors:");

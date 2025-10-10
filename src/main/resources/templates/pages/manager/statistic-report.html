@@ -16,13 +16,22 @@
     </thead>
     <tbody>
     <tr>
-        <td th:text="${'Doanh thu ngày hôm nay: '+ revenueToday}"></td>
+        <td>
+            <span  th:text="${'Doanh thu ngày hôm nay: '+ revenueToday}"></span>
+            <span th:text="${' tăng '+ dailyPercentageChange + '% so với hôm qua'}"></span>
+        </td>
     </tr>
     <tr>
-        <td th:text="${'Doanh thu tuần này: '+ revenueThisWeek}"></td>
+        <td>
+            <span th:text="${'Doanh thu tuần này: '+ revenueThisWeek}"></span>
+            <span th:text="${' tăng '+ weeklyPercentageChange +'% so với tuần trước'}"></span>
+        </td>
     </tr>
     <tr>
-        <td th:text="${'Doanh thu tháng này: '+ revenueThisMonth}"></td>
+        <td>
+            <span th:text="${'Doanh thu tháng này: '+ revenueThisMonth}"></span>
+            <span th:text="${' tăng '+ monthlyPercentageChange +'% so với tháng trước'}"></span>
+        </td>
     </tr>
     </tbody>
 </table>
