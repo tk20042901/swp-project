@@ -28,6 +28,80 @@
             margin: 0 10px;
             color: #333;
         }
+
+        /* Container form */
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 12px;
+            background: #f8f9fa;
+            padding: 16px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        /* Mỗi ô trong form */
+        form > div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Label giả lập (nếu thêm label sau này sẽ đồng bộ) */
+        form label {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #555;
+        }
+
+        /* Select và input */
+        form select,
+        form input[type="date"] {
+            padding: 6px 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            min-width: 180px;
+            transition: all 0.2s ease;
+        }
+
+        form select:focus,
+        form input[type="date"]:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.2);
+            outline: none;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 7px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0069d9;
+        }
+
+        .btn-secondary {
+            background-color: #e9ecef;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background-color: #d6d8db;
+        }
+
     </style>
 </head>
 <body>
@@ -44,11 +118,38 @@
         <strong>Số tiền đã thanh toán:</strong> <span th:text="${totalSpent}"></span>
     </div>
 
+<h5>Tìm kiếm đơn hàng</h5>
+        <form th:action="@{/customer/order-history}" method = get>
     <div>
-        <form th:action="@{customer/order-history}" method = get>
+        <select name ="status" th:value="status">
+            <option value="">Tất cả</option>
+            <option value="Chờ Xác Nhận" th:selected="${status == 'Chờ Xác Nhận'}">Chờ xác nhận</option>
+            <option value="Đang Chuẩn Bị Hàng" th:selected="${status == 'Đang Chuẩn Bị Hàng'}">Đang chuẩn bị hàng</option>
+            <option value="Đang Hiao Hàng" th:selected="${status == 'Đang Giao Hàng'}">Đang giao hàng</option>
+            <option value="Đã Giao Hàng" th:selected="${status == 'Đã Giao Hàng'}">Đã giao hàng</option>
+            <option value="Chờ Thanh Toán" th:selected="${status == 'Chờ Thanh Toán'}">Chờ thanh toán</option>
+            <option value="Đã Hủy" th:selected="${status == 'Đã Hủy'}">Đã hủy</option>
+        </select>
+    </div>
+
+            <div>
+                <input name="fromDate" type = "date" th:value="${fromDate}">
+            </div>
+            <div>
+                <input name="toDate" type="date" th:value="${toDate}">
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+
+            </div>
+            <div>
+                <a th:if="${(status != null and !#strings.isEmpty(status)) or (fromDate != null and !#strings.isEmpty(fromDate)) or (toDate != null and !#strings.isEmpty(toDate))}"
+                   th:href="@{/customer/order-history}" class="btn btn-secondary">Bỏ tìm kiếm</a>
+            </div>
+
 
         </form>
-    </div>
+
     <div class="table-responsive">
         <table class="table table-striped">
             <thead class="table-dark">

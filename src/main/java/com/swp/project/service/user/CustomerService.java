@@ -4,6 +4,8 @@ package com.swp.project.service.user;
 import java.security.Principal;
 import java.security.SecureRandom;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 import java.util.regex.Pattern;
@@ -246,6 +248,47 @@ public class CustomerService {
         Customer customer = customerRepository.getByEmail(email);
         Pageable pageable = PageRequest.of(page,size, Sort.by("orderAt").descending());
         return orderRepository.findByCustomer(customer,pageable);
+    }
+
+    public Page<Order> searchOrderHistory(String email,
+                                          String orderStatus,
+                                          LocalDate fromDate,
+                                          LocalDate toDate,
+                                          int page, int size) {
+
+        Customer customer = customerRepository.getByEmail(email);
+        Pageable pageable = PageRequest.of(page, size);
+
+        boolean hasStatus = orderStatus != null && !orderStatus.isBlank();
+        boolean hasFromDate = fromDate != null;
+        boolean hasToDate = toDate != null;
+
+        LocalDateTime fromDateTime = hasFromDate ? fromDate.atStartOfDay() : null;
+        LocalDateTime toDateTime = hasToDate ? toDate.atTime(23, 59, 59) : null;
+
+        if (hasStatus && hasFromDate && hasToDate) {
+            return orderRepository.findByCustomerAndOrderStatus_NameAndOrderAtBetween(customer, orderStatus, fromDateTime, toDateTime, pageable);
+        }
+        if (hasStatus && hasFromDate) {
+            return orderRepository.findByCustomerAndOrderStatus_NameAndOrderAtAfter(customer, orderStatus, fromDateTime, pageable);
+        }
+        if (hasStatus && hasToDate) {
+            return orderRepository.findByCustomerAndOrderStatus_NameAndOrderAtBefore(customer, orderStatus, toDateTime, pageable);
+        }
+        if (hasFromDate && hasToDate) {
+            return orderRepository.findByCustomerAndOrderAtBetween(customer, fromDateTime, toDateTime, pageable);
+        }
+        if (hasFromDate) {
+            return orderRepository.findByCustomerAndOrderAtAfter(customer, fromDateTime, pageable);
+        }
+        if (hasToDate) {
+            return orderRepository.findByCustomerAndOrderAtBefore(customer, toDateTime, pageable);
+        }
+        if (hasStatus) {
+            return orderRepository.findByCustomerAndOrderStatus_Name(customer, orderStatus, pageable);
+        }
+
+        return orderRepository.findByCustomer(customer, pageable);
     }
 
     public void addShoppingCartItem(Principal principal, Long productId, int quantity) {
