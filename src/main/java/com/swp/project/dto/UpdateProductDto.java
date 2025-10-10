@@ -3,14 +3,15 @@ package com.swp.project.dto;
 import java.util.List;
 
 import com.swp.project.entity.product.ProductUnit;
-
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class UpdateProductDto {
+@Builder
+public class UpdateProductDto{
     private Long id;
 
     @Size(max = 50, message = "Tên sản phẩm không được vượt quá 50 ký tự")

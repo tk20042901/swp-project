@@ -81,6 +81,9 @@ public class Order{
 
     public ShippingStatus getCurrentShippingStatus(){
         if (shipping == null || shipping.isEmpty()) return null;
-        return shipping.getLast().getShippingStatus();
+        // return shipping.getLast().getShippingStatus();
+        return null;
     }
+    
+    
 }

@@ -7,6 +7,7 @@
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.5.5</version>
         <relativePath/> <!-- lookup parent from repository -->
+        
     </parent>
     <groupId>com.swp.project</groupId>
     <artifactId>swp-project</artifactId>
@@ -128,7 +129,7 @@
                 <version>${spring-ai.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
+            </dependency>       
         </dependencies>
     </dependencyManagement>
 

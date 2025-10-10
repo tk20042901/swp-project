@@ -1,4 +1,5 @@
 package com.swp.project.controller;
+
 import com.swp.project.dto.CreateProductDto;
 import com.swp.project.dto.SellerSearchOrderDto;
 import com.swp.project.dto.UpdateProductDto;
@@ -41,7 +42,6 @@ public class SellerController {
     private final ProductUnitService unitService;
     private final CategoryService categoryService;
     private final SellerRequestService sellerRequestService;
-    
 
     @GetMapping("")
     public String sellerMain() {
@@ -155,14 +155,17 @@ public class SellerController {
             @PathVariable Long id,
             Model model) {
         Product product = productService.getProductById(id);
-        UpdateProductDto dto = new UpdateProductDto();
-        dto.setId(product.getId());
-        dto.setName(product.getName());
-        dto.setPrice(product.getPrice());
-        dto.setUnit(product.getUnit());
-        dto.setCategories(product.getCategories().stream().map(Category::getId).toList());
-        dto.setDescription(product.getDescription());
-        dto.setEnabled(product.isEnabled());
+        UpdateProductDto dto = UpdateProductDto
+                .builder()
+                .id(product.getId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .unit(product.getUnit())
+                .enabled(product.isEnabled())
+                .categories(product.getCategories().stream().map(Category::getId).toList())
+                .mainImage(product.getMain_image_url())
+                .build();
 
         model.addAttribute("units", unitService.getAllUnits());
         model.addAttribute("categories", categoryService.getAllCategories());
@@ -192,25 +195,21 @@ public class SellerController {
             for (Long catId : updateProductDto.getCategories()) {
                 categories.add(categoryService.getCategoryById(catId));
             }
-            Product updateProduct = new Product();
             productService.checkUniqueProductName(updateProductDto.getName());
-            updateProduct.setId(updateProductDto.getId());
-            updateProduct.setName(updateProductDto.getName());
-            updateProduct.setDescription(updateProductDto.getDescription());
-            updateProduct.setPrice(updateProductDto.getPrice());
-            updateProduct.setUnit(unitService.getProductUnitById(updateProductDto.getUnit().getId()));
-            updateProduct.setEnabled(updateProductDto.getEnabled());
-            updateProduct.setCategories(categories);
-            updateProduct.setMain_image_url(oldProduct.getMain_image_url());
-            updateProduct.setSub_images(oldProduct.getSub_images());
-            updateProduct.setProductBatches(oldProduct.getProductBatches());
-            updateProduct.setTotalQuantity(oldProduct.getTotalQuantity());
-            updateProduct.setMain_image_url(ProductService.getMainImageUrl(imageFile, updateProductDto.getName()));
-            updateProduct.setSub_images(productService.getSubImageList(extraImages, updateProductDto.getName(),updateProduct));
+            Product updateProduct = oldProduct
+                    .toBuilder()
+                    .name(updateProductDto.getName())
+                    .description(updateProductDto.getDescription())
+                    .price(updateProductDto.getPrice())
+                    .unit(updateProductDto.getUnit())
+                    .enabled(updateProductDto.getEnabled())
+                    .categories(categories)
+                    .main_image_url(null)
+                    .sub_images(null)
+                    .build();
             if (updateProduct.equals(oldProduct)) {
                 throw new Exception("Không có thay đổi nào để cập nhật");
             }
-
             sellerRequestService.saveUpdateRequest(
                     oldProduct,
                     updateProduct,
@@ -219,13 +218,9 @@ public class SellerController {
             redirectAttributes.addFlashAttribute("msg", "Yêu cầu cập nhật sản phẩm đã được gửi đến quản lý");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            if (updateProductDto.getId() != null) {
-                return "redirect:/seller/seller-update-product/" + updateProductDto.getId();
-            } else {
-                return "redirect:/seller/seller-update-product";
-            }
+            return "redirect:/seller/seller-update-product/" + updateProductDto.getId();
         }
-        return "redirect:/seller";
+        return "redirect:/seller/seller-update-product/" + updateProductDto.getId();
     }
 
     @GetMapping("/seller-create-product")
@@ -260,8 +255,10 @@ public class SellerController {
         try {
             Product newProduct = new Product();
             newProduct.setId(productDto.getId());
-            newProduct.setMain_image_url(ProductService.getMainImageUrl(imageFile, productDto.getName()));
-            newProduct.setSub_images(productService.getSubImageList(extraImages, productDto.getName(),newProduct));
+            // newProduct.setMain_image_url(ProductService.getMainImageUrl(imageFile,
+            // productDto.getName()));
+            // newProduct.setSub_images(productService.getSubImageList(extraImages,
+            // productDto.getName(),newProduct));
             List<Category> categories = new ArrayList<>();
             for (Long catId : productDto.getCategories()) {
                 categories.add(categoryService.getCategoryById(catId));

@@ -14,7 +14,7 @@ import org.hibernate.annotations.Formula;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 @EqualsAndHashCode(exclude = {"sub_images", "productBatches", "soldQuantity", "totalQuantity"})
 @Entity
 public class Product implements Serializable{

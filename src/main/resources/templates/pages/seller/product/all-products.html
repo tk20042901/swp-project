@@ -202,7 +202,6 @@
     <span th:if="${(name != null and !#strings.isEmpty(name)) or enabled != null}">
         <a th:href="@{/seller/all-products}">Bỏ tìm kiếm</a>
     </span>
-    <a th:href="@{/seller/seller-create-product}" class="table-link">Tạo sản phẩm</a>
 </form>
 
 <table>
@@ -212,7 +211,6 @@
         <th>Sản phẩm</th>
         <th>Trạng thái</th>
         <th>Chi tiết</th>
-        <th>Yêu cầu cập nhật sản phẩm</th>
     </tr>
     </thead>
     <tbody>
@@ -235,8 +233,7 @@
                class="table-link">Chi tiết</a>
         </td>
         <td>
-            <a th:href="@{/seller/seller-update-product/{id}(id=${product.id})}"
-               class="table-link">Cập nhật</a>
+            
         </td>
     </tr>
     </tbody>
