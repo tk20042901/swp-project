@@ -82,11 +82,11 @@ public class SellerRequestService {
 
     public void executeAddProductUnitRequest(String requestContent) throws JsonProcessingException {
         ProductUnit productUnit = objectMapper.readValue(requestContent, ProductUnit.class);
-        productUnitService.addProductUnit(productUnit);
+        productUnitService.add(productUnit);
     }
 
     public void executeUpdateProductUnitRequest(String requestContent) throws JsonProcessingException {
         ProductUnit productUnit = objectMapper.readValue(requestContent, ProductUnit.class);
-        productUnitService.updateProductUnit(productUnit);
+        productUnitService.update(productUnit);
     }
 }
