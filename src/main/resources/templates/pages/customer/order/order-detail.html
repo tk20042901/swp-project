@@ -73,6 +73,43 @@
         td a:hover {
             color: #007bff;
         }
+
+        .btn {
+            display: inline-block;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 8px 14px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        /* Nút Thanh toán ngay */
+        .btn-success {
+            background-color: #28a745;
+            color: #fff;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        /* Nút Hủy */
+        .btn-outline-danger {
+            background-color: transparent;
+            color: #dc3545;
+            border: 2px solid #dc3545;
+        }
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            color: #fff;
+        }
+
+        /* Giữ bố cục đẹp */
+        td form {
+            display: inline-block;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -121,6 +158,19 @@
         <td th:text="${item.product.price} + ' VND/' + ${item.product.unit.name}"></td>
         <td th:text="${item.quantity}"></td>
         <td th:text="${item.product.price * item.quantity} + ' VND'"></td>
+    </tr>
+    <tr>
+        <td>
+            <a th:if="${order.orderStatus.name == 'Chờ Thanh Toán'}"
+               th:href="${order.paymentLink}"
+               class="btn btn-sm btn-success fw-bold px-3">Thanh toán ngay</a>
+            <form th:if="${order.orderStatus.name == 'Chờ Xác Nhận'}"
+                  th:action="@{'/customer/order-history/cancel/' + ${order.id}}"
+                  method="post" style="display:inline;"
+                  onsubmit="return confirm('Bạn có chắc muốn hủy đơn hàng này không?');">
+                <button type="submit" class="btn btn-sm btn-outline-danger">Hủy</button>
+            </form>
+        </td>
     </tr>
     </tbody>
 </table>
