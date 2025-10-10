@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 
 
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -25,6 +26,8 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
@@ -228,8 +231,14 @@ public class CustomerController {
     }
 
     @GetMapping("/order-history")
-    public String getOrderHistory(Model model, Principal principal, @RequestParam(defaultValue = "0")int page, @RequestParam(defaultValue = "5")int size){
-        Page<Order> orders=customerService.getOrdersByCustomerEmail(principal.getName(),page,size);
+    public String getOrderHistory(Model model,
+                                  Principal principal,
+                                  @RequestParam(required = false) String status,
+                                  @RequestParam(required = false)  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+                                  @RequestParam(required = false)  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+                                  @RequestParam(defaultValue = "0")int page,
+                                  @RequestParam(defaultValue = "5")int size){
+        Page<Order> orders=customerService.searchOrderHistory(principal.getName(), status, fromDate, toDate, page, size);
 
         int totalSpent=0;
         for(Order order : orders.getContent()){
@@ -237,6 +246,9 @@ public class CustomerController {
                 totalSpent+=order.getTotalAmount();
             }
         }
+        model.addAttribute("status",status);
+        model.addAttribute("fromDate",fromDate);
+        model.addAttribute("toDate",toDate);
         model.addAttribute("totalSpent",totalSpent);
         model.addAttribute("orders",orders );
         return "pages/customer/order/order-history";
