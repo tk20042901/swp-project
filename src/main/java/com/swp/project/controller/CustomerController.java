@@ -177,8 +177,15 @@ public class CustomerController {
         return "redirect:/customer/shopping-cart";
     }
     @PostMapping("/shopping-cart/remove")
-    public String removeFromCart(@RequestParam Long productId, RedirectAttributes redirectAttributes,
+    public String removeFromCart(@RequestParam Long productId,
+                                 HttpSession session,
+                                 RedirectAttributes redirectAttributes,
                                  Principal principal) {
+        List<Long> selectedIds = (List<Long>) session.getAttribute("selectedIds");
+        if (selectedIds != null && selectedIds.contains(productId)) {
+            selectedIds.remove(productId);
+            session.setAttribute("selectedIds", selectedIds);
+        }
         customerService.removeItem(principal.getName(), productId);
         redirectAttributes.addFlashAttribute("success", "Xóa sản phẩm khỏi giỏ hàng thành công");
         return "redirect:/customer/shopping-cart";

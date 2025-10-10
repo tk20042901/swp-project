@@ -1,18 +1,19 @@
 package com.swp.project.repository.order;
 
-import com.swp.project.entity.order.Order;
-import com.swp.project.entity.order.OrderStatus;
-import com.swp.project.entity.product.ProductBatch;
-import com.swp.project.entity.user.Customer;
-import com.swp.project.entity.user.Shipper;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import com.swp.project.entity.order.Order;
+import com.swp.project.entity.order.OrderStatus;
+import com.swp.project.entity.product.ProductBatch;
+import com.swp.project.entity.user.Customer;
+import com.swp.project.entity.user.Shipper;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
     Page<Order> searchByCustomer_EmailContainsAndOrderAtBetween(String customer_email, LocalDateTime toDate,
@@ -45,6 +46,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 """)
     Long getRevenueToday();
 
+
+
     @Query("""
         SELECT COALESCE(SUM(oi.quantity * oi.product.price), 0)
         FROM OrderItem oi
@@ -67,7 +70,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     FROM product_batch
     WHERE expired_date 
           BETWEEN CURRENT_DATE 
-          AND CURRENT_DATE +  INTERVAL '5 day'
+          AND CURRENT_DATE +  INTERVAL '5 day'  
     """, nativeQuery = true)
     List<ProductBatch> findingNearlyExpiredProduct();
 
@@ -78,4 +81,23 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         ORDER BY pb.quantity ASC
     """)
     List<ProductBatch> findingNearlySoldOutProduct(@Param("unitSoldOut") int unitSoldOut);
+
+    public List<Order> findByShipper_email(String name);
+
+    @Query("""
+        SELECT COALESCE(SUM(oi.quantity * oi.product.price), 0)
+        FROM OrderItem oi
+        JOIN oi.order o
+        WHERE o.orderStatus.name='Đã giao hàng'
+        AND o.orderAt BETWEEN :start AND :end
+""")
+    Long getRevenueBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    @Query("""
+    SELECT COALESCE(SUM(oi.quantity * oi.product.price), 0)
+    FROM OrderItem oi
+    WHERE oi.order.orderStatus.name = 'Đã Giao Hàng'
+      AND function('DATE', oi.order.orderAt) = :date
+""")
+    Long getRevenueByDate(@Param("date") LocalDateTime date);
 }

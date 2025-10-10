@@ -79,10 +79,14 @@ public class Order{
         return specificAddress + ", " + communeWard.getName() + ", " + communeWard.getProvinceCity().getName();
     }
 
+    public Shipping getCurrentShipping(){
+        if (shipping == null || shipping.isEmpty()) return null;
+        return shipping.get(shipping.size() - 1);
+    }
+
     public ShippingStatus getCurrentShippingStatus(){
         if (shipping == null || shipping.isEmpty()) return null;
-        // return shipping.getLast().getShippingStatus();
-        return null;
+        return getCurrentShipping().getShippingStatus();
     }
     
     
