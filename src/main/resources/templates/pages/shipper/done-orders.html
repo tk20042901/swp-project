@@ -21,13 +21,13 @@
 </div>
 <div class="container py-4">
 
-  <!-- Đơn hàng đang giao -->
+  <!-- Đơn hàng đã giao -->
   <br>
   <br>
   <div class="auth-card p-4 shadow-sm mb-5">
-    <h1 class="h5 mb-3 text-primary">🚚 Đơn hàng đang giao</h1>
+    <h1 class="h5 mb-3 text-primary">🚚 Đơn hàng đã giao</h1>
 
-    <h5 th:if="${deliveringOrders.size() > 0}" class="mb-3">Tổng đơn hàng: <span th:text="${deliveringOrders.size()}">0</span></h5>
+    <h5 th:if="${doneOrders.size() > 0}" class="mb-3">Tổng đơn hàng: <span th:text="${doneOrders.size()}">0</span></h5>
 
     <div class="table-responsive">
       <table class="table table-striped table-hover align-middle">
@@ -36,34 +36,19 @@
           <th>Mã đơn hàng</th>
           <th>Email</th>
           <th>Chi tiết</th>
-          <th>Hành động</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:if="${#lists.isEmpty(deliveringOrders)}">
-          <td colspan="8" class="text-center text-muted fst-italic">Không có đơn hàng nào đang giao.</td>
+        <tr th:if="${#lists.isEmpty(doneOrders)}">
+          <td colspan="8" class="text-center text-muted fst-italic">Không có đơn hàng nào đã giao.</td>
         </tr>
-        <tr th:each="order : ${deliveringOrders}">
+        <tr th:each="order : ${doneOrders}">
           <td th:text="${order.id}"></td>
           <td th:text="${order.customer.email}"></td>
           <td>
             <a th:href="@{/shipper/orders/{id}(id=${order.id})}">
               <button class="btn btn-outline-secondary btn-sm">Xem chi tiết</button>
             </a>
-          </td>
-          <td>
-            <!-- Button to mark as picked up -->
-            <form th:action="@{/shipper/mark/{id}(id=${order.id})}" method="post" th:if="orderStatusService.isAwaitingPickupStatus(order.currentShippingStatus)">
-              <button type="submit" class="btn btn-success btn-sm">Đã lấy hàng</button>
-            </form>
-            <!-- Button to mark as shipping -->
-            <form th:action="@{/shipper/mark/{id}(id=${order.id})}" method="post" th:if="orderStatusService.isShippingStatus(order.currentShippingStatus)">
-              <button type="submit" class="btn btn-success btn-sm">Đang giao hàng</button>
-            </form>
-            <!-- Button to mark as delivered -->
-            <form th:action="@{/shipper/mark/{id}(id=${order.id})}" method="post" th:if="orderStatusService.isShippingStatus(order.currentShippingStatus)">
-              <button type="submit" class="btn btn-success btn-sm">Hoàn thành</button>
-            </form>
           </td>
         </tr>
         </tbody>

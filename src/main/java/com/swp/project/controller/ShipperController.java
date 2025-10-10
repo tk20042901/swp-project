@@ -33,19 +33,25 @@ public class ShipperController {
 
     @GetMapping("")
     public String shipperMain(Model model, Principal principal) {
-        model.addAttribute("orderService", orderService);
-        model.addAttribute("principal", principal);
+        try {
+            model.addAttribute("orderService", orderService);
+            model.addAttribute("principal", principal);
+            orderService.loadDoneOrders(principal);
+            
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+        }
         return "pages/shipper/index";
     }
 
-    @GetMapping("/delivering_orders")
+    @GetMapping("/delivering-orders")
     public String shipperDeliveringOrders(Model model,
                                 Principal principal,
                                 @RequestParam(defaultValue = "1") int pageDelivering,
                                 @RequestParam(defaultValue = "10") int size) {
         try {
             // Lấy Page<Order> thay vì List<Order>
-            Page<Order> deliveringOrders = shipperService.getDeliveringOrders(principal, pageDelivering, size);
+            Page<Order> deliveringOrders = orderService.getDeliveringOrders(principal, pageDelivering, size);
             model.addAttribute("deliveringOrders", deliveringOrders.getContent());
             model.addAttribute("currentPageDelivering", pageDelivering);
             model.addAttribute("totalPagesDelivering", deliveringOrders.getTotalPages());
@@ -53,18 +59,18 @@ public class ShipperController {
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
         }
-        model.addAttribute("orderStatusService", shipperService.getOrderStatusService());
-        return "pages/shipper/delivering_orders";
+        model.addAttribute("shippingStatusService", shippingStatusService);
+        return "pages/shipper/delivering-orders";
     }
 
-    @GetMapping("/done_orders")
+    @GetMapping("/done-orders")
     public String shipperDoneOrders(Model model,
                                 Principal principal,
                                 @RequestParam(defaultValue = "1") int pageDone,
                                 @RequestParam(defaultValue = "10") int size) {
         try {
             // Lấy Page<Order> thay vì List<Order>
-            Page<Order> doneOrders = shipperService.getDoneOrders(principal, pageDone, size);
+            Page<Order> doneOrders = orderService.getDoneOrders(principal, pageDone, size);
             model.addAttribute("doneOrders", doneOrders.getContent());
             model.addAttribute("currentPageDone", pageDone);
             model.addAttribute("totalPagesDone", doneOrders.getTotalPages());
@@ -73,7 +79,7 @@ public class ShipperController {
             model.addAttribute("error", e.getMessage());
         }
         // model.addAttribute("orderStatusService", shipperService.getOrderStatusService());
-        return "pages/shipper/done_orders";
+        return "pages/shipper/done-orders";
     }
 
     @PostMapping("/mark/{orderId}")
@@ -97,7 +103,7 @@ public class ShipperController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
-        return "redirect:/shipper/delivering_orders";
+        return "redirect:/shipper/delivering-orders";
     }
 
     @GetMapping("/orders/{orderId}")
@@ -109,10 +115,11 @@ public class ShipperController {
             Long totalAmount = orderService.calculateTotalAmount(order);
             model.addAttribute("order", order);
             model.addAttribute("totalAmount", totalAmount);
-            return "pages/shipper/order_details";
+            model.addAttribute("shippedAt", orderService.getShippedAt(order));
+            return "pages/shipper/order-details";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/shipper/delivering_orders";
+            return "redirect:/shipper/delivering-orders";
         }
     }
     
