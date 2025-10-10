@@ -514,4 +514,15 @@ public class OrderService {
 
     }
 
+    public String getShippedAt(Order order){
+        if (order.getShipping() == null || order.getShipping().isEmpty()) return null;
+        // if (shipping.get(i).getShippingStatus().getDescription().equals("Đã Giao Hàng")){
+        if (shippingStatusService.isDeliveredStatus(order.getCurrentShippingStatus())) {
+            LocalDateTime occurredAt = order.getCurrentShipping().getOccurredAt();
+            return "Ngày " + occurredAt.getDayOfMonth() + " tháng " + occurredAt.getMonthValue() + " năm " + occurredAt.getYear() + 
+                    " lúc " + String.format("%02d", occurredAt.getHour()) + ":" + String.format("%02d", occurredAt.getMinute());
+        }
+        return "Chưa giao";
+    }
+
 }

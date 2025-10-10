@@ -115,6 +115,7 @@ public class ShipperController {
             Long totalAmount = orderService.calculateTotalAmount(order);
             model.addAttribute("order", order);
             model.addAttribute("totalAmount", totalAmount);
+            model.addAttribute("shippedAt", orderService.getShippedAt(order));
             return "pages/shipper/order-details";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());

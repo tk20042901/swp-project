@@ -52,7 +52,7 @@ public class Order{
     @ManyToOne(fetch = FetchType.EAGER)
     private PaymentMethod paymentMethod;
 
-    private String paymentLink;
+    private String paymentLink; 
 
     private LocalDateTime paymentExpiredAt;
 
@@ -94,15 +94,4 @@ public class Order{
         return getCurrentShipping().getShippingStatus();
     }
 
-    public String getShippedAt(){
-        if (shipping == null || shipping.isEmpty()) return null;
-        for (int i = shipping.size() - 1; i >= 0; i--){
-            if (shipping.get(i).getShippingStatus().getDescription().equals("Đã Giao Hàng")){
-                LocalDateTime occurredAt = shipping.get(i).getOccurredAt();
-                return "Ngày " + occurredAt.getDayOfMonth() + " tháng " + occurredAt.getMonthValue() + " năm " + occurredAt.getYear() + 
-                       " lúc " + String.format("%02d", occurredAt.getHour()) + ":" + String.format("%02d", occurredAt.getMinute());
-            }
-        }
-        return "Chưa giao";
-    }
 }
