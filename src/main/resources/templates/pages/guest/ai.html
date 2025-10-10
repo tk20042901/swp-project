@@ -1,13 +1,13 @@
 <div layout:decorate="~{layouts/customer-layout}" xmlns:th="http://www.thymeleaf.org"
     xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
-    <div layout:fragment="content" class="bg-light chat-page-content h-100">
-        <div class="row justify-content-center h-100 container-fluid">
-            <div class="col-12 col-md-10 col-lg-8 d-flex flex-column py-3">
+    <div layout:fragment="content" class="bg-light vh-100">
+        <div class="row justify-content-center h-100">
+            <div class="d-flex flex-column py-3">
                 <!-- Errors -->
                 <div th:if="${error}" class="alert alert-warning mb-3" role="alert" th:text="${error}"></div>
 
                 <!-- Conversation -->
-                <div id="chatMessages" class="chat-messages flex-grow-1 overflow-auto mb-3">
+                <div id="chatMessages" class="chat-messages flex-grow-1 overflow-auto mb-3 px-5">
                     <ul class="list-unstyled m-0">
                         <li th:if="${#lists.isEmpty(conversation)}" class="d-flex gap-2 align-items-start">
                             <div class="avatar-circle bg-primary text-white flex-shrink-0">AI</div>
@@ -45,37 +45,37 @@
                 </div>
 
                 <!-- Composer -->
-                <form id="chatForm" th:action="@{/ai}" method="post" enctype="multipart/form-data"
-                    class="chat-composer">
-                    <input type="hidden" name="conversationId" th:value="${conversationId}">
-                    <div class="d-flex align-items-end gap-2">
-                        <div class="flex-grow-1">
-                            <label class="visually-hidden" for="chatInput">Câu hỏi</label>
-                            <textarea id="chatInput" class="form-control" name="q" rows="2"
-                                placeholder="Nhập câu hỏi... (Shift+Enter để xuống dòng)" autocomplete="off"
-                                autofocus></textarea>
+                <div class="px-3" style="margin-top: auto">
+                    <form id="chatForm" th:action="@{/ai}" method="post" enctype="multipart/form-data" class="chat-composer">
+                        <input type="hidden" name="conversationId" th:value="${conversationId}">
+                        <div class="d-flex align-items-end gap-2">
+                            <div class="flex-grow-1">
+                                <label class="visually-hidden" for="chatInput">Câu hỏi</label>
+                                <textarea id="chatInput" class="form-control" name="q" rows="2"
+                                    placeholder="Nhập câu hỏi... (Shift+Enter để xuống dòng)" autocomplete="off"
+                                    autofocus></textarea>
+                            </div>
+
+                            <div class="d-flex align-items-center gap-2">
+                                <input id="imageInput" type="file" name="image" accept="image/*" class="d-none">
+                                <label for="imageInput" class="btn btn-outline-secondary" title="Đính kèm ảnh">
+                                    <span class="d-none d-sm-inline">Ảnh</span>
+                                    <span class="d-inline d-sm-none">+</span>
+                                </label>
+                                <button id="sendButton" type="submit" class="btn btn-primary">Gửi</button>
+                            </div>
                         </div>
 
-                        <div class="d-flex align-items-center gap-2">
-                            <input id="imageInput" type="file" name="image" accept="image/*" class="d-none">
-                            <label for="imageInput" class="btn btn-outline-secondary" title="Đính kèm ảnh">
-                                <span class="d-none d-sm-inline">Ảnh</span>
-                                <span class="d-inline d-sm-none">+</span>
-                            </label>
-                            <button id="sendButton" type="submit" class="btn btn-primary">Gửi</button>
+                        <!-- Preview (image) -->
+                        <div id="preview" class="mt-2 d-none">
+                            <div class="small text-muted mb-1">Ảnh đính kèm:</div>
+                            <img id="previewImg" src="data:," class="img-thumbnail" alt="Xem trước ảnh"
+                                style="max-height: 160px;">
                         </div>
-                    </div>
-
-                    <!-- Preview (image) -->
-                    <div id="preview" class="mt-2 d-none">
-                        <div class="small text-muted mb-1">Ảnh đính kèm:</div>
-                        <img id="previewImg" src="data:," class="img-thumbnail" alt="Xem trước ảnh"
-                            style="max-height: 160px;">
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
-        <script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
         <script th:inline="none">
             // Auto-scroll to bottom
             const chatMessages = document.getElementById('chatMessages');

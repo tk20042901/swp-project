@@ -136,9 +136,7 @@
 
 /* Chat UI styles */
 .chat-messages {
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: .5rem 0 .5rem .25rem; /* remove right padding so scrollbar hugs the edge */
+    height: 1px;
 }
 .chat-messages ul { margin: 0; padding: 0; }
 
