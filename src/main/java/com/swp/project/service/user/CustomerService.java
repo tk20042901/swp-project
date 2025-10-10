@@ -258,6 +258,10 @@ public class CustomerService {
             throw new RuntimeException("Khách hàng có email " + principal.getName() + " không tìm thấy");
         }
 
+        if (quantity <= 0) {
+            throw new RuntimeException("Số lượng sản phẩm thêm vào phải lớn hơn 0");
+        }
+
         ShoppingCartItem existingItem = shoppingCartItemRepository.findByCustomer_EmailAndProduct_Id(principal.getName(), productId);
 
         if (existingItem != null) {

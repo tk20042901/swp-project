@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.swp.project.dto.StaffDto;
 import com.swp.project.entity.user.Seller;
 import com.swp.project.listener.event.UserDisabledEvent;
+import com.swp.project.repository.address.CommuneWardRepository;
 import com.swp.project.repository.product.ProductRepository;
 import com.swp.project.repository.user.ManagerRepository;
 import com.swp.project.repository.user.SellerRepository;
@@ -39,6 +40,7 @@ public class SellerService {
     private final ProductRepository productRepository;
 
     private List<Seller> results = new ArrayList<>();
+    private final CommuneWardRepository communeWardRepository;
 
     @Transactional
     public void initSeller() {
@@ -97,6 +99,9 @@ public class SellerService {
                 if (userRepository.existsByEmail(staffDto.getEmail())) {
                     throw new RuntimeException("Email đã được dùng");
                 }
+            }
+            if (!communeWardRepository.existsByCode(staffDto.getCommuneWard())) {
+                throw new RuntimeException("Phường/Xã không tồn tại");
             }
             Seller seller;
             try {
