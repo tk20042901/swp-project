@@ -7,9 +7,9 @@
     <link href="/css/style.css" rel="stylesheet">
 </head>
 <body class="auth-body d-flex align-items-center justify-content-center">
-<div class="container">
+<div class="container-fluid">
 
-    <div class="alerts-stack" style="height: 0px; width: fit-content; margin: 0px 50px 0px auto;">
+    <div class="alerts-stack" style="height: 0px; width: fit-content; margin: 0px 50px 100px auto;">
         <div class="alert alert-danger alert-dismissible fade show" th:hidden="${error == null}">
             <strong>Thất bại!</strong> <span th:text="${error}"></span>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
