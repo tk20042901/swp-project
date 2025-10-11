@@ -1,85 +1,83 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Đăng nhập</title>
-    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
-<body class="auth-body">
-<div class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
-    <div class="w-100" style="max-width: 440px;">
-        <!-- Alerts -->
-        <div class="alerts-stack mb-3">
-            <div class="alert alert-success py-2 px-3 mb-2" role="alert" th:if="${param.register_success}">
-                Đăng kí tài khoản thành công
-            </div>
-            <div class="alert alert-info py-2 px-3 mb-2" role="alert" th:if="${param.logout}">
-                Bạn đã đăng xuất
-            </div>
-            <div class="alert alert-danger py-2 px-3 mb-2" role="alert" th:if="${param.incorrect_email_or_password}">
-                Email hoặc mật khẩu không đúng
-            </div>
-            <div class="alert alert-warning py-2 px-3 mb-2" role="alert" th:if="${param.account_disabled}">
-                Tài khoản của bạn đã bị vô hiệu hóa
-            </div>
-            <div class="alert alert-warning py-2 px-3 mb-2" role="alert" th:if="${param.invalid_captcha}">
-                Captcha không hợp lệ
-            </div>
-            <div class="alert alert-danger py-2 px-3 mb-0" role="alert" th:if="${param.unknown_error}">
-                Lỗi không xác định
-            </div>
-            <div class="alert alert-danger py-2 px-3 mb-2" role="alert" th:if="${param.invalid_input}">
-                Dữ liệu nhập vào không hợp lệ
+<div layout:decorate="~{layouts/customer-layout}" xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+    <div layout:fragment="content">
+        <div class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
+            <div class="w-100" style="max-width: 440px;">
+                <!-- Alerts -->
+                <div class="alerts-stack mb-3">
+                    <div class="alert alert-success py-2 px-3 mb-2" role="alert" th:if="${param.register_success}">
+                        Đăng kí tài khoản thành công
+                    </div>
+                    <div class="alert alert-info py-2 px-3 mb-2" role="alert" th:if="${param.logout}">
+                        Bạn đã đăng xuất
+                    </div>
+                    <div class="alert alert-danger py-2 px-3 mb-2" role="alert"
+                        th:if="${param.incorrect_email_or_password}">
+                        Email hoặc mật khẩu không đúng
+                    </div>
+                    <div class="alert alert-warning py-2 px-3 mb-2" role="alert" th:if="${param.account_disabled}">
+                        Tài khoản của bạn đã bị vô hiệu hóa
+                    </div>
+                    <div class="alert alert-warning py-2 px-3 mb-2" role="alert" th:if="${param.invalid_captcha}">
+                        Captcha không hợp lệ
+                    </div>
+                    <div class="alert alert-danger py-2 px-3 mb-0" role="alert" th:if="${param.unknown_error}">
+                        Lỗi không xác định
+                    </div>
+                    <div class="alert alert-danger py-2 px-3 mb-2" role="alert" th:if="${param.invalid_input}">
+                        Dữ liệu nhập vào không hợp lệ
+                    </div>
+                </div>
+
+                <!-- Card -->
+                <div class="card shadow-sm auth-card">
+                    <div class="card-body p-4 p-md-5">
+                        <h1 class="h4 text-center mb-4 brand">Đăng nhập</h1>
+
+                        <form th:action="@{/login}" method="post">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input id="email" type="email" name="email" class="form-control"
+                                    placeholder="name@example.com" required autocomplete="email" maxlength="255">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Mật khẩu</label>
+                                <input id="password" type="password" name="password" class="form-control"
+                                    placeholder="••••••••" required autocomplete="current-password" maxlength="255">
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <a class="small" th:href="@{/forgot-password}">Quên mật khẩu?</a>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="g-recaptcha" th:attr="data-sitekey=${siteKey}"></div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
+                        </form>
+
+                        <div class="text-center mt-3">
+                            <span class="text-muted small">Hoặc</span>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-3">
+                            <a class="btn btn-outline-danger" th:href="@{/oauth2/authorization/google}">Đăng nhập với
+                                Google</a>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <span class="text-muted">Chưa có tài khoản?</span>
+                            <a th:href="@{/register}">Đăng kí ngay</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Card -->
-        <div class="card shadow-sm auth-card">
-            <div class="card-body p-4 p-md-5">
-                <h1 class="h4 text-center mb-4 brand">Đăng nhập</h1>
-
-                <form th:action="@{/login}" method="post">
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input id="email" type="email" name="email" class="form-control" placeholder="name@example.com" required autocomplete="email" maxlength="255">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Mật khẩu</label>
-                        <input id="password" type="password" name="password" class="form-control" placeholder="••••••••" required autocomplete="current-password" maxlength="255">
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <a class="small" th:href="@{/forgot-password}">Quên mật khẩu?</a>
-                    </div>
-
-                    <div class="mb-3">
-                        <div class="g-recaptcha" th:attr="data-sitekey=${siteKey}"></div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
-                </form>
-
-                <div class="text-center mt-3">
-                    <span class="text-muted small">Hoặc</span>
-                </div>
-
-                <div class="d-grid gap-2 mt-3">
-                    <a class="btn btn-outline-danger" th:href="@{/oauth2/authorization/google}">Đăng nhập với Google</a>
-                </div>
-
-                <div class="text-center mt-4">
-                    <span class="text-muted">Chưa có tài khoản?</span>
-                    <a th:href="@{/register}">Đăng kí ngay</a>
-                </div>
-            </div>
-        </div>
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+        <script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
     </div>
 </div>
-
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
-<script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
-</body>
-</html>

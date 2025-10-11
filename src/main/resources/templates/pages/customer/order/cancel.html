@@ -1,83 +1,87 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Hủy thành công</title>
-    <style>
-        /* Reset mặc định */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Poppins", sans-serif;
-        }
+<div layout:decorate="~{layouts/customer-layout}" xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
-        body {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: linear-gradient(135deg, #f8f9fa, #e3f2fd);
-        }
+    <div layout:fragment="content">
+        <style>
+            /* Reset mặc định */
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: "Poppins", sans-serif;
+            }
 
-        .message {
-            background: #ffffff;
-            padding: 30px 50px;
-            border-radius: 20px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            margin-bottom: 20px;
-            animation: fadeIn 0.6s ease;
-        }
+            body {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                background: linear-gradient(135deg, #f8f9fa, #e3f2fd);
+            }
 
-        .message h2 {
-            color: #ff4d4f;
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
+            .message {
+                background: #ffffff;
+                padding: 30px 50px;
+                border-radius: 20px;
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+                text-align: center;
+                margin-bottom: 20px;
+                animation: fadeIn 0.6s ease;
+            }
 
-        .message p {
-            color: #555;
-            font-size: 16px;
-        }
+            .message h2 {
+                color: #ff4d4f;
+                font-size: 24px;
+                margin-bottom: 10px;
+            }
 
-        a {
-            text-decoration: none;
-            color: white;
-            background-color: #4caf50;
-            padding: 12px 30px;
-            border-radius: 30px;
-            font-size: 18px;
-            font-weight: 500;
-            letter-spacing: 1px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+            .message p {
+                color: #555;
+                font-size: 16px;
+            }
 
-        a:hover {
-            background-color: #43a047;
-            box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
-            transform: translateY(-3px);
-        }
+            a {
+                text-decoration: none;
+                color: white;
+                background-color: #4caf50;
+                padding: 12px 30px;
+                border-radius: 30px;
+                font-size: 18px;
+                font-weight: 500;
+                letter-spacing: 1px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
 
-        a:active {
-            transform: scale(0.97);
-        }
+            a:hover {
+                background-color: #43a047;
+                box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+                transform: translateY(-3px);
+            }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
-</head>
-<body>
-<div class="message">
-    <h2>✅ Bạn đã hủy thành công!</h2>
-    <p>Giao dịch của bạn đã được hủy. Cảm ơn bạn đã sử dụng dịch vụ.</p>
+            a:active {
+                transform: scale(0.97);
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        </style>
+        <div class="message">
+            <h2>✅ Bạn đã hủy thành công!</h2>
+            <p>Giao dịch của bạn đã được hủy. Cảm ơn bạn đã sử dụng dịch vụ.</p>
+        </div>
+
+        <a th:href="@{/}">Trang chủ</a>
+    </div>
 </div>
-
-<a th:href="@{/}">Trang chủ</a>
-</body>
-</html>

@@ -1,227 +1,224 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Order History</title>
-    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
-    <style>
-        a.page-btn {
-            display: inline-block;
-            padding: 8px 15px;
-            margin: 0 5px;
-            border: 2px solid #007bff;
-            border-radius: 6px;
-            background-color: #e9f3ff;
-            color: #007bff;
-            font-weight: bold;
-            text-decoration: none;
-            transition: 0.3s;
-        }
+<div layout:decorate="~{layouts/customer-layout}" xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+    <div layout:fragment="content">
+        <style>
+            a.page-btn {
+                display: inline-block;
+                padding: 8px 15px;
+                margin: 0 5px;
+                border: 2px solid #007bff;
+                border-radius: 6px;
+                background-color: #e9f3ff;
+                color: #007bff;
+                font-weight: bold;
+                text-decoration: none;
+                transition: 0.3s;
+            }
 
-        a.page-btn:hover {
-            background-color: #007bff;
-            color: #fff;
-        }
+            a.page-btn:hover {
+                background-color: #007bff;
+                color: #fff;
+            }
 
-        span.page-info {
-            font-weight: bold;
-            margin: 0 10px;
-            color: #333;
-        }
+            span.page-info {
+                font-weight: bold;
+                margin: 0 10px;
+                color: #333;
+            }
 
-        /* Container form */
-        form {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: flex-end;
-            gap: 12px;
-            background: #f8f9fa;
-            padding: 16px 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-        }
+            /* Container form */
+            form {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: flex-end;
+                gap: 12px;
+                background: #f8f9fa;
+                padding: 16px 20px;
+                border-radius: 10px;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+                margin-bottom: 20px;
+            }
 
-        /* Mỗi ô trong form */
-        form > div {
-            display: flex;
-            flex-direction: column;
-        }
+            /* Mỗi ô trong form */
+            form>div {
+                display: flex;
+                flex-direction: column;
+            }
 
-        /* Label giả lập (nếu thêm label sau này sẽ đồng bộ) */
-        form label {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 4px;
-            color: #555;
-        }
+            /* Label giả lập (nếu thêm label sau này sẽ đồng bộ) */
+            form label {
+                font-size: 14px;
+                font-weight: 600;
+                margin-bottom: 4px;
+                color: #555;
+            }
 
-        /* Select và input */
-        form select,
-        form input[type="date"] {
-            padding: 6px 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 14px;
-            min-width: 180px;
-            transition: all 0.2s ease;
-        }
+            /* Select và input */
+            form select,
+            form input[type="date"] {
+                padding: 6px 10px;
+                border: 1px solid #ccc;
+                border-radius: 6px;
+                font-size: 14px;
+                min-width: 180px;
+                transition: all 0.2s ease;
+            }
 
-        form select:focus,
-        form input[type="date"]:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 2px rgba(0,123,255,0.2);
-            outline: none;
-        }
+            form select:focus,
+            form input[type="date"]:focus {
+                border-color: #007bff;
+                box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+                outline: none;
+            }
 
-        /* Buttons */
-        .btn {
-            padding: 7px 16px;
-            border-radius: 6px;
-            font-size: 14px;
-            cursor: pointer;
-            border: none;
-            transition: background-color 0.2s ease;
-        }
+            /* Buttons */
+            .btn {
+                padding: 7px 16px;
+                border-radius: 6px;
+                font-size: 14px;
+                cursor: pointer;
+                border: none;
+                transition: background-color 0.2s ease;
+            }
 
-        .btn-primary {
-            background-color: #007bff;
-            color: white;
-        }
+            .btn-primary {
+                background-color: #007bff;
+                color: white;
+            }
 
-        .btn-primary:hover {
-            background-color: #0069d9;
-        }
+            .btn-primary:hover {
+                background-color: #0069d9;
+            }
 
-        .btn-secondary {
-            background-color: #e9ecef;
-            color: #333;
-        }
+            .btn-secondary {
+                background-color: #e9ecef;
+                color: #333;
+            }
 
-        .btn-secondary:hover {
-            background-color: #d6d8db;
-        }
-
-    </style>
-</head>
-<body>
-<div class="container mt-4">
-    <div class="mb-4">
-        <a th:href="@{/}" class="btn btn-secondary mb-2">← Trang chủ</a>
-        <h1>Lịch sử đặt hàng</h1>
-    </div>
-    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
-    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
-
-    <div class="alert alert-info">
-        <strong>Tổng số đơn hàng:</strong> <span th:text="${orders.totalElements}">0</span><br>
-        <strong>Số tiền đã thanh toán:</strong> <span th:text="${totalSpent}"></span>
-    </div>
-
-<h5>Tìm kiếm đơn hàng</h5>
-        <form th:action="@{/customer/order-history}" method = get>
-    <div>
-        <select name ="status" th:value="status">
-            <option value="">Tất cả</option>
-            <option value="Chờ Xác Nhận" th:selected="${status == 'Chờ Xác Nhận'}">Chờ xác nhận</option>
-            <option value="Đang Chuẩn Bị Hàng" th:selected="${status == 'Đang Chuẩn Bị Hàng'}">Đang chuẩn bị hàng</option>
-            <option value="Đang Hiao Hàng" th:selected="${status == 'Đang Giao Hàng'}">Đang giao hàng</option>
-            <option value="Đã Giao Hàng" th:selected="${status == 'Đã Giao Hàng'}">Đã giao hàng</option>
-            <option value="Chờ Thanh Toán" th:selected="${status == 'Chờ Thanh Toán'}">Chờ thanh toán</option>
-            <option value="Đã Hủy" th:selected="${status == 'Đã Hủy'}">Đã hủy</option>
-        </select>
-    </div>
-
-            <div>
-                <input name="fromDate" type = "date" th:value="${fromDate}">
+            .btn-secondary:hover {
+                background-color: #d6d8db;
+            }
+        </style>
+        <div class="container mt-4">
+            <div class="mb-4">
+                <a th:href="@{/}" class="btn btn-secondary mb-2">← Trang chủ</a>
+                <h1>Lịch sử đặt hàng</h1>
             </div>
-            <div>
-                <input name="toDate" type="date" th:value="${toDate}">
-            </div>
-            <div>
-                <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
-            </div>
-            <div>
-                <a th:if="${(status != null and !#strings.isEmpty(status)) or (fromDate != null and !#strings.isEmpty(fromDate)) or (toDate != null and !#strings.isEmpty(toDate))}"
-                   th:href="@{/customer/order-history}" class="btn btn-secondary">Bỏ tìm kiếm</a>
+            <div class="alert alert-info">
+                <strong>Tổng số đơn hàng:</strong> <span th:text="${orders.totalElements}">0</span><br>
+                <strong>Số tiền đã thanh toán:</strong> <span th:text="${totalSpent}"></span>
             </div>
 
+            <h5>Tìm kiếm đơn hàng</h5>
+            <form th:action="@{/customer/order-history}" method=get>
+                <div>
+                    <select name="status" th:value="status">
+                        <option value="">Tất cả</option>
+                        <option value="Chờ Xác Nhận" th:selected="${status == 'Chờ Xác Nhận'}">Chờ xác nhận</option>
+                        <option value="Đang Chuẩn Bị Hàng" th:selected="${status == 'Đang Chuẩn Bị Hàng'}">Đang chuẩn bị
+                            hàng</option>
+                        <option value="Đang Hiao Hàng" th:selected="${status == 'Đang Giao Hàng'}">Đang giao hàng
+                        </option>
+                        <option value="Đã Giao Hàng" th:selected="${status == 'Đã Giao Hàng'}">Đã giao hàng</option>
+                        <option value="Chờ Thanh Toán" th:selected="${status == 'Chờ Thanh Toán'}">Chờ thanh toán
+                        </option>
+                        <option value="Đã Hủy" th:selected="${status == 'Đã Hủy'}">Đã hủy</option>
+                    </select>
+                </div>
 
-        </form>
+                <div>
+                    <input name="fromDate" type="date" th:value="${fromDate}">
+                </div>
+                <div>
+                    <input name="toDate" type="date" th:value="${toDate}">
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-primary">Tìm kiếm</button>
 
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead class="table-dark">
-            <tr>
-                <th>Mã đơn hàng</th>
-                <th>Ngày đặt hàng</th>
-                <th>Trạng thái</th>
-                <th>Tổng tiền</th>
-                <th>Chi tiết</th>
-                <th>Thao tác</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="order : ${orders.content}">
-                <td>
-                    <strong th:text="${order.id}"></strong>
-                </td>
-                <td>
-                    <span th:if="${order.orderAt != null}"
-                          th:text="${#temporals.format(order.orderAt, 'dd/MM/yyyy HH:mm')}"></span>
+                </div>
+                <div>
+                    <a th:if="${(status != null and !#strings.isEmpty(status)) or (fromDate != null and !#strings.isEmpty(fromDate)) or (toDate != null and !#strings.isEmpty(toDate))}"
+                        th:href="@{/customer/order-history}" class="btn btn-secondary">Bỏ tìm kiếm</a>
+                </div>
 
-                </td>
-                <td th:switch="${order.orderStatus.name}">
-                    <span th:case="'Chờ Xác Nhận'" class="badge bg-warning text-dark">Chờ Xác Nhận</span>
-                    <span th:case="'Chờ Thanh Toán'" class="badge bg-secondary text-light">Chờ Thanh Toán</span>
-                    <span th:case="'Đang Chuẩn Bị Hàng'" class="badge bg-info text-dark">Đang Chuẩn Bị Hàng</span>
-                    <span th:case="'Đang Giao Hàng'" class="badge bg-primary">Đang Giao Hàng</span>
-                    <span th:case="'Đã Giao Hàng'" class="badge bg-success">Đã Giao Hàng</span>
-                    <span th:case="'Đã Hủy'" class="badge bg-danger">Đã Hủy</span>
-                </td>
-                <td>
-                    <strong th:text="${#numbers.formatInteger(order.totalAmount, 0, 'COMMA')} + ' VND'"></strong>
-                </td>
-                <td>
-                    <a th:href="@{'/customer/order/order-detail/' + ${order.id}}"
-                       class="btn btn-sm btn-outline-primary">Chi tiết</a>
-                </td>
 
-                <td>
-                    <a th:if="${order.orderStatus.name == 'Chờ Thanh Toán'}"
-                       th:href="${order.paymentLink}"
-                       class="btn btn-sm btn-success fw-bold px-3">Thanh toán ngay</a>
-                    <form th:if="${order.orderStatus.name == 'Chờ Xác Nhận'}"
-                          th:action="@{'/customer/order-history/cancel/' + ${order.id}}"
-                          method="post" style="display:inline;"
-                          onsubmit="return confirm('Bạn có chắc muốn hủy đơn hàng này không?');">
-                        <button type="submit" class="btn btn-sm btn-outline-danger">Hủy</button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+            </form>
+
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Mã đơn hàng</th>
+                            <th>Ngày đặt hàng</th>
+                            <th>Trạng thái</th>
+                            <th>Tổng tiền</th>
+                            <th>Chi tiết</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="order : ${orders.content}">
+                            <td>
+                                <strong th:text="${order.id}"></strong>
+                            </td>
+                            <td>
+                                <span th:if="${order.orderAt != null}"
+                                    th:text="${#temporals.format(order.orderAt, 'dd/MM/yyyy HH:mm')}"></span>
+
+                            </td>
+                            <td th:switch="${order.orderStatus.name}">
+                                <span th:case="'Chờ Xác Nhận'" class="badge bg-warning text-dark">Chờ Xác Nhận</span>
+                                <span th:case="'Chờ Thanh Toán'" class="badge bg-secondary text-light">Chờ Thanh
+                                    Toán</span>
+                                <span th:case="'Đang Chuẩn Bị Hàng'" class="badge bg-info text-dark">Đang Chuẩn Bị
+                                    Hàng</span>
+                                <span th:case="'Đang Giao Hàng'" class="badge bg-primary">Đang Giao Hàng</span>
+                                <span th:case="'Đã Giao Hàng'" class="badge bg-success">Đã Giao Hàng</span>
+                                <span th:case="'Đã Hủy'" class="badge bg-danger">Đã Hủy</span>
+                            </td>
+                            <td>
+                                <strong
+                                    th:text="${#numbers.formatInteger(order.totalAmount, 0, 'COMMA')} + ' VND'"></strong>
+                            </td>
+                            <td>
+                                <a th:href="@{'/customer/order/order-detail/' + ${order.id}}"
+                                    class="btn btn-sm btn-outline-primary">Chi tiết</a>
+                            </td>
+
+                            <td>
+                                <a th:if="${order.orderStatus.name == 'Chờ Thanh Toán'}" th:href="${order.paymentLink}"
+                                    class="btn btn-sm btn-success fw-bold px-3">Thanh toán ngay</a>
+                                <form th:if="${order.orderStatus.name == 'Chờ Xác Nhận'}"
+                                    th:action="@{'/customer/order-history/cancel/' + ${order.id}}" method="post"
+                                    style="display:inline;"
+                                    onsubmit="return confirm('Bạn có chắc muốn hủy đơn hàng này không?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Hủy</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+
+
+            <!-- Simple Pagination -->
+            <a th:if="${orders.hasPrevious()}"
+                th:href="@{/customer/order-history(page=${orders.number - 1}, size=${orders.size},status=${status}, fromDate=${fromDate}, toDate=${toDate})}"
+                class="page-btn">
+                ← Trước
+            </a>
+
+            <span class="page-info">Trang [[${orders.number + 1}]] / [[${orders.totalPages}]]</span>
+
+            <a th:if="${orders.hasNext()}"
+                th:href="@{/customer/order-history(page=${orders.number + 1}, size=${orders.size},status=${status}, fromDate=${fromDate}, toDate=${toDate})}"
+                class="page-btn">
+                Sau →
+            </a>
+        </div>
     </div>
-
-
-
-    <!-- Simple Pagination -->
-    <a th:if="${orders.hasPrevious()}"
-       th:href="@{/customer/order-history(page=${orders.number - 1}, size=${orders.size},status=${status}, fromDate=${fromDate}, toDate=${toDate})}"
-       class="page-btn">
-        ← Trước
-    </a>
-
-    <span class="page-info">Trang [[${orders.number + 1}]] / [[${orders.totalPages}]]</span>
-
-    <a th:if="${orders.hasNext()}"
-       th:href="@{/customer/order-history(page=${orders.number + 1}, size=${orders.size},status=${status}, fromDate=${fromDate}, toDate=${toDate})}"
-       class="page-btn">
-        Sau →
-    </a>
 </div>
-
-<script src="/js/bootstrap/bootstrap.bundle.min.js"></script>
-</body>
-</html>
