@@ -8,9 +8,9 @@
     <script src="/js/bootstrap/bootstrap.bundle.min.js"></script>
 </head>
 <body class="auth-body">
-<div class="container py-4">
-    <a href="/manager" class="btn btn-link mb-3">← Quay về trang chủ</a>
-    <div class="alerts-stack" style="height: 0px; width: fit-content; margin: 0px 50px 0px auto;">
+<div class="container-fluid py-4">
+    <a href="/manager" class="btn btn-secondary mb-3">Quay về trang chủ</a>
+    <div class="alerts-stack" style="height: 0px; width: fit-content; margin: 0px 50px 20px auto;">
         <div class="alert alert-success alert-dismissible fade show" th:hidden="${msg == null}">
             <strong>Thành công!</strong> <span th:text="${msg}"></span>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -155,7 +155,7 @@
                             <input name="queryName" th:value="${queryName}" hidden>
                             <input name="queryCid" th:value="${queryCid}" hidden>
                             <input name="email" th:value="*{email}" hidden>
-                            <button type="submit" value="true"
+                            <button type="submit"
                                     th:text="*{enabled == true ? 'Khóa' : 'Mở'}"
                                     th:class="*{'btn btn-sm ' + (enabled == true ? 'btn-danger' : 'btn-success')}">
                             </button>

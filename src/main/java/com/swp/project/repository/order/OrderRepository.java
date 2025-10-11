@@ -27,6 +27,18 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     Page<Order> findByCustomer(Customer customer, Pageable pageable);
 
+    Page<Order> findByCustomerAndOrderAtBetween(Customer customer,LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
+
+    Page<Order> findByCustomerAndOrderStatus_Name(Customer customer, String orderStatusName, Pageable pageable);
+
+    Page<Order> findByCustomerAndOrderAtAfter(Customer customer, LocalDateTime from, Pageable pageable);
+
+    Page<Order> findByCustomerAndOrderAtBefore(Customer customer, LocalDateTime to, Pageable pageable);
+
+    Page<Order> findByCustomerAndOrderStatus_NameAndOrderAtBetween(Customer customer, String orderStatusName, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
+
+
+
     @Query("""
         SELECT COALESCE(SUM(oi.quantity), 0)
         FROM Order o JOIN o.orderItem oi
@@ -100,4 +112,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
       AND function('DATE', oi.order.orderAt) = :date
 """)
     Long getRevenueByDate(@Param("date") LocalDateTime date);
+
+    Page<Order> findByCustomerAndOrderStatus_NameAndOrderAtAfter(Customer customer, String orderStatus, LocalDateTime fromDate, Pageable pageable);
+
+    Page<Order> findByCustomerAndOrderStatus_NameAndOrderAtBefore(Customer customer, String orderStatusName, LocalDateTime toDate, Pageable pageable);
 }

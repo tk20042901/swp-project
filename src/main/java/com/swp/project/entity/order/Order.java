@@ -1,6 +1,8 @@
 package com.swp.project.entity.order;
 
 
+import java.time.LocalDate;
+
 import com.swp.project.entity.address.CommuneWard;
 import com.swp.project.entity.order.shipping.Shipping;
 import com.swp.project.entity.user.Customer;
@@ -14,7 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.swp.project.entity.order.shipping.ShippingStatus;
+import com.swp.project.service.order.shipping.ShippingStatusService;
 
 @Getter
 @Setter
@@ -47,7 +52,7 @@ public class Order{
     @ManyToOne(fetch = FetchType.EAGER)
     private PaymentMethod paymentMethod;
 
-    private String paymentLink;
+    private String paymentLink; 
 
     private LocalDateTime paymentExpiredAt;
 
@@ -88,6 +93,5 @@ public class Order{
         if (shipping == null || shipping.isEmpty()) return null;
         return getCurrentShipping().getShippingStatus();
     }
-    
-    
+
 }
