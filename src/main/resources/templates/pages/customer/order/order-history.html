@@ -208,7 +208,7 @@
 
     <!-- Simple Pagination -->
     <a th:if="${orders.hasPrevious()}"
-       th:href="@{/customer/order-history(page=${orders.number - 1}, size=${orders.size})}"
+       th:href="@{/customer/order-history(page=${orders.number - 1}, size=${orders.size},status=${status}, fromDate=${fromDate}, toDate=${toDate})}"
        class="page-btn">
         ← Trước
     </a>
@@ -216,7 +216,7 @@
     <span class="page-info">Trang [[${orders.number + 1}]] / [[${orders.totalPages}]]</span>
 
     <a th:if="${orders.hasNext()}"
-       th:href="@{/customer/order-history(page=${orders.number + 1}, size=${orders.size})}"
+       th:href="@{/customer/order-history(page=${orders.number + 1}, size=${orders.size},status=${status}, fromDate=${fromDate}, toDate=${toDate})}"
        class="page-btn">
         Sau →
     </a>
