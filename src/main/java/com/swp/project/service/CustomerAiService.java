@@ -6,6 +6,7 @@ import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.ProductBatch;
 
+import com.swp.project.service.product.ProductService;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -84,8 +85,13 @@ public class CustomerAiService {
 
     private final VectorStore vectorStore;
 
+    private final ProductService productService;
+
     public CustomerAiService(ChatModel chatModel,
-                             VectorStore vectorStore) {
+                             VectorStore vectorStore,
+                             ProductService productService) {
+        this.productService = productService;
+
         this.vectorStore = vectorStore;
 
         ChatClient.Builder chatClientBuilder = ChatClient.builder(chatModel);
@@ -179,13 +185,15 @@ public class CustomerAiService {
     @Transactional
     public void saveProductToVectorStore(Product product) {
         try {
-            String documentId = UUID.nameUUIDFromBytes(product.getId().toString().getBytes()).toString();
-            String content = getProductContent(product);
-            Document document = new Document(documentId, content, Collections.emptyMap());
-            vectorStore.add(List.of(document));
+            vectorStore.add(List.of(new Document(product.getId().toString(), getProductContent(product), Collections.emptyMap())));
         } catch (Exception e) {
             throw new RuntimeException("Lỗi khi lưu sản phẩm vào Vector Store: " + e.getMessage());
         }
+    }
+
+    @Transactional
+    public void saveAllProductsFromDatabaseToVectorStore() {
+        productService.getAllProducts().forEach(this::saveProductToVectorStore);
     }
 
     public void ask (String conversationId, String q, MultipartFile image, List<AiMessageDto> conversation) {
