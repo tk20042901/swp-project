@@ -8,14 +8,19 @@
 </head>
 <body class="auth-body d-flex align-items-center justify-content-center">
 <div class="container-fluid">
-
-    <div class="alerts-stack" style="height: 0px; width: fit-content; margin: 0px 50px 100px auto;">
+    <div style="height: 0px;">
+        <a th:href="@{/manager/{returnUrl}(returnUrl=${session.newClassName.equals('Seller') ? 'manage-seller' : (session.newClassName.equals('Shipper') ? 'manage-shipper' : '')})}"
+           class="btn btn-secondary mb-3">
+            <i class="bi bi-arrow-left"></i> Quay lại
+        </a>
+    </div>
+    <div class="alerts-stack" style="height: 0px; width: fit-content; margin: 0px 50px 50px auto;">
         <div class="alert alert-danger alert-dismissible fade show" th:hidden="${error == null}">
             <strong>Thất bại!</strong> <span th:text="${error}"></span>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     </div>
-    <div class="auth-card p-4 mx-auto col-lg-6 col-md-8 shadow">
+    <div class="auth-card p-4 mx-auto col-lg-6 col-md-8 shadow" style="overflow-y: auto; height: calc(100vh - 100px);">
         <h1 class="h4 mb-4 brand text-center"
             th:text="${(staffDto.id == 0 ? 'Thêm' : 'Sửa') + ' tài khoản' + (session.newClassName.equals('Seller') ? ' người bán' :
               (session.newClassName.equals('Shipper') ? ' người giao hàng' : ''))}">
