@@ -1,6 +1,6 @@
 <div layout:decorate="~{layouts/customer-layout}" xmlns:th="http://www.thymeleaf.org"
     xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
-    <div layout:fragment="content" class="bg-light vh-100">
+    <div layout:fragment="content" class="bg-light vh-100" style="overflow-x: hidden">
         <div class="row justify-content-center h-100">
             <div class="d-flex flex-column py-3">
                 <!-- Errors -->
@@ -73,6 +73,9 @@
                                 style="max-height: 160px;">
                         </div>
                     </form>
+                    <div class="mt-2 small text-muted text-center" style="display: inherit">
+                        Thông tin do AI cung cấp có thể không hoàn toàn chính xác, hãy kiểm tra lại trước khi đưa ra quyết định.
+                    </div>
                 </div>
             </div>
         </div>
