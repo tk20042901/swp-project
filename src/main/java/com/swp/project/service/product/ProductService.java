@@ -260,8 +260,22 @@ public class ProductService {
         return normalized;
     }
 
-    public List<String> saveExtraImages(String productName, MultipartFile[] files) throws Exception {
-        if (files == null || files.length != 3) {
+    public List<SubImage> getSubImageList(List<MultipartFile> extraImages,String productName, Product product) throws Exception {
+        List<SubImage> subImages = new ArrayList<>();
+        List<String> extraImagePaths = saveExtraImages(productName, extraImages);
+        if (extraImagePaths != null) {
+            for (String path : extraImagePaths) {
+                SubImage subImage = new SubImage();
+                subImage.setProduct(product);
+                subImage.setSub_image_url(path);
+                subImages.add(subImage);
+            }
+        }
+        return subImages;
+    }
+
+    public List<String> saveExtraImages(String productName, List<MultipartFile> extraImages) throws Exception {
+        if (extraImages == null || extraImages.size() != 3) {
             throw new IllegalArgumentException("Chỉ có 3 ảnh phụ");
         }
         String folderName = ProductService.toSlugName(productName);
@@ -270,7 +284,7 @@ public class ProductService {
         try {
             Files.createDirectories(uploadDir);
             for (int i = 0; i < 3; i++) {
-                MultipartFile file = files[i];
+                MultipartFile file = extraImages.get(i);
                 try (InputStream inputStream = file.getInputStream()) {
                     BufferedImage image = ImageIO.read(inputStream);
                     String fileName = String.format("%s-%d.jpg", folderName, i + 1);
@@ -288,19 +302,14 @@ public class ProductService {
 
     public String saveMainImage(String productName, MultipartFile file) throws Exception {
         String folderName = ProductService.toSlugName(productName);
-        Path uploadDir = Paths.get(TEMPORARY_PATH+ folderName);
-
-        try {
+        Path uploadDir = Paths.get(TEMPORARY_PATH + folderName);
+        try (InputStream inputStream = file.getInputStream()) {
             Files.createDirectories(uploadDir);
-
-            try (InputStream inputStream = file.getInputStream()) {
-                BufferedImage image = ImageIO.read(inputStream);
-                String fileName = folderName + ".jpg";
-                Path filePath = uploadDir.resolve(fileName);
-                ImageIO.write(image, "jpg", filePath.toFile());
-                return TEMPORARY_PATH + folderName + "/" + fileName;
-            }
-
+            BufferedImage image = ImageIO.read(inputStream);
+            String fileName = folderName + ".jpg";
+            Path filePath = uploadDir.resolve(fileName);
+            ImageIO.write(image, "jpg", filePath.toFile());
+            return TEMPORARY_PATH + folderName + "/" + fileName;
         } catch (Exception e) {
             deleteDirectory(uploadDir);
             throw new Exception("Upload ảnh lỗi " + e.getMessage(), e);
@@ -316,12 +325,10 @@ public class ProductService {
                             try {
                                 Files.deleteIfExists(path);
                             } catch (Exception e) {
-
                             }
                         });
             }
         } catch (Exception e) {
-
         }
     }
 
