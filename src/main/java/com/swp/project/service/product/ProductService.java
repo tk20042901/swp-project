@@ -53,6 +53,8 @@ public class ProductService {
     private final ApplicationEventPublisher eventPublisher;
 
     private static final String TEMPORARY_PATH = "src/main/resources/static/images/temporary-products/";
+    private static final String DISPLAY_PATH = "/images/temporary-products/";
+
     private static final Map<String, Sort> SORT_OPTIONS = Map.of(
             "price-asc", Sort.by("price").ascending(),
             "price-desc", Sort.by("price").descending(),
@@ -290,7 +292,7 @@ public class ProductService {
                     String fileName = String.format("%s-%d.jpg", folderName, i + 1);
                     Path filePath = uploadDir.resolve(fileName);
                     ImageIO.write(image, "jpg", filePath.toFile());
-                    savedPaths.add(TEMPORARY_PATH + folderName + "/" + fileName);
+                    savedPaths.add(DISPLAY_PATH+ folderName + "/" + fileName);
                 }
             }
             return savedPaths;
@@ -309,7 +311,7 @@ public class ProductService {
             String fileName = folderName + ".jpg";
             Path filePath = uploadDir.resolve(fileName);
             ImageIO.write(image, "jpg", filePath.toFile());
-            return TEMPORARY_PATH + folderName + "/" + fileName;
+            return DISPLAY_PATH + folderName + "/" + fileName;
         } catch (Exception e) {
             deleteDirectory(uploadDir);
             throw new Exception("Upload ảnh lỗi " + e.getMessage(), e);

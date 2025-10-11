@@ -283,7 +283,6 @@ public class SellerController {
                     .categories(categories)
                     .main_image_url(productService.saveMainImage(productDto.getName(), imageFile))
                     .build();
-            // Only process extra images if they are actually selected (not empty)
             List<MultipartFile> validExtraImages = extraImages.stream()
                     .filter(file -> !file.isEmpty())
                     .collect(Collectors.toList());

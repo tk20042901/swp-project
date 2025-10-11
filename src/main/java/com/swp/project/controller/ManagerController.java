@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.swp.project.service.order.OrderService;
+import com.swp.project.service.seller_request.SellerRequestService;
+import com.swp.project.service.seller_request.SellerRequestTypeService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,6 +20,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.swp.project.dto.StaffDto;
 import com.swp.project.entity.address.CommuneWard;
 import com.swp.project.entity.address.ProvinceCity;
+import com.swp.project.entity.product.Product;
+import com.swp.project.entity.seller_request.SellerRequest;
 import com.swp.project.entity.user.Seller;
 import com.swp.project.entity.user.Shipper;
 import com.swp.project.service.AddressService;
@@ -32,9 +37,11 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/manager")
 public class ManagerController {
 
+    private final SellerRequestTypeService sellerRequestTypeService;
     private final SellerService sellerService;
     private final ShipperService shipperService;
     private final AddressService addressService;
+    private final SellerRequestService sellerRequestService;
 
     private final int numEachPage = 10;
     private final OrderService orderService;
@@ -95,16 +102,16 @@ public class ManagerController {
         }
 
         sellerService.findByNameAndCid(session.getAttribute("queryName").toString(),
-                                        session.getAttribute("queryCid").toString());
+                session.getAttribute("queryCid").toString());
         sellerService.sortBy((String) session.getAttribute("sortCriteria"), (Integer) session.getAttribute("k"));
         session.setAttribute("list", sellerService.getResults());
-        if (sellerService.getResults().size() - 1 < ((Integer) session.getAttribute("subpageIndex") - 1) * numEachPage) {
+        if (sellerService.getResults().size() - 1 < ((Integer) session.getAttribute("subpageIndex") - 1)
+                * numEachPage) {
             session.setAttribute("subpageIndex", 1);
         }
 
         return "pages/manager/manage-seller";
     }
-
 
     @GetMapping("manage-shipper")
     public String manageShipper(
@@ -157,16 +164,16 @@ public class ManagerController {
         }
 
         shipperService.findByNameAndCid(session.getAttribute("queryName").toString(),
-                                        session.getAttribute("queryCid").toString());
+                session.getAttribute("queryCid").toString());
         shipperService.sortBy((String) session.getAttribute("sortCriteria"), (Integer) session.getAttribute("k"));
         session.setAttribute("list", shipperService.getResults());
-        if (shipperService.getResults().size() - 1 < ((Integer) session.getAttribute("subpageIndex") - 1) * numEachPage) {
+        if (shipperService.getResults().size() - 1 < ((Integer) session.getAttribute("subpageIndex") - 1)
+                * numEachPage) {
             session.setAttribute("subpageIndex", 1);
         }
 
         return "pages/manager/manage-shipper";
     }
-
 
     @PostMapping("/manage-seller")
     public String manageSeller(
@@ -180,7 +187,8 @@ public class ManagerController {
             sellerService.save(seller);
             sellerService.setSellerStatus(seller.getId(), isEnabled);
 
-            redirectAttributes.addFlashAttribute("msg", (isEnabled ? "Mở khóa " : "Khóa ") + seller.getName() + " thành công" );
+            redirectAttributes.addFlashAttribute("msg",
+                    (isEnabled ? "Mở khóa " : "Khóa ") + seller.getName() + " thành công");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
@@ -199,14 +207,13 @@ public class ManagerController {
             shipperService.save(shipper);
             shipperService.setShipperStatus(shipper.getId(), isEnabled);
 
-            redirectAttributes.addFlashAttribute("msg", (isEnabled ? "Mở khóa " : "Khóa ") + shipper.getName() + " thành công" );
+            redirectAttributes.addFlashAttribute("msg",
+                    (isEnabled ? "Mở khóa " : "Khóa ") + shipper.getName() + " thành công");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/manager/manage-shipper";
     }
-
-
 
     @GetMapping("/edit-staff")
     public String editStaff(
@@ -235,7 +242,7 @@ public class ManagerController {
                     if (email != null && !email.isEmpty()) {
                         Shipper shipper = shipperService.getByEmail(email);
                         staffDto = new StaffDto().parse(shipper);
-                    }  else {
+                    } else {
                         staffDto = new StaffDto();
                     }
                     break;
@@ -355,7 +362,7 @@ public class ManagerController {
     }
 
     @GetMapping("/statistic-report")
-        public String getManagerStastisticReport(Model model){
+    public String getManagerStastisticReport(Model model) {
         Long totalUnitSold = orderService.getUnitSold();
         Long revenueToday = orderService.getRevenueToday();
         Long revenueThisWeek = orderService.getRevenueThisWeek();
@@ -371,7 +378,76 @@ public class ManagerController {
         model.addAttribute("weeklyPercentageChange", weeklyPercentageChange);
         model.addAttribute("monthlyPercentageChange", monthlyPercentageChange);
         return "pages/manager/statistic-report";
+    }
 
+    @GetMapping("/all-products-request")
+    public String getAllProductsRequest(
+            Model model) {
+        model.addAttribute("sellerRequests", sellerRequestService.getAllSellerRequest());
+        for (SellerRequest sr : sellerRequestService.getAllSellerRequest()) {
+            System.out.println(sr.getRequestType().getName());
         }
+        return "pages/manager/all-products-request";
+    }
 
+    @GetMapping("/product-request-details/{requestId}")
+    public String viewRequestChanges(
+            @PathVariable Long requestId,
+            Model model) throws Exception {
+        SellerRequest sellerRequest = sellerRequestService.getSellerRequestById(requestId);
+    
+        if (sellerRequest == null) {
+            throw new Exception("Yêu cầu không tồn tại");
+        }
+        Product newProduct = sellerRequestService.getEntityFromContent(sellerRequest.getContent(), Product.class);
+        if (sellerRequestTypeService.isUpdateType(sellerRequest)) {
+            model.addAttribute("oldProduct", sellerRequestService.getEntityFromContent(sellerRequest.getOldContent(), Product.class));
+        }
+        model.addAttribute("newProduct", newProduct);
+        model.addAttribute("firstNewImage", newProduct.getSub_images().get(0).getSub_image_url());
+        model.addAttribute("secondNewImage", newProduct.getSub_images().get(1).getSub_image_url());
+        model.addAttribute("thirdNewImage", newProduct.getSub_images().get(2).getSub_image_url());
+        model.addAttribute("sellerRequest", sellerRequest);
+        return "pages/manager/product-request-details";
+    }
+
+    @PostMapping("/approve-product-request")
+    public String approveProductRequest(
+            @RequestParam Long requestId,
+            RedirectAttributes redirectAttributes) {
+        try {
+            SellerRequest sellerRequest = sellerRequestService.getSellerRequestById(requestId);
+            if (sellerRequest == null) {
+                throw new Exception("Yêu cầu không tồn tại");
+            }
+            
+            // Process the approval logic here
+            sellerRequestService.approveRequest(requestId);
+            
+            redirectAttributes.addFlashAttribute("msg", "Đã duyệt yêu cầu thành công");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/manager/all-products-request";
+    }
+
+    @PostMapping("/reject-product-request")
+    public String rejectProductRequest(
+            @RequestParam Long requestId,
+            RedirectAttributes redirectAttributes) {
+        try {
+            SellerRequest sellerRequest = sellerRequestService.getSellerRequestById(requestId);
+            if (sellerRequest == null) {
+                throw new Exception("Yêu cầu không tồn tại");
+            }
+            
+            // Process the rejection logic here
+            sellerRequestService.rejectRequest(requestId);
+            
+            redirectAttributes.addFlashAttribute("msg", "Đã từ chối yêu cầu");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/manager/all-products-request";
+    }
 }

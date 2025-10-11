@@ -55,6 +55,11 @@ public class SellerRequestService {
                 .build());
     }
 
+    public <T> T getEntityFromContent(String content, Class<T> entityClass) throws JsonProcessingException {
+        System.out.println(content);
+        return objectMapper.readValue(content, entityClass);
+    }
+
     public void approveRequest(Long requestId) throws JsonProcessingException {
         SellerRequest sellerRequest = getSellerRequestById(requestId);
         sellerRequest.setStatus(sellerRequestStatusService.getApprovedStatus());
