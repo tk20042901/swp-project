@@ -2,15 +2,92 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Admin Dashboard</title>
     <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f8f9fa, #e3f2fd);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: "Poppins", sans-serif;
+        }
+
+        .admin-container {
+            background: #fff;
+            padding: 40px 60px;
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 400px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            width: 100%;
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 30px;
+            padding: 10px 0;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-logout {
+            background-color: #ff4d4f;
+            color: white;
+            border: none;
+        }
+
+        .btn-logout:hover {
+            background-color: #e04344;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #0069d9;
+        }
+
+        .btn-stat {
+            background-color: #17a2b8;
+            color: white;
+            border: none;
+        }
+
+        .btn-stat:hover {
+            background-color: #138496;
+        }
+    </style>
 </head>
 <body>
-    <p>Admin</p>
+<div class="admin-container">
+    <h1>Admin</h1>
+
     <form th:action="@{/logout}" method="post">
-        <button type="submit" class="btn">Đăng xuất</button>
+        <button type="submit" class="btn btn-logout">Đăng xuất</button>
     </form>
+
     <a href="/admin/manage-manager" class="btn btn-primary">Manage Managers</a>
-    <script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
+
+    <a th:href="@{/admin/statistic-report}" class="btn btn-stat">Thống kê</a>
+</div>
+
+<script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
 </body>
 </html>
