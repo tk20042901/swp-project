@@ -37,10 +37,9 @@ public class ManagerService {
 
     @Transactional
     public void initManager() {
-        CommuneWard ward = communeWardRepository.findAll()
-            .stream()
-            .findFirst()
-            .orElse(null);
+        List<CommuneWard> wards = communeWardRepository.findAll();
+        CommuneWard ward = wards.isEmpty() ? null : wards.get(0);
+        
         for (int i = 1; i <= 4; i++) {
             createManagerIfNotExists(Manager.builder()
                     .fullname("Manager " + i)

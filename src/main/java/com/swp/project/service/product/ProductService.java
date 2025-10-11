@@ -1,7 +1,9 @@
 package com.swp.project.service.product;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -51,6 +53,8 @@ public class ProductService {
     private final ApplicationEventPublisher eventPublisher;
 
     private static final String TEMPORARY_PATH = "src/main/resources/static/images/temporary-products/";
+    private static final String DISPLAY_PATH = "/images/temporary-products/";
+
     private static final Map<String, Sort> SORT_OPTIONS = Map.of(
             "price-asc", Sort.by("price").ascending(),
             "price-desc", Sort.by("price").descending(),
@@ -258,52 +262,76 @@ public class ProductService {
         return normalized;
     }
 
-    public static String getMainImageUrl(
-            MultipartFile imageFile,
-            String productFileName) throws IOException {
-        if (imageFile.isEmpty()) {
-            return null;
+    public List<SubImage> getSubImageList(List<MultipartFile> extraImages,String productName, Product product) throws Exception {
+        List<SubImage> subImages = new ArrayList<>();
+        List<String> extraImagePaths = saveExtraImages(productName, extraImages);
+        if (extraImagePaths != null) {
+            for (String path : extraImagePaths) {
+                SubImage subImage = new SubImage();
+                subImage.setProduct(product);
+                subImage.setSub_image_url(path);
+                subImages.add(subImage);
+            }
         }
-        if (ImageIO.read(imageFile.getInputStream()) == null) {
-            throw new IllegalArgumentException("File không phải là hình ảnh hợp lệ");
-        }
-        String fruitName = ProductService.toSlugName(productFileName);
-        String uploadDir = TEMPORARY_PATH + fruitName + "/";
-
-        File dir = new File(uploadDir);
-        if (!dir.exists())
-            dir.mkdirs();
-
-        String fileName = fruitName + ".jpg";
-        Path filePath = Paths.get(uploadDir + fileName);
-        Files.copy(imageFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-        return "images/" + fruitName + "/" + fileName;
+        return subImages;
     }
 
-    public static String getSubImageUrl(
-            MultipartFile imageFile,
-            String productFileName,
-            int imageNumber) throws IOException {
-        imageNumber = Math.abs(imageNumber);
-        if (imageFile.isEmpty()) {
-            return null;
+    public List<String> saveExtraImages(String productName, List<MultipartFile> extraImages) throws Exception {
+        if (extraImages == null || extraImages.size() != 3) {
+            throw new IllegalArgumentException("Chỉ có 3 ảnh phụ");
         }
-        if (ImageIO.read(imageFile.getInputStream()) == null) {
-            throw new IllegalArgumentException("File không phải là hình ảnh hợp lệ");
+        String folderName = ProductService.toSlugName(productName);
+        Path uploadDir = Paths.get(TEMPORARY_PATH + folderName);
+        List<String> savedPaths = new ArrayList<>();
+        try {
+            Files.createDirectories(uploadDir);
+            for (int i = 0; i < 3; i++) {
+                MultipartFile file = extraImages.get(i);
+                try (InputStream inputStream = file.getInputStream()) {
+                    BufferedImage image = ImageIO.read(inputStream);
+                    String fileName = String.format("%s-%d.jpg", folderName, i + 1);
+                    Path filePath = uploadDir.resolve(fileName);
+                    ImageIO.write(image, "jpg", filePath.toFile());
+                    savedPaths.add(DISPLAY_PATH+ folderName + "/" + fileName);
+                }
+            }
+            return savedPaths;
+        } catch (Exception e) {
+            deleteDirectory(uploadDir);
+            throw new Exception("Upload ảnh lỗi " + e.getMessage(), e);
         }
-        String fruitName = ProductService.toSlugName(productFileName);
-        String uploadDir = TEMPORARY_PATH + fruitName + "/";
+    }
 
-        File dir = new File(uploadDir);
-        if (!dir.exists())
-            dir.mkdirs();
+    public String saveMainImage(String productName, MultipartFile file) throws Exception {
+        String folderName = ProductService.toSlugName(productName);
+        Path uploadDir = Paths.get(TEMPORARY_PATH + folderName);
+        try (InputStream inputStream = file.getInputStream()) {
+            Files.createDirectories(uploadDir);
+            BufferedImage image = ImageIO.read(inputStream);
+            String fileName = folderName + ".jpg";
+            Path filePath = uploadDir.resolve(fileName);
+            ImageIO.write(image, "jpg", filePath.toFile());
+            return DISPLAY_PATH + folderName + "/" + fileName;
+        } catch (Exception e) {
+            deleteDirectory(uploadDir);
+            throw new Exception("Upload ảnh lỗi " + e.getMessage(), e);
+        }
+    }
 
-        String fileName = fruitName + "-" + imageNumber + ".jpg";
-        Path filePath = Paths.get(uploadDir + fileName);
-        Files.copy(imageFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-        return "images/" + fruitName + "/" + fileName;
+    private void deleteDirectory(Path directory) {
+        try {
+            if (Files.exists(directory)) {
+                Files.walk(directory)
+                        .sorted((a, b) -> b.compareTo(a))
+                        .forEach(path -> {
+                            try {
+                                Files.deleteIfExists(path);
+                            } catch (Exception e) {
+                            }
+                        });
+            }
+        } catch (Exception e) {
+        }
     }
 
     public void checkUniqueProductName(String name) throws Exception {
@@ -312,25 +340,5 @@ public class ProductService {
             throw new Exception("Tên sản phẩm đã tồn tại. Vui lòng chọn tên khác.");
         }
     }
-
-    public List<SubImage> getSubImageList(List<MultipartFile> extraImages, String productFileName, Product product)
-            throws Exception {
-        List<SubImage> images = new ArrayList<>();
-        int imageNumber = 1;
-        for (MultipartFile file : extraImages) {
-            if (file.isEmpty()) {
-                continue;
-            }
-            String url = getSubImageUrl(file, productFileName, imageNumber);
-            SubImage img = new SubImage();
-            img.setProduct(product);
-            img.setSub_image_url(url);
-            images.add(img);
-            imageNumber++; 
-        }
-        return images;
-    }
-
-    
 
 }

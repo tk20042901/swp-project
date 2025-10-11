@@ -1,113 +1,95 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Giỏ hàng</title>
-    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
-</head>
-<body>
-<div class="container">
-    <a th:href="@{/}" class="btn btn-secondary mb-3">Tiếp tục mua sắm</a>
+<div layout:decorate="~{layouts/customer-layout}" xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
-    <h1>Giỏ hàng của tôi</h1>
+    <div layout:fragment="content">
+        <div class="container">
+            <a th:href="@{/}" class="btn btn-secondary mb-3">Tiếp tục mua sắm</a>
 
-    <!-- Messages -->
-    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
-    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+            <h1>Giỏ hàng của tôi</h1>
 
-    <table class="table table-bordered">
-        <thead>
-        <tr>
-            <th>Chọn</th>
-            <th>Sản phẩm</th>
-            <th>Đơn giá</th>
-            <th>Số lượng</th>
-            <th>Thành tiền</th>
-            <th>Thao tác</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-        <tr th:if="${#lists.isEmpty(cartItems)}">
-            <td colspan="6" class="text-center">Chưa có sản phẩm nào trong giỏ hàng.</td>
-        </tr>
-        <tr th:each="item : ${cartItems}">
-            <td>
-                <form th:action="@{/customer/shopping-cart/select}" method="post">
-                    <input type="hidden" name="cartIds" th:value="${item.product.id}">
-                    <input type="checkbox"
-                           th:checked="${#lists.contains(selectedIds, item.product.id)}"
-                           onchange="this.form.submit()">
-                </form>
-            </td>
-            <td>
-                <img th:src="@{${item.product.main_image_url}}"
-                     alt="Product Image"
-                     style="width: 50px; height: 50px;">
-                <a th:href="@{/product/{id}(id=${item.product.id})}"
-                   th:text="${item.product.name}"></a>
-            </td>
-            <td>
-                <span th:text="${item.product.price + '/' + item.product.unit.name}"></span>
-            </td>
-            <td>
-                <!-- Fixed form for DTO -->
-                <form th:action="@{/customer/shopping-cart/update}" method="post" style="display: inline;">
-                    <input type="hidden" name="productId" th:value="${item.product.id}">
-                    <input type="number"
-                           name="quantity"
-                           th:value="${item.quantity}"
-                           min="1"
-                           max="9999"
-                           class="form-control"
-                           style="width: 80px; display: inline-block;"
-                           onchange="this.form.submit()">
-                </form>
-            </td>
-            <td>
-                <span class="item-subtotal" th:text="${item.product.price * item.quantity + ' VND'}"></span>
-            </td>
-            <td>
-                <form th:action="@{/customer/shopping-cart/remove}" method="post">
-                    <input type="hidden" name="productId" th:value="${item.product.id}">
-                    <button type="submit"
-                            class="btn btn-danger btn-sm"
-                            onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?')">
-                        Xóa
-                    </button>
-                </form>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+            <!-- Messages -->
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
-    <div class="row">
-        <div class="col-md-6">
-            <h4>
-                Tổng tiền đã chọn:
-                <span th:text="${totalAmount}">0 VND</span>
-            </h4>
-            <p th:if="${totalAmount == 0}">
-                Vui lòng chọn sản phẩm để xem tổng tiền
-            </p>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Chọn</th>
+                        <th>Sản phẩm</th>
+                        <th>Đơn giá</th>
+                        <th>Số lượng</th>
+                        <th>Thành tiền</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                    <tr th:if="${#lists.isEmpty(cartItems)}">
+                        <td colspan="6" class="text-center">Chưa có sản phẩm nào trong giỏ hàng.</td>
+                    </tr>
+                    <tr th:each="item : ${cartItems}">
+                        <td>
+                            <form th:action="@{/customer/shopping-cart/select}" method="post">
+                                <input type="hidden" name="cartIds" th:value="${item.product.id}">
+                                <input type="checkbox" th:checked="${#lists.contains(selectedIds, item.product.id)}"
+                                    onchange="this.form.submit()">
+                            </form>
+                        </td>
+                        <td>
+                            <img th:src="@{${item.product.main_image_url}}" alt="Product Image"
+                                style="width: 50px; height: 50px;">
+                            <a th:href="@{/product/{id}(id=${item.product.id})}" th:text="${item.product.name}"></a>
+                        </td>
+                        <td>
+                            <span th:text="${item.product.price + '/' + item.product.unit.name}"></span>
+                        </td>
+                        <td>
+                            <!-- Fixed form for DTO -->
+                            <form th:action="@{/customer/shopping-cart/update}" method="post" style="display: inline;">
+                                <input type="hidden" name="productId" th:value="${item.product.id}">
+                                <input type="number" name="quantity" th:value="${item.quantity}" min="1" max="9999"
+                                    class="form-control" style="width: 80px; display: inline-block;"
+                                    onchange="this.form.submit()">
+                            </form>
+                        </td>
+                        <td>
+                            <span class="item-subtotal" th:text="${item.product.price * item.quantity + ' VND'}"></span>
+                        </td>
+                        <td>
+                            <form th:action="@{/customer/shopping-cart/remove}" method="post">
+                                <input type="hidden" name="productId" th:value="${item.product.id}">
+                                <button type="submit" class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?')">
+                                    Xóa
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>
+                        Tổng tiền đã chọn:
+                        <span th:text="${totalAmount}">0 VND</span>
+                    </h4>
+                    <p th:if="${totalAmount == 0}">
+                        Vui lòng chọn sản phẩm để xem tổng tiền
+                    </p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <form th:action="@{/customer/shopping-cart/check-out}" method="post" id="checkoutForm">
+                        <input th:each="id : ${selectedIds}" type="hidden" name="cartIds" th:value="${id}">
+
+                        <button type="submit" class="btn btn-primary" th:disabled="${totalAmount == 0}">
+                            Thanh toán
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div class="col-md-6 text-end">
-            <form th:action="@{/customer/shopping-cart/check-out}" method="post" id="checkoutForm">
-                <input th:each="id : ${selectedIds}"
-                       type="hidden"
-                       name="cartIds"
-                       th:value="${id}">
 
-                <button type="submit"
-                        class="btn btn-primary"
-                        th:disabled="${totalAmount == 0}">
-                    Thanh toán
-                </button>
-            </form>
-        </div>
+        <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
     </div>
 </div>
-
-<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
-</body>
-</html>

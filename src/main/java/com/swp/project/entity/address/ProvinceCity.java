@@ -25,7 +25,7 @@ public class ProvinceCity implements Serializable {
 
     private String name;
 
-    @OneToMany(mappedBy = "provinceCity", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "provinceCity", fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<CommuneWard> communeWards;
 }

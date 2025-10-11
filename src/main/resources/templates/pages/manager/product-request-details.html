@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết thay đổi sản phẩm</title>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+
+</head>
+
+<body>
+    <div class="container mt-4">
+        <h2 class="mb-4">Chi tiết thay đổi sản phẩm</h2>
+        <h4>Thay đổi mới</h4>
+        <div class="mb-4">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">Tên sản phẩm</th>
+                        <th scope="col">Mô tả</th>
+                        <th scope="col">Giá</th>
+                        <th scope="col">Danh mục</th>
+                        <th scope="col">Đơn vị</th>
+                        <th scope="col">Enabled</th>
+                        <th scope="col">Ảnh chính</th>
+                        <th scope="col">Ảnh phụ 1</th>
+                        <th scope="col">Ảnh phụ 2</th>
+                        <th scope="col">Ảnh phụ 3</th>
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:object="${newProduct}">
+                        <td th:text="*{name}"></td>
+                        <td th:text="*{description}"></td>
+                        <td th:text="*{price}"></td>
+                        <td>
+                            <ul>
+                                <li th:each="category : *{categories}" th:text="${category.name}">Danh mục mới</li>
+                            </ul>
+                        </td>
+                        <td th:text="*{unit.name}"></td>
+                        <td th:text="*{enabled}"></td>
+                        <td>
+                            <img th:src="*{main_image_url}" height="50" width="50"/>
+                        </td>
+                        <td>
+                            <img th:src="${firstNewImage}" height="50" width="50"/>
+                        </td>
+                        <td>
+                            <img th:src="${secondNewImage}" height="50" width="50"/>
+                        </td>
+                        <td>
+                            <img th:src="${thirdNewImage}" height="50" width="50"/>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+    </div>
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+
+</html>

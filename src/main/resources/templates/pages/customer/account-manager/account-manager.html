@@ -1,81 +1,77 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Quản lý tài khoản</title>
-    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body class="auth-body">
-<div class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
-    <div class="w-100" style="max-width: 640px;">
-        <div class="card shadow-sm auth-card">
-            <div class="card-body p-4 p-md-5">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <a class="btn btn-outline-secondary btn-sm"
-                       th:href="@{/}">Quay lại</a>
-                </div>
-                <h1 class="h4 text-center mb-1 brand">Quản lý tài khoản</h1>
-                <p class="text-muted text-center mb-4">Xem và cập nhật thông tin tài khoản của bạn.</p>
+<div layout:decorate="~{layouts/customer-layout}" xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
-                <div class="alerts-stack mb-3 text-center">
-                    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
-                </div>
-
-                <!-- Actions: replaced grid buttons with accessible list-group items -->
-                <div class="list-group mb-3">
-                    <a th:href="@{/customer/delivery-info}"
-                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="fw-semibold">Thông tin giao hàng</div>
-                            <div class="small text-muted">Cập nhật địa chỉ và người nhận</div>
-                            <!-- Delivery summary -->
-                            <ul class="list-unstyled small mb-0 mt-2">
-                                <li>
-                                    <span class="text-secondary">Người nhận:</span>
-                                    <span class="fw-medium"
-                                          th:text="${customer != null && customer.fullName != null ? customer.fullName : 'Chưa cập nhật'}">Chưa cập nhật</span>
-                                </li>
-                                <li>
-                                    <span class="text-secondary">SĐT:</span>
-                                    <span class="fw-medium"
-                                          th:text="${customer != null && customer.phoneNumber != null ? customer.phoneNumber : 'Chưa cập nhật'}">Chưa cập nhật</span>
-                                </li>
-                                <li>
-                                    <span class="text-secondary">Địa chỉ:</span>
-                                    <span class="fw-medium"
-                                          th:text="${customer != null && customer.communeWard != null ? (customer.communeWard.name + (customer.communeWard.provinceCity != null ? ', ' + customer.communeWard.provinceCity.name : '')) : 'Chưa cập nhật'}">Chưa cập nhật</span>
-                                </li>
-                                <li>
-                                    <span class="text-secondary">Địa chỉ chi tiết:</span>
-                                    <span class="fw-medium"
-                                          th:text="${customer != null && customer.specificAddress != null ? customer.specificAddress : 'Chưa cập nhật'}">Chưa cập nhật</span>
-                                </li>
-                            </ul>
+    <div layout:fragment="content">
+        <div class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
+            <div class="w-100" style="max-width: 640px;">
+                <div class="card shadow-sm auth-card">
+                    <div class="card-body p-4 p-md-5">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <a class="btn btn-outline-secondary btn-sm" th:href="@{/}">Quay lại</a>
                         </div>
-                        <span class="text-secondary" aria-hidden="true">&rsaquo;</span>
-                    </a>
-                    <a th:if="${!isGoogleRegistered}"
-                       th:href="@{/customer/change-password}"
-                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="fw-semibold">Đổi mật khẩu</div>
-                            <div class="small text-muted">Tăng cường bảo mật tài khoản</div>
+                        <h1 class="h4 text-center mb-1 brand">Quản lý tài khoản</h1>
+                        <p class="text-muted text-center mb-4">Xem và cập nhật thông tin tài khoản của bạn.</p>
+
+                        <div class="alerts-stack mb-3 text-center">
+                            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
                         </div>
-                        <span class="text-secondary" aria-hidden="true">&rsaquo;</span>
-                    </a>
+
+                        <!-- Actions: replaced grid buttons with accessible list-group items -->
+                        <div class="list-group mb-3">
+                            <a th:href="@{/customer/delivery-info}"
+                                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-semibold">Thông tin giao hàng</div>
+                                    <div class="small text-muted">Cập nhật địa chỉ và người nhận</div>
+                                    <!-- Delivery summary -->
+                                    <ul class="list-unstyled small mb-0 mt-2">
+                                        <li>
+                                            <span class="text-secondary">Người nhận:</span>
+                                            <span class="fw-medium"
+                                                th:text="${customer != null && customer.fullName != null ? customer.fullName : 'Chưa cập nhật'}">Chưa
+                                                cập nhật</span>
+                                        </li>
+                                        <li>
+                                            <span class="text-secondary">SĐT:</span>
+                                            <span class="fw-medium"
+                                                th:text="${customer != null && customer.phoneNumber != null ? customer.phoneNumber : 'Chưa cập nhật'}">Chưa
+                                                cập nhật</span>
+                                        </li>
+                                        <li>
+                                            <span class="text-secondary">Địa chỉ:</span>
+                                            <span class="fw-medium"
+                                                th:text="${customer != null && customer.communeWard != null ? (customer.communeWard.name + (customer.communeWard.provinceCity != null ? ', ' + customer.communeWard.provinceCity.name : '')) : 'Chưa cập nhật'}">Chưa
+                                                cập nhật</span>
+                                        </li>
+                                        <li>
+                                            <span class="text-secondary">Địa chỉ chi tiết:</span>
+                                            <span class="fw-medium"
+                                                th:text="${customer != null && customer.specificAddress != null ? customer.specificAddress : 'Chưa cập nhật'}">Chưa
+                                                cập nhật</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <span class="text-secondary" aria-hidden="true">&rsaquo;</span>
+                            </a>
+                            <a th:if="${!isGoogleRegistered}" th:href="@{/customer/change-password}"
+                                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-semibold">Đổi mật khẩu</div>
+                                    <div class="small text-muted">Tăng cường bảo mật tài khoản</div>
+                                </div>
+                                <span class="text-secondary" aria-hidden="true">&rsaquo;</span>
+                            </a>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <form th:action="@{/logout}" method="post" class="d-grid">
+                            <button type="submit" class="btn btn-danger">Đăng xuất</button>
+                        </form>
+                    </div>
                 </div>
-
-                <hr class="my-4">
-
-                <form th:action="@{/logout}" method="post" class="d-grid">
-                    <button type="submit" class="btn btn-danger">Đăng xuất</button>
-                </form>
             </div>
         </div>
+        <script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
     </div>
 </div>
-<script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
-</body>
-</html>
