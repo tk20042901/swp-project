@@ -456,6 +456,28 @@ public class OrderService {
         return (int) (((double) (currentMonthCount - previousMonthCount) / previousMonthCount) * 100);
     }
 
+    public int countDoneOrdersXWeeksAgo(Principal principal, int weeksAgo) {
+        if (principal == null) {
+            throw new RuntimeException("Người giao hàng không xác định");
+        }
+        return (int) results
+        .stream()
+        .filter(order -> orderStatusService.isDeliveredStatus(order))
+        .filter(order -> order.getCurrentShipping().getOccurredAt().isAfter(LocalDateTime.now().minusWeeks(weeksAgo + 1))
+                && order.getCurrentShipping().getOccurredAt().isBefore(LocalDateTime.now().minusWeeks(weeksAgo)))
+        .count();
+    }
+
+    public int countPercentageComparedToThePreviousWeek(Principal principal, int weeksAgo) {
+        int currentWeekCount = countDoneOrdersXWeeksAgo(principal, weeksAgo);
+        int previousWeekCount = countDoneOrdersXWeeksAgo(principal, weeksAgo + 1);
+
+        if (previousWeekCount == 0) {
+            return currentWeekCount == 0 ? 0 : 100; // If both are 0, return 0%, else return 100%
+        }
+
+        return (int) (((double) (currentWeekCount - previousWeekCount) / previousWeekCount) * 100);
+    }
     
     public Page<Order> getDeliveringOrders(Principal principal, int page, int size) {
         if (principal == null) {
@@ -516,7 +538,6 @@ public class OrderService {
 
     public String getShippedAt(Order order){
         if (order.getShipping() == null || order.getShipping().isEmpty()) return null;
-        // if (shipping.get(i).getShippingStatus().getDescription().equals("Đã Giao Hàng")){
         if (shippingStatusService.isDeliveredStatus(order.getCurrentShippingStatus())) {
             LocalDateTime occurredAt = order.getCurrentShipping().getOccurredAt();
             return "Ngày " + occurredAt.getDayOfMonth() + " tháng " + occurredAt.getMonthValue() + " năm " + occurredAt.getYear() + 

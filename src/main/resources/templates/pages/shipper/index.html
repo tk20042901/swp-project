@@ -1,53 +1,111 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+  <meta charset="UTF-8">
+  <title>Trang Shipper</title>
+  <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/style.css">
 </head>
-<body>
-    <p>Shipper</p>
+<body class="auth-body">
+<div class="container py-4">
+  
+  <!-- Header + Logout -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 text-primary">🚚 Trang Shipper</h1>
     <form th:action="@{/logout}" method="post">
-        <button type="submit" class="btn">Đăng xuất</button>
+      <button type="submit" class="btn btn-outline-danger btn-sm">Đăng xuất</button>
     </form>
+  </div>
 
-    <div class="alerts-stack" style="height: 0px; width: fit-content; margin: 0px 50px 0px auto;">
-        <div class="alert alert-success alert-dismissible fade show" th:hidden="${msg == null}">
-            <strong>Thành công!</strong> <span th:text="${msg}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  <!-- Alerts -->
+  <div class="alerts-stack mb-3" style="width: fit-content; margin-left: auto;">
+    <div class="alert alert-success alert-dismissible fade show" th:hidden="${msg == null}">
+      <strong>Thành công!</strong> <span th:text="${msg}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div class="alert alert-danger alert-dismissible fade show" th:hidden="${error == null}">
+      <strong>Thất bại!</strong> <span th:text="${error}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  </div>
+
+  <!-- Thống kê đơn hàng -->
+  <div class="auth-card p-4 shadow-sm">
+    <h2 class="h5 mb-4 text-center text-secondary">📊 Thống kê đơn hàng đã giao</h2>
+    <div class="row">
+      <!-- Bảng thống kê theo tháng -->
+      <div class="col-lg-6 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h3 class="h6 text-primary mb-3 text-center">Theo tháng</h3>
+            <div class="table-responsive">
+              <table class="table table-striped table-hover align-middle text-center">
+                <thead class="table-light">
+                <tr>
+                  <th>Tháng</th>
+                  <th>Số đơn hàng</th>
+                  <th>Tỷ lệ so với trước</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="i : ${#numbers.sequence(11,1)}">
+                  <td th:text="${i} + ' tháng trước'"></td>
+                  <td th:text="${orderService.countDoneOrdersXMonthsAgo(principal, i)}">0</td>
+                  <td th:text="${orderService.countPercentageComparedToThePreviousMonth(principal, i)} + '%'">0%</td>
+                </tr>
+                <tr class="fw-bold table-primary">
+                  <td>Tháng này</td>
+                  <td th:text="${orderService.countDoneOrdersXMonthsAgo(principal, 0)}">0</td>
+                  <td th:text="${orderService.countPercentageComparedToThePreviousMonth(principal, 0)} + '%'">0%</td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-        <div class="alert alert-danger alert-dismissible fade show" th:hidden="${error == null}">
-            <strong>Thất bại!</strong> <span th:text="${error}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+
+      <!-- Bảng thống kê theo tuần -->
+      <div class="col-lg-6 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h3 class="h6 text-primary mb-3 text-center">Theo tuần</h3>
+            <div class="table-responsive">
+              <table class="table table-striped table-hover align-middle text-center">
+                <thead class="table-light">
+                <tr>
+                  <th>Tuần</th>
+                  <th>Số đơn hàng</th>
+                  <th>Tỷ lệ so với trước</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="i : ${#numbers.sequence(4,1)}">
+                  <td th:text="${i} + ' tuần trước'"></td>
+                  <td th:text="${orderService.countDoneOrdersXWeeksAgo(principal, i)}">0</td>
+                  <td th:text="${orderService.countPercentageComparedToThePreviousWeek(principal, i)} + '%'">0%</td>
+                </tr>
+                <tr class="fw-bold table-primary">
+                  <td>Tuần này</td>
+                  <td th:text="${orderService.countDoneOrdersXWeeksAgo(principal, 0)}">0</td>
+                  <td th:text="${orderService.countPercentageComparedToThePreviousWeek(principal, 0)} + '%'">0%</td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
 
-    <h1>Thống kê đơn hàng đã giao</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Tháng</th>
-                <th>Số đơn hàng đã giao</th>
-                <th>Tỷ lệ so với tháng trước đó</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="i : ${#numbers.sequence(11,1)}">
-                <td th:text="${i} + ' tháng trước'"></td>
-                <td th:text="${orderService.countDoneOrdersXMonthsAgo(principal, i)}">0</td>
-                <td th:text="${orderService.countPercentageComparedToThePreviousMonth(principal, i)} + '%'">0%</td>
-            </tr>
-            <tr>
-                <td>Tháng này</td>
-                <td th:text="${orderService.countDoneOrdersXMonthsAgo(principal, 0)}">0</td>
-                <td th:text="${orderService.countPercentageComparedToThePreviousMonth(principal, 0)} + '%'">0%</td>
-            </tr>
+    <!-- Navigation -->
+    <div class="d-flex justify-content-center gap-3 mt-4">
+      <a href="/shipper/delivering-orders" class="btn btn-outline-primary">📦 Đơn hàng đang giao</a>
+      <a href="/shipper/done-orders" class="btn btn-outline-success">✅ Đơn hàng đã giao</a>
+    </div>
+  </div>
+</div>
 
-        </tbody>
-    </table>
-    <script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
-    <a href="/shipper/delivering-orders">Danh sách đơn hàng đang giao</a>
-    <br>
-    <a href="/shipper/done-orders">Danh sách đơn hàng đã giao</a>
+<script src="/js/bootstrap/bootstrap.bundle.min.js"></script>
 </body>
 </html>
