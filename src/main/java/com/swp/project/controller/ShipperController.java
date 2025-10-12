@@ -18,6 +18,7 @@ import com.swp.project.service.order.OrderService;
 import com.swp.project.service.order.shipping.ShippingStatusService;
 import com.swp.project.service.user.ShipperService;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 
@@ -48,19 +49,43 @@ public class ShipperController {
     public String shipperDeliveringOrders(Model model,
                                 Principal principal,
                                 @RequestParam(defaultValue = "1") int pageDelivering,
-                                @RequestParam(defaultValue = "10") int size) {
+                                @RequestParam(defaultValue = "10") int size,
+                                @RequestParam(required = false) String sortCriteria,
+                                @RequestParam(required = false) String searchQuery,
+                                HttpSession session) {
+        if (session.getAttribute("k") == null) {
+            session.setAttribute("k", 1);
+        }
+        if (session.getAttribute("sortCriteria") == null) {
+            session.setAttribute("sortCriteria", "id");
+        }
+        if (sortCriteria != null) {
+            session.setAttribute("sortCriteria", sortCriteria);
+        }
+        if (sortCriteria != null) {
+            int k = (int) session.getAttribute("k");
+            k = k * -1; // Đảo chiều sắp xếp
+            session.setAttribute("k", k);
+        }
+        if (searchQuery != null) {
+            pageDelivering = 1; // Reset về trang đầu tiên khi có tìm kiếm mới
+            session.setAttribute("searchQuery", searchQuery);
+        }
         try {
             // Lấy Page<Order> thay vì List<Order>
-            Page<Order> deliveringOrders = orderService.getDeliveringOrders(principal, pageDelivering, size);
+            Page<Order> deliveringOrders = orderService.getDeliveringOrders(principal, pageDelivering, size, searchQuery, sortCriteria, (int) session.getAttribute("k"));
             model.addAttribute("deliveringOrders", deliveringOrders.getContent());
             model.addAttribute("shippingStatusService", shippingStatusService);
             model.addAttribute("currentPageDelivering", pageDelivering);
             model.addAttribute("totalPagesDelivering", deliveringOrders.getTotalPages());
-
+            
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
         }
         model.addAttribute("shippingStatusService", shippingStatusService);
+        model.addAttribute("searchQuery", session.getAttribute("searchQuery"));
+        model.addAttribute("sortCriteria", session.getAttribute("sortCriteria"));
+        model.addAttribute("k", (int) session.getAttribute("k"));
         return "pages/shipper/delivering-orders";
     }
 
@@ -68,10 +93,32 @@ public class ShipperController {
     public String shipperDoneOrders(Model model,
                                 Principal principal,
                                 @RequestParam(defaultValue = "1") int pageDone,
-                                @RequestParam(defaultValue = "10") int size) {
+                                @RequestParam(defaultValue = "10") int size,
+                                @RequestParam(required = false) String sortCriteria,
+                                @RequestParam(required = false) String searchQuery,
+                                HttpSession session) {
+        
+        if (session.getAttribute("k") == null) {
+            session.setAttribute("k", 1);
+        }
+                if (session.getAttribute("sortCriteria") == null) {
+            session.setAttribute("sortCriteria", "id");
+        }
+        if (sortCriteria != null) {
+            session.setAttribute("sortCriteria", sortCriteria);
+        }
+        if (sortCriteria != null) {
+            int k = (int) session.getAttribute("k");
+            k = k * -1; // Đảo chiều sắp xếp
+            session.setAttribute("k", k);
+        }
+        if (searchQuery != null) {
+            pageDone = 1; // Reset về trang đầu tiên khi có tìm kiếm mới
+            session.setAttribute("searchQuery", searchQuery);
+        }
         try {
             // Lấy Page<Order> thay vì List<Order>
-            Page<Order> doneOrders = orderService.getDoneOrders(principal, pageDone, size);
+            Page<Order> doneOrders = orderService.getDoneOrders(principal, pageDone, size, searchQuery, sortCriteria, (int) session.getAttribute("k"));
             model.addAttribute("doneOrders", doneOrders.getContent());
             model.addAttribute("currentPageDone", pageDone);
             model.addAttribute("totalPagesDone", doneOrders.getTotalPages());
@@ -79,7 +126,10 @@ public class ShipperController {
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
         }
-        // model.addAttribute("orderStatusService", shipperService.getOrderStatusService());
+        
+        model.addAttribute("searchQuery", session.getAttribute("searchQuery"));
+        model.addAttribute("sortCriteria", session.getAttribute("sortCriteria"));
+        model.addAttribute("k", (int) session.getAttribute("k"));
         return "pages/shipper/done-orders";
     }
 

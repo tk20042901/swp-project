@@ -490,8 +490,8 @@ public class OrderService {
 
         return (int) (((double) (currentDayCount - previousDayCount) / previousDayCount) * 100);
     }
-    
-    public Page<Order> getDeliveringOrders(Principal principal, int page, int size) {
+
+    public Page<Order> getDeliveringOrders(Principal principal, int page, int size, String searchQuery, String sortCriteria, int k) {
         if (principal == null) {
             throw new RuntimeException("Người giao hàng không xác định");
         }
@@ -504,7 +504,26 @@ public class OrderService {
                             order.getShipper() != null &&
                             order.getShipper().getEmail().equals(principal.getName()) &&
                             orderStatusService.isShippingStatus(order))
+            .sorted((o1, o2) -> {
+                if (sortCriteria == null) return 0;
+                switch (sortCriteria) {
+                    case "id":
+                        return k * o1.getId().compareTo(o2.getId());
+                    case "email":
+                        return k * o1.getCustomer().getEmail().compareTo(o2.getCustomer().getEmail());
+                    case "status":
+                        return k * o1.getCurrentShippingStatus().getId().compareTo(o2.getCurrentShippingStatus().getId());
+                    default:
+                        return 0;
+                }
+            })
             .toList();
+
+        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+            allOrders = allOrders.stream()
+                .filter(order -> order.getCustomer().getEmail().toLowerCase().contains(searchQuery.toLowerCase()))
+                .toList();
+        }
 
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), allOrders.size());
@@ -513,7 +532,7 @@ public class OrderService {
         return new PageImpl<>(pagedOrders, pageable, allOrders.size());
     }
 
-    public Page<Order> getDoneOrders(Principal principal, int pageDone, int size) {
+    public Page<Order> getDoneOrders(Principal principal, int pageDone, int size, String searchQuery, String sortCriteria, int k) {
         if (principal == null) {
             throw new RuntimeException("Người giao hàng không xác định");
         }
@@ -526,7 +545,26 @@ public class OrderService {
                             order.getShipper() != null &&
                             order.getShipper().getEmail().equals(principal.getName()) &&
                             orderStatusService.isDeliveredStatus(order))
+            .sorted((o1, o2) -> {
+                if (sortCriteria == null) return 0;
+                switch (sortCriteria) {
+                    case "id":
+                        return k * o1.getId().compareTo(o2.getId());
+                    case "email":
+                        return k * o1.getCustomer().getEmail().compareTo(o2.getCustomer().getEmail());
+                    case "status":
+                        return k * o1.getCurrentShippingStatus().getId().compareTo(o2.getCurrentShippingStatus().getId());
+                    default:
+                        return 0;
+                }
+            })
             .toList();
+
+        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+            allOrders = allOrders.stream()
+                .filter(order -> order.getCustomer().getEmail().toLowerCase().contains(searchQuery.toLowerCase()))
+                .toList();
+        }
 
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), allOrders.size());
