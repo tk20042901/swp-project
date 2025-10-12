@@ -56,7 +56,8 @@
                 <tr class="fw-bold table-primary">
                   <td>Tháng này</td>
                   <td th:text="${orderService.countDoneOrdersXMonthsAgo(principal, 0)}">0</td>
-                  <td th:text="${orderService.countPercentageComparedToThePreviousMonth(principal, 0)} + '%'">0%</td>
+                  <td th:each="percentage : ${orderService.countPercentageComparedToThePreviousMonth(principal, 0)}"
+                      th:text="${percentage == 0 ? '0%' : (percentage > 0 ? '+' + percentage + '%' : percentage + '%')}">0%</td>
                 </tr>
                 </tbody>
               </table>
@@ -65,30 +66,31 @@
         </div>
       </div>
 
-      <!-- Bảng thống kê theo tuần -->
+      <!-- Bảng thống kê theo ngày -->
       <div class="col-lg-6 mb-4">
         <div class="card border-0 shadow-sm h-100">
           <div class="card-body">
-            <h3 class="h6 text-primary mb-3 text-center">Theo tuần</h3>
+            <h3 class="h6 text-primary mb-3 text-center">Theo ngày</h3>
             <div class="table-responsive">
               <table class="table table-striped table-hover align-middle text-center">
                 <thead class="table-light">
                 <tr>
-                  <th>Tuần</th>
+                  <th>Ngày</th>
                   <th>Số đơn hàng</th>
                   <th>Tỷ lệ so với trước</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="i : ${#numbers.sequence(4,1)}">
-                  <td th:text="${i} + ' tuần trước'"></td>
-                  <td th:text="${orderService.countDoneOrdersXWeeksAgo(principal, i)}">0</td>
-                  <td th:text="${orderService.countPercentageComparedToThePreviousWeek(principal, i)} + '%'">0%</td>
+                <tr th:each="i : ${#numbers.sequence(6,1)}">
+                  <td th:text="${i} + ' ngày trước'"></td>
+                  <td th:text="${orderService.countDoneOrdersXDaysAgo(principal, i)}">0</td>
+                  <td th:text="${orderService.countPercentageComparedToThePreviousDay(principal, i)} + '%'">0%</td>
                 </tr>
                 <tr class="fw-bold table-primary">
-                  <td>Tuần này</td>
-                  <td th:text="${orderService.countDoneOrdersXWeeksAgo(principal, 0)}">0</td>
-                  <td th:text="${orderService.countPercentageComparedToThePreviousWeek(principal, 0)} + '%'">0%</td>
+                  <td>Hôm nay</td>
+                  <td th:text="${orderService.countDoneOrdersXDaysAgo(principal, 0)}">0</td>
+                  <td th:each="percentage : ${orderService.countPercentageComparedToThePreviousDay(principal, 0)}"
+                      th:text="${percentage == 0 ? '0%' : (percentage > 0 ? '+' + percentage + '%' : percentage + '%')}">0%</td>
                 </tr>
                 </tbody>
               </table>

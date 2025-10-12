@@ -210,7 +210,7 @@ public class OrderService {
                 .shopEmail(settingService.getShopEmail())
                 .order(order)
                 .build();
-        billRepository.save(bill);
+                billRepository.save(bill);
     }
 
     public List<Order> getSuccessOrder() {
@@ -386,11 +386,15 @@ public class OrderService {
             throw new RuntimeException("Đơn hàng không ở trạng thái đang lấy hàng");
         }
 
-        // Update shipping status to picked up
-        order.addShippingStatus(Shipping.builder()
-                .shippingStatus(shippingStatusService.getPickedUpStatus())
-                .build());
-        orderRepository.save(order);
+        try {
+            // Update shipping status to picked up
+            order.addShippingStatus(Shipping.builder()
+                    .shippingStatus(shippingStatusService.getPickedUpStatus())
+                    .build());
+            orderRepository.save(order);
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi chuyển trạng thái: " + e.getMessage());
+        }
     }
 
     public void markOrderShippingStatusAsShipping(Long orderId, Principal principal) {
@@ -403,11 +407,15 @@ public class OrderService {
             throw new RuntimeException("Đơn hàng không ở trạng thái đã lấy hàng");
         }
 
-        // Update shipping status to shipping
-        order.addShippingStatus(Shipping.builder()
-                .shippingStatus(shippingStatusService.getShippingStatus())
-                .build());
-        orderRepository.save(order);
+        try {
+            // Update shipping status to shipping
+            order.addShippingStatus(Shipping.builder()
+                    .shippingStatus(shippingStatusService.getShippingStatus())
+                    .build());
+            orderRepository.save(order);
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi chuyển trạng thái: " + e.getMessage());
+        }
     }
 
     public void markOrderStatusAsDelivered(Long orderId, Principal principal) {
@@ -420,16 +428,20 @@ public class OrderService {
             throw new RuntimeException("Đơn hàng không ở trạng thái đang giao");
         }
 
-        // Update order status to deliver directly instead of calling OrderService
-        order.setOrderStatus(orderStatusService.getDeliveredStatus());
-        order.addShippingStatus(Shipping.builder()
-                .shippingStatus(shippingStatusService.getDeliveredStatus())
-                .build());
-        orderRepository.save(order);
-
-        // If COD, create bill after order is delivered
-        if(paymentMethodService.isCodMethod(order.getPaymentMethod())) {
-            createBillForOrder(order);
+        try {
+            // Update order status to deliver directly instead of calling OrderService
+            order.setOrderStatus(orderStatusService.getDeliveredStatus());
+            order.addShippingStatus(Shipping.builder()
+                    .shippingStatus(shippingStatusService.getDeliveredStatus())
+                    .build());
+            orderRepository.save(order);
+    
+            // If COD, create bill after order is delivered
+            if(paymentMethodService.isCodMethod(order.getPaymentMethod())) {
+                createBillForOrder(order);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi chuyển trạng thái hoặc tạo hóa đơn: " + e.getMessage());
         }
     }
 
@@ -456,27 +468,27 @@ public class OrderService {
         return (int) (((double) (currentMonthCount - previousMonthCount) / previousMonthCount) * 100);
     }
 
-    public int countDoneOrdersXWeeksAgo(Principal principal, int weeksAgo) {
+    public int countDoneOrdersXDaysAgo(Principal principal, int daysAgo) {
         if (principal == null) {
             throw new RuntimeException("Người giao hàng không xác định");
         }
         return (int) results
         .stream()
         .filter(order -> orderStatusService.isDeliveredStatus(order))
-        .filter(order -> order.getCurrentShipping().getOccurredAt().isAfter(LocalDateTime.now().minusWeeks(weeksAgo + 1))
-                && order.getCurrentShipping().getOccurredAt().isBefore(LocalDateTime.now().minusWeeks(weeksAgo)))
+        .filter(order -> order.getCurrentShipping().getOccurredAt().getDayOfYear() == LocalDate.now().minusDays(daysAgo).getDayOfYear()
+                && order.getCurrentShipping().getOccurredAt().getYear() == LocalDate.now().getYear())
         .count();
     }
 
-    public int countPercentageComparedToThePreviousWeek(Principal principal, int weeksAgo) {
-        int currentWeekCount = countDoneOrdersXWeeksAgo(principal, weeksAgo);
-        int previousWeekCount = countDoneOrdersXWeeksAgo(principal, weeksAgo + 1);
+    public int countPercentageComparedToThePreviousDay(Principal principal, int daysAgo) {
+        int currentDayCount = countDoneOrdersXDaysAgo(principal, daysAgo);
+        int previousDayCount = countDoneOrdersXDaysAgo(principal, daysAgo + 1);
 
-        if (previousWeekCount == 0) {
-            return currentWeekCount == 0 ? 0 : 100; // If both are 0, return 0%, else return 100%
+        if (previousDayCount == 0) {
+            return currentDayCount == 0 ? 0 : 100; // If both are 0, return 0%, else return 100%
         }
 
-        return (int) (((double) (currentWeekCount - previousWeekCount) / previousWeekCount) * 100);
+        return (int) (((double) (currentDayCount - previousDayCount) / previousDayCount) * 100);
     }
     
     public Page<Order> getDeliveringOrders(Principal principal, int page, int size) {
