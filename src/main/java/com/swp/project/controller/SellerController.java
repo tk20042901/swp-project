@@ -10,6 +10,7 @@ import com.swp.project.entity.product.SubImage;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.order.OrderStatusService;
 import com.swp.project.service.product.CategoryService;
+import com.swp.project.service.product.ImageService;
 import com.swp.project.service.product.ProductService;
 import com.swp.project.service.product.ProductUnitService;
 import com.swp.project.service.seller_request.SellerRequestService;
@@ -40,6 +41,7 @@ public class SellerController {
     private final ProductUnitService unitService;
     private final CategoryService categoryService;
     private final SellerRequestService sellerRequestService;
+    private final ImageService imageService;
 
     @GetMapping("")
     public String sellerMain() {
@@ -194,7 +196,9 @@ public class SellerController {
             for (Long catId : updateProductDto.getCategories()) {
                 categories.add(categoryService.getCategoryById(catId));
             }
-            productService.checkUniqueProductName(updateProductDto.getName());
+            if(productService.checkUniqueProductName(updateProductDto.getName())){
+                throw new Exception("Tên sản phẩm đã tồn tại");
+            }
             Product updateProduct = Product
                     .builder()
                     .id(oldProduct.getId())
@@ -207,7 +211,7 @@ public class SellerController {
                     .build();
             
             if(!imageFile.isEmpty()) {
-                String mainImageUrl = productService.saveMainImage(updateProductDto.getName(), imageFile);
+                String mainImageUrl = imageService.saveTemporaryMainImage(updateProductDto.getName(), imageFile);
                 updateProduct.setMain_image_url(mainImageUrl);
             } else {
                 updateProduct.setMain_image_url(oldProduct.getMain_image_url());
@@ -218,7 +222,7 @@ public class SellerController {
             if (!hasValidExtraImages) {
                 updateProduct.setSub_images(oldProduct.getSub_images());
             } else {
-                List<SubImage> subImages = productService.getSubImageList(extraImages, updateProductDto.getName(), updateProduct);
+                List<SubImage> subImages = imageService.getTemporarySubImageList(extraImages, updateProductDto.getName(), updateProduct);
                 updateProduct.setSub_images(subImages);
             }
 
@@ -240,13 +244,7 @@ public class SellerController {
 
     @GetMapping("/seller-create-product")
     public String showCreateProductForm(Model model) {
-        Product lastProduct = productService.getLastProduct();
         CreateProductDto newProduct = new CreateProductDto();
-        if (lastProduct != null) {
-            newProduct.setId(lastProduct.getId() + 1);
-        } else {
-            newProduct.setId(1L);
-        }
         model.addAttribute("productDto", newProduct);
         model.addAttribute("units", unitService.getAllUnits());
         model.addAttribute("categories", categoryService.getAllCategories());
@@ -268,7 +266,9 @@ public class SellerController {
             return "redirect:/seller/seller-create-product";
         }
         try {
-            productService.checkUniqueProductName(productDto.getName());
+            if(productService.checkUniqueProductName(productDto.getName())){
+                throw new Exception("Tên sản phẩm đã tồn tại");
+            }
             List<Category> categories = new ArrayList<>();
             for (Long catId : productDto.getCategories()) {
                 categories.add(categoryService.getCategoryById(catId));
@@ -281,12 +281,12 @@ public class SellerController {
                     .unit(productDto.getUnit())
                     .enabled(productDto.isEnabled())
                     .categories(categories)
-                    .main_image_url(productService.saveMainImage(productDto.getName(), imageFile))
+                    .main_image_url(imageService.saveTemporaryMainImage(productDto.getName(), imageFile))
                     .build();
             List<MultipartFile> validExtraImages = extraImages.stream()
                     .filter(file -> !file.isEmpty())
                     .collect(Collectors.toList());
-            newProduct.setSub_images(productService.getSubImageList(validExtraImages, productDto.getName(), newProduct));
+            newProduct.setSub_images(imageService.getTemporarySubImageList(validExtraImages, productDto.getName(), newProduct));
             sellerRequestService.saveAddRequest(newProduct, principal.getName());
             redirectAttributes.addFlashAttribute("msg", "Yêu cầu tạo sản phẩm đã được gửi đến quản lý");
         } catch (Exception e) {

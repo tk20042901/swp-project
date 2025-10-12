@@ -1,11 +1,17 @@
 package com.swp.project.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.swp.project.service.order.OrderService;
+import com.swp.project.service.product.ImageService;
+import com.swp.project.service.product.ProductService;
+import com.swp.project.service.product.SubImageService;
 import com.swp.project.service.seller_request.SellerRequestService;
 import com.swp.project.service.seller_request.SellerRequestTypeService;
+
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,6 +27,7 @@ import com.swp.project.dto.StaffDto;
 import com.swp.project.entity.address.CommuneWard;
 import com.swp.project.entity.address.ProvinceCity;
 import com.swp.project.entity.product.Product;
+import com.swp.project.entity.product.SubImage;
 import com.swp.project.entity.seller_request.SellerRequest;
 import com.swp.project.entity.user.Seller;
 import com.swp.project.entity.user.Shipper;
@@ -42,6 +49,9 @@ public class ManagerController {
     private final ShipperService shipperService;
     private final AddressService addressService;
     private final SellerRequestService sellerRequestService;
+    private final ProductService productService;
+    private final SubImageService subImageService;
+    private final ImageService imageService;
 
     private final int numEachPage = 10;
     private final OrderService orderService;
@@ -395,13 +405,14 @@ public class ManagerController {
             @PathVariable Long requestId,
             Model model) throws Exception {
         SellerRequest sellerRequest = sellerRequestService.getSellerRequestById(requestId);
-    
+
         if (sellerRequest == null) {
             throw new Exception("Yêu cầu không tồn tại");
         }
         Product newProduct = sellerRequestService.getEntityFromContent(sellerRequest.getContent(), Product.class);
         if (sellerRequestTypeService.isUpdateType(sellerRequest)) {
-            model.addAttribute("oldProduct", sellerRequestService.getEntityFromContent(sellerRequest.getOldContent(), Product.class));
+            model.addAttribute("oldProduct",
+                    sellerRequestService.getEntityFromContent(sellerRequest.getOldContent(), Product.class));
         }
         model.addAttribute("newProduct", newProduct);
         model.addAttribute("firstNewImage", newProduct.getSub_images().get(0).getSub_image_url());
@@ -420,12 +431,41 @@ public class ManagerController {
             if (sellerRequest == null) {
                 throw new Exception("Yêu cầu không tồn tại");
             }
-            
-            // Process the approval logic here
+
+            Product newProduct = sellerRequestService.getEntityFromContent(sellerRequest.getContent(), Product.class);
+            if (newProduct == null) {
+                throw new Exception("Dữ liệu sản phẩm không hợp lệ");
+            }
+            if (productService.checkUniqueProductName(newProduct.getName())) {
+                throw new IOException("Tên sản phẩm đã tồn tại");
+            }
+            Pair<String, List<SubImage>> images;
+            if (sellerRequestTypeService.isUpdateType(sellerRequest)) {
+                Long oldProductId = sellerRequestService
+                        .getEntityFromContent(sellerRequest.getOldContent(), Product.class).getId();
+                Product oldProduct = productService.getProductById(oldProductId);
+                images = imageService.getAllFinalImage(newProduct.getSub_images(), newProduct.getName(), oldProduct);
+                oldProduct.setName(newProduct.getName());
+                oldProduct.setDescription(newProduct.getDescription());
+                oldProduct.setPrice(newProduct.getPrice());
+                oldProduct.setUnit(newProduct.getUnit());
+                oldProduct.setMain_image_url(images.getFirst());
+                oldProduct.setEnabled(newProduct.isEnabled());
+                oldProduct.setCategories(newProduct.getCategories());
+                oldProduct.setSub_images(images.getSecond());
+                productService.update(oldProduct);
+            } else {
+                newProduct = productService.add(newProduct);
+                images = imageService.getAllFinalImage(newProduct.getSub_images(), newProduct.getName(), newProduct);
+                newProduct.setMain_image_url(images.getFirst());
+                newProduct.setSub_images(images.getSecond());
+                productService.update(newProduct);
+            }
             sellerRequestService.approveRequest(requestId);
-            
+
             redirectAttributes.addFlashAttribute("msg", "Đã duyệt yêu cầu thành công");
         } catch (Exception e) {
+            System.out.println("Exception" + e.getMessage());
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/manager/all-products-request";
@@ -440,10 +480,10 @@ public class ManagerController {
             if (sellerRequest == null) {
                 throw new Exception("Yêu cầu không tồn tại");
             }
-            
+
             // Process the rejection logic here
             sellerRequestService.rejectRequest(requestId);
-            
+
             redirectAttributes.addFlashAttribute("msg", "Đã từ chối yêu cầu");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
