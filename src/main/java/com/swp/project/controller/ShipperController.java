@@ -53,6 +53,7 @@ public class ShipperController {
             // Lấy Page<Order> thay vì List<Order>
             Page<Order> deliveringOrders = orderService.getDeliveringOrders(principal, pageDelivering, size);
             model.addAttribute("deliveringOrders", deliveringOrders.getContent());
+            model.addAttribute("shippingStatusService", shippingStatusService);
             model.addAttribute("currentPageDelivering", pageDelivering);
             model.addAttribute("totalPagesDelivering", deliveringOrders.getTotalPages());
 
@@ -113,6 +114,8 @@ public class ShipperController {
         try {
             Order order = orderService.getOrderByOrderId(orderId);
             Long totalAmount = orderService.calculateTotalAmount(order);
+            model.addAttribute("orderStatusService", shipperService.getOrderStatusService());
+            model.addAttribute("shipperStatusService", shippingStatusService);
             model.addAttribute("order", order);
             model.addAttribute("totalAmount", totalAmount);
             model.addAttribute("shippedAt", orderService.getShippedAt(order));
