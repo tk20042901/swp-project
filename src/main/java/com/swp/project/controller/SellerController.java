@@ -78,7 +78,8 @@ public class SellerController {
 
     @GetMapping("/order-detail/{orderId}")
     public String orderDetail(@PathVariable Long orderId, Model model) {
-        if (orderService.isOrderItemQuantityMoreThanAvailable(orderId)) {
+        if (orderService.isOrderItemQuantityMoreThanAvailable(orderId) &&
+                orderStatusService.isPendingConfirmationStatus(orderService.getOrderById(orderId))) {
             model.addAttribute("warning",
                     "Cảnh báo: Một số sản phẩm trong đơn hàng này có số lượng lớn hơn số lượng hiện có trong kho.");
         }

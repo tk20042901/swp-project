@@ -157,10 +157,12 @@
                         <label>
                             <input type="number"
                                    class="form-control form-control-sm text-center"
+                                   id="goToPageInput"
+                                   min="1"
+                                   th:max="${orders.totalPages}"
                                    th:value="${orders.number + 1}"
                                    th:classappend="${#fields.hasErrors('goToPage')} ? ' is-invalid'"
                                    th:disabled="${orders.totalPages == 0}"
-                                   placeholder="Nhập số"
                                    style="max-width: 90px;">
                         </label>
                         <button type="submit"
