@@ -56,7 +56,6 @@ public class SellerRequestService {
     }
 
     public <T> T getEntityFromContent(String content, Class<T> entityClass) throws JsonProcessingException {
-        System.out.println(content);
         return objectMapper.readValue(content, entityClass);
     }
 

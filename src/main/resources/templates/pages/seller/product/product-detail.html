@@ -69,9 +69,7 @@
 <a th:href="@{/seller/all-products}">Tất cả sản phẩm</a>
 
 <h1 th:text="${'Chi tiết sản phẩm ' + product.name}"></h1>
-<a th:href="@{/seller/seller-update-product/{id}(id=${product.id})}"
-               class="table-link">Cập nhật</a>
-<a th:href="@{/seller/seller-create-product}" class="table-link">Tạo sản phẩm</a>
+
 
 <table>
     <thead>
@@ -82,6 +80,7 @@
         <th>Giá thành</th>
         <th>Danh mục</th>
         <th>Trạng thái</th>
+        <th>Hành động</th>
     </tr>
     </thead>
     <tbody>
@@ -100,6 +99,10 @@
             </span>
         </td>
         <td th:text="${product.enabled ? 'Đang bán' : 'Ngừng bán'}"></td>
+        <td>
+            <a th:href="@{/seller/seller-update-product/{id}(id=${product.id})}"
+               class="table-link">Cập nhật</a>
+        </td>
     </tr>
     </tbody>
 </table>

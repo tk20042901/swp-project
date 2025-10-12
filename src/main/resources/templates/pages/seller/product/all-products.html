@@ -202,6 +202,8 @@
     <span th:if="${(name != null and !#strings.isEmpty(name)) or enabled != null}">
         <a th:href="@{/seller/all-products}">Bỏ tìm kiếm</a>
     </span>
+    <a th:href="@{/seller/seller-create-product}" class="table-link">Tạo sản phẩm</a>
+
 </form>
 
 <table>
