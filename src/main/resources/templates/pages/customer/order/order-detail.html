@@ -360,9 +360,10 @@
                 </tr>
                 <tr>
                     <td>
-                        <a th:if="${order.orderStatus.name == 'Chờ Thanh Toán'}" th:href="${order.paymentLink}"
+                        <a th:if="${orderStatusService.isPendingPaymentStatus(order)}"
+                           th:href="${order.paymentLink}"
                             class="btn btn-sm btn-success fw-bold px-3">Thanh toán ngay</a>
-                        <form th:if="${order.orderStatus.name == 'Chờ Xác Nhận'}"
+                        <form th:if="${orderStatusService.isPendingConfirmationStatus(order)}"
                             th:action="@{'/customer/order-history/cancel/' + ${order.id}}" method="post"
                             style="display:inline;"
                             onsubmit="return confirm('Bạn có chắc muốn hủy đơn hàng này không?');">

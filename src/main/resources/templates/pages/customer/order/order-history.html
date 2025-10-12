@@ -1,7 +1,8 @@
 <div layout:decorate="~{layouts/customer-layout}" xmlns:th="http://www.thymeleaf.org"
-    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+     xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
     <div layout:fragment="content">
         <style>
+            /* Phân trang */
             a.page-btn {
                 display: inline-block;
                 padding: 8px 15px;
@@ -26,7 +27,7 @@
                 color: #333;
             }
 
-            /* Container form */
+            /* Form tìm kiếm */
             form {
                 display: flex;
                 flex-wrap: wrap;
@@ -39,13 +40,11 @@
                 margin-bottom: 20px;
             }
 
-            /* Mỗi ô trong form */
             form>div {
                 display: flex;
                 flex-direction: column;
             }
 
-            /* Label giả lập (nếu thêm label sau này sẽ đồng bộ) */
             form label {
                 font-size: 14px;
                 font-weight: 600;
@@ -53,7 +52,6 @@
                 color: #555;
             }
 
-            /* Select và input */
             form select,
             form input[type="date"] {
                 padding: 6px 10px;
@@ -71,7 +69,7 @@
                 outline: none;
             }
 
-            /* Buttons */
+            /* Nút */
             .btn {
                 padding: 7px 16px;
                 border-radius: 6px;
@@ -98,12 +96,56 @@
             .btn-secondary:hover {
                 background-color: #d6d8db;
             }
+
+            /* ======= Bảng trắng tinh tế ======= */
+            .table {
+                background-color: #fff;
+                border-collapse: separate;
+                border-spacing: 0;
+                border-radius: 10px;
+                overflow: hidden;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            }
+
+            .table thead {
+                background-color: #f0f2f5;
+            }
+
+            .table th {
+                color: #333;
+                font-weight: 600;
+                border-bottom: 2px solid #dee2e6;
+            }
+
+            .table td {
+                vertical-align: middle;
+                border-top: 1px solid #eee;
+            }
+
+            .table-striped tbody tr:nth-of-type(odd) {
+                background-color: #fafafa;
+            }
+
+            /* Nút Chi tiết – bỏ hover */
+            .btn-outline-primary {
+                color: #007bff;
+                border: 1px solid #007bff;
+                background-color: transparent;
+            }
+
+            .btn-outline-primary:hover {
+                background-color: transparent !important;
+                color: #007bff !important;
+                border-color: #007bff !important;
+            }
         </style>
+
         <div class="container mt-4">
             <div class="mb-4">
                 <a th:href="@{/}" class="btn btn-secondary mb-2">← Trang chủ</a>
                 <h1>Lịch sử đặt hàng</h1>
             </div>
+
             <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
             <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
@@ -117,15 +159,11 @@
                 <div>
                     <select name="status" th:value="status">
                         <option value="">Tất cả</option>
-                        <option value="Chờ Xác Nhận" th:selected="${status == 'Chờ Xác Nhận'}">Chờ xác nhận</option>
-                        <option value="Đang Chuẩn Bị Hàng" th:selected="${status == 'Đang Chuẩn Bị Hàng'}">Đang chuẩn bị
-                            hàng</option>
-                        <option value="Đang Hiao Hàng" th:selected="${status == 'Đang Giao Hàng'}">Đang giao hàng
+                        <option th:each="st: ${statuses}"
+                                th:value="${st.name}"
+                                th:text="${st.name}"
+                                th:selected="${status == st.name}">
                         </option>
-                        <option value="Đã Giao Hàng" th:selected="${status == 'Đã Giao Hàng'}">Đã giao hàng</option>
-                        <option value="Chờ Thanh Toán" th:selected="${status == 'Chờ Thanh Toán'}">Chờ thanh toán
-                        </option>
-                        <option value="Đã Hủy" th:selected="${status == 'Đã Hủy'}">Đã hủy</option>
                     </select>
                 </div>
 
@@ -137,88 +175,77 @@
                 </div>
                 <div>
                     <button type="submit" class="btn btn-primary">Tìm kiếm</button>
-
                 </div>
                 <div>
-                    <a th:if="${(status != null and !#strings.isEmpty(status)) or (fromDate != null and !#strings.isEmpty(fromDate)) or (toDate != null and !#strings.isEmpty(toDate))}"
-                        th:href="@{/customer/order-history}" class="btn btn-secondary">Bỏ tìm kiếm</a>
+                    <a th:if="${(status != null and !#strings.isEmpty(status))
+                             or (fromDate != null and !#strings.isEmpty(fromDate))
+                             or (toDate != null and !#strings.isEmpty(toDate))}"
+                       th:href="@{/customer/order-history}" class="btn btn-secondary">Bỏ tìm kiếm</a>
                 </div>
-
-
             </form>
 
             <div class="table-responsive">
                 <table class="table table-striped">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Mã đơn hàng</th>
-                            <th>Ngày đặt hàng</th>
-                            <th>Trạng thái</th>
-                            <th>Tổng tiền</th>
-                            <th>Chi tiết</th>
-                            <th>Thao tác</th>
-                        </tr>
+                    <thead>
+                    <tr>
+                        <th>Mã đơn hàng</th>
+                        <th>Ngày đặt hàng</th>
+                        <th>Trạng thái</th>
+                        <th>Tổng tiền</th>
+                        <th>Chi tiết</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="order : ${orders.content}">
-                            <td>
-                                <strong th:text="${order.id}"></strong>
-                            </td>
-                            <td>
+                    <tr th:if="${#lists.isEmpty(orders.content)}">
+                        <td colspan="5" class="text-center text-muted py-4">
+                            Không có kết quả phù hợp.
+                        </td>
+                    </tr>
+                    <tr th:each="order : ${orders.content}">
+                        <td><strong th:text="${order.id}"></strong></td>
+                        <td>
                                 <span th:if="${order.orderAt != null}"
-                                    th:text="${#temporals.format(order.orderAt, 'dd/MM/yyyy HH:mm')}"></span>
-
-                            </td>
-                            <td th:switch="${order.orderStatus.name}">
-                                <span th:case="'Chờ Xác Nhận'" class="badge bg-warning text-dark">Chờ Xác Nhận</span>
-                                <span th:case="'Chờ Thanh Toán'" class="badge bg-secondary text-light">Chờ Thanh
-                                    Toán</span>
-                                <span th:case="'Đang Chuẩn Bị Hàng'" class="badge bg-info text-dark">Đang Chuẩn Bị
-                                    Hàng</span>
-                                <span th:case="'Đang Giao Hàng'" class="badge bg-primary">Đang Giao Hàng</span>
-                                <span th:case="'Đã Giao Hàng'" class="badge bg-success">Đã Giao Hàng</span>
-                                <span th:case="'Đã Hủy'" class="badge bg-danger">Đã Hủy</span>
-                            </td>
-                            <td>
-                                <strong
-                                    th:text="${#numbers.formatInteger(order.totalAmount, 0, 'COMMA')} + ' VND'"></strong>
-                            </td>
-                            <td>
-                                <a th:href="@{'/customer/order/order-detail/' + ${order.id}}"
-                                    class="btn btn-sm btn-outline-primary">Chi tiết</a>
-                            </td>
-
-                            <td>
-                                <a th:if="${order.orderStatus.name == 'Chờ Thanh Toán'}" th:href="${order.paymentLink}"
-                                    class="btn btn-sm btn-success fw-bold px-3">Thanh toán ngay</a>
-                                <form th:if="${order.orderStatus.name == 'Chờ Xác Nhận'}"
-                                    th:action="@{'/customer/order-history/cancel/' + ${order.id}}" method="post"
-                                    style="display:inline;"
-                                    onsubmit="return confirm('Bạn có chắc muốn hủy đơn hàng này không?');">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Hủy</button>
-                                </form>
-                            </td>
-                        </tr>
+                                      th:text="${#temporals.format(order.orderAt, 'dd/MM/yyyy HH:mm')}"></span>
+                        </td>
+                        <td>
+                                <span th:if="${orderStatusService.isPendingConfirmationStatus(order)}"
+                                      class="badge bg-warning text-dark">Chờ Xác Nhận</span>
+                            <span th:if="${orderStatusService.isPendingPaymentStatus(order)}"
+                                  class="badge bg-secondary text-light">Chờ Thanh Toán</span>
+                            <span th:if="${orderStatusService.isProcessingStatus(order)}"
+                                  class="badge bg-info text-dark">Đang Chuẩn Bị Hàng</span>
+                            <span th:if="${orderStatusService.isShippingStatus(order)}"
+                                  class="badge bg-primary">Đang Giao Hàng</span>
+                            <span th:if="${orderStatusService.isDeliveredStatus(order)}"
+                                  class="badge bg-success">Đã Giao Hàng</span>
+                            <span th:if="${orderStatusService.isCancelledStatus(order)}"
+                                  class="badge bg-danger">Đã Hủy</span>
+                        </td>
+                        <td><strong th:text="${#numbers.formatInteger(order.totalAmount, 0, 'COMMA')} + ' VND'"></strong></td>
+                        <td>
+                            <a th:href="@{'/customer/order/order-detail/' + ${order.id}}"
+                               class="btn btn-sm btn-outline-primary">Chi tiết</a>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
 
+            <div th:if="${!#lists.isEmpty(orders.content)}" class="text-center mt-3">
+                <a th:if="${orders.hasPrevious()}"
+                   th:href="@{/customer/order-history(page=${orders.number - 1}, size=${orders.size},status=${status}, fromDate=${fromDate}, toDate=${toDate})}"
+                   class="page-btn">
+                    ← Trước
+                </a>
 
+                <span class="page-info">Trang [[${orders.number + 1}]] / [[${orders.totalPages}]]</span>
 
-            <!-- Simple Pagination -->
-            <a th:if="${orders.hasPrevious()}"
-                th:href="@{/customer/order-history(page=${orders.number - 1}, size=${orders.size},status=${status}, fromDate=${fromDate}, toDate=${toDate})}"
-                class="page-btn">
-                ← Trước
-            </a>
-
-            <span class="page-info">Trang [[${orders.number + 1}]] / [[${orders.totalPages}]]</span>
-
-            <a th:if="${orders.hasNext()}"
-                th:href="@{/customer/order-history(page=${orders.number + 1}, size=${orders.size},status=${status}, fromDate=${fromDate}, toDate=${toDate})}"
-                class="page-btn">
-                Sau →
-            </a>
+                <a th:if="${orders.hasNext()}"
+                   th:href="@{/customer/order-history(page=${orders.number + 1}, size=${orders.size},status=${status}, fromDate=${fromDate}, toDate=${toDate})}"
+                   class="page-btn">
+                    Sau →
+                </a>
+            </div>
         </div>
     </div>
 </div>

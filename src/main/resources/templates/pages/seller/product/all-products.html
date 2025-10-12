@@ -192,7 +192,7 @@
 <h1>Danh sách các sản phẩm</h1>
 
 <form th:action="@{/seller/all-products}" method="get">
-    <input type="text" name="name" th:value="${name}" placeholder="Tìm theo tên" required>
+    <input type="text" name="name" th:value="${name}" placeholder="Tìm theo tên">
     <select name="enabled">
         <option th:value="''">Trạng thái</option>
         <option th:value="true" th:selected="${enabled == true}">Đang bán</option>
