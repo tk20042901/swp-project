@@ -162,6 +162,18 @@
 }
 
 /* Enhanced Product Cards */
+.product-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 100%;
+}
+
+.product-card-link:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
 .product-card {
     border: none;
     border-radius: 15px;
@@ -172,6 +184,8 @@
     animation-fill-mode: both;
     position: relative;
     background: white;
+    height: 100%;
+    cursor: pointer;
 }
 
 .product-card:hover {
@@ -218,14 +232,13 @@
     font-weight: 600;
     font-size: 1.1rem;
     margin-bottom: 0.75rem;
-    text-decoration: none;
     display: block;
     line-height: 1.4;
+    transition: color 0.3s ease;
 }
 
-.product-title:hover {
+.product-card-link:hover .product-title {
     color: #667eea;
-    text-decoration: none;
 }
 
 .product-price {
@@ -285,11 +298,86 @@
     margin: 3rem 0;
 }
 
+/* Categories Carousel Styles */
+.categories-carousel {
+    position: relative;
+    margin-top: 2rem;
+}
+
+.categories-carousel .carousel-inner {
+    padding: 1rem 0;
+}
+
+.categories-carousel .carousel-item {
+    transition: transform 0.6s ease-in-out;
+}
+
+/* Carousel Controls */
+.categories-carousel .carousel-control-prev,
+.categories-carousel .carousel-control-next {
+    width: 50px;
+    height: 50px;
+    background: rgba(102, 126, 234, 0.9);
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.8;
+    transition: all 0.3s ease;
+}
+
+.categories-carousel .carousel-control-prev {
+    left: -25px;
+}
+
+.categories-carousel .carousel-control-next {
+    right: -25px;
+}
+
+.categories-carousel .carousel-control-prev:hover,
+.categories-carousel .carousel-control-next:hover {
+    opacity: 1;
+    background: rgba(102, 126, 234, 1);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.categories-carousel .carousel-control-prev-icon,
+.categories-carousel .carousel-control-next-icon {
+    width: 20px;
+    height: 20px;
+    background-size: 100%;
+    filter: invert(1);
+}
+
+/* Carousel Indicators */
+.categories-carousel .carousel-indicators {
+    bottom: -30px;
+    margin-bottom: 0;
+}
+
+.categories-carousel .carousel-indicators button {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: none;
+    background-color: rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+}
+
+.categories-carousel .carousel-indicators button.active {
+    background-color: #667eea;
+    transform: scale(1.2);
+}
+
+.categories-carousel .carousel-indicators button:hover {
+    background-color: rgba(102, 126, 234, 0.7);
+}
+
 .category-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 1rem;
-    margin-top: 2rem;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
 .category-item {
@@ -301,6 +389,8 @@
     text-decoration: none;
     color: #2d3748;
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    transform: translateY(0);
+    animation: fadeInUp 0.6s ease forwards;
 }
 
 .category-item:hover {
@@ -314,6 +404,12 @@
     font-size: 2rem;
     margin-bottom: 0.5rem;
     color: #667eea;
+    transition: all 0.3s ease;
+}
+
+.category-item:hover .category-icon {
+    transform: scale(1.1);
+    color: #5a67d8;
 }
 
 .category-name {
@@ -366,6 +462,7 @@
     
     .category-grid {
         grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        max-width: 400px;
     }
     
     .filter-section {
@@ -375,6 +472,27 @@
     .filter-select {
         width: 100%;
         margin-top: 0.5rem;
+    }
+    
+    /* Carousel responsive adjustments */
+    .categories-carousel .carousel-control-prev,
+    .categories-carousel .carousel-control-next {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .categories-carousel .carousel-control-prev {
+        left: -20px;
+    }
+    
+    .categories-carousel .carousel-control-next {
+        right: -20px;
+    }
+    
+    .categories-carousel .carousel-control-prev-icon,
+    .categories-carousel .carousel-control-next-icon {
+        width: 16px;
+        height: 16px;
     }
 }
 
@@ -389,5 +507,19 @@
     
     .section-title {
         font-size: 1.5rem;
+    }
+    
+    .category-grid {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 300px;
+    }
+    
+    .categories-carousel .carousel-control-prev,
+    .categories-carousel .carousel-control-next {
+        display: none; /* Hide controls on very small screens */
+    }
+    
+    .categories-showcase {
+        padding: 1.5rem 1rem;
     }
 }

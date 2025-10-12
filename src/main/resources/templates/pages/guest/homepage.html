@@ -27,18 +27,97 @@
         </section>
 
         <div class="container">
+            <section class="categories-showcase">
+                <div class="text-center">
+                    <h2 class="section-title justify-content-center">
+                        <span class="section-icon">📂</span>
+                        Khám phá danh mục
+                    </h2>
+                    <p class="text-muted">Tìm kiếm sản phẩm theo danh mục yêu thích</p>
+                </div>
+                
+                <!-- Categories Carousel -->
+                <div id="categoriesCarousel" class="carousel slide categories-carousel" data-bs-ride="carousel">
+                    <!-- Carousel Indicators -->
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#categoriesCarousel" data-bs-slide-to="0" class="active" 
+                                aria-current="true" aria-label="Slide 1"></button>
+                        <button type="button" data-bs-target="#categoriesCarousel" data-bs-slide-to="1" 
+                                aria-label="Slide 2" th:if="${#lists.size(categories) > 4}"></button>
+                        <button type="button" data-bs-target="#categoriesCarousel" data-bs-slide-to="2" 
+                                aria-label="Slide 3" th:if="${#lists.size(categories) > 8}"></button>
+                    </div>
+                    
+                    <!-- Carousel Inner -->
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <div class="category-grid">
+                                <a th:each="category, iterStat : ${categories}"
+                                   th:if="${iterStat.index < 4}"
+                                   th:href="@{/product-category-sorting(sortBy='default', categoryId=${category.id})}"
+                                   class="category-item">
+                                    <div class="category-icon">
+                                        <i class="fas fa-apple-alt"></i>
+                                    </div>
+                                    <div class="category-name" th:text="${category.name}">Category Name</div>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="carousel-item" th:if="${#lists.size(categories) > 4}">
+                            <div class="category-grid">
+                                <a th:each="category, iterStat : ${categories}"
+                                   th:if="${iterStat.index >= 4 and iterStat.index < 8}"
+                                   th:href="@{/product-category-sorting(sortBy='default', categoryId=${category.id})}"
+                                   class="category-item">
+                                    <div class="category-icon">
+                                        <i class="fas fa-apple-alt"></i>
+                                    </div>
+                                    <div class="category-name" th:text="${category.name}">Category Name</div>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="carousel-item" th:if="${#lists.size(categories) > 8}">
+                            <div class="category-grid">
+                                <a th:each="category, iterStat : ${categories}"
+                                   th:if="${iterStat.index >= 8}"
+                                   th:href="@{/product-category-sorting(sortBy='default', categoryId=${category.id})}"
+                                   class="category-item">
+                                    <div class="category-icon">
+                                        <i class="fas fa-apple-alt"></i>
+                                    </div>
+                                    <div class="category-name" th:text="${category.name}">Category Name</div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Carousel Controls -->
+                    <button class="carousel-control-prev" type="button" data-bs-target="#categoriesCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#categoriesCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </section>
             <!-- Category Filter Section -->
             <section class="filter-section">
-                <form class="d-flex align-items-center gap-3 justify-content-center flex-wrap" th:action="@{/}" method="get">
+                <form class="d-flex align-items-center gap-3 justify-content-center flex-wrap" th:action="@{/}"
+                    method="get">
                     <label for="category" class="filter-title">
                         <i class="fas fa-filter"></i> Lọc theo danh mục:
                     </label>
                     <select name="categoryId" id="category" class="filter-select" onchange="this.form.submit()">
-                        <option value="0" th:text="'🏷️ Tất cả danh mục'" th:selected="${categoryId == null or categoryId == 0}">
-                            🏷️ Tất cả danh mục
+                        <option value="0" th:text="' Tất cả danh mục'"
+                            th:selected="${categoryId == null or categoryId == 0}">
+                             Tất cả danh mục
                         </option>
-                        <option th:each="category : ${categories}" th:value="${category.id}" 
-                                th:text="'📁 ' + ${category.name}" th:selected="${category.id == categoryId}">
+                        <option th:each="category : ${categories}" th:value="${category.id}"
+                            th:text="'📁 ' + ${category.name}" th:selected="${category.id == categoryId}">
                         </option>
                     </select>
                 </form>
@@ -52,26 +131,29 @@
                         <span th:if="${categoryId == 0}" th:text="'Tất cả sản phẩm'"></span>
                         <span th:if="${categoryId != 0}" th:text="'Xem sản phẩm theo danh mục'"></span>
                     </h2>
-                    <a th:href="@{/product-category-sorting(sortBy='default', categoryId=${categoryId})}" 
-                       class="view-all-btn">
+                    <a th:href="@{/product-category-sorting(sortBy='default', categoryId=${categoryId})}"
+                        class="view-all-btn">
                         <i class="fas fa-arrow-right"></i> Xem tất cả
                     </a>
                 </div>
                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                     <div class="col" th:each="product, iterStat : ${productByCategory}">
-                        <div class="card product-card h-100">
-                            <div class="product-image">
-                                <img th:src="${product.main_image_url}" class="card-img-top" alt="Product Image">
-                            </div>
-                            <div class="card-body product-info">
-                                <a th:href="@{/product/{id}(id=${product.id})}" class="product-title">
-                                    <span th:text="${product.name}">Product Name</span>
-                                </a>
-                                <div class="product-price">
-                                    <span th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}">0</span>
+                        <a th:href="@{/product/{id}(id=${product.id})}" class="product-card-link">
+                            <div class="card product-card h-100">
+                                <div class="product-image">
+                                    <img th:src="${product.main_image_url}" class="card-img-top" alt="Product Image">
+                                </div>
+                                <div class="card-body product-info">
+                                    <div class="product-title">
+                                        <span th:text="${product.name}">Product Name</span>
+                                    </div>
+                                    <div class="product-price">
+                                        <span
+                                            th:text="${product.price}">0</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 </div>
             </section>
@@ -89,21 +171,24 @@
                 </div>
                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                     <div class="col" th:each="product, iterStat : ${newestProducts}">
-                        <div class="card product-card h-100">
-                            <div class="product-image">
-                                <img th:src="${product.main_image_url}" class="card-img-top" alt="Product Image">
-                                <div class="product-badge" style="background: linear-gradient(45deg, #2196F3, #1976D2);">Mới</div>
-                            </div>
-                            <div class="card-body product-info">
-                                <a th:href="@{/product/{id}(id=${product.id})}" class="product-title">
-                                    <span th:text="${product.name}">Product Name</span>
-                                </a>
-                                <div class="product-price">
-                                    <span th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}">0</span>
+                        <a th:href="@{/product/{id}(id=${product.id})}" class="product-card-link">
+                            <div class="card product-card h-100">
+                                <div class="product-image">
+                                    <img th:src="${product.main_image_url}" class="card-img-top" alt="Product Image">
+                                    <div class="product-badge"
+                                        style="background: linear-gradient(45deg, #2196F3, #1976D2);">Mới</div>
+                                </div>
+                                <div class="card-body product-info">
+                                    <div class="product-title">
+                                        <span th:text="${product.name}">Product Name</span>
+                                    </div>
+                                    <div class="product-price">
+                                        <span
+                                            th:text="${product.price}">0</span>
+                                    </div>
                                 </div>
                             </div>
-                            
-                        </div>
+                        </a>
                     </div>
                 </div>
             </section>
@@ -121,48 +206,31 @@
                 </div>
                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                     <div class="col" th:each="product, iterStat : ${mostSoldProducts}">
-                        <div class="card product-card h-100">
-                            <div class="product-image">
-                                <img th:src="${product.main_image_url}" class="card-img-top" alt="Product Image">
-                                <div class="product-badge" style="background: linear-gradient(45deg, #FF5722, #D84315);">
-                                    Bán chạy
+                        <a th:href="@{/product/{id}(id=${product.id})}" class="product-card-link">
+                            <div class="card product-card h-100">
+                                <div class="product-image">
+                                    <img th:src="${product.main_image_url}" class="card-img-top" alt="Product Image">
+                                    <div class="product-badge"
+                                        style="background: linear-gradient(45deg, #FF5722, #D84315);">
+                                        Bán chạy
+                                    </div>
+                                </div>
+                                <div class="card-body product-info">
+                                    <div class="product-title">
+                                        <span th:text="${product.name}">Product Name</span>
+                                    </div>
+                                    <div class="product-price">
+                                        <span
+                                            th:text="${product.price}">0</span>
+                                        <span class="badge bg-danger ms-2" th:if="${product.soldQuantity > 0}">
+                                            <i class="fas fa-fire"></i> <span th:text="${product.soldQuantity}">0</span> đã
+                                            bán
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="card-body product-info">
-                                <a th:href="@{/product/{id}(id=${product.id})}" class="product-title">
-                                    <span th:text="${product.name}">Product Name</span>
-                                </a>
-                                <div class="product-price">
-                                    <span th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}">0</span>
-                                    <span class="badge bg-danger ms-2" th:if="${product.soldQuantity > 0}">
-                                        <i class="fas fa-fire"></i> <span th:text="${product.soldQuantity}">0</span> đã bán
-                                    </span>
-                                </div>
-                            </div>
-                        
-                        </div>
+                        </a>
                     </div>
-                </div>
-            </section>
-
-            <!-- Categories Showcase -->
-            <section class="categories-showcase">
-                <div class="text-center">
-                    <h2 class="section-title justify-content-center">
-                        <span class="section-icon">📂</span>
-                        Khám phá danh mục
-                    </h2>
-                    <p class="text-muted">Tìm kiếm sản phẩm theo danh mục yêu thích</p>
-                </div>
-                <div class="category-grid">
-                    <a th:each="category : ${categories}" 
-                       th:href="@{/product-category-sorting(categoryId=${category.id})}" 
-                       class="category-item">
-                        <div class="category-icon">
-                            <i class="fas fa-apple-alt"></i>
-                        </div>
-                        <div class="category-name" th:text="${category.name}">Category Name</div>
-                    </a>
                 </div>
             </section>
         </div>

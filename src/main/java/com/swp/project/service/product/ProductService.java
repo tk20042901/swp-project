@@ -52,9 +52,6 @@ public class ProductService {
     private final ShoppingCartItemRepository shoppingCartItemRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-    private static final String TEMPORARY_PATH = "src/main/resources/static/images/temporary-products/";
-    private static final String DISPLAY_PATH = "/images/temporary-products/";
-
     private static final Map<String, Sort> SORT_OPTIONS = Map.of(
             "price-asc", Sort.by("price").ascending(),
             "price-desc", Sort.by("price").descending(),
@@ -73,9 +70,10 @@ public class ProductService {
         return productRepository.findFirstByEnabledOrderByIdAsc(true);
     }
 
-    public void add(Product product) {
+    public Product add(Product product) {
         Product savedProduct = productRepository.save(product);
         eventPublisher.publishEvent(new ProductRelatedUpdateEvent(savedProduct));
+        return savedProduct;
     }
 
     public void update(Product product) {
@@ -262,83 +260,13 @@ public class ProductService {
         return normalized;
     }
 
-    public List<SubImage> getSubImageList(List<MultipartFile> extraImages,String productName, Product product) throws Exception {
-        List<SubImage> subImages = new ArrayList<>();
-        List<String> extraImagePaths = saveExtraImages(productName, extraImages);
-        if (extraImagePaths != null) {
-            for (String path : extraImagePaths) {
-                SubImage subImage = new SubImage();
-                subImage.setProduct(product);
-                subImage.setSub_image_url(path);
-                subImages.add(subImage);
-            }
-        }
-        return subImages;
-    }
-
-    public List<String> saveExtraImages(String productName, List<MultipartFile> extraImages) throws Exception {
-        if (extraImages == null || extraImages.size() != 3) {
-            throw new IllegalArgumentException("Chỉ có 3 ảnh phụ");
-        }
-        String folderName = ProductService.toSlugName(productName);
-        Path uploadDir = Paths.get(TEMPORARY_PATH + folderName);
-        List<String> savedPaths = new ArrayList<>();
-        try {
-            Files.createDirectories(uploadDir);
-            for (int i = 0; i < 3; i++) {
-                MultipartFile file = extraImages.get(i);
-                try (InputStream inputStream = file.getInputStream()) {
-                    BufferedImage image = ImageIO.read(inputStream);
-                    String fileName = String.format("%s-%d.jpg", folderName, i + 1);
-                    Path filePath = uploadDir.resolve(fileName);
-                    ImageIO.write(image, "jpg", filePath.toFile());
-                    savedPaths.add(DISPLAY_PATH+ folderName + "/" + fileName);
-                }
-            }
-            return savedPaths;
-        } catch (Exception e) {
-            deleteDirectory(uploadDir);
-            throw new Exception("Upload ảnh lỗi " + e.getMessage(), e);
-        }
-    }
-
-    public String saveMainImage(String productName, MultipartFile file) throws Exception {
-        String folderName = ProductService.toSlugName(productName);
-        Path uploadDir = Paths.get(TEMPORARY_PATH + folderName);
-        try (InputStream inputStream = file.getInputStream()) {
-            Files.createDirectories(uploadDir);
-            BufferedImage image = ImageIO.read(inputStream);
-            String fileName = folderName + ".jpg";
-            Path filePath = uploadDir.resolve(fileName);
-            ImageIO.write(image, "jpg", filePath.toFile());
-            return DISPLAY_PATH + folderName + "/" + fileName;
-        } catch (Exception e) {
-            deleteDirectory(uploadDir);
-            throw new Exception("Upload ảnh lỗi " + e.getMessage(), e);
-        }
-    }
-
-    private void deleteDirectory(Path directory) {
-        try {
-            if (Files.exists(directory)) {
-                Files.walk(directory)
-                        .sorted((a, b) -> b.compareTo(a))
-                        .forEach(path -> {
-                            try {
-                                Files.deleteIfExists(path);
-                            } catch (Exception e) {
-                            }
-                        });
-            }
-        } catch (Exception e) {
-        }
-    }
-
-    public void checkUniqueProductName(String name) throws Exception {
-        Product existingProduct = productRepository.findByName(name);
-        if (existingProduct != null) {
-            throw new Exception("Tên sản phẩm đã tồn tại. Vui lòng chọn tên khác.");
-        }
+    public boolean checkUniqueProductName(String name) throws Exception {
+        String slugName = toSlugName(name);
+        boolean duplicate = productRepository
+                .findAll()
+                .stream()
+                .anyMatch(p -> toSlugName(p.getName()).equals(slugName));
+        return duplicate;
     }
 
 }

@@ -251,6 +251,8 @@ public class CustomerController {
         model.addAttribute("toDate",toDate);
         model.addAttribute("totalSpent",totalSpent);
         model.addAttribute("orders",orders );
+        model.addAttribute("orderStatusService",orderStatusService);
+        model.addAttribute("statuses",orderStatusService.getAllStatus());
         return "pages/customer/order/order-history";
     }
     @PostMapping("/order-history/cancel/{orderId}")
@@ -269,6 +271,7 @@ public class CustomerController {
     public String getOrderDetail(@PathVariable Long orderId, Model model){
         Order order = orderService.getOrderById(orderId);
         model.addAttribute("order",order);
+        model.addAttribute("orderStatusService",orderStatusService);
         return "pages/customer/order/order-detail";
     }
 
