@@ -22,6 +22,9 @@ public class ProductUnit implements Serializable {
     @Column(nullable = false, unique = true, length = 20)
     private String name;
 
+    @Column(nullable = false)
+    private boolean isAllowDecimal;
+
     @JsonIgnore
     @OneToMany(mappedBy = "unit", fetch = FetchType.EAGER)
     private List<Product> products;
