@@ -240,12 +240,12 @@
 
 <div class="pagination">
     <a th:if="${products.hasPrevious()}"
-       th:href="@{/seller/all-products (page=${products.number - 1},size=${products.size},name=${name},enabled=${enabled})}">
+       th:href="@{/seller/all-products (page=${products.number - 1},size=${products.size},name=${name},enabled=${enabled},sort=${sort})}">
         Trước
     </a>
     <span> Trang [[${products.number + 1}]] / [[${products.totalPages}]] </span>
     <a th:if="${products.hasNext()}"
-       th:href="@{/seller/all-products (page=${products.number + 1},size=${products.size},name=${name},enabled=${enabled})}">
+       th:href="@{/seller/all-products (page=${products.number + 1},size=${products.size},name=${name},enabled=${enabled},sort=${sort})}">
         Sau
     </a>
 </div>
