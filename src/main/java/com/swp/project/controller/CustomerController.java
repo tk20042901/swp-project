@@ -179,6 +179,30 @@ public class CustomerController {
         session.setAttribute("selectedIds", selectedIds);
         return "redirect:/customer/shopping-cart";
     }
+    @PostMapping("/shopping-cart/select-all")
+    public String toggleSelectAll(HttpSession session, Principal principal) {
+        List<ShoppingCartItem> cartItems = customerService.getCart(principal.getName());
+
+        List<Long> selectedIds = (List<Long>) session.getAttribute("selectedIds");
+        if (selectedIds == null) {
+            selectedIds = new ArrayList<>();
+        }
+
+        if (selectedIds.size() == cartItems.size() && !cartItems.isEmpty()) {
+            selectedIds.clear();
+        }
+
+        else {
+            selectedIds = new ArrayList<>();
+            for (ShoppingCartItem item : cartItems) {
+                selectedIds.add(item.getProduct().getId());
+            }
+        }
+
+        session.setAttribute("selectedIds", selectedIds);
+        return "redirect:/customer/shopping-cart";
+    }
+
     @PostMapping("/shopping-cart/remove")
     public String removeFromCart(@RequestParam Long productId,
                                  HttpSession session,
