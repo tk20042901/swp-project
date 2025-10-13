@@ -14,14 +14,6 @@
   --bg-secondary: #f1f3f5;
 }
 
-/* Subtle, friendly background */
-.auth-body {
-  min-height: 100vh;
-  background: radial-gradient(1200px 600px at -10% -10%, var(--auth-bg-end), transparent 50%),
-              radial-gradient(1000px 600px at 110% 10%, #f2f7ff, transparent 40%),
-              linear-gradient(180deg, var(--auth-bg-start), #ffffff 60%);
-}
-
 /* Card polish */
 .auth-card {
   border: 1px solid rgba(16, 24, 40, 0.06);
@@ -134,10 +126,6 @@
 .bg-primary-subtle { background-color: #e7f1ff !important; }
 .bg-secondary-subtle { background-color: #f1f3f5 !important; }
 
-/* Chat UI styles */
-.chat-messages {
-    height: 1px;
-}
 .chat-messages ul { margin: 0; padding: 0; }
 
 .avatar-circle {
