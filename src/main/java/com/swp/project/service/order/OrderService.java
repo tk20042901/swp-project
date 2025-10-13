@@ -498,12 +498,11 @@ public class OrderService {
         Pageable pageable = PageRequest.of(page - 1, size);
 
         // Nếu repository chưa có query riêng thì vẫn phải filter trong memory
-        List<Order> allOrders = orderRepository.findAll()
+        List<Order> allOrders = orderRepository.findByShipper_email(principal.getName())
             .stream()
             .filter(order -> orderStatusService.isShippingStatus(order) &&
                             order.getShipper() != null &&
-                            order.getShipper().getEmail().equals(principal.getName()) &&
-                            orderStatusService.isShippingStatus(order))
+                            order.getShipper().getEmail().equals(principal.getName()))
             .sorted((o1, o2) -> {
                 if (sortCriteria == null) return 0;
                 switch (sortCriteria) {
