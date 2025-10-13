@@ -37,7 +37,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     Page<Order> findByCustomerAndOrderStatus_NameAndOrderAtBetween(Customer customer, String orderStatusName, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
 
-
+    List<Order> findByShipper_Email(String shipperEmail);
 
     @Query("""
         SELECT COALESCE(SUM(oi.quantity), 0)
@@ -58,8 +58,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 """)
     Long getRevenueToday();
 
-
-
     @Query("""
         SELECT COALESCE(SUM(oi.quantity * oi.product.price), 0)
         FROM OrderItem oi
@@ -78,11 +76,11 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Long getRevenueThisMonth();
 
     @Query(value = """
-    SELECT * 
+    SELECT *
     FROM product_batch
-    WHERE expired_date 
-          BETWEEN CURRENT_DATE 
-          AND CURRENT_DATE +  INTERVAL '5 day'  
+    WHERE expired_date
+          BETWEEN CURRENT_DATE
+          AND CURRENT_DATE +  INTERVAL '5 day'
     """, nativeQuery = true)
     List<ProductBatch> findingNearlyExpiredProduct();
 
@@ -93,8 +91,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         ORDER BY pb.quantity ASC
     """)
     List<ProductBatch> findingNearlySoldOutProduct(@Param("unitSoldOut") int unitSoldOut);
-
-    public List<Order> findByShipper_email(String name);
 
     @Query("""
         SELECT COALESCE(SUM(oi.quantity * oi.product.price), 0)
