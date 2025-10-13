@@ -36,7 +36,7 @@
                                                 </div>
                                                 <div class="text-end">
                                                     <div class="fw-semibold cart-item-total"
-                                                        th:text="${item.product.price * item.quantity} + ' VND'">0 VND
+                                                        th:text="${#numbers.formatInteger(item.product.price * item.quantity, 0, 'POINT')} + ' VND'">0 VND
                                                     </div>
                                                 </div>
                                             </li>
@@ -45,7 +45,7 @@
 
                                     <div class="d-flex justify-content-end mt-3">
                                         <div class="fs-6"><strong>Tổng:</strong> <strong
-                                                th:text="${totalAmount} + ' VND'">0</strong>
+                                                th:text="${#numbers.formatInteger(totalAmount, 0, 'POINT')} + ' VND'">0</strong>
                                         </div>
                                     </div>
                                 </div>
