@@ -390,6 +390,13 @@ public class ManagerController {
         return "pages/manager/statistic-report";
     }
 
+    @GetMapping("/detail-report")
+    public String getDetailReport(Model model){
+
+
+        return "pages/manager/detail-report";
+    }
+
     @GetMapping("/all-products-request")
     public String getAllProductsRequest(
             Model model) {

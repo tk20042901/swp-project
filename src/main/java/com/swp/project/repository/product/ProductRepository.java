@@ -118,8 +118,19 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         """, nativeQuery = true)
     List<Object[]> findHomepageProductsBatch(@Param("limit") int limit);
 
+    @Query("""
+    SELECT p
+    FROM Product p
+    WHERE (:enabled IS NULL OR p.enabled = :enabled)
+      AND LOWER(FUNCTION('unaccent', p.name )) 
+          LIKE LOWER(FUNCTION('unaccent', CONCAT('%', :name, '%')))
+""")
     Page<Product> findByNameContainingIgnoreCaseAndEnabled(String name, Boolean enabled, Pageable pageable);
-
+    @Query("""
+    SELECT p 
+    FROM Product p
+    WHERE LOWER(FUNCTION('unaccent', p.name)) LIKE LOWER(FUNCTION('unaccent', CONCAT('%', :name, '%')))
+""")
     Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
     Page<Product> findByEnabled(Boolean enabled, Pageable pageable);
