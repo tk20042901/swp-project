@@ -75,7 +75,12 @@ public class ShipperController {
         }
         try {
             // Lấy Page<Order> thay vì List<Order>
-            Page<Order> deliveringOrders = orderService.getDeliveringOrders(principal, pageDelivering, size, searchQuery, sortCriteria, (int) session.getAttribute("k"));
+            Page<Order> deliveringOrders = orderService.getDeliveringOrders(principal, 
+                                                                            pageDelivering, 
+                                                                            size, 
+                                                                            (String) session.getAttribute("searchQuery"), 
+                                                                            (String) session.getAttribute("sortCriteria"), 
+                                                                            (int) session.getAttribute("k"));
             model.addAttribute("deliveringOrders", deliveringOrders.getContent());
             model.addAttribute("shippingStatusService", shippingStatusService);
             model.addAttribute("currentPageDelivering", pageDelivering);
@@ -120,7 +125,12 @@ public class ShipperController {
         }
         try {
             // Lấy Page<Order> thay vì List<Order>
-            Page<Order> doneOrders = orderService.getDoneOrders(principal, pageDone, size, searchQuery, sortCriteria, (int) session.getAttribute("k"));
+            Page<Order> doneOrders = orderService.getDoneOrders(principal, 
+                                                                pageDone, 
+                                                                size, 
+                                                                (String) session.getAttribute("searchQuery"), 
+                                                                (String) session.getAttribute("sortCriteria"), 
+                                                                (int) session.getAttribute("k"));
             model.addAttribute("doneOrders", doneOrders.getContent());
             model.addAttribute("currentPageDone", pageDone);
             model.addAttribute("totalPagesDone", doneOrders.getTotalPages());

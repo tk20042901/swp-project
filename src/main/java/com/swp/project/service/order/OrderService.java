@@ -445,9 +445,9 @@ public class OrderService {
         }
         return (int) results
         .stream()
-        .filter(orderStatusService::isDeliveredStatus)
+        // .filter(orderStatusService::isDeliveredStatus)
         .filter(order -> order.getCurrentShipping().getOccurredAt().getMonth() == LocalDate.now().minusMonths(monthsAgo).getMonth()
-                && order.getCurrentShipping().getOccurredAt().getYear() == LocalDate.now().getYear())
+                && order.getCurrentShipping().getOccurredAt().getYear() == LocalDate.now().minusMonths(monthsAgo).getYear())
         .count();
     }
 
@@ -468,9 +468,9 @@ public class OrderService {
         }
         return (int) results
         .stream()
-        .filter(orderStatusService::isDeliveredStatus)
+        // .filter(orderStatusService::isDeliveredStatus)
         .filter(order -> order.getCurrentShipping().getOccurredAt().getDayOfYear() == LocalDate.now().minusDays(daysAgo).getDayOfYear()
-                && order.getCurrentShipping().getOccurredAt().getYear() == LocalDate.now().getYear())
+                && order.getCurrentShipping().getOccurredAt().getYear() == LocalDate.now().minusDays(daysAgo).getYear())
         .count();
     }
 
@@ -494,6 +494,7 @@ public class OrderService {
         // Nếu repository chưa có query riêng thì vẫn phải filter trong memory
         List<Order> allOrders = orderRepository.findByShipper_Email(principal.getName())
             .stream()
+            .filter(order -> orderStatusService.isShippingStatus(order))
             .sorted((o1, o2) -> {
                 if (sortCriteria == null) return 0;
                 return switch (sortCriteria) {
@@ -505,8 +506,6 @@ public class OrderService {
                 };
             })
             .toList();
-
-        System.out.println("toi da o day");
 
         if (searchQuery != null && !searchQuery.trim().isEmpty()) {
             allOrders = allOrders.stream()
@@ -528,12 +527,9 @@ public class OrderService {
         Pageable pageable = PageRequest.of(pageDone - 1, size);
 
         // Nếu repository chưa có query riêng thì vẫn phải filter trong memory
-        List<Order> allOrders = orderRepository.findAll()
+        List<Order> allOrders = orderRepository.findByShipper_Email(principal.getName())
             .stream()
-            .filter(order -> orderStatusService.isDeliveredStatus(order) &&
-                            order.getShipper() != null &&
-                            order.getShipper().getEmail().equals(principal.getName()) &&
-                            orderStatusService.isDeliveredStatus(order))
+            .filter(order -> orderStatusService.isDeliveredStatus(order))
             .sorted((o1, o2) -> {
                 if (sortCriteria == null) return 0;
                 return switch (sortCriteria) {
@@ -563,12 +559,10 @@ public class OrderService {
         if (principal == null) {
             throw new RuntimeException("Người giao hàng không xác định");
         }
-        results = orderRepository.findAll().stream()
-                .filter(order -> orderStatusService.isDeliveredStatus(order) &&
-                        order.getShipper() != null &&
-                        order.getShipper().getEmail().equals(principal.getName()) &&
-                        orderStatusService.isDeliveredStatus(order))
-                .toList();
+        results = orderRepository.findByShipper_Email(principal.getName())
+            .stream()
+            .filter(order -> orderStatusService.isDeliveredStatus(order))
+            .toList();
 
     }
 
