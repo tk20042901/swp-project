@@ -1,41 +1,50 @@
-<div layout:decorate="~{layouts/customer-layout}" xmlns:th="http://www.thymeleaf.org"
-    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-    <div layout:fragment="content">
-        <div class="container d-flex justify-content-center">
-            <div class="w-100" style="max-width: 420px;">
-                <!-- Alerts -->
-                <div class="alerts-stack mb-3">
-                    <div class="alert alert-danger py-2 px-3 mb-0" role="alert" th:if="${error}" th:text="${error}">
-                    </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Xác thực OTP</title>
+    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body class="auth-body">
+    <div class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
+        <div class="w-100" style="max-width: 420px;">
+            <!-- Alerts -->
+            <div class="alerts-stack mb-3">
+                <div class="alert alert-danger py-2 px-3 mb-0" role="alert" th:if="${error}" th:text="${error}">
                 </div>
+            </div>
 
-                <!-- Card -->
-                <div class="card shadow-sm auth-card">
-                    <div class="card-body p-4 p-md-5">
-                        <h1 class="h4 text-center mb-3 brand">Xác thực OTP</h1>
-                        <p class="text-muted small text-center mb-4">
-                            Vui lòng nhập mã OTP đã được gửi tới
-                            <span th:if="${email}" class="fw-semibold" th:text="${email}">email</span>.
-                        </p>
+            <!-- Card -->
+            <div class="card shadow-sm auth-card">
+                <div class="card-body p-4 p-md-5">
+                    <h1 class="h4 text-center mb-3 brand">Xác thực OTP</h1>
+                    <p class="text-muted small text-center mb-4">
+                        Vui lòng nhập mã OTP đã được gửi tới
+                        <span th:if="${email}" class="fw-semibold" th:text="${email}">email</span>.
+                    </p>
 
-                        <form th:action="@{/verify-otp}" method="post">
-                            <input type="hidden" name="email" th:value="${email}" />
+                    <form th:action="@{/verify-otp}" method="post">
+                        <input type="hidden" name="email" th:value="${email}" />
 
-                            <div class="mb-3">
-                                <label for="otp" class="form-label">Nhập OTP</label>
-                                <input id="otp" type="text" name="otp" class="form-control otp-input"
-                                    placeholder="Nhập mã 6 chữ số" inputmode="numeric" pattern="[0-9]*" maxlength="6"
-                                    autocomplete="one-time-code" required>
-                            </div>
+                        <div class="mb-3">
+                            <label for="otp" class="form-label">Nhập OTP</label>
+                            <input id="otp" type="text" name="otp" class="form-control otp-input"
+                                placeholder="Nhập mã 6 chữ số" inputmode="numeric" pattern="[0-9]*" maxlength="6"
+                                autocomplete="one-time-code" required>
+                        </div>
 
-                            <button type="submit" class="btn btn-primary w-100">Xác thực</button>
-                        </form>
-                    </div>
+                        <button type="submit" class="btn btn-primary w-100">Xác thực</button>
+                    </form>
                 </div>
             </div>
         </div>
-
-        <script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
     </div>
-</div>
+
+    <script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
+</body>
+
+</html>

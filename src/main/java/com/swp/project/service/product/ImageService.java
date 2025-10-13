@@ -140,7 +140,6 @@ public class ImageService {
         }
     }
 
-
     private void deleteDirectory(Path directory) {
         try {
             if (Files.exists(directory)) {
@@ -161,33 +160,34 @@ public class ImageService {
             Product product) throws Exception {
         String folderName = ProductService.toSlugName(productName);
         String temporaryImagePath = DISPLAY_TEMPORARY_PATH + folderName + "/" + folderName + ".jpg";
-        
+
         // Move main image to final destination
         String mainImageFinalPath = moveImageToFinalPath(temporaryImagePath, productName);
-        
+
         // Process extra images
         List<SubImage> processedSubImages = processExtraImages(extraImages, productName, product);
-        
+
         return Pair.of(mainImageFinalPath, processedSubImages);
     }
-    
-    private List<SubImage> processExtraImages(List<SubImage> extraImages, String productName, Product product) throws Exception {
+
+    private List<SubImage> processExtraImages(List<SubImage> extraImages, String productName, Product product)
+            throws Exception {
         if (extraImages == null || extraImages.isEmpty()) {
             return new ArrayList<>();
         }
-        
+
         List<String> temporaryImagePaths = extraImages.stream()
                 .map(SubImage::getSub_image_url)
                 .toList();
-                
+
         List<String> finalImagePaths = moveSubImageToFinalPath(temporaryImagePaths, productName);
-        
+
         return createAndSaveSubImages(finalImagePaths, product);
     }
-    
+
     private List<SubImage> createAndSaveSubImages(List<String> imagePaths, Product product) {
         List<SubImage> subImages = new ArrayList<>();
-        
+
         for (String path : imagePaths) {
             SubImage subImage = new SubImage();
             subImage.setProduct(product);
@@ -195,7 +195,25 @@ public class ImageService {
             SubImage savedSubImage = subImageService.save(subImage);
             subImages.add(savedSubImage);
         }
-        
+
         return subImages;
+    }
+
+    public String saveImageToTemporaryFile(String productName,MultipartFile uploadFile) throws Exception {
+        if(uploadFile == null){
+            return null;
+        }
+        String folderName = ProductService.toSlugName(productName);
+        Path folderPath = Paths.get(IMAGES_TEMPORARY_PATH + folderName);
+        try (InputStream inputStream = uploadFile.getInputStream()) {
+            Files.createDirectories(folderPath);
+            BufferedImage image = ImageIO.read(inputStream);
+            String fileName = folderName + ".jpg";
+            Path filePath = folderPath.resolve(fileName);
+            ImageIO.write(image, "jpg", filePath.toFile());
+            return DISPLAY_TEMPORARY_PATH + folderName + "/" + fileName;
+        } catch (Exception e) {
+            throw new Exception("Upload ảnh lỗi " + e.getMessage(), e);
+        }
     }
 }

@@ -1,9 +1,19 @@
-<div layout:decorate="~{layouts/customer-layout}" xmlns:th="http://www.thymeleaf.org"
-    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
 
-    <div layout:fragment="content">
-        <!-- Header Section -->
-        <div class="product-header text-center">
+<head>
+    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/header-footer.css">
+    <link rel="stylesheet" href="/css/product-category-sorting.css">
+    <script src="/js/bootstrap/bootstrap.bundle.min.js"></script>
+    <title>FruitShop - Trang danh sách sản phẩm </title>
+</head>
+
+<body>
+    <div th:insert="~{fragments/header :: header}"></div>
+    <main style="overflow-x: hidden">
+        <div class="product-header text-center" th:if="${keyword != null}">
             <div class="container">
                 <h1 class="mb-3" th:text="${Title}">Trang danh sách sản phẩm</h1>
                 <div class="stats-badge">
@@ -11,30 +21,12 @@
                 </div>
             </div>
         </div>
-
+        <div class="product-header text-center" th:if="${keyword == null}">
+            <div class="container">
+                <h1 class="mb-3" th:text="${Title}">Trang danh sách sản phẩm</h1>
+            </div>
+        </div>
         <div class="container">
-            <!-- Breadcrumb Navigation -->
-            <nav aria-label="breadcrumb" class="mb-3">
-                <ol class="breadcrumb bg-light p-3 rounded">
-                    <li class="breadcrumb-item">
-                        <a href="/" class="text-decoration-none">
-                            <i class="fas fa-home"></i> Trang chủ
-                        </a>
-                    </li>
-                    <li class="breadcrumb-item" th:if="${hadKeyword}">
-                        <a href="/product-category-sorting" class="text-decoration-none">
-                            <i class="fas fa-th-large"></i> Sản phẩm
-                        </a>
-                    </li>
-                    <li class="breadcrumb-item active" aria-current="page" th:if="${hadKeyword}">
-                        <i class="fas fa-search"></i> Tìm kiếm: "<span th:text="${keyword}"></span>"
-                    </li>
-                    <li class="breadcrumb-item active" aria-current="page" th:unless="${hadKeyword}">
-                        <i class="fas fa-th-large"></i> Danh sách sản phẩm
-                    </li>
-                </ol>
-            </nav>
-
             <!-- Enhanced Filter Section -->
             <div class="filter-section">
                 <div class="filter-form">
@@ -47,9 +39,10 @@
                             <input type="hidden" name="sortBy" th:value="${sortBy}" />
                             <input th:if="${hadKeyword}" type="hidden" name="keyword" th:value="${keyword}" />
                             <select name="categoryId" id="category" class="filter-select" onchange="this.form.submit()">
-                                <option value="0" th:text="'🏷️ Tất cả danh mục'" th:selected="${categoryId == 0}"></option>
-                                <option th:each="category : ${categories}" th:value="${category.id}" 
-                                        th:text="'📁 ' + ${category.name}" th:selected="${category.id == categoryId}">
+                                <option value="0" th:text="'🏷️ Tất cả danh mục'" th:selected="${categoryId == 0}">
+                                </option>
+                                <option th:each="category : ${categories}" th:value="${category.id}"
+                                    th:text="'📁 ' + ${category.name}" th:selected="${category.id == categoryId}">
                                 </option>
                             </select>
                         </form>
@@ -64,14 +57,19 @@
                             <input type="hidden" name="categoryId" th:value="${categoryId}" />
                             <input th:if="${hadKeyword}" type="hidden" name="keyword" th:value="${keyword}" />
                             <select name="sortBy" id="sortOption" class="filter-select" onchange="this.form.submit()">
-                                <option value="default" th:selected="${sortBy == null or sortBy == 'default'}">⚪ Mặc định</option>
-                                <option value="price-asc" th:selected="${sortBy == 'price-asc'}">💰 Giá: Thấp → Cao</option>
-                                <option value="price-desc" th:selected="${sortBy == 'price-desc'}">💎 Giá: Cao → Thấp</option>
+                                <option value="default" th:selected="${sortBy == null or sortBy == 'default'}">⚪ Mặc
+                                    định
+                                </option>
+                                <option value="price-asc" th:selected="${sortBy == 'price-asc'}">💰 Giá: Thấp → Cao
+                                </option>
+                                <option value="price-desc" th:selected="${sortBy == 'price-desc'}">💎 Giá: Cao → Thấp
+                                </option>
                                 <option value="name-asc" th:selected="${sortBy == 'name-asc'}">🔤 Tên: A → Z</option>
                                 <option value="name-desc" th:selected="${sortBy == 'name-desc'}">🔡 Tên: Z → A</option>
                                 <option value="newest" th:selected="${sortBy == 'newest'}">✨ Mới nhất</option>
                                 <option value="oldest" th:selected="${sortBy == 'oldest'}">📅 Cũ nhất</option>
-                                <option value="best-seller" th:selected="${sortBy == 'best-seller'}">🔥 Bán chạy nhất</option>
+                                <option value="best-seller" th:selected="${sortBy == 'best-seller'}">🔥 Bán chạy nhất
+                                </option>
                             </select>
                         </form>
                     </div>
@@ -81,33 +79,37 @@
             <!-- Enhanced Product Grid -->
             <div class="product-grid">
                 <div th:each="product : ${viewProductDto}" class="product-card">
-                    <img th:src="${product.main_image_url}" alt="Product Image" class="product-image">
-                    <div class="product-info">
-                        <a th:href="@{/product/{id}(id=${product.id})}" class="product-name" th:text="${product.name}">
-                            Product Name
-                        </a>
-                        <div class="product-price">
-                            <span th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}">0</span> ₫
+                    <a th:href="@{/product/{id}(id=${product.id})}" class="product-card-link">
+                        <img th:src="${product.main_image_url}" alt="Product Image" class="product-image">
+                        <div class="product-info">
+                            <div class="product-name" th:text="${product.name}">
+                                Product Name
+                            </div>
+                            <div class="product-price">
+                                <span
+                                    th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}">0</span>
+                                ₫
+                            </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             </div>
 
             <!-- Enhanced Pagination -->
             <div class="pagination-wrapper" th:if="${viewProductDto.totalPages > 1}">
                 <a th:href="@{${url}(page=${viewProductDto.number - 1}, size=${viewProductDto.size}, categoryId=${categoryId}, sortBy=${sortBy}, keyword=${keyword})}"
-                   th:if="${!viewProductDto.first}" class="btn btn-primary btn-pagination">
+                    th:if="${!viewProductDto.first}" class="btn btn-primary btn-pagination">
                     <i class="fas fa-chevron-left"></i> Trang trước
                 </a>
-                
+
                 <div class="pagination-info">
-                    <i class="fas fa-file-alt"></i> 
-                    Trang <strong th:text="${viewProductDto.number + 1}">1</strong> / 
+                    <i class="fas fa-file-alt"></i>
+                    Trang <strong th:text="${viewProductDto.number + 1}">1</strong> /
                     <strong th:text="${viewProductDto.totalPages}">1</strong>
                 </div>
-                
+
                 <a th:href="@{${url}(page=${viewProductDto.number + 1}, size=${viewProductDto.size}, categoryId=${categoryId}, sortBy=${sortBy}, keyword=${keyword})}"
-                   th:if="${!viewProductDto.last}" class="btn btn-primary btn-pagination">
+                    th:if="${!viewProductDto.last}" class="btn btn-primary btn-pagination">
                     Trang sau <i class="fas fa-chevron-right"></i>
                 </a>
             </div>
@@ -124,5 +126,8 @@
                 </a>
             </div>
         </div>
-    </div>
-</div>
+    </main>
+    <div th:insert="~{fragments/footer :: footer}"></div>
+    <script src="/js/bootstrap/bootstrap.bundle.min.js"></script>
+</body>
+</html>

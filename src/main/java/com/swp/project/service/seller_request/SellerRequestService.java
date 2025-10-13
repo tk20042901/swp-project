@@ -53,6 +53,7 @@ public class SellerRequestService {
                 .status(sellerRequestStatusService.getPendingStatus())
                 .createdAt(LocalDateTime.now())
                 .build());
+        System.out.println(entity.getClass().getSimpleName());
     }
 
     public <T> T getEntityFromContent(String content, Class<T> entityClass) throws JsonProcessingException {

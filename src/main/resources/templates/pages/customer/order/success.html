@@ -1,48 +1,55 @@
-<div layout:decorate="~{layouts/customer-layout}" xmlns:th="http://www.thymeleaf.org"
-    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
-    <div layout:fragment="content">
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                background-color: #f8f9fa;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-                margin: 0;
-                color: #333;
-            }
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-            p {
-                font-size: 28px;
-                font-weight: bold;
-                color: #28a745;
-                /* xanh lá success */
-                margin-bottom: 20px;
-            }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/header-footer.css">
+    <title>Success</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+        }
 
-            a {
-                display: inline-block;
-                padding: 10px 20px;
-                border-radius: 6px;
-                border: 2px solid #007bff;
-                background-color: #e9f3ff;
-                color: #007bff;
-                font-weight: bold;
-                text-decoration: none;
-                transition: 0.3s;
-            }
+        p {
+            font-size: 28px;
+            font-weight: bold;
+            color: #28a745;
+            /* xanh lá success */
+            margin-bottom: 20px;
+        }
 
-            a:hover {
-                background-color: #007bff;
-                color: #fff;
-            }
-        </style>
-        </head>
+        a {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: 2px solid #007bff;
+            background-color: #e9f3ff;
+            color: #007bff;
+            font-weight: bold;
+            text-decoration: none;
+            transition: 0.3s;
+        }
 
-        <body>
-            <p>Bạn đã đặt hàng thành công !</p>
-            <a th:href="@{/}">Trang chủ</a>
-    </div>
-</div>
+        a:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div th:insert="~{fragments/header :: header}"></div>
+    <p>Bạn đã đặt hàng thành công !</p>
+    <a th:href="@{/}">Trang chủ</a>
+    <div th:insert="~{fragments/footer :: footer}"></div>
+</body>
+
+</html>
