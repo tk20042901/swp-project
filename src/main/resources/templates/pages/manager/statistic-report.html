@@ -2,12 +2,101 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Statistic-report</title>
+    <title>Statistic Report</title>
+    <style>
+        /* Toàn trang */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        a {
+            text-decoration: none;
+            color: #1e90ff;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            text-align: center;
+            color: #222;
+            margin-bottom: 30px;
+        }
+
+        /* Thông tin tổng quan */
+        .summary {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        /* Bảng */
+        table {
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto 40px;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background-color: #1e90ff;
+            color: white;
+            text-align: left;
+            padding: 15px;
+            font-size: 18px;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 16px;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        td span {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* Liên kết chi tiết */
+        .detail-link {
+            display: block;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            color: #1e90ff;
+            margin-top: 20px;
+        }
+
+        .detail-link:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
 <a th:href="@{/}">Trang chủ</a>
 <h1>Tổng quan</h1>
-<span th:text="'Số lượng sản phẩm đã bán được: '+ ${totalUnitSold}"></span>
+
+<div class="summary">
+    <span th:text="'Số lượng sản phẩm đã bán được: '+ ${totalUnitSold}"></span>
+</div>
+
 <table>
     <thead>
     <tr>
@@ -17,23 +106,25 @@
     <tbody>
     <tr>
         <td>
-            <span  th:text="${'Doanh thu ngày hôm nay: '+ revenueToday}"></span>
-            <span th:text="${' tăng '+ dailyPercentageChange + '% so với hôm qua'}"></span>
+            <span th:text="${'Doanh thu ngày hôm nay: '+ revenueToday + ' VND'}"></span>
+            <small th:text="${'tăng '+ dailyPercentageChange + '% so với hôm qua'}"></small>
         </td>
     </tr>
     <tr>
         <td>
-            <span th:text="${'Doanh thu tuần này: '+ revenueThisWeek}"></span>
-            <span th:text="${' tăng '+ weeklyPercentageChange +'% so với tuần trước'}"></span>
+            <span th:text="${'Doanh thu tuần này: '+ revenueThisWeek + ' VND'}"></span>
+            <small th:text="${'tăng '+ weeklyPercentageChange +'% so với tuần trước'}"></small>
         </td>
     </tr>
     <tr>
         <td>
-            <span th:text="${'Doanh thu tháng này: '+ revenueThisMonth}"></span>
-            <span th:text="${' tăng '+ monthlyPercentageChange +'% so với tháng trước'}"></span>
+            <span th:text="${'Doanh thu tháng này: '+ revenueThisMonth + ' VND'}"></span>
+            <small th:text="${'tăng '+ monthlyPercentageChange +'% so với tháng trước'}"></small>
         </td>
     </tr>
     </tbody>
 </table>
+
+<a class="detail-link" th:href="@{/manager/detail-report}">Chi tiết thống kê</a>
 </body>
 </html>
