@@ -49,31 +49,28 @@
             text-decoration: underline;
         }
 
+        /* Bảng trắng tinh khiết */
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 16px;
-            background: white;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-radius: 8px;
+            overflow: hidden;
         }
-
 
         th, td {
-            border: 1px solid #ddd;
-            padding: 10px;
+            border: none; /* bỏ viền rườm rà */
+            padding: 12px 15px;
             text-align: center;
-        }
-
-        th {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: center;
-            /* bỏ background ở đây để không ghi đè header */
         }
 
         table thead th {
-            background-color: #6a0dad !important; /* tím */
-            color: white !important;
+            background-color: #ffffff; /* trắng */
+            color: #333;
+            font-weight: bold;
+            border-bottom: 2px solid #eee;
         }
 
         tr:nth-child(even) {
@@ -81,12 +78,18 @@
         }
 
         tr:nth-child(odd) {
-            background-color: #f7f7f7;
+            background-color: #fafafa;
+        }
+
+        tr:hover {
+            background-color: #f1f7ff; /* hover nhạt màu xanh */
         }
 
         td img {
             max-width: 80px;
-            border-radius: 4px;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 1px solid #ddd;
         }
 
         .no-result {
@@ -96,6 +99,7 @@
             font-weight: bold;
             background: #fff3cd;
             color: #856404;
+            border-radius: 6px;
         }
 
         /* trạng thái màu */
@@ -136,25 +140,26 @@
             color: white;
             font-weight: bold;
         }
+
         .product-cell {
             display: flex;
             align-items: center;
-            gap: 12px; /* khoảng cách giữa ảnh và tên */
+            gap: 12px;
             padding: 10px 0;
         }
 
         .product-cell img {
             width: 80px;
             height: 80px;
-            margin-left: 20px;
-            object-fit: cover; /* cắt ảnh gọn */
-            border-radius: 6px; /* bo góc cho ảnh */
+            object-fit: cover;
+            border-radius: 6px;
             border: 1px solid #ddd;
         }
+
         .home-link {
             display: inline-block;
             padding: 8px 14px;
-            background-color: #6c757d; /* xám trung tính */
+            background-color: #6c757d;
             color: white;
             font-weight: bold;
             border-radius: 6px;
@@ -163,14 +168,14 @@
         }
 
         .home-link:hover {
-            background-color: #5a6268; /* xám đậm hơn khi hover */
+            background-color: #5a6268;
             text-decoration: none;
         }
 
         .table-link {
             display: inline-block;
             padding: 6px 12px;
-            background-color: #007bff; /* xanh dương */
+            background-color: #007bff;
             color: white;
             border-radius: 4px;
             font-size: 14px;
@@ -179,12 +184,10 @@
         }
 
         .table-link:hover {
-            background-color: #0056b3; /* xanh đậm hơn khi hover */
+            background-color: #0056b3;
             transform: scale(1.05);
             box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-
         }
-
     </style>
 </head>
 <body>
@@ -194,7 +197,7 @@
 <form th:action="@{/seller/all-products}" method="get">
     <input type="text" name="name" th:value="${name}" placeholder="Tìm theo tên">
     <select name="enabled">
-        <option th:value="''">Trạng thái</option>
+        <option th:value="''">Tất cả</option>
         <option th:value="true" th:selected="${enabled == true}">Đang bán</option>
         <option th:value="false" th:selected="${enabled == false}">Ngừng bán</option>
     </select>
@@ -240,12 +243,12 @@
 
 <div class="pagination">
     <a th:if="${products.hasPrevious()}"
-       th:href="@{/seller/all-products (page=${products.number - 1},size=${products.size},name=${name},enabled=${enabled})}">
+       th:href="@{/seller/all-products (page=${products.number - 1},size=${products.size},name=${name},enabled=${enabled},sort=${sort})}">
         Trước
     </a>
     <span> Trang [[${products.number + 1}]] / [[${products.totalPages}]] </span>
     <a th:if="${products.hasNext()}"
-       th:href="@{/seller/all-products (page=${products.number + 1},size=${products.size},name=${name},enabled=${enabled})}">
+       th:href="@{/seller/all-products (page=${products.number + 1},size=${products.size},name=${name},enabled=${enabled},sort=${sort})}">
         Sau
     </a>
 </div>
