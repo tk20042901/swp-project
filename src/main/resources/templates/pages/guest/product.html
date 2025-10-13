@@ -39,7 +39,7 @@
                             </div>
                         </div>
 
-                        <h2 class="h5 text-danger mb-3" th:text="${product.price} + ' đ'"></h2>
+                        <h2 class="h5 text-danger mb-3" th:text="${#numbers.formatInteger(product.price, 0, 'POINT')} + ' đ'"></h2>
                         <p th:text="${'Đã bán '} + ${soldQuantity} + ', Còn ' + ${maxQuantity}" style="color: blue"></p>
                         <p class="mb-4 text-muted" th:text="${product.description}"></p>
                         <p class="mb-4 text-primary" th:text="'Trong giỏ hàng: ' + ${quantityInCart} + ' sản phẩm'" th:if="${quantityInCart > 0}"></p>
@@ -65,7 +65,7 @@
                                     </div>
                                     <div class="card-body d-flex flex-column product-info">
                                         <h5 style="font-weight: bold;" th:text="${relatedProduct.name}">Product Name</h5>
-                                        <p class="card-text text-danger fw-bold" th:text="${relatedProduct.price} + ' đ'"></p>
+                                        <p class="card-text text-danger fw-bold" th:text="${#numbers.formatInteger(relatedProduct.price, 0, 'POINT')} + ' đ'"></p>
                                     </div>
                                 </a>
                             </div>

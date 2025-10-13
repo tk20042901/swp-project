@@ -1,30 +1,8 @@
 package com.swp.project.controller;
 
-import java.security.Principal;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-import org.springframework.data.domain.Page;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.SessionAttributes;
-import org.springframework.web.bind.support.SessionStatus;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
+import com.swp.project.dto.UpdateShoppingCartDto;
 import com.swp.project.dto.ChangePasswordDto;
 import com.swp.project.dto.DeliveryInfoDto;
-import com.swp.project.dto.UpdateShoppingCartDto;
 import com.swp.project.entity.order.Order;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.service.AddressService;
@@ -33,12 +11,30 @@ import com.swp.project.service.order.OrderStatusService;
 import com.swp.project.service.order.PaymentMethodService;
 import com.swp.project.service.product.ProductService;
 import com.swp.project.service.user.CustomerService;
-
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+
+import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.security.Principal;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import vn.payos.PayOS;
-import vn.payos.type.ItemData;
 import vn.payos.type.PaymentData;
 
 @SessionAttributes("shoppingCartItems")
@@ -225,7 +221,7 @@ public class CustomerController {
     public String updateCartItem(@Valid UpdateShoppingCartDto updateShoppingCartDto, BindingResult bindingResult, RedirectAttributes redirectAttributes, Principal principal) {
 
         if (bindingResult.hasErrors()) {
-            String errorMessage = bindingResult.getAllErrors().get(0).getDefaultMessage();
+            String errorMessage = bindingResult.getAllErrors().getFirst().getDefaultMessage();
             redirectAttributes.addFlashAttribute("error", errorMessage);
             return "redirect:/customer/shopping-cart";
         }
@@ -374,21 +370,10 @@ public class CustomerController {
     public String payOsCheckout(@RequestParam Long orderId) {
         Order order = orderService.getOrderById(orderId);
         try {
-            List<ItemData> items = order.getOrderItem().stream().map(orderItem ->
-                    ItemData.builder()
-                            .name(orderItem.getProduct().getName())
-                            .price(orderItem.getProduct().getPrice())
-                            .quantity(orderItem.getQuantity())
-                            .build()).toList();
             PaymentData paymentData = PaymentData.builder()
                     .orderCode(order.getId())
-                    .buyerName(order.getCustomer().getName())
-                    .buyerEmail(order.getCustomer().getEmail())
-                    .buyerPhone(order.getCustomer().getPhoneNumber())
-                    .buyerAddress(order.getAddressString())
                     .amount(order.getTotalAmount())
                     .expiredAt(order.getPaymentExpiredAt().atZone(ZoneId.systemDefault()).toEpochSecond())
-                    .items(items)
                     .description("FruitShop " + order.getId())
                     .returnUrl("http://localhost:8080/customer/order-success")
                     .cancelUrl("http://localhost:8080/customer/order-cancel")

@@ -30,7 +30,7 @@
     <form th:action="@{/shipper/delivering-orders}" method="get">
       <div class="input-group mb-3">
         <input type="text" class="form-control" placeholder="Tìm kiếm theo email khách hàng..." name="searchQuery" th:value="${searchQuery}">
-        <button class="btn btn-outline-primary" type="submit" name="searchButton">Tìm kiếm</button>
+        <button class="btn btn-outline-primary" type="submit">Tìm kiếm</button>
       </div>
     </form>
 
@@ -76,7 +76,8 @@
               shippingStatusService.isShippingStatus(order.currentShippingStatus) ? 'bg-primary' : ''}"></div>
           </td>
           <td class="col-lg-2">
-            <a th:href="@{/shipper/orders/{id}(id=${order.id})}">
+            <a th:href="@{/shipper/orders/{id}(id=${order.id})}"
+               class="text-decoration-none">
               <button class="btn btn-outline-secondary btn-sm">Xem chi tiết</button>
             </a>
           </td>

@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="auth-body">
+<a th:href="${returnUrl != null} ? ${returnUrl} : '/shipper'" class="btn btn-light position-absolute top-0 start-0 m-3">← Quay lại</a>
 <div class="container py-5">
   <div class="auth-card p-4 shadow-sm">
     <div th:object="${order}">
@@ -68,9 +69,9 @@
                   <span th:text="${item.product.name}"></span>
                 </div>
               </td>
-              <td th:text="${item.product.price + 'đ / ' + item.product.unit.name}"></td>
-              <td th:text="${item.quantity}"></td>
-              <td th:text="${item.product.price * item.quantity + 'đ'}"></td>
+              <td th:text="${#numbers.formatInteger(item.product.price, 0, 'POINT')} + 'đ / ' + ${item.product.unit.name}"></td>
+              <td th:text="${#numbers.formatInteger(item.quantity, 0, 'POINT')}"></td>
+              <td th:text="${#numbers.formatInteger(item.product.price * item.quantity, 0, 'POINT')} + 'đ'"></td>
             </tr>
           </tbody>
         </table>
@@ -79,7 +80,7 @@
       <!-- Tổng tiền -->
       <div class="text-end mt-3">
         <h4 class="text-danger">
-          Tổng cộng: <span th:text="${totalAmount}"></span> đ
+          Tổng cộng: <span th:text="${#numbers.formatInteger(totalAmount, 0, 'POINT')}"></span> đ
         </h4>
       </div>
     </div>
