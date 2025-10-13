@@ -1,10 +1,7 @@
 package com.swp.project.dto;
 
 import java.util.List;
-
 import com.swp.project.entity.product.ProductUnit;
-import com.swp.project.entity.product.SubImage;
-
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -41,5 +38,10 @@ public class UpdateProductDto{
 
     private String mainImage; 
 
-    private List<SubImage> subImages;
+    private String firstSubImage;
+    
+    private String secondSubImage;
+
+    private String thirdSubImage;
+
 }

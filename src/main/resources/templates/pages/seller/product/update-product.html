@@ -178,21 +178,21 @@
 
         <div class="form-group">
             <label>Ảnh phụ 1:</label>
-            <input type="file" name="extraImages" id="image2" accept="image/*">
+            <input type="file" name="firstImage" id="image2" accept="image/*">
             <img id="preview2" th:src="${updateProductDto.subImages[0].sub_image_url}" width="150" height="150">
             <button type="button" class="revert-btn" data-preview="preview2" data-input="image2">Hoàn tác</button>
         </div>
 
         <div class="form-group">
             <label>Ảnh phụ 2:</label>
-            <input type="file" name="extraImages" id="image3" accept="image/*">
+            <input type="file" name="secondImage" id="image3" accept="image/*">
             <img id="preview3" th:src="${updateProductDto.subImages[1].sub_image_url}" width="150" height="150">
             <button type="button" class="revert-btn" data-preview="preview3" data-input="image3">Hoàn tác</button>
         </div>
 
         <div class="form-group">
             <label>Ảnh phụ 3:</label>
-            <input type="file" name="extraImages" id="image4" accept="image/*">
+            <input type="file" name="thirdImage" id="image4" accept="image/*">
             <img id="preview4" th:src="${updateProductDto.subImages[2].sub_image_url}" width="150" height="150">
             <button type="button" class="revert-btn" data-preview="preview4" data-input="image4">Hoàn tác</button>
         </div>

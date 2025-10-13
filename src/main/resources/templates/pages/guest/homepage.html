@@ -1,7 +1,15 @@
-<div layout:decorate="~{layouts/customer-layout}" xmlns:th="http://www.thymeleaf.org"
-    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
 
-    <div layout:fragment="content">
+<head>
+    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/homepage.css">
+</head>
+
+<body>
+    <div th:insert="fragments/header :: header"></div>
+    <div>
         <!-- Hero Section -->
         <section class="hero-section">
             <div class="hero-content">
@@ -35,27 +43,26 @@
                     </h2>
                     <p class="text-muted">Tìm kiếm sản phẩm theo danh mục yêu thích</p>
                 </div>
-                
+
                 <!-- Categories Carousel -->
                 <div id="categoriesCarousel" class="carousel slide categories-carousel" data-bs-ride="carousel">
                     <!-- Carousel Indicators -->
                     <div class="carousel-indicators">
-                        <button type="button" data-bs-target="#categoriesCarousel" data-bs-slide-to="0" class="active" 
-                                aria-current="true" aria-label="Slide 1"></button>
-                        <button type="button" data-bs-target="#categoriesCarousel" data-bs-slide-to="1" 
-                                aria-label="Slide 2" th:if="${#lists.size(categories) > 4}"></button>
-                        <button type="button" data-bs-target="#categoriesCarousel" data-bs-slide-to="2" 
-                                aria-label="Slide 3" th:if="${#lists.size(categories) > 8}"></button>
+                        <button type="button" data-bs-target="#categoriesCarousel" data-bs-slide-to="0" class="active"
+                            aria-current="true" aria-label="Slide 1"></button>
+                        <button type="button" data-bs-target="#categoriesCarousel" data-bs-slide-to="1"
+                            aria-label="Slide 2" th:if="${#lists.size(categories) > 4}"></button>
+                        <button type="button" data-bs-target="#categoriesCarousel" data-bs-slide-to="2"
+                            aria-label="Slide 3" th:if="${#lists.size(categories) > 8}"></button>
                     </div>
-                    
+
                     <!-- Carousel Inner -->
                     <div class="carousel-inner">
                         <div class="carousel-item active">
                             <div class="category-grid">
-                                <a th:each="category, iterStat : ${categories}"
-                                   th:if="${iterStat.index < 4}"
-                                   th:href="@{/product-category-sorting(sortBy='default', categoryId=${category.id})}"
-                                   class="category-item">
+                                <a th:each="category, iterStat : ${categories}" th:if="${iterStat.index < 4}"
+                                    th:href="@{/product-category-sorting(sortBy='default', categoryId=${category.id})}"
+                                    class="category-item">
                                     <div class="category-icon">
                                         <i class="fas fa-apple-alt"></i>
                                     </div>
@@ -63,13 +70,13 @@
                                 </a>
                             </div>
                         </div>
-                        
+
                         <div class="carousel-item" th:if="${#lists.size(categories) > 4}">
                             <div class="category-grid">
                                 <a th:each="category, iterStat : ${categories}"
-                                   th:if="${iterStat.index >= 4 and iterStat.index < 8}"
-                                   th:href="@{/product-category-sorting(sortBy='default', categoryId=${category.id})}"
-                                   class="category-item">
+                                    th:if="${iterStat.index >= 4 and iterStat.index < 8}"
+                                    th:href="@{/product-category-sorting(sortBy='default', categoryId=${category.id})}"
+                                    class="category-item">
                                     <div class="category-icon">
                                         <i class="fas fa-apple-alt"></i>
                                     </div>
@@ -77,13 +84,12 @@
                                 </a>
                             </div>
                         </div>
-                        
+
                         <div class="carousel-item" th:if="${#lists.size(categories) > 8}">
                             <div class="category-grid">
-                                <a th:each="category, iterStat : ${categories}"
-                                   th:if="${iterStat.index >= 8}"
-                                   th:href="@{/product-category-sorting(sortBy='default', categoryId=${category.id})}"
-                                   class="category-item">
+                                <a th:each="category, iterStat : ${categories}" th:if="${iterStat.index >= 8}"
+                                    th:href="@{/product-category-sorting(sortBy='default', categoryId=${category.id})}"
+                                    class="category-item">
                                     <div class="category-icon">
                                         <i class="fas fa-apple-alt"></i>
                                     </div>
@@ -92,13 +98,15 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Carousel Controls -->
-                    <button class="carousel-control-prev" type="button" data-bs-target="#categoriesCarousel" data-bs-slide="prev">
+                    <button class="carousel-control-prev" type="button" data-bs-target="#categoriesCarousel"
+                        data-bs-slide="prev">
                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                         <span class="visually-hidden">Previous</span>
                     </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#categoriesCarousel" data-bs-slide="next">
+                    <button class="carousel-control-next" type="button" data-bs-target="#categoriesCarousel"
+                        data-bs-slide="next">
                         <span class="carousel-control-next-icon" aria-hidden="true"></span>
                         <span class="visually-hidden">Next</span>
                     </button>
@@ -114,7 +122,7 @@
                     <select name="categoryId" id="category" class="filter-select" onchange="this.form.submit()">
                         <option value="0" th:text="' Tất cả danh mục'"
                             th:selected="${categoryId == null or categoryId == 0}">
-                             Tất cả danh mục
+                            Tất cả danh mục
                         </option>
                         <option th:each="category : ${categories}" th:value="${category.id}"
                             th:text="'📁 ' + ${category.name}" th:selected="${category.id == categoryId}">
@@ -148,8 +156,7 @@
                                         <span th:text="${product.name}">Product Name</span>
                                     </div>
                                     <div class="product-price">
-                                        <span
-                                            th:text="${product.price}">0</span>
+                                        <span th:text="${product.price}">0</span>
                                     </div>
                                 </div>
                             </div>
@@ -183,8 +190,7 @@
                                         <span th:text="${product.name}">Product Name</span>
                                     </div>
                                     <div class="product-price">
-                                        <span
-                                            th:text="${product.price}">0</span>
+                                        <span th:text="${product.price}">0</span>
                                     </div>
                                 </div>
                             </div>
@@ -220,10 +226,10 @@
                                         <span th:text="${product.name}">Product Name</span>
                                     </div>
                                     <div class="product-price">
-                                        <span
-                                            th:text="${product.price}">0</span>
+                                        <span th:text="${product.price}">0</span>
                                         <span class="badge bg-danger ms-2" th:if="${product.soldQuantity > 0}">
-                                            <i class="fas fa-fire"></i> <span th:text="${product.soldQuantity}">0</span> đã
+                                            <i class="fas fa-fire"></i> <span th:text="${product.soldQuantity}">0</span>
+                                            đã
                                             bán
                                         </span>
                                     </div>
@@ -234,5 +240,6 @@
                 </div>
             </section>
         </div>
-    </div>
-</div>
+        <div th:insert="fragments/footer :: footer"></div>
+</body>
+</html>
