@@ -241,7 +241,11 @@
     </tbody>
 </table>
 
-<div class="pagination">
+<div class="pagination" th:if="!${products.isEmpty()}">
+    <a th:if="!${products.first}"
+       th:href="@{/seller/all-products (page=0, size=${products.size}, name=${name}, enabled=${enabled}, sort=${sort})}">
+        Trang đầu
+    </a>
     <a th:if="${products.hasPrevious()}"
        th:href="@{/seller/all-products (page=${products.number - 1},size=${products.size},name=${name},enabled=${enabled},sort=${sort})}">
         Trước
@@ -250,6 +254,10 @@
     <a th:if="${products.hasNext()}"
        th:href="@{/seller/all-products (page=${products.number + 1},size=${products.size},name=${name},enabled=${enabled},sort=${sort})}">
         Sau
+    </a>
+    <a th:if="!${products.last}"
+       th:href="@{/seller/all-products (page=${products.totalPages - 1}, size=${products.size}, name=${name}, enabled=${enabled}, sort=${sort})}">
+        Trang cuối
     </a>
 </div>
 
