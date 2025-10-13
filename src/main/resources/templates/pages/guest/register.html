@@ -1,7 +1,13 @@
-<div layout:decorate="~{layouts/customer-layout}" xmlns:th="http://www.thymeleaf.org"
-    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
-
-    <div layout:fragment="content">
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Đăng ký</title>
+    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="auth-body">
         <div class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
             <div class="w-100" style="max-width: 520px;">
                 <!-- Alerts -->
@@ -64,5 +70,5 @@
 
         <script src="https://www.google.com/recaptcha/api.js" async defer></script>
         <script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
-    </div>
-</div>
+    </body>
+</html>
