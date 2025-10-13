@@ -191,8 +191,8 @@ public class OrderService {
 
     @Transactional
     public void doWhenOrderConfirmed(Order order) {
-        pickProductForOrder(order);
         setOrderStatus(order.getId(), orderStatusService.getProcessingStatus());
+        pickProductForOrder(order);
     }
 
     @Transactional
