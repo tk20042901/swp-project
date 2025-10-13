@@ -240,8 +240,13 @@
         </div>
 
         <div th:if="${!#lists.isEmpty(orders.content)}" class="text-center mt-3">
+                <a th:if="!${orders.first}"
+                    th:href="@{/customer/order-history(page=0, size=${orders.size},status=${status}, fromDate=${fromDate}, toDate=${toDate})}"
+                    class="page-btn">
+                    Trang đầu
+                </a>
             <a th:if="${orders.hasPrevious()}"
-                th:href="@{/customer/order-history(page=${orders.number - 1}, size=${orders.size},status=${status}, fromDate=${fromDate}, toDate=${toDate})}"
+                th:href="@{/customer/order-history(page=0, size=${orders.size},status=${status}, fromDate=${fromDate}, toDate=${toDate})}"
                 class="page-btn">
                 ← Trước
             </a>
@@ -253,6 +258,11 @@
                 class="page-btn">
                 Sau →
             </a>
+                <a th:if="!${orders.last}"
+                   th:href="@{/customer/order-history(page=${orders.totalPages - 1}, size=${orders.size},status=${status}, fromDate=${fromDate}, toDate=${toDate})}"
+                   class="page-btn">
+                    Trang cuối
+                </a>
         </div>
     </div>
     <div th:insert="~{fragments/footer :: footer}"></div>

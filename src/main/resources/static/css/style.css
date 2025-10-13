@@ -137,10 +137,6 @@ main {
 .bg-primary-subtle { background-color: #e7f1ff !important; }
 .bg-secondary-subtle { background-color: #f1f3f5 !important; }
 
-/* Chat UI styles */
-.chat-messages {
-    height: 1px;
-}
 .chat-messages ul { margin: 0; padding: 0; }
 
 .avatar-circle {

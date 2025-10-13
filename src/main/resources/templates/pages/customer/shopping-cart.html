@@ -30,7 +30,6 @@
                 <tr>
                     <th style="width: 80px;">
                         <form th:action="@{/customer/shopping-cart/select-all}" method="post" style="display:inline;">
-                            <input type="hidden" name="action" value="toggleAll">
                             <input type="checkbox" id="selectAllCheckbox"
                                 th:checked="${#lists.size(selectedIds) == #lists.size(cartItems) and !#lists.isEmpty(cartItems)}"
                                 onchange="this.form.submit()">

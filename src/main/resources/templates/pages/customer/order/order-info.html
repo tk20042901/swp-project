@@ -53,12 +53,12 @@
                                     </ul>
                                 </div>
 
-                                <div class="d-flex justify-content-end mt-3">
-                                    <div class="fs-6"><strong>Tổng:</strong> <strong
-                                            th:text="${totalAmount} + ' VND'">0</strong>
+                                    <div class="d-flex justify-content-end mt-3">
+                                        <div class="fs-6"><strong>Tổng:</strong> <strong
+                                                th:text="${#numbers.formatInteger(totalAmount, 0, 'POINT')} + ' VND'">0</strong>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
                             <!-- Delivery + Payment Form -->
                             <div class="col-12 col-lg-5">

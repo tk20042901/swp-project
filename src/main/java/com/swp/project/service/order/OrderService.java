@@ -59,7 +59,7 @@ public class OrderService {
     private List<Order> results = List.of();
 
     public Page<Order> getAllOrder() {
-        Pageable pageable = PageRequest.of(0,10, Sort.by("id").ascending());
+        Pageable pageable = PageRequest.of(0,10, Sort.by("orderAt").descending());
         return orderRepository.findAll(pageable);
     }
 
@@ -71,7 +71,7 @@ public class OrderService {
         Pageable pageable = PageRequest.of(
                 Integer.parseInt(sellerSearchOrderDto.getGoToPage()) - 1,
                 10,
-                Sort.by("id").ascending());
+                Sort.by("orderAt").descending());
         if (sellerSearchOrderDto.getStatusId() == null || sellerSearchOrderDto.getStatusId() == 0) {
             return orderRepository.searchByCustomer_EmailContainsAndOrderAtBetween(
                     sellerSearchOrderDto.getCustomerEmail() == null
@@ -191,8 +191,8 @@ public class OrderService {
 
     @Transactional
     public void doWhenOrderConfirmed(Order order) {
-        pickProductForOrder(order);
         setOrderStatus(order.getId(), orderStatusService.getProcessingStatus());
+        pickProductForOrder(order);
     }
 
     @Transactional
@@ -215,7 +215,7 @@ public class OrderService {
 
     public List<Order> getSuccessOrder() {
         return orderRepository.findAll().stream()
-                .filter(order -> orderStatusService.isDeliveredStatus(order))
+                .filter(orderStatusService::isDeliveredStatus)
                 .collect(Collectors.toList());
     }
 
@@ -242,7 +242,7 @@ public class OrderService {
 
     public Long calculateTotalAmount(Order order) {
         return order.getOrderItem().stream()
-                .mapToLong(item -> item.getProduct().getPrice() * item.getQuantity())
+                .mapToLong(item -> (long) item.getProduct().getPrice() * item.getQuantity())
                 .sum();
     }
 
@@ -251,13 +251,13 @@ public class OrderService {
     }
     public long getTotalDeliveredOrders(){
         return orderRepository.findAll().stream()
-                .filter(order -> orderStatusService.isDeliveredStatus(order))
+                .filter(orderStatusService::isDeliveredStatus)
                 .count();
     }
 
     public long getTotalProcessingOrders(){
         return orderRepository.findAll().stream()
-                .filter(order -> orderStatusService.isProcessingStatus(order))
+                .filter(orderStatusService::isProcessingStatus)
                 .count();
     }
 
@@ -270,7 +270,7 @@ public class OrderService {
 
     public long getTotalCancelledOrders(){
         return orderRepository.findAll().stream()
-                .filter(order -> orderStatusService.isCancelledStatus(order))
+                .filter(orderStatusService::isCancelledStatus)
                 .count();
     }
 
@@ -278,23 +278,20 @@ public class OrderService {
         long total =0;
         for(Product p : productRepository.findAll()){
             if(p.getSoldQuantity() != null)
-            total += getSoldQuantity(p.getId());
+                total += getSoldQuantity(p.getId());
         }
         return total;
     }
 
     public long getRevenueToday() {
-        Long revenue = orderRepository.getRevenueToday();
-        return revenue;
+        return orderRepository.getRevenueToday();
     }
     public long getRevenueThisMonth(){
-        Long revenue = orderRepository.getRevenueThisMonth();
-        return revenue;
+        return orderRepository.getRevenueThisMonth();
 
     }
     public long getRevenueThisWeek() {
-        Long revenue = orderRepository.getRevenueThisWeek();
-        return revenue;
+        return orderRepository.getRevenueThisWeek();
     }
 
     public List<ProductBatch> getNearlyExpiredProduct(){
@@ -308,24 +305,21 @@ public class OrderService {
 
     public long getRevenueYesterday(){
         LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
-        Long revenueYesterday = orderRepository.getRevenueByDate(yesterday);
-        return revenueYesterday;
+        return orderRepository.getRevenueByDate(yesterday);
     }
 
     public long getRevenueLastWeek(){
         LocalDateTime startOfThisWeek = LocalDateTime.now().with(DayOfWeek.MONDAY);
         LocalDateTime lastWeek = startOfThisWeek.minusWeeks(1);
         LocalDateTime endOfWeek = lastWeek.plusDays(6);
-        Long revenueLastWeek = orderRepository.getRevenueBetween(lastWeek, endOfWeek);
-        return revenueLastWeek;
+        return orderRepository.getRevenueBetween(lastWeek, endOfWeek);
     }
 
     public long getRevenueLastMonth(){
         LocalDateTime startOfThisMonth = LocalDateTime.now().withDayOfMonth(1);
         LocalDateTime lastMonth = startOfThisMonth.minusMonths(1);
         LocalDateTime endOfMonth = lastMonth.withDayOfMonth(lastMonth.toLocalDate().lengthOfMonth());
-        Long revenueLastMonth = orderRepository.getRevenueBetween(lastMonth, endOfMonth);
-        return revenueLastMonth;
+        return orderRepository.getRevenueBetween(lastMonth, endOfMonth);
     }
     public double getDailyPercentageChange(){
         long today = getRevenueToday();
@@ -451,7 +445,7 @@ public class OrderService {
         }
         return (int) results
         .stream()
-        .filter(order -> orderStatusService.isDeliveredStatus(order))
+        .filter(orderStatusService::isDeliveredStatus)
         .filter(order -> order.getCurrentShipping().getOccurredAt().getMonth() == LocalDate.now().minusMonths(monthsAgo).getMonth()
                 && order.getCurrentShipping().getOccurredAt().getYear() == LocalDate.now().getYear())
         .count();
@@ -474,7 +468,7 @@ public class OrderService {
         }
         return (int) results
         .stream()
-        .filter(order -> orderStatusService.isDeliveredStatus(order))
+        .filter(orderStatusService::isDeliveredStatus)
         .filter(order -> order.getCurrentShipping().getOccurredAt().getDayOfYear() == LocalDate.now().minusDays(daysAgo).getDayOfYear()
                 && order.getCurrentShipping().getOccurredAt().getYear() == LocalDate.now().getYear())
         .count();
@@ -498,26 +492,21 @@ public class OrderService {
         Pageable pageable = PageRequest.of(page - 1, size);
 
         // Nếu repository chưa có query riêng thì vẫn phải filter trong memory
-        List<Order> allOrders = orderRepository.findAll()
+        List<Order> allOrders = orderRepository.findByShipper_Email(principal.getName())
             .stream()
-            .filter(order -> orderStatusService.isShippingStatus(order) &&
-                            order.getShipper() != null &&
-                            order.getShipper().getEmail().equals(principal.getName()) &&
-                            orderStatusService.isShippingStatus(order))
             .sorted((o1, o2) -> {
                 if (sortCriteria == null) return 0;
-                switch (sortCriteria) {
-                    case "id":
-                        return k * o1.getId().compareTo(o2.getId());
-                    case "email":
-                        return k * o1.getCustomer().getEmail().compareTo(o2.getCustomer().getEmail());
-                    case "status":
-                        return k * o1.getCurrentShippingStatus().getId().compareTo(o2.getCurrentShippingStatus().getId());
-                    default:
-                        return 0;
-                }
+                return switch (sortCriteria) {
+                    case "id" -> k * o1.getId().compareTo(o2.getId());
+                    case "email" -> k * o1.getCustomer().getEmail().compareTo(o2.getCustomer().getEmail());
+                    case "status" ->
+                            k * o1.getCurrentShippingStatus().getId().compareTo(o2.getCurrentShippingStatus().getId());
+                    default -> 0;
+                };
             })
             .toList();
+
+        System.out.println("toi da o day");
 
         if (searchQuery != null && !searchQuery.trim().isEmpty()) {
             allOrders = allOrders.stream()
@@ -547,16 +536,13 @@ public class OrderService {
                             orderStatusService.isDeliveredStatus(order))
             .sorted((o1, o2) -> {
                 if (sortCriteria == null) return 0;
-                switch (sortCriteria) {
-                    case "id":
-                        return k * o1.getId().compareTo(o2.getId());
-                    case "email":
-                        return k * o1.getCustomer().getEmail().compareTo(o2.getCustomer().getEmail());
-                    case "status":
-                        return k * o1.getCurrentShippingStatus().getId().compareTo(o2.getCurrentShippingStatus().getId());
-                    default:
-                        return 0;
-                }
+                return switch (sortCriteria) {
+                    case "id" -> k * o1.getId().compareTo(o2.getId());
+                    case "email" -> k * o1.getCustomer().getEmail().compareTo(o2.getCustomer().getEmail());
+                    case "status" ->
+                            k * o1.getCurrentShippingStatus().getId().compareTo(o2.getCurrentShippingStatus().getId());
+                    default -> 0;
+                };
             })
             .toList();
 
