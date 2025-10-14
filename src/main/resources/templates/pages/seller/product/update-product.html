@@ -122,22 +122,22 @@
         <input type="hidden" th:field="*{id}" />
 
         <div class="form-group">
-            <label for="name">Tên sản phẩm:</label>
+            <label th:for="name">Tên sản phẩm:</label>
             <input type="text" th:field="*{name}" id="productName" required />
         </div>
 
         <div class="form-group">
-            <label for="description">Mô tả:</label>
+            <label th:for="description">Mô tả:</label>
             <textarea th:field="*{description}" id="productDescription" required></textarea>
         </div>
 
         <div class="form-group">
-            <label for="price">Giá:</label>
+            <label th:for="price">Giá:</label>
             <input type="number" th:field="*{price}" id="productPrice" min="0" step="0.01" required />
         </div>
 
         <div class="form-group">
-            <label for="unit">Đơn vị:</label>
+            <label th:for="unit">Đơn vị:</label>
             <select th:field="*{unit}" id="productUnit" required>
                 <option value="" disabled selected>Chọn đơn vị</option>
                 <option th:each="u : ${units}" th:value="${u.id}" th:text="${u.name}">
@@ -178,21 +178,21 @@
 
         <div class="form-group">
             <label>Ảnh phụ 1:</label>
-            <input type="file" name="firstImage" id="image2" accept="image/*">
+            <input type="file" name="subImages" id="image2" accept="image/*">
             <img id="preview2" th:src="${updateProductDto.subImages[0].sub_image_url}" width="150" height="150">
             <button type="button" class="revert-btn" data-preview="preview2" data-input="image2">Hoàn tác</button>
         </div>
 
         <div class="form-group">
             <label>Ảnh phụ 2:</label>
-            <input type="file" name="secondImage" id="image3" accept="image/*">
+            <input type="file" name="subImages" id="image3" accept="image/*">
             <img id="preview3" th:src="${updateProductDto.subImages[1].sub_image_url}" width="150" height="150">
             <button type="button" class="revert-btn" data-preview="preview3" data-input="image3">Hoàn tác</button>
         </div>
 
         <div class="form-group">
             <label>Ảnh phụ 3:</label>
-            <input type="file" name="thirdImage" id="image4" accept="image/*">
+            <input type="file" name="subImages" id="image4" accept="image/*">
             <img id="preview4" th:src="${updateProductDto.subImages[2].sub_image_url}" width="150" height="150">
             <button type="button" class="revert-btn" data-preview="preview4" data-input="image4">Hoàn tác</button>
         </div>

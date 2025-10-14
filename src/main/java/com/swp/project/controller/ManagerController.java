@@ -391,7 +391,7 @@ public class ManagerController {
     }
 
     @GetMapping("/detail-report")
-    public String getDetailReport(Model model){
+    public String getDetailReport(Model model) {
 
 
         return "pages/manager/detail-report";
@@ -401,9 +401,6 @@ public class ManagerController {
     public String getAllProductsRequest(
             Model model) {
         model.addAttribute("sellerRequests", sellerRequestService.getAllSellerRequest());
-        for (SellerRequest sr : sellerRequestService.getAllSellerRequest()) {
-            System.out.println(sr.getRequestType().getName());
-        }
         return "pages/manager/all-products-request";
     }
 
@@ -426,6 +423,9 @@ public class ManagerController {
         model.addAttribute("secondNewImage", newProduct.getSub_images().get(1).getSub_image_url());
         model.addAttribute("thirdNewImage", newProduct.getSub_images().get(2).getSub_image_url());
         model.addAttribute("sellerRequest", sellerRequest);
+        System.out.println(newProduct.getSub_images().get(0).getSub_image_url());
+        System.out.println(newProduct.getSub_images().get(1).getSub_image_url());
+        System.out.println(newProduct.getSub_images().get(2).getSub_image_url());
         return "pages/manager/product-request-details";
     }
 
@@ -438,38 +438,48 @@ public class ManagerController {
             if (sellerRequest == null) {
                 throw new Exception("Yêu cầu không tồn tại");
             }
-
             Product newProduct = sellerRequestService.getEntityFromContent(sellerRequest.getContent(), Product.class);
-            if (newProduct == null) {
-                throw new Exception("Dữ liệu sản phẩm không hợp lệ");
-            }
             if (productService.checkUniqueProductName(newProduct.getName())) {
                 throw new IOException("Tên sản phẩm đã tồn tại");
             }
-            Pair<String, List<SubImage>> images;
             if (sellerRequestTypeService.isUpdateType(sellerRequest)) {
                 Long oldProductId = sellerRequestService
                         .getEntityFromContent(sellerRequest.getOldContent(), Product.class).getId();
                 Product oldProduct = productService.getProductById(oldProductId);
-                images = imageService.getAllFinalImage(newProduct.getSub_images(), newProduct.getName(), oldProduct);
                 oldProduct.setName(newProduct.getName());
                 oldProduct.setDescription(newProduct.getDescription());
                 oldProduct.setPrice(newProduct.getPrice());
                 oldProduct.setUnit(newProduct.getUnit());
-                oldProduct.setMain_image_url(images.getFirst());
                 oldProduct.setEnabled(newProduct.isEnabled());
                 oldProduct.setCategories(newProduct.getCategories());
-                oldProduct.setSub_images(images.getSecond());
+                if(newProduct.getMain_image_url().contains("/images/temporary/")){
+                    String mainImageFinalPath = imageService.saveImageFromTemporaryToFinal(newProduct.getMain_image_url());
+                    oldProduct.setMain_image_url(mainImageFinalPath);
+                }
+                for (int i = 0; i < newProduct.getSub_images().size(); i++) {
+                    SubImage subImage = newProduct.getSub_images().get(i);
+                    if(subImage.getSub_image_url().contains("/images/temporary/")) {
+                        String subImageFinalPath = imageService.saveImageFromTemporaryToFinal(subImage.getSub_image_url());
+                        subImage.setSub_image_url(subImageFinalPath);
+                    }
+                    subImage.setProduct(oldProduct);
+                    oldProduct.getSub_images().set(i, subImage);
+                }
                 productService.update(oldProduct);
             } else {
-                newProduct = productService.add(newProduct);
-                images = imageService.getAllFinalImage(newProduct.getSub_images(), newProduct.getName(), newProduct);
-                newProduct.setMain_image_url(images.getFirst());
-                newProduct.setSub_images(images.getSecond());
+                productService.add(newProduct);
+                newProduct.setMain_image_url(imageService.saveImageFromTemporaryToFinal(newProduct.getMain_image_url()));
+                for (int i = 0; i < newProduct.getSub_images().size(); i++) {
+                    SubImage subImage = newProduct.getSub_images().get(i);
+                    String subImageFinalPath = imageService.saveImageFromTemporaryToFinal(subImage.getSub_image_url());
+                    subImage.setSub_image_url(subImageFinalPath);
+                    subImage.setProduct(newProduct);
+                    newProduct.getSub_images().set(i, subImage);
+                }
                 productService.update(newProduct);
             }
             sellerRequestService.approveRequest(requestId);
-
+            imageService.deleteTemporaryDirectory(newProduct.getMain_image_url());
             redirectAttributes.addFlashAttribute("msg", "Đã duyệt yêu cầu thành công");
         } catch (Exception e) {
             System.out.println("Exception" + e.getMessage());

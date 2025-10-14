@@ -107,8 +107,12 @@
         <form th:action="@{/manager/approve-product-request}" method="post">
             <input type="hidden" name="requestId" th:value="${requestId}" />
             <button type="submit" class="btn btn-success">Duyệt</button>
-            <a th:href="@{/manager/product-requests}" class="btn btn-secondary">Quay lại</a>
         </form>
+        <form th:action="@{/manager/reject-product-request}" method="post">
+            <input type="hidden" name="requestId" th:value="${requestId}" />
+            <button type="submit" class="btn btn-success">Từ chối</button>
+        </form>
+        <a th:href="@{/manager/product-requests}" class="btn btn-secondary">Quay lại</a>
     </div>
     <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
