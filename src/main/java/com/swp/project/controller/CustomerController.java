@@ -252,7 +252,8 @@ public class CustomerController {
                 redirectAttributes.addFlashAttribute("error",
                         "Sản phẩm '" + product.getName() + "' chỉ cho phép nhập số lượng nguyên.");
                 return "redirect:/customer/shopping-cart";
-            }else{
+            }
+        }else{
                 double rounded = Math.round(quantity * 10.0)/10.0;
                 if(quantity != rounded){
                     redirectAttributes.addFlashAttribute("error",
@@ -261,7 +262,7 @@ public class CustomerController {
                 }
                 quantity = rounded;
             }
-        }
+
 
         double availableQuantity = productService.getAvailableQuantity(productId);
         if (quantity > availableQuantity) {
