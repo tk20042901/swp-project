@@ -13,7 +13,7 @@ import com.swp.project.entity.user.Customer;
 
 @Repository
 public interface ShoppingCartItemRepository extends JpaRepository<ShoppingCartItem, ShoppingCartItemId> {
-    List<ShoppingCartItem> findByCustomer(Customer customer);
+    List<ShoppingCartItem> findByCustomerOrderByIdAsc(Customer customer);
 
     ShoppingCartItem findShoppingCartItemById(ShoppingCartItemId id);
 
