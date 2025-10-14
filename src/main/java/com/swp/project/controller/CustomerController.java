@@ -232,13 +232,28 @@ public class CustomerController {
 
         Long productId= updateShoppingCartDto.getProductId();
         Product product =productService.getProductById(productId);
-        double quantity = updateShoppingCartDto.getQuantity();
+        String quantityStr = updateShoppingCartDto.getQuantity();
+        double quantity;
+        try {
+           quantity= Double.parseDouble(quantityStr);
+        } catch (NumberFormatException e) {
+            redirectAttributes.addFlashAttribute("error",
+                    "Số lượng không hợp lệ.");
+            return "redirect:/customer/shopping-cart";
+        }
+
+        if (quantity<=0) {
+            redirectAttributes.addFlashAttribute("error",
+                    "Số lượng phải lớn hơn 0.");
+            return "redirect:/customer/shopping-cart";
+        }
         if (!product.getUnit().isAllowDecimal()) {
             if (quantity % 1 != 0) {
                 redirectAttributes.addFlashAttribute("error",
                         "Sản phẩm '" + product.getName() + "' chỉ cho phép nhập số lượng nguyên.");
                 return "redirect:/customer/shopping-cart";
-            }else{
+            }
+        }else{
                 double rounded = Math.round(quantity * 10.0)/10.0;
                 if(quantity != rounded){
                     redirectAttributes.addFlashAttribute("error",
@@ -247,7 +262,7 @@ public class CustomerController {
                 }
                 quantity = rounded;
             }
-        }
+
 
         double availableQuantity = productService.getAvailableQuantity(productId);
         if (quantity > availableQuantity) {
