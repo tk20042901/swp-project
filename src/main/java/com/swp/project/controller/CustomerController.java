@@ -232,7 +232,21 @@ public class CustomerController {
 
         Long productId= updateShoppingCartDto.getProductId();
         Product product =productService.getProductById(productId);
-        double quantity = updateShoppingCartDto.getQuantity();
+        String quantityStr = updateShoppingCartDto.getQuantity();
+        double quantity;
+        try {
+           quantity= Double.parseDouble(quantityStr);
+        } catch (NumberFormatException e) {
+            redirectAttributes.addFlashAttribute("error",
+                    "Số lượng không hợp lệ.");
+            return "redirect:/customer/shopping-cart";
+        }
+
+        if (quantity<=0) {
+            redirectAttributes.addFlashAttribute("error",
+                    "Số lượng phải lớn hơn 0.");
+            return "redirect:/customer/shopping-cart";
+        }
         if (!product.getUnit().isAllowDecimal()) {
             if (quantity % 1 != 0) {
                 redirectAttributes.addFlashAttribute("error",
