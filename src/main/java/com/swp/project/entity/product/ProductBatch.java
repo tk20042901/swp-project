@@ -22,7 +22,7 @@ public class ProductBatch implements Serializable {
     private LocalDateTime expiredDate;
 
     @Column(nullable = false)
-    private int quantity;
+    private double quantity;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Product product;

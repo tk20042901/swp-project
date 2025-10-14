@@ -217,13 +217,13 @@ public class GuestController {
         List<Product> relatedProducts = productService.getRelatedProducts(id, 6);
         model.addAttribute("relatedProducts", relatedProducts);
 
-        int soldQuantity = productService.getSoldQuantity(id);
+        double soldQuantity = productService.getSoldQuantity(id);
         model.addAttribute("soldQuantity", soldQuantity);
 
         List<Category> categories = product.getCategories();
         model.addAttribute("categories", categories);
 
-        int quantityInCart = customerService.getProductQuantityInCart(principal, id);
+        double quantityInCart = customerService.getProductQuantityInCart(principal, id);
         model.addAttribute("quantityInCart", quantityInCart);
         
         return "pages/guest/product";
@@ -258,7 +258,7 @@ public class GuestController {
     @PostMapping("/product/add")
     public String addToCart(
             @RequestParam Long productId,
-            @RequestParam int quantity,
+            @RequestParam Double quantity,
             Model model,
             RedirectAttributes redirectAttributes,
             Principal principal) {

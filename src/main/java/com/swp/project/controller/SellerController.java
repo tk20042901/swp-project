@@ -1,5 +1,25 @@
 package com.swp.project.controller;
 
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import com.swp.project.dto.CreateProductDto;
 import com.swp.project.dto.SellerSearchOrderDto;
 import com.swp.project.dto.UpdateProductDto;
@@ -14,6 +34,7 @@ import com.swp.project.service.product.ImageService;
 import com.swp.project.service.product.ProductService;
 import com.swp.project.service.product.ProductUnitService;
 import com.swp.project.service.seller_request.SellerRequestService;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -138,7 +159,7 @@ public class SellerController {
     @GetMapping("/product/product-detail/{productId}")
     public String getProductDetail(@PathVariable("productId") Long id, Model model) {
         Product product = productService.getProductById(id);
-        int availableQuantity = productService.getAvailableQuantity(id);
+        double availableQuantity = productService.getAvailableQuantity(id);
         model.addAttribute("availableQuantity", availableQuantity);
         model.addAttribute("product", product);
         return "pages/seller/product/product-detail";

@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.swp.project.entity.order.Order;
 import com.swp.project.entity.order.shipping.ShippingStatus;
 import com.swp.project.service.order.OrderService;
+import com.swp.project.service.order.OrderStatusService;
 import com.swp.project.service.order.shipping.ShippingStatusService;
 import com.swp.project.service.user.ShipperService;
 
@@ -31,6 +32,7 @@ public class ShipperController {
     private final ShipperService shipperService;
     private final OrderService orderService;
     private final ShippingStatusService shippingStatusService;
+    private final OrderStatusService orderStatusService;
 
     @GetMapping("")
     public String shipperMain(Model model, Principal principal) {
@@ -73,7 +75,12 @@ public class ShipperController {
         }
         try {
             // Lấy Page<Order> thay vì List<Order>
-            Page<Order> deliveringOrders = orderService.getDeliveringOrders(principal, pageDelivering, size, searchQuery, sortCriteria, (int) session.getAttribute("k"));
+            Page<Order> deliveringOrders = orderService.getDeliveringOrders(principal, 
+                                                                            pageDelivering, 
+                                                                            size, 
+                                                                            (String) session.getAttribute("searchQuery"), 
+                                                                            (String) session.getAttribute("sortCriteria"), 
+                                                                            (int) session.getAttribute("k"));
             model.addAttribute("deliveringOrders", deliveringOrders.getContent());
             model.addAttribute("shippingStatusService", shippingStatusService);
             model.addAttribute("currentPageDelivering", pageDelivering);
@@ -118,7 +125,12 @@ public class ShipperController {
         }
         try {
             // Lấy Page<Order> thay vì List<Order>
-            Page<Order> doneOrders = orderService.getDoneOrders(principal, pageDone, size, searchQuery, sortCriteria, (int) session.getAttribute("k"));
+            Page<Order> doneOrders = orderService.getDoneOrders(principal, 
+                                                                pageDone, 
+                                                                size, 
+                                                                (String) session.getAttribute("searchQuery"), 
+                                                                (String) session.getAttribute("sortCriteria"), 
+                                                                (int) session.getAttribute("k"));
             model.addAttribute("doneOrders", doneOrders.getContent());
             model.addAttribute("currentPageDone", pageDone);
             model.addAttribute("totalPagesDone", doneOrders.getTotalPages());
@@ -169,6 +181,7 @@ public class ShipperController {
             model.addAttribute("order", order);
             model.addAttribute("totalAmount", totalAmount);
             model.addAttribute("shippedAt", orderService.getShippedAt(order));
+            model.addAttribute("returnUrl", orderStatusService.isDeliveredStatus(order) ? "/shipper/done-orders" : "/shipper/delivering-orders");
             return "pages/shipper/order-details";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());

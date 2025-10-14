@@ -24,6 +24,6 @@ public class OrderItem {
     private Product product;
 
     @Column(nullable = false)
-    private int quantity;
+    private double quantity;
 
 }
