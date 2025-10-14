@@ -225,12 +225,12 @@ public class OrderService {
                         .anyMatch(item -> item.getProduct().getId().equals(productId)))
                 .collect(Collectors.toList());
     }
-        public int getSoldQuantity(Long productId) {
+        public double getSoldQuantity(Long productId) {
                 List<Order> orders = getOrderByProductId(getSuccessOrder(), productId);
                 return orders.stream()
-                        .mapToInt(order -> order.getOrderItem().stream()
+                        .mapToDouble(order -> order.getOrderItem().stream()
                                 .filter(item -> item.getProduct().getId().equals(productId))
-                                .mapToInt(OrderItem::getQuantity)
+                                .mapToDouble(OrderItem::getQuantity)
                                 .sum())
                         .sum();
         }
@@ -242,7 +242,7 @@ public class OrderService {
 
     public Long calculateTotalAmount(Order order) {
         return order.getOrderItem().stream()
-                .mapToLong(item -> (long) item.getProduct().getPrice() * item.getQuantity())
+                .mapToLong(item -> (long) ((long) (item.getProduct().getPrice() * item.getQuantity() / 1000) * 1000))
                 .sum();
     }
 

@@ -42,13 +42,14 @@
                         <h2 class="h5 text-danger mb-3" th:text="${#numbers.formatInteger(product.price, 0, 'POINT')} + ' đ'"></h2>
                         <p th:text="${'Đã bán '} + ${soldQuantity} + ', Còn ' + ${maxQuantity}" style="color: blue"></p>
                         <p class="mb-4 text-muted" th:text="${product.description}"></p>
-                        <p class="mb-4 text-primary" th:text="'Trong giỏ hàng: ' + ${quantityInCart} + ' sản phẩm'" th:if="${quantityInCart > 0}"></p>
+                        <p class="mb-4 text-primary" th:text="'Trong giỏ hàng: ' + ${quantityInCart} + ' ' + ${product.unit.name}" th:if="${quantityInCart > 0}"></p>
                         
                         <form th:action="@{/product/add}" method="post" class="d-flex flex-column flex-sm-row align-items-sm-end gap-3">
                             <input type="hidden" name="productId" th:value="${product.id}">
                             <div>
-                                <label for="quantity" class="form-label">Số lượng</label>
-                                <input id="quantity" type="number" name="quantity" value="1" min="1" th:max="${maxQuantity}" class="form-control w-auto">
+                                <label for="quantity" class="form-label" th:text="'Số lượng' + ' (' + ${product.unit.name} + ')'"></label>
+                                <input id="quantity" type="number" name="quantity" value="1" min="1" th:max="${maxQuantity}" class="form-control w-auto" th:if="${product.unit.isAllowDecimal == false}">
+                                <input id="quantity" type="number" name="quantity" value="1" step="0.1" min="0.1" th:max="${maxQuantity}" class="form-control w-auto" th:if="${product.unit.isAllowDecimal == true}">
                             </div>
                             <button type="submit" class="btn btn-primary btn-lg shadow-sm" th:if="${maxQuantity > 0}">Thêm vào giỏ hàng</button>
                             <button type="button" class="btn btn-secondary btn-lg shadow-sm" th:if="${maxQuantity == 0}" disabled>Hết hàng</button>

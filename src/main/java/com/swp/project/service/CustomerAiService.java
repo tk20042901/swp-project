@@ -1,12 +1,12 @@
 package com.swp.project.service;
 
-import com.google.cloud.vertexai.VertexAI;
-import com.swp.project.dto.AiMessageDto;
-import com.swp.project.entity.product.Category;
-import com.swp.project.entity.product.Product;
-import com.swp.project.entity.product.ProductBatch;
+import java.time.LocalDateTime;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import com.swp.project.service.product.ProductService;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -28,9 +28,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.google.cloud.vertexai.VertexAI;
+import com.swp.project.dto.AiMessageDto;
+import com.swp.project.entity.product.Category;
+import com.swp.project.entity.product.Product;
+import com.swp.project.entity.product.ProductBatch;
+import com.swp.project.service.product.ProductService;
 
 @Service
 public class CustomerAiService {
@@ -160,8 +163,8 @@ public class CustomerAiService {
                     .filter(batch -> batch.getQuantity() > 0 && batch.getExpiredDate().isAfter(LocalDateTime.now()))
                     .toList();
 
-            int totalStock = validBatches.stream()
-                    .mapToInt(ProductBatch::getQuantity)
+            double totalStock = validBatches.stream()
+                    .mapToDouble(ProductBatch::getQuantity)
                     .sum();
 
             sb.append("Tình trạng tồn kho: ").append(totalStock > 0 ? "Còn hàng" : "Hết hàng").append(". ");

@@ -1,25 +1,11 @@
 package com.swp.project.service.product;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.text.Normalizer;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.imageio.ImageIO;
-
-import com.swp.project.dto.ViewProductDto;
-import com.swp.project.entity.order.OrderItem;
-import com.swp.project.repository.order.OrderItemRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,13 +13,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
+import com.swp.project.dto.ViewProductDto;
+import com.swp.project.entity.order.OrderItem;
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.ProductBatch;
-import com.swp.project.entity.product.SubImage;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.listener.event.ProductRelatedUpdateEvent;
+import com.swp.project.repository.order.OrderItemRepository;
 import com.swp.project.repository.order.OrderRepository;
 import com.swp.project.repository.product.ProductRepository;
 import com.swp.project.repository.shopping_cart.ShoppingCartItemRepository;
@@ -86,10 +73,10 @@ public class ProductService {
     }
 
     @Transactional
-    public void pickProductInProductBatch(Long productId, int quantity) {
+    public void pickProductInProductBatch(Long productId, double quantity) {
         List<ProductBatch> productBatches = productBatchService.getByProductId(productId);
         productBatches.sort(Comparator.comparing(ProductBatch::getExpiredDate)
-                .thenComparingInt(ProductBatch::getQuantity));
+                .thenComparingDouble(ProductBatch::getQuantity));
         for (ProductBatch productBatch : productBatches) {
             if (quantity <= 0)
                 break;
@@ -104,15 +91,15 @@ public class ProductService {
         }
     }
 
-    public int getAvailableQuantity(Long productId) {
-        int productBatchQuantity = productBatchService.getByProductId(productId)
+    public double getAvailableQuantity(Long productId) {
+        double productBatchQuantity = productBatchService.getByProductId(productId)
                 .stream()
-                .mapToInt(ProductBatch::getQuantity)
+                .mapToDouble(ProductBatch::getQuantity)
                 .sum();
 
-        int pendingPaymentQuantity = orderItemRepository
+        double pendingPaymentQuantity = orderItemRepository
                 .getByProduct_IdAndOrder_OrderStatus(productId, orderStatusService.getPendingPaymentStatus()).stream()
-                .mapToInt(OrderItem::getQuantity)
+                .mapToDouble(OrderItem::getQuantity)
                 .sum();
 
         return productBatchQuantity - pendingPaymentQuantity;
@@ -178,12 +165,12 @@ public class ProductService {
         return relatedProducts;
     }
 
-    public int getSoldQuantity(Long id) {
+    public double getSoldQuantity(Long id) {
         return orderRepository.findAll().stream()
                 .filter(order -> orderStatusService.isDeliveredStatus(order))
                 .flatMap(order -> order.getOrderItem().stream())
                 .filter(item -> item.getProduct().getId().equals(id))
-                .mapToInt(item -> item.getQuantity())
+                .mapToDouble(item -> item.getQuantity())
                 .sum();
     }
 

@@ -26,6 +26,6 @@ public class ShoppingCartItem implements Serializable {
     private Product product;
 
     @Column(nullable = false)
-    private int quantity;
+    private double quantity;
 
 }

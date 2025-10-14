@@ -1,8 +1,30 @@
 package com.swp.project.controller;
 
-import com.swp.project.dto.UpdateShoppingCartDto;
+import java.security.Principal;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import com.swp.project.dto.ChangePasswordDto;
 import com.swp.project.dto.DeliveryInfoDto;
+import com.swp.project.dto.UpdateShoppingCartDto;
 import com.swp.project.entity.order.Order;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.service.AddressService;
@@ -11,29 +33,10 @@ import com.swp.project.service.order.OrderStatusService;
 import com.swp.project.service.order.PaymentMethodService;
 import com.swp.project.service.product.ProductService;
 import com.swp.project.service.user.CustomerService;
+
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
-
-import org.springframework.data.domain.Page;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.support.SessionStatus;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.security.Principal;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import vn.payos.PayOS;
 import vn.payos.type.PaymentData;
 
@@ -135,7 +138,7 @@ public class CustomerController {
                                    Principal principal) {
         List<ShoppingCartItem> cartItems = customerService.getCart(principal.getName());
         for(ShoppingCartItem item: cartItems) {
-        int availableQuantity = productService.getAvailableQuantity(item.getProduct().getId());
+        double availableQuantity = productService.getAvailableQuantity(item.getProduct().getId());
         if (availableQuantity <= 0) {
             customerService.removeItem(principal.getName(), item.getProduct().getId());
         }
@@ -227,9 +230,9 @@ public class CustomerController {
         }
 
         String quantityStr = updateShoppingCartDto.getQuantity();
-        int quantity = Integer.parseInt(quantityStr);
+        double quantity = Double.parseDouble(quantityStr);
         Long productId = updateShoppingCartDto.getProductId();
-        int availableQuantity = productService.getAvailableQuantity(productId);
+        double availableQuantity = productService.getAvailableQuantity(productId);
         if (quantity > availableQuantity) {
             quantity = availableQuantity;
             redirectAttributes.addFlashAttribute("error",
@@ -313,7 +316,7 @@ public class CustomerController {
         model.addAttribute("provinceCities", addressService.getAllProvinceCity());
         model.addAttribute("shoppingCartItems", shoppingCartItems);
         model.addAttribute("totalAmount", shoppingCartItems.stream()
-                .mapToInt(item -> item.getProduct().getPrice() * item.getQuantity()).sum());
+                .mapToDouble(item -> item.getProduct().getPrice() * item.getQuantity()).sum());
         return "pages/customer/order/order-info";
     }
 
@@ -340,8 +343,8 @@ public class CustomerController {
             model.addAttribute("provinceCities", addressService.getAllProvinceCity());
             model.addAttribute("wards", addressService
                     .getAllCommuneWardByProvinceCityCode(deliveryInfoDto.getProvinceCityCode()));
-            model.addAttribute("totalAmount", shoppingCartItems.stream().mapToInt
-                    (item -> item.getProduct().getPrice() * item.getQuantity()).sum());
+            model.addAttribute("totalAmount", shoppingCartItems.stream().mapToDouble(
+                    (item -> item.getProduct().getPrice() * item.getQuantity())).sum());
             return "/pages/customer/order/order-info";
         }
 

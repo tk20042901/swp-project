@@ -76,8 +76,8 @@ public class Order{
     }
 
     public int getTotalAmount(){
-        return orderItem.stream()
-                        .mapToInt(od -> od.getProduct().getPrice() * od.getQuantity()).sum();
+        return (int) orderItem.stream()
+                        .mapToInt(od -> (int) (od.getProduct().getPrice() * od.getQuantity() / 1000) * 1000).sum();
     }
 
     public String getAddressString(){
