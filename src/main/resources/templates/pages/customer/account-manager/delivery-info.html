@@ -7,11 +7,19 @@
     <title>Thông tin giao hàng</title>
     <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+    </style>
 </head>
 
 <body class="auth-body">
-    <div th:insert="~{fragments/header :: header}"></div>
-    <div class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div class="container d-flex align-items-center justify-content-center">
         <div class="row justify-content-center w-100">
             <div class="col-12 col-md-10 col-lg-8 col-xl-7">
                 <div class="auth-card bg-white p-4 p-md-5">
@@ -82,9 +90,7 @@
             </div>
         </div>
     </div>
-    <div th:insert="~{fragments/footer :: footer}"></div>
-    
-    <!-- Bootstrap JS -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
     <script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
 </body>
 

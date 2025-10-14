@@ -7,11 +7,19 @@
     <title>Thông tin đơn hàng</title>
     <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+    </style>
 </head>
 
 <body class="auth-body">
-    <div th:insert="~{fragments/header :: header}"></div>
-    <div class="container py-5">
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div class="container">
         <div class="row justify-content-center">
             <div class="col-12 col-xl-10">
                 <div class="card auth-card shadow-sm">
@@ -34,18 +42,19 @@
                                                         Tên sản phẩm
                                                     </div>
                                                     <div class="text-muted small cart-item-meta">
-                                                        <span>Số lượng: <span th:text="${item.quantity}">1</span></span>
+                                                    <span th:text="${'Số lượng: ' + (item.quantity % 1 == 0 ? item.quantity.intValue() : #numbers.formatDecimal(item.quantity, 0, 1)) + ' ' + item.product.unit.name}">1
+                                                    </span>
                                                         <br>
                                                         <span>
                                                             Đơn giá: <span
-                                                                th:text="${item.product.price} + 'VND/' + ${item.product.unit.name}">0</span>
+                                                                th:text="${#numbers.formatInteger(item.product.price, 0, 'POINT') + 'VND/' + item.product.unit.name}">0</span>
                                                         </span>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="text-end">
                                                 <div class="fw-semibold cart-item-total"
-                                                    th:text="${item.product.price * item.quantity} + ' VND'">0 VND
+                                                    th:text="${#numbers.formatInteger(item.product.price * item.quantity, 0, 'POINT')} + ' VND'">0 VND
                                                 </div>
                                             </div>
                                         </li>
@@ -156,7 +165,7 @@
             </div>
         </div>
     </div>
-    <div th:insert="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 
 </html>
