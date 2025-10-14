@@ -3,376 +3,377 @@
 <head>
     <meta charset="UTF-8">
     <title>Order Detail</title>
-        <style>
-            body {
-                font-family: 'Poppins', Arial, sans-serif;
-                margin: 30px;
-                background-color: #f5f6fa;
-                color: #333;
-            }
+    <style>
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            margin: 30px;
+            background-color: #f5f6fa;
+            color: #333;
+        }
 
-            h1,
-            h3 {
-                text-align: center;
-                color: #2c3e50;
-                margin-bottom: 25px;
-            }
+        h1,
+        h3 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 25px;
+        }
 
-            /* Nút quay lại */
-            span a {
-                display: inline-block;
-                padding: 8px 15px;
-                border: 2px solid #007bff;
-                border-radius: 6px;
-                background-color: #e9f3ff;
-                color: #007bff;
-                font-weight: 600;
-                text-decoration: none;
-                transition: all 0.3s;
-            }
+        /* Nút quay lại */
+        span a {
+            display: inline-block;
+            padding: 8px 15px;
+            border: 2px solid #007bff;
+            border-radius: 6px;
+            background-color: #e9f3ff;
+            color: #007bff;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
 
-            span a:hover {
-                background-color: #007bff;
-                color: #fff;
-            }
+        span a:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
 
-            /* Card khung tổng thể */
-            .card {
-                background: #fff;
-                border-radius: 10px;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-                margin-bottom: 25px;
-                overflow: hidden;
-            }
+        /* Card khung tổng thể */
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
 
-            .card-header {
-                background: #f8f9fa;
-                font-weight: 600;
-                padding: 12px 20px;
-                border-bottom: 1px solid #dee2e6;
-            }
+        .card-header {
+            background: #f8f9fa;
+            font-weight: 600;
+            padding: 12px 20px;
+            border-bottom: 1px solid #dee2e6;
+        }
 
-            .card-body {
-                padding: 15px 20px;
-            }
+        .card-body {
+            padding: 15px 20px;
+        }
 
-            /* Bảng dữ liệu */
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                background: #fff;
-                border-radius: 10px;
-                overflow: hidden;
-            }
+        /* Bảng dữ liệu */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+        }
 
-            thead {
-                background-color: #007bff;
-                color: #fff;
+        thead {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        tbody tr:hover {
+            background-color: #f2f6fc;
+        }
+
+        /* Ảnh sản phẩm */
+        img {
+            border-radius: 6px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        td a {
+            color: #333;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        td a:hover {
+            color: #007bff;
+        }
+
+        /* Nút hành động */
+        .btn {
+            display: inline-block;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 8px 14px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-outline-danger {
+            background-color: transparent;
+            color: #dc3545;
+            border: 2px solid #dc3545;
+        }
+
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            color: #fff;
+        }
+
+        /* Thông tin giao hàng */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px 20px;
+            font-size: 15px;
+        }
+
+        .info-grid div {
+            background: #f9fbfd;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #e0e6ed;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        /* Tổng tiền */
+        .total-row td {
+            font-weight: bold;
+            background: #f8f9fa;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
             }
 
             th,
             td {
-                padding: 12px 15px;
-                text-align: center;
-                border-bottom: 1px solid #dee2e6;
-            }
-
-            tbody tr:hover {
-                background-color: #f2f6fc;
-            }
-
-            /* Ảnh sản phẩm */
-            img {
-                border-radius: 6px;
-                margin-right: 8px;
-                vertical-align: middle;
-            }
-
-            td a {
-                color: #333;
-                font-weight: 500;
-                text-decoration: none;
-            }
-
-            td a:hover {
-                color: #007bff;
-            }
-
-            /* Nút hành động */
-            .btn {
-                display: inline-block;
                 font-size: 14px;
-                font-weight: bold;
-                padding: 8px 14px;
-                border-radius: 6px;
-                border: none;
-                cursor: pointer;
-                transition: all 0.3s ease;
+                padding: 10px;
             }
+        }
 
-            .btn-success {
-                background-color: #28a745;
-                color: #fff;
-            }
+        /* Thông tin tổng quan đơn hàng */
+        .order-summary {
+            max-width: 500px;
+            margin: 0 auto 25px auto;
+            border-left: 4px solid #007bff;
+        }
 
-            .btn-success:hover {
-                background-color: #218838;
-            }
+        .summary-body {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px;
+        }
 
-            .btn-outline-danger {
-                background-color: transparent;
-                color: #dc3545;
-                border: 2px solid #dc3545;
-            }
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+        }
 
-            .btn-outline-danger:hover {
-                background-color: #dc3545;
-                color: #fff;
-            }
+        .summary-label {
+            font-weight: 600;
+            color: #555;
+        }
 
-            /* Thông tin giao hàng */
-            .info-grid {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 10px 20px;
-                font-size: 15px;
-            }
+        .summary-value {
+            font-weight: 700;
+            color: #007bff;
+            font-size: 18px;
+        }
 
-            .info-grid div {
-                background: #f9fbfd;
-                padding: 10px 15px;
-                border-radius: 8px;
-                border: 1px solid #e0e6ed;
-            }
+        .summary-status {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            color: #fff;
+            background-color: #ffc107;
+            /* màu mặc định */
+        }
 
-            .info-label {
-                font-weight: 600;
-                color: #555;
-            }
+        .summary-status:after {
+            content: "";
+        }
 
-            /* Tổng tiền */
-            .total-row td {
-                font-weight: bold;
-                background: #f8f9fa;
-            }
+        /* --- Card Trạng thái giao hàng --- */
+        .shipping-status-card {
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            background-color: #fff;
+            margin: 20px 0;
+            overflow: hidden;
+        }
 
-            /* Responsive */
-            @media (max-width: 768px) {
-                .info-grid {
-                    grid-template-columns: 1fr;
-                }
+        .shipping-header {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            padding: 10px 15px;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 15px;
+            color: #212529;
+        }
 
-                th,
-                td {
-                    font-size: 14px;
-                    padding: 10px;
-                }
-            }
+        .shipping-body {
+            padding: 10px 15px;
+        }
 
-            /* Thông tin tổng quan đơn hàng */
-            .order-summary {
-                max-width: 500px;
-                margin: 0 auto 25px auto;
-                border-left: 4px solid #007bff;
-            }
+        .shipping-status-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
 
-            .summary-body {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                font-size: 16px;
-            }
+        .shipping-status-table th {
+            text-align: left;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6c757d;
+            padding-bottom: 6px;
+        }
 
-            .summary-item {
-                display: flex;
-                flex-direction: column;
-                text-align: center;
-            }
+        .shipping-status-table td {
+            padding: 6px 0;
+        }
 
-            .summary-label {
-                font-weight: 600;
-                color: #555;
-            }
+        .text-center {
+            text-align: center;
+            color: #6c757d;
+        }
 
-            .summary-value {
-                font-weight: 700;
-                color: #007bff;
-                font-size: 18px;
-            }
+        /* --- Trạng thái giao hàng từng dòng --- */
+        .status-item {
+            display: flex;
+            flex-direction: column;
+        }
 
-            .summary-status {
-                padding: 6px 12px;
-                border-radius: 8px;
-                font-weight: bold;
-                color: #fff;
-                background-color: #ffc107;
-                /* màu mặc định */
-            }
+        .status-text {
+            font-size: 15px;
+            font-weight: 600;
+            color: #212529;
+        }
 
-            .summary-status:after {
-                content: "";
-            }
+        .status-date {
+            font-size: 13px;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body>
+<span>
+    <a th:href="@{/customer/order-history}">← Quay lại lịch sử mua hàng</a>
+    <div class="card-header">Chi tiết đơn hàng</div>
+</span>
+<div class="card order-summary">
+    <div class="card-body summary-body">
+        <div class="summary-item">
+            <span class="summary-label">Mã đơn hàng:</span>
+            <span class="summary-value" th:text="${order.id}">#123456</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-label">Trạng thái:</span>
+            <span class="summary-status" th:text="${order.orderStatus.name}">Chờ Xác Nhận</span>
+        </div>
+    </div>
+</div>
 
-            /* --- Card Trạng thái giao hàng --- */
-            .shipping-status-card {
-                border: 1px solid #dee2e6;
-                border-radius: 6px;
-                background-color: #fff;
-                margin: 20px 0;
-                overflow: hidden;
-            }
-
-            .shipping-header {
-                background-color: #f8f9fa;
-                font-weight: 600;
-                padding: 10px 15px;
-                border-bottom: 1px solid #dee2e6;
-                font-size: 15px;
-                color: #212529;
-            }
-
-            .shipping-body {
-                padding: 10px 15px;
-            }
-
-            .shipping-status-table {
-                width: 100%;
-                border-collapse: collapse;
-            }
-
-            .shipping-status-table th {
-                text-align: left;
-                font-size: 14px;
-                font-weight: 500;
-                color: #6c757d;
-                padding-bottom: 6px;
-            }
-
-            .shipping-status-table td {
-                padding: 6px 0;
-            }
-
-            .text-center {
-                text-align: center;
-                color: #6c757d;
-            }
-
-            /* --- Trạng thái giao hàng từng dòng --- */
-            .status-item {
-                display: flex;
-                flex-direction: column;
-            }
-
-            .status-text {
-                font-size: 15px;
-                font-weight: 600;
-                color: #212529;
-            }
-
-            .status-date {
-                font-size: 13px;
-                color: #6c757d;
-                margin-top: 2px;
-            }
-        </style>
-        <span>
-            <a th:href="@{/customer/order-history}">← Quay lại lịch sử mua hàng</a>
-            <div class="card-header">Chi tiết đơn hàng</div>
-        </span>
-        <div class="card order-summary">
-            <div class="card-body summary-body">
-                <div class="summary-item">
-                    <span class="summary-label">Mã đơn hàng:</span>
-                    <span class="summary-value" th:text="${order.id}">#123456</span>
-                </div>
-                <div class="summary-item">
-                    <span class="summary-label">Trạng thái:</span>
-                    <span class="summary-status" th:text="${order.orderStatus.name}">Chờ Xác Nhận</span>
-                </div>
+<div class="card">
+    <div class="card-header">Thông tin giao hàng</div>
+    <div class="card-body">
+        <div class="info-grid">
+            <div>
+                <span class="info-label">Họ và tên:</span>
+                <span th:text="${order.fullName}">Hoa Thanh 1</span>
+            </div>
+            <div>
+                <span class="info-label">Số điện thoại:</span>
+                <span th:text="${order.phoneNumber}">0363636361</span>
+            </div>
+            <div>
+                <span class="info-label">Địa chỉ:</span>
+                <span th:text="${order.specificAddress}">Thủ đô 1, Xã Nông Cống, Tỉnh Thanh Hóa</span>
             </div>
         </div>
+    </div>
+</div>
 
-        <div class="card">
-            <div class="card-header">Thông tin giao hàng</div>
-            <div class="card-body">
-                <div class="info-grid">
-                    <div>
-                        <span class="info-label">Họ và tên:</span>
-                        <span th:text="${order.fullName}">Hoa Thanh 1</span>
+<div class="shipping-status-card">
+    <div class="shipping-header">Trạng thái giao hàng</div>
+    <div class="shipping-body">
+        <table class="shipping-status-table">
+            <tr th:if="${#lists.isEmpty(order.shipping)}">
+                <td colspan="2" class="text-center">Chưa có cập nhật trạng thái giao hàng.</td>
+            </tr>
+            <tr th:each="item : ${order.shipping}">
+                <td>
+                    <div class="status-item">
+                        <span class="status-text" th:text="${item.shippingStatus.description}"></span>
+                        <span class="status-date"
+                              th:text="${'Cập nhật vào lúc ' + #temporals.format(item.occurredAt,'dd/MM/yyyy')}"></span>
                     </div>
-                    <div>
-                        <span class="info-label">Số điện thoại:</span>
-                        <span th:text="${order.phoneNumber}">0363636361</span>
-                    </div>
-                    <div>
-                        <span class="info-label">Địa chỉ:</span>
-                        <span th:text="${order.specificAddress}">Thủ đô 1, Xã Nông Cống, Tỉnh Thanh Hóa</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="shipping-status-card">
-            <div class="shipping-header">Trạng thái giao hàng</div>
-            <div class="shipping-body">
-                <table class="shipping-status-table">
-                    <tr th:if="${#lists.isEmpty(order.shipping)}">
-                        <td colspan="2" class="text-center">Chưa có cập nhật trạng thái giao hàng.</td>
-                    </tr>
-                    <tr th:each="item : ${order.shipping}">
-                        <td>
-                            <div class="status-item">
-                                <span class="status-text" th:text="${item.shippingStatus.description}"></span>
-                                <span class="status-date"
-                                    th:text="${'Cập nhật vào lúc ' + #temporals.format(item.occurredAt,'dd/MM/yyyy')}"></span>
-                            </div>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <h1>Chi tiết đơn hàng</h1>
-        <table>
-            <thead>
-                <tr>
-                    <th>STT</th>
-                    <th>Sản phẩm</th>
-                    <th>Đơn giá</th>
-                    <th>Số lượng</th>
-                    <th>Thành tiền</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="item, iterStat : ${order.orderItem}">
-                    <td th:text="${iterStat.index + 1}"></td>
-                    <td>
-                        <img th:src="@{${item.product.main_image_url}}" alt="Product Image"
-                            style="width: 50px; height: 50px;">
-                        <a th:href="@{/product/{id}(id=${item.product.id})}" th:text="${item.product.name}"></a>
-                    </td>
-                    <td th:text="${item.product.price} + ' VND/' + ${item.product.unit.name}"></td>
-                    <td th:text="${item.quantity}"></td>
-                    <td th:text="${item.product.price * item.quantity} + ' VND'"></td>
-                </tr>
-                <tr>
-                    <td colspan="4" style="text-align: right; font-weight: bold;">Tổng tiền:</td>
-                    <td th:text="${order.totalAmount} + ' VND'"></td>
-                </tr>
-                <tr>
-                    <td>
-                        <a th:if="${orderStatusService.isPendingPaymentStatus(order)}"
-                           th:href="${order.paymentLink}"
-                            class="btn btn-sm btn-success fw-bold px-3">Thanh toán ngay</a>
-                        <form th:if="${orderStatusService.isPendingConfirmationStatus(order)}"
-                            th:action="@{'/customer/order-history/cancel/' + ${order.id}}" method="post"
-                            style="display:inline;"
-                            onsubmit="return confirm('Bạn có chắc muốn hủy đơn hàng này không?');">
-                            <button type="submit" class="btn btn-sm btn-outline-danger">Hủy</button>
-                        </form>
-                    </td>
-                </tr>
-            </tbody>
+                </td>
+            </tr>
         </table>
-    </body>
+    </div>
+</div>
+<h1>Chi tiết đơn hàng</h1>
+<table>
+    <thead>
+    <tr>
+        <th>STT</th>
+        <th>Sản phẩm</th>
+        <th>Đơn giá</th>
+        <th>Số lượng</th>
+        <th>Thành tiền</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="item, iterStat : ${order.orderItem}">
+        <td th:text="${iterStat.index + 1}"></td>
+        <td>
+            <img th:src="@{${item.product.main_image_url}}" alt="Product Image"
+                 style="width: 50px; height: 50px;">
+            <a th:href="@{/product/{id}(id=${item.product.id})}" th:text="${item.product.name}"></a>
+        </td>
+        <td th:text="${item.product.price} + ' VND/' + ${item.product.unit.name}"></td>
+        <td th:text="${item.quantity}"></td>
+        <td th:text="${item.product.price * item.quantity} + ' VND'"></td>
+    </tr>
+    <tr>
+        <td colspan="4" style="text-align: right; font-weight: bold;">Tổng tiền:</td>
+        <td th:text="${order.totalAmount} + ' VND'"></td>
+    </tr>
+    <tr>
+        <td>
+            <a th:if="${orderStatusService.isPendingPaymentStatus(order)}"
+               th:href="${order.paymentLink}"
+               class="btn btn-sm btn-success fw-bold px-3">Thanh toán ngay</a>
+            <form th:if="${orderStatusService.isPendingConfirmationStatus(order)}"
+                  th:action="@{'/customer/order-history/cancel/' + ${order.id}}" method="post"
+                  style="display:inline;"
+                  onsubmit="return confirm('Bạn có chắc muốn hủy đơn hàng này không?');">
+                <button type="submit" class="btn btn-sm btn-outline-danger">Hủy</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
 </html>

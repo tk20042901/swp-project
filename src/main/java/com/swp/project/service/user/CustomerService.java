@@ -213,7 +213,7 @@ public class CustomerService {
     }
 @Transactional
     public List<ShoppingCartItem> getCart(String customerEmail) {
-        return shoppingCartItemRepository.findByCustomer(
+        return shoppingCartItemRepository.findByCustomerOrderByIdAsc(
                 customerRepository.getByEmail(customerEmail));
     }
 @Transactional

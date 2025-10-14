@@ -6,7 +6,6 @@
     <title>Giỏ hàng</title>
     <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/header-footer.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
@@ -69,19 +68,19 @@
                         </div>
                     </td>
                     <td>
-                        <span th:text="${item.product.price + ' / ' + item.product.unit.name}"></span>
+                        <span th:text="${#numbers.formatInteger(item.product.price, 0, 'POINT') + ' VND / ' + item.product.unit.name}"></span>
                     </td>
                     <td>
                         <form th:action="@{/customer/shopping-cart/update}" method="post" style="display: inline;">
                             <input type="hidden" name="productId" th:value="${item.product.id}">
                             <input type="number" name="quantity" th:value="${item.quantity}" min="1"
+                                   th:attr="step=${item.product.unit.isAllowDecimal} ? 0.1 : 1"
                                 class="form-control form-control-sm text-center"
                                 style="width: 80px; display: inline-block;" onchange="this.form.submit()">
                         </form>
                     </td>
                     <td>
-                        <span class="item-subtotal fw-semibold"
-                            th:text="${item.product.price * item.quantity + ' VND'}"></span>
+                        <span th:text="${#numbers.formatInteger(item.product.price * item.quantity, 0, 'COMMA')} + ' VND'"></span>
                     </td>
                     <td>
                         <form th:action="@{/customer/shopping-cart/remove}" method="post">
@@ -100,7 +99,7 @@
             <div class="col-md-6">
                 <h4>
                     Tổng tiền đã chọn:
-                    <span th:text="${totalAmount}">0 VND</span>
+                    <span th:text="${#numbers.formatInteger(totalAmount, 0, 'COMMA')} + ' VND'">0 VND</span>
                 </h4>
                 <p th:if="${totalAmount == 0}" class="text-muted">
                     Vui lòng chọn sản phẩm để xem tổng tiền

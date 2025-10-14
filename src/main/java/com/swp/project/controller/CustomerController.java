@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.swp.project.entity.product.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -229,9 +230,25 @@ public class CustomerController {
             return "redirect:/customer/shopping-cart";
         }
 
-        String quantityStr = updateShoppingCartDto.getQuantity();
-        double quantity = Double.parseDouble(quantityStr);
-        Long productId = updateShoppingCartDto.getProductId();
+        Long productId= updateShoppingCartDto.getProductId();
+        Product product =productService.getProductById(productId);
+        double quantity = updateShoppingCartDto.getQuantity();
+        if (!product.getUnit().isAllowDecimal()) {
+            if (quantity % 1 != 0) {
+                redirectAttributes.addFlashAttribute("error",
+                        "Sản phẩm '" + product.getName() + "' chỉ cho phép nhập số lượng nguyên.");
+                return "redirect:/customer/shopping-cart";
+            }else{
+                double rounded = Math.round(quantity * 10.0)/10.0;
+                if(quantity != rounded){
+                    redirectAttributes.addFlashAttribute("error",
+                            "Sản phẩm '" + product.getName() + "' chỉ cho phép nhập số lượng với 1 chữ số thập phân.");
+                    return "redirect:/customer/shopping-cart";
+                }
+                quantity = rounded;
+            }
+        }
+
         double availableQuantity = productService.getAvailableQuantity(productId);
         if (quantity > availableQuantity) {
             quantity = availableQuantity;
