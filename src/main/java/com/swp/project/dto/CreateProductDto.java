@@ -1,7 +1,10 @@
 package com.swp.project.dto;
 
 import java.util.List;
+
 import org.hibernate.validator.constraints.Length;
+
+import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.ProductUnit;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -29,13 +32,18 @@ public class CreateProductDto {
 
     @NotNull(message = "Đơn vị sản phẩm không được để trống")
     private ProductUnit unit;
-    
-    private String main_image_url;
 
     @NotNull(message = "Danh mục sản phẩm không được để trống")
     private boolean enabled = true;
 
-    private List<String> sub_images;
+    private String main_image_url;
 
-    private List<Long> categories;
+    private String firstSubImage;
+    
+    private String secondSubImage;
+
+    private String thirdSubImage;
+
+    private List<Category> categories;
+
 }
