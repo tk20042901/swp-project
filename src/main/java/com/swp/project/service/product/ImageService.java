@@ -26,6 +26,7 @@ public class ImageService {
     private static final String IMAGES_FINAL_PATH = "src/main/resources/static/images/products/";
     private static final String DISPLAY_FINAL_PATH = "/images/products/";
     private final SubImageService subImageService;
+
     private void deleteDirectory(Path directory) {
         try {
             if (Files.exists(directory)) {
@@ -56,30 +57,30 @@ public class ImageService {
         return subImages;
     }
 
-    public String saveImageFromTemporaryToFinal(String displayPath) throws Exception {
+    public String saveImageFromTemporaryToFinal(String displayPath, Long productID) throws Exception {
         String[] split = displayPath.split("/");
         String fileName = split[split.length - 1];
         String folderName = split[split.length - 2];
-        Path src = Path.of(IMAGES_TEMPORARY_PATH + folderName + "/" + fileName);
-        Path dest = Path.of(IMAGES_FINAL_PATH + folderName + "/" + fileName);
-        try{
-            Files.createDirectories(Path.of(IMAGES_FINAL_PATH+ folderName));
-            Files.copy(src,dest, StandardCopyOption.REPLACE_EXISTING);
-            return DISPLAY_FINAL_PATH + folderName + "/" + fileName;
-        }catch (Exception e){
+        Path src = Path.of(IMAGES_TEMPORARY_PATH + "/" + folderName + "/" + fileName);
+        Path dest = Path.of(IMAGES_FINAL_PATH + "/" + productID + "/" + fileName);
+        try {
+            Files.createDirectories(Path.of(IMAGES_FINAL_PATH + folderName));
+            Files.copy(src, dest, StandardCopyOption.REPLACE_EXISTING);
+            return DISPLAY_FINAL_PATH + productID + "/" + fileName;
+        } catch (Exception e) {
             throw new Exception("Lỗi chuyển ảnh từ tạm thời sang chính thức: " + e.getMessage(), e);
         }
     }
 
-    public String getTemporaryFolderName(String fileName){
+    public String getTemporaryFolderName(String fileName) {
         return IMAGES_TEMPORARY_PATH + ProductService.toSlugName(fileName);
     }
 
-    public String getFinalFolderName(String fileName){
+    public String getFinalFolderName(String fileName) {
         return IMAGES_FINAL_PATH + ProductService.toSlugName(fileName);
     }
 
-    public String saveImageToTemporaryFile(MultipartFile uploadFile,String folderName,String fileName) throws Exception {
+    public String saveImageToTemporaryFile(MultipartFile uploadFile, String folderName, String fileName) throws Exception {
         if (uploadFile == null || uploadFile.isEmpty()) {
             return null;
         }

@@ -453,13 +453,13 @@ public class ManagerController {
                 oldProduct.setEnabled(newProduct.isEnabled());
                 oldProduct.setCategories(newProduct.getCategories());
                 if(newProduct.getMain_image_url().contains("/images/temporary/")){
-                    String mainImageFinalPath = imageService.saveImageFromTemporaryToFinal(newProduct.getMain_image_url());
+                    String mainImageFinalPath = imageService.saveImageFromTemporaryToFinal(newProduct.getMain_image_url(), oldProduct.getId());
                     oldProduct.setMain_image_url(mainImageFinalPath);
                 }
                 for (int i = 0; i < newProduct.getSub_images().size(); i++) {
                     SubImage subImage = newProduct.getSub_images().get(i);
                     if(subImage.getSub_image_url().contains("/images/temporary/")) {
-                        String subImageFinalPath = imageService.saveImageFromTemporaryToFinal(subImage.getSub_image_url());
+                        String subImageFinalPath = imageService.saveImageFromTemporaryToFinal(subImage.getSub_image_url(), oldProduct.getId());
                         subImage.setSub_image_url(subImageFinalPath);
                     }
                     subImage.setProduct(oldProduct);
@@ -468,10 +468,11 @@ public class ManagerController {
                 productService.update(oldProduct);
             } else {
                 productService.add(newProduct);
-                newProduct.setMain_image_url(imageService.saveImageFromTemporaryToFinal(newProduct.getMain_image_url()));
+                newProduct.setMain_image_url(imageService.saveImageFromTemporaryToFinal(newProduct.getMain_image_url(), newProduct.getId()));
+
                 for (int i = 0; i < newProduct.getSub_images().size(); i++) {
                     SubImage subImage = newProduct.getSub_images().get(i);
-                    String subImageFinalPath = imageService.saveImageFromTemporaryToFinal(subImage.getSub_image_url());
+                    String subImageFinalPath = imageService.saveImageFromTemporaryToFinal(subImage.getSub_image_url(), newProduct.getId());
                     subImage.setSub_image_url(subImageFinalPath);
                     subImage.setProduct(newProduct);
                     newProduct.getSub_images().set(i, subImage);
