@@ -77,7 +77,7 @@ public class SellerController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("orders", orderService.getAllOrder());
-            model.addAttribute("orderStatus", orderStatusService.getAllStatus());
+            model.addAttribute("orderStatusService", orderStatusService);
             model.addAttribute("sellerSearchOrderDto", sellerSearchOrderDto);
             return "pages/seller/order/all-orders";
         }
@@ -95,7 +95,7 @@ public class SellerController {
             }
             model.addAttribute("orders", orders);
         }
-        model.addAttribute("orderStatus", orderStatusService.getAllStatus());
+        model.addAttribute("orderStatusService", orderStatusService);
         model.addAttribute("sellerSearchOrderDto", sellerSearchOrderDto);
         return "pages/seller/order/all-orders";
     }
