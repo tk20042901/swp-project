@@ -21,7 +21,8 @@ public class ImageService {
 
     /**
      * Recursively deletes a directory and all its contents.
-     * This method safely handles the deletion of directories by first deleting all files
+     * This method safely handles the deletion of directories by first deleting all
+     * files
      * and subdirectories before deleting the parent directory.
      * 
      * @param directory The Path of the directory to delete
@@ -50,8 +51,6 @@ public class ImageService {
         }
     }
 
-    
-
     public String saveImageFromTemporaryToFinal(String displayPath, Long productID) throws Exception {
         String[] split = displayPath.split("/");
         String fileName = split[split.length - 1];
@@ -60,7 +59,8 @@ public class ImageService {
         Path dest = Path.of(IMAGES_FINAL_PATH + productID + "/" + fileName);
         try {
             Files.createDirectories(Path.of(IMAGES_FINAL_PATH + productID));
-            Files.copy(src, dest, StandardCopyOption.REPLACE_EXISTING);
+            BufferedImage image = ImageIO.read(src.toFile());
+            ImageIO.write(image, "jpg", dest.toFile());
             return DISPLAY_FINAL_PATH + productID + "/" + fileName;
         } catch (Exception e) {
             throw new Exception("Lỗi chuyển ảnh từ tạm thời sang chính thức: " + e.getMessage(), e);
@@ -75,7 +75,8 @@ public class ImageService {
         return IMAGES_FINAL_PATH + ProductService.toSlugName(fileName);
     }
 
-    public String saveImageToTemporaryFile(MultipartFile uploadFile, String folderName, String fileName) throws Exception {
+    public String saveImageToTemporaryFile(MultipartFile uploadFile, String folderName, String fileName)
+            throws Exception {
         if (uploadFile == null || uploadFile.isEmpty()) {
             return null;
         }
@@ -91,33 +92,48 @@ public class ImageService {
         }
     }
 
+    public String copyImageFromStorageToTemporaryFile(String tempFolderName, String fileName, String storageFolderName)
+            throws Exception {
+        Path tempFolderPath = Path.of(IMAGES_TEMPORARY_PATH + tempFolderName);
+        Path desFolderPath = Path.of(IMAGES_FINAL_PATH + storageFolderName);
+        Path tempFilePath = tempFolderPath.resolve(fileName + ".jpg");
+        Path desFilePath = desFolderPath.resolve(fileName + ".jpg");
+        BufferedImage image = ImageIO.read(desFilePath.toFile());
+        if (image == null) {
+            throw new Exception("File ko phai la anh");
+        } else {
+            Files.createDirectories(tempFolderPath);
+            ImageIO.write(image, "jpg", tempFilePath.toFile());
+            return DISPLAY_TEMPORARY_PATH + tempFolderName + "/" + fileName + ".jpg";
+        }
+    }
+
     public void deleteTemporaryDirectory(String displayPath) {
-        System.out.println("Attempting to delete temporary directory for path: " + displayPath);
-        
+
         if (displayPath == null || displayPath.isEmpty()) {
             return;
         }
-        
+
         if (!displayPath.startsWith(DISPLAY_TEMPORARY_PATH)) {
             return;
         }
-        
+
         try {
             String relativePath = displayPath.substring(DISPLAY_TEMPORARY_PATH.length());
-            
+
             if (relativePath.isEmpty()) {
                 return;
             }
-            
+
             String[] pathParts = relativePath.split("/");
             if (pathParts.length == 0 || pathParts[0].isEmpty()) {
                 return;
             }
-            
+
             String folderName = pathParts[0];
-            
+
             Path directory = Path.of(IMAGES_TEMPORARY_PATH + folderName);
-            
+
             if (Files.exists(directory)) {
                 deleteDirectory(directory);
             }

@@ -393,7 +393,6 @@ public class ManagerController {
     @GetMapping("/detail-report")
     public String getDetailReport(Model model) {
 
-
         return "pages/manager/detail-report";
     }
 
@@ -415,10 +414,13 @@ public class ManagerController {
         }
         Product newProduct = sellerRequestService.getEntityFromContent(sellerRequest.getContent(), Product.class);
         if (sellerRequestTypeService.isUpdateType(sellerRequest)) {
-            model.addAttribute("oldProduct",
-                    sellerRequestService.getEntityFromContent(sellerRequest.getOldContent(), Product.class));
+            Product oldProduct = sellerRequestService.getEntityFromContent(sellerRequest.getOldContent(),
+                    Product.class);
+
+            model.addAttribute("oldProduct", oldProduct);
         }
         model.addAttribute("newProduct", newProduct);
+
         model.addAttribute("firstNewImage", newProduct.getSub_images().get(0).getSub_image_url());
         model.addAttribute("secondNewImage", newProduct.getSub_images().get(1).getSub_image_url());
         model.addAttribute("thirdNewImage", newProduct.getSub_images().get(2).getSub_image_url());
@@ -447,28 +449,28 @@ public class ManagerController {
                 oldProduct.setUnit(newProduct.getUnit());
                 oldProduct.setEnabled(newProduct.isEnabled());
                 oldProduct.setCategories(newProduct.getCategories());
-                if(newProduct.getMain_image_url().contains("/images/temporary/")){
-                    String mainImageFinalPath = imageService.saveImageFromTemporaryToFinal(newProduct.getMain_image_url(), oldProduct.getId());
-                    oldProduct.setMain_image_url(mainImageFinalPath);
-                }
+                String mainImageFinalPath = imageService
+                            .saveImageFromTemporaryToFinal(newProduct.getMain_image_url(), oldProduct.getId());
+                oldProduct.setMain_image_url(mainImageFinalPath);
                 for (int i = 0; i < newProduct.getSub_images().size(); i++) {
-                    SubImage subImage = newProduct.getSub_images().get(i);
-                    if(subImage.getSub_image_url().contains("/images/temporary/")) {
-                        String subImageFinalPath = imageService.saveImageFromTemporaryToFinal(subImage.getSub_image_url(), oldProduct.getId());
-                        subImage.setSub_image_url(subImageFinalPath);
-                    }
-                    subImage.setProduct(oldProduct);
-                    oldProduct.getSub_images().set(i, subImage);
-                    subImageService.save(subImage);
+                    SubImage newSubImage = newProduct.getSub_images().get(i);
+                    SubImage oldSubImage = oldProduct.getSub_images().get(i);
+                    String subImageFinalPath = imageService.saveImageFromTemporaryToFinal(newSubImage.getSub_image_url(),
+                            oldProduct.getId());
+                    oldSubImage.setSub_image_url(subImageFinalPath);
+                    oldSubImage.setProduct(oldProduct);
+                    subImageService.save(oldSubImage);
                 }
                 productService.update(oldProduct);
             } else {
                 productService.add(newProduct);
-                newProduct.setMain_image_url(imageService.saveImageFromTemporaryToFinal(newProduct.getMain_image_url(), newProduct.getId()));
+                newProduct.setMain_image_url(
+                        imageService.saveImageFromTemporaryToFinal(newProduct.getMain_image_url(), newProduct.getId()));
 
                 for (int i = 0; i < newProduct.getSub_images().size(); i++) {
                     SubImage subImage = newProduct.getSub_images().get(i);
-                    String subImageFinalPath = imageService.saveImageFromTemporaryToFinal(subImage.getSub_image_url(), newProduct.getId());
+                    String subImageFinalPath = imageService.saveImageFromTemporaryToFinal(subImage.getSub_image_url(),
+                            newProduct.getId());
                     subImage.setSub_image_url(subImageFinalPath);
                     subImage.setProduct(newProduct);
                     newProduct.getSub_images().set(i, subImage);
@@ -501,7 +503,6 @@ public class ManagerController {
             imageService.deleteTemporaryDirectory(
                     sellerRequestService.getEntityFromContent(sellerRequest.getContent(), Product.class)
                             .getMain_image_url());
-            
 
             redirectAttributes.addFlashAttribute("msg", "Đã từ chối yêu cầu");
         } catch (Exception e) {

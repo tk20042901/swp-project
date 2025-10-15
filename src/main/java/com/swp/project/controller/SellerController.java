@@ -217,7 +217,7 @@ public class SellerController {
                     .categories(categories)
                     .build();
             if(imageFile == null || imageFile.isEmpty()){
-                updateProduct.setMain_image_url(oldProduct.getMain_image_url());
+                updateProduct.setMain_image_url(imageService.copyImageFromStorageToTemporaryFile(folderName, "1", String.valueOf(oldProduct.getId())));
             }else{
                 updateProduct.setMain_image_url(imageService.saveImageToTemporaryFile(imageFile, folderName,"1"));
             }
@@ -225,7 +225,7 @@ public class SellerController {
             for(int i = 0; i < 3; i++){
                 String subImagePath;
                 if(subImages[i] == null || subImages[i].isEmpty()){
-                    subImagePath = oldProduct.getSub_images().get(i).getSub_image_url();
+                    subImagePath = imageService.copyImageFromStorageToTemporaryFile(folderName, i + 2 + "", String.valueOf(oldProduct.getId()));
                 }else{
                     subImagePath = imageService.saveImageToTemporaryFile(subImages[i], folderName,i + 2 + "");
                 }
@@ -234,6 +234,7 @@ public class SellerController {
                 firstSubImage.setSub_image_url(subImagePath);
                 tempSubImages.add(firstSubImage);
             }
+            updateProduct.setSub_images(tempSubImages);
             sellerRequestService.saveUpdateRequest(oldProduct, updateProduct, principal.getName());
             redirectAttributes.addFlashAttribute("msg", "Yêu cầu cập nhật sản phẩm đã được gửi đến quản lý");
         } catch (Exception e) {

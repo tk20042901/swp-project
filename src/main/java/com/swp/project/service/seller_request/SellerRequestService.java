@@ -84,6 +84,12 @@ public class SellerRequestService {
         sellerRequestRepository.save(sellerRequest);
     }
 
+    public <T, G> void executeUpdateRequest(T requestContent, Class<T> clazz, Class<G> responseClass) throws JsonProcessingException {
+        // Implement logic to update the entity based on the request content
+        T entity = objectMapper.readValue(objectMapper.writeValueAsString(requestContent), clazz);
+        
+    }
+
     public void executeAddProductUnitRequest(String requestContent) throws JsonProcessingException {
         ProductUnit productUnit = objectMapper.readValue(requestContent, ProductUnit.class);
         productUnitService.add(productUnit);

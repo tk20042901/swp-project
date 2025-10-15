@@ -89,16 +89,16 @@
                         <td th:text="*{unit.name}"></td>
                         <td th:text="*{enabled}"></td>
                         <td>
-                            <img th:src="*{main_image_url}" height="50" width="50" />
+                            <img th:src="${oldProduct.main_image_url}" height="50" width="50" />
                         </td>
                         <td>
-                            <img th:src="${firstNewImage}" height="50" width="50" />
+                            <img th:src="${oldProduct.sub_images[0].sub_image_url}" height="50" width="50" />
                         </td>
                         <td>
-                            <img th:src="${secondNewImage}" height="50" width="50" />
+                            <img th:src="${oldProduct.sub_images[1].sub_image_url}" height="50" width="50" />
                         </td>
                         <td>
-                            <img th:src="${thirdNewImage}" height="50" width="50" />
+                            <img th:src="${oldProduct.sub_images[2].sub_image_url}" height="50" width="50" />
                         </td>
                     </tr>
                 </tbody>
