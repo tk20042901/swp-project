@@ -242,9 +242,15 @@ public class CustomerController {
             return "redirect:/customer/shopping-cart";
         }
 
-        if (quantity<=0) {
+        if(product.getUnit().isAllowDecimal()) {
+            if (quantity <= 0) {
+                redirectAttributes.addFlashAttribute("error",
+                        "Số lượng phải lớn hơn 0.");
+                return "redirect:/customer/shopping-cart";
+            }
+        }else{
             redirectAttributes.addFlashAttribute("error",
-                    "Số lượng phải lớn hơn 0.");
+                    "Số lượng phải lớn hơn 1");
             return "redirect:/customer/shopping-cart";
         }
         if (!product.getUnit().isAllowDecimal()) {
@@ -299,8 +305,14 @@ public class CustomerController {
 
         int totalSpent=0;
         for(Order order : orders.getContent()){
-            if(orderStatusService.isDeliveredStatus(order)){
-                totalSpent+=order.getTotalAmount();
+            if(paymentMethodService.isCodMethod(order.getPaymentMethod())) {
+                if (orderStatusService.isDeliveredStatus(order)) {
+                    totalSpent += order.getTotalAmount();
+                }
+            }else if(paymentMethodService.isQrMethod(order.getPaymentMethod())){
+                if(orderStatusService.isProcessingStatus(order)){
+                    totalSpent += order.getTotalAmount();
+                }
             }
         }
         model.addAttribute("status",status);
