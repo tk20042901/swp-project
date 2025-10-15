@@ -73,14 +73,18 @@
                     <td>
                         <form th:action="@{/customer/shopping-cart/update}" method="post" style="display: inline;">
                             <input type="hidden" name="productId" th:value="${item.product.id}">
-                            <input type="number" name="quantity" th:value="${item.quantity}" min="1"
+                            <input type="number" name="quantity"
+                                   th:value="${item.product.unit.isAllowDecimal ?
+                      #numbers.formatDecimal(item.quantity, 1, 1, 'POINT') :
+                      T(java.lang.Math).round(item.quantity)}"
+                                   min="1"
                                    th:attr="step=${item.product.unit.isAllowDecimal} ? 0.1 : 1"
                                 class="form-control form-control-sm text-center"
                                 style="width: 80px; display: inline-block;" onchange="this.form.submit()">
                         </form>
                     </td>
                     <td>
-                        <span th:text="${#numbers.formatInteger(item.product.price * item.quantity, 0, 'COMMA')} + ' VND'"></span>
+                        <span th:text="${#numbers.formatInteger(item.product.price * item.quantity, 0, 'POINT')} + ' VND'"></span>
                     </td>
                     <td>
                         <form th:action="@{/customer/shopping-cart/remove}" method="post">
@@ -99,7 +103,7 @@
             <div class="col-md-6">
                 <h4>
                     Tổng tiền đã chọn:
-                    <span th:text="${#numbers.formatInteger(totalAmount, 0, 'COMMA')} + ' VND'">0 VND</span>
+                    <span th:text="${#numbers.formatInteger(totalAmount, 0, 'POINT')} + ' VND'">0 VND</span>
                 </h4>
                 <p th:if="${totalAmount == 0}" class="text-muted">
                     Vui lòng chọn sản phẩm để xem tổng tiền
