@@ -157,7 +157,7 @@ public class OrderService {
 
         Order order = orderRepository.save(Order.builder()
                 .paymentMethod(paymentMethodService.getQrMethod())
-                .paymentExpiredAt(LocalDateTime.now().plusMinutes(15)) // QR expires in 15 minutes
+                .paymentExpiredAt(LocalDateTime.now().plusMinutes(3)) // QR expires in 3 minutes
                 .orderStatus(orderStatusService.getPendingPaymentStatus())
                 .fullName(deliveryInfoDto.getFullName())
                 .phoneNumber(deliveryInfoDto.getPhone())
@@ -175,7 +175,7 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-    @Scheduled(fixedRate = 300000) // cancel expired qr orders every 5 minutes
+    @Scheduled(fixedRate = 60000) // cancel expired qr orders every 1 minutes
     @Transactional
     public void cancelExpiredQrOrders() {
         List<Order> expiredOrders = orderRepository.findByOrderStatusAndPaymentExpiredAtBefore(
@@ -242,7 +242,7 @@ public class OrderService {
 
     public Long calculateTotalAmount(Order order) {
         return order.getOrderItem().stream()
-                .mapToLong(item -> (long) ((long) (item.getProduct().getPrice() * item.getQuantity() / 1000) * 1000))
+                .mapToLong(item -> (long) (item.getProduct().getPrice() * item.getQuantity() / 1000) * 1000)
                 .sum();
     }
 
@@ -278,7 +278,7 @@ public class OrderService {
         long total =0;
         for(Product p : productRepository.findAll()){
             if(p.getSoldQuantity() != null)
-                total += getSoldQuantity(p.getId());
+                total += (long) getSoldQuantity(p.getId());
         }
         return total;
     }
@@ -494,7 +494,7 @@ public class OrderService {
         // Nếu repository chưa có query riêng thì vẫn phải filter trong memory
         List<Order> allOrders = orderRepository.findByShipper_Email(principal.getName())
             .stream()
-            .filter(order -> orderStatusService.isShippingStatus(order))
+            .filter(orderStatusService::isShippingStatus)
             .sorted((o1, o2) -> {
                 if (sortCriteria == null) return 0;
                 return switch (sortCriteria) {
@@ -529,7 +529,7 @@ public class OrderService {
         // Nếu repository chưa có query riêng thì vẫn phải filter trong memory
         List<Order> allOrders = orderRepository.findByShipper_Email(principal.getName())
             .stream()
-            .filter(order -> orderStatusService.isDeliveredStatus(order))
+            .filter(orderStatusService::isDeliveredStatus)
             .sorted((o1, o2) -> {
                 if (sortCriteria == null) return 0;
                 return switch (sortCriteria) {
@@ -561,7 +561,7 @@ public class OrderService {
         }
         results = orderRepository.findByShipper_Email(principal.getName())
             .stream()
-            .filter(order -> orderStatusService.isDeliveredStatus(order))
+            .filter(orderStatusService::isDeliveredStatus)
             .toList();
 
     }
