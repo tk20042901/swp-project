@@ -6,16 +6,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.imageio.ImageIO;
-
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import com.swp.project.entity.product.Product;
-import com.swp.project.entity.product.SubImage;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -25,46 +18,48 @@ public class ImageService {
     private static final String DISPLAY_TEMPORARY_PATH = "/images/temporary-products/";
     private static final String IMAGES_FINAL_PATH = "src/main/resources/static/images/products/";
     private static final String DISPLAY_FINAL_PATH = "/images/products/";
-    private final SubImageService subImageService;
 
+    /**
+     * Recursively deletes a directory and all its contents.
+     * This method safely handles the deletion of directories by first deleting all files
+     * and subdirectories before deleting the parent directory.
+     * 
+     * @param directory The Path of the directory to delete
+     */
     private void deleteDirectory(Path directory) {
         try {
             if (Files.exists(directory)) {
+                System.out.println("Starting to delete directory: " + directory);
                 Files.walk(directory)
-                        .sorted((a, b) -> b.compareTo(a))
+                        .sorted((a, b) -> b.compareTo(a)) // Sort in reverse order to delete files before directories
                         .forEach(path -> {
                             try {
+                                System.out.println("Deleting: " + path);
                                 Files.deleteIfExists(path);
                             } catch (Exception e) {
+                                System.err.println("Failed to delete: " + path + " - " + e.getMessage());
                             }
                         });
+                System.out.println("Finished deleting directory: " + directory);
+            } else {
+                System.out.println("Directory does not exist: " + directory);
             }
         } catch (Exception e) {
+            System.err.println("Error deleting directory: " + directory + " - " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    private List<SubImage> createAndSaveSubImages(List<String> imagePaths, Product product) {
-        List<SubImage> subImages = new ArrayList<>();
-
-        for (String path : imagePaths) {
-            SubImage subImage = new SubImage();
-            subImage.setProduct(product);
-            subImage.setSub_image_url(path);
-            SubImage savedSubImage = subImageService.save(subImage);
-            subImages.add(savedSubImage);
-        }
-
-        return subImages;
-    }
+    
 
     public String saveImageFromTemporaryToFinal(String displayPath, Long productID) throws Exception {
         String[] split = displayPath.split("/");
         String fileName = split[split.length - 1];
         String folderName = split[split.length - 2];
-        Path src = Path.of(IMAGES_TEMPORARY_PATH + "/" + folderName + "/" + fileName);
-        Path dest = Path.of(IMAGES_FINAL_PATH + "/" + productID + "/" + fileName);
+        Path src = Path.of(IMAGES_TEMPORARY_PATH + folderName + "/" + fileName);
+        Path dest = Path.of(IMAGES_FINAL_PATH + productID + "/" + fileName);
         try {
-            Files.createDirectories(Path.of(IMAGES_FINAL_PATH + folderName));
+            Files.createDirectories(Path.of(IMAGES_FINAL_PATH + productID));
             Files.copy(src, dest, StandardCopyOption.REPLACE_EXISTING);
             return DISPLAY_FINAL_PATH + productID + "/" + fileName;
         } catch (Exception e) {
@@ -97,9 +92,37 @@ public class ImageService {
     }
 
     public void deleteTemporaryDirectory(String displayPath) {
-        String relativePath = displayPath.substring(DISPLAY_TEMPORARY_PATH.length());
-        String folderName = relativePath.split("/")[0];
-        Path directory = Paths.get(IMAGES_TEMPORARY_PATH, folderName);
-        deleteDirectory(directory);
+        System.out.println("Attempting to delete temporary directory for path: " + displayPath);
+        
+        if (displayPath == null || displayPath.isEmpty()) {
+            return;
+        }
+        
+        if (!displayPath.startsWith(DISPLAY_TEMPORARY_PATH)) {
+            return;
+        }
+        
+        try {
+            String relativePath = displayPath.substring(DISPLAY_TEMPORARY_PATH.length());
+            
+            if (relativePath.isEmpty()) {
+                return;
+            }
+            
+            String[] pathParts = relativePath.split("/");
+            if (pathParts.length == 0 || pathParts[0].isEmpty()) {
+                return;
+            }
+            
+            String folderName = pathParts[0];
+            
+            Path directory = Path.of(IMAGES_TEMPORARY_PATH + folderName);
+            
+            if (Files.exists(directory)) {
+                deleteDirectory(directory);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

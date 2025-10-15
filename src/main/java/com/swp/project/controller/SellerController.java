@@ -198,16 +198,15 @@ public class SellerController {
             return "redirect:/seller/seller-update-product/" + updateProductDto.getId();
         }
         try {
+            Product oldProduct = productService.getProductById(updateProductDto.getId());
             List<Category> categories = new ArrayList<>();
             String folderName = UUID.randomUUID().toString();
-            String productName = updateProductDto.getName().trim();
             for (Long catId : updateProductDto.getCategories()) {
                 categories.add(categoryService.getCategoryById(catId));
             }
-            if (productService.checkUniqueProductName(updateProductDto.getName())) {
+            if (!updateProductDto.getName().equals(oldProduct.getName()) && productService.checkUniqueProductName(updateProductDto.getName())) {
                 throw new Exception("Tên sản phẩm đã tồn tại");
             }
-            Product oldProduct = productService.getProductById(updateProductDto.getId());
             Product updateProduct = Product.builder()
                     .id(updateProductDto.getId())
                     .name(updateProductDto.getName())
@@ -235,7 +234,7 @@ public class SellerController {
                 firstSubImage.setSub_image_url(subImagePath);
                 tempSubImages.add(firstSubImage);
             }
-            sellerRequestService.saveUpdateRequest(updateProduct, oldProduct, principal.getName());
+            sellerRequestService.saveUpdateRequest(oldProduct, updateProduct, principal.getName());
             redirectAttributes.addFlashAttribute("msg", "Yêu cầu cập nhật sản phẩm đã được gửi đến quản lý");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());

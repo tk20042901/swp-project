@@ -423,9 +423,6 @@ public class ManagerController {
         model.addAttribute("secondNewImage", newProduct.getSub_images().get(1).getSub_image_url());
         model.addAttribute("thirdNewImage", newProduct.getSub_images().get(2).getSub_image_url());
         model.addAttribute("sellerRequest", sellerRequest);
-        System.out.println(newProduct.getSub_images().get(0).getSub_image_url());
-        System.out.println(newProduct.getSub_images().get(1).getSub_image_url());
-        System.out.println(newProduct.getSub_images().get(2).getSub_image_url());
         return "pages/manager/product-request-details";
     }
 
@@ -439,9 +436,7 @@ public class ManagerController {
                 throw new Exception("Yêu cầu không tồn tại");
             }
             Product newProduct = sellerRequestService.getEntityFromContent(sellerRequest.getContent(), Product.class);
-            if (productService.checkUniqueProductName(newProduct.getName())) {
-                throw new IOException("Tên sản phẩm đã tồn tại");
-            }
+            String folderName = newProduct.getMain_image_url();
             if (sellerRequestTypeService.isUpdateType(sellerRequest)) {
                 Long oldProductId = sellerRequestService
                         .getEntityFromContent(sellerRequest.getOldContent(), Product.class).getId();
@@ -464,6 +459,7 @@ public class ManagerController {
                     }
                     subImage.setProduct(oldProduct);
                     oldProduct.getSub_images().set(i, subImage);
+                    subImageService.save(subImage);
                 }
                 productService.update(oldProduct);
             } else {
@@ -476,11 +472,12 @@ public class ManagerController {
                     subImage.setSub_image_url(subImageFinalPath);
                     subImage.setProduct(newProduct);
                     newProduct.getSub_images().set(i, subImage);
+                    subImageService.save(subImage);
                 }
                 productService.update(newProduct);
             }
             sellerRequestService.approveRequest(requestId);
-            imageService.deleteTemporaryDirectory(newProduct.getMain_image_url());
+            imageService.deleteTemporaryDirectory(folderName);
             redirectAttributes.addFlashAttribute("msg", "Đã duyệt yêu cầu thành công");
         } catch (Exception e) {
             System.out.println("Exception" + e.getMessage());
@@ -501,6 +498,10 @@ public class ManagerController {
 
             // Process the rejection logic here
             sellerRequestService.rejectRequest(requestId);
+            imageService.deleteTemporaryDirectory(
+                    sellerRequestService.getEntityFromContent(sellerRequest.getContent(), Product.class)
+                            .getMain_image_url());
+            
 
             redirectAttributes.addFlashAttribute("msg", "Đã từ chối yêu cầu");
         } catch (Exception e) {
@@ -508,4 +509,5 @@ public class ManagerController {
         }
         return "redirect:/manager/all-products-request";
     }
+
 }
