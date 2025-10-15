@@ -249,9 +249,11 @@ public class CustomerController {
                 return "redirect:/customer/shopping-cart";
             }
         }else{
-            redirectAttributes.addFlashAttribute("error",
-                    "Số lượng phải lớn hơn 1");
-            return "redirect:/customer/shopping-cart";
+            if(quantity < 1) {
+                redirectAttributes.addFlashAttribute("error",
+                        "Số lượng phải lớn hơn 1");
+                return "redirect:/customer/shopping-cart";
+            }
         }
         if (!product.getUnit().isAllowDecimal()) {
             if (quantity % 1 != 0) {
