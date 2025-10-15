@@ -154,7 +154,7 @@ public class CustomerController {
         int totalAmount = 0;
         for (ShoppingCartItem item : cartItems) {
             if (selectedIds.contains(item.getProduct().getId())) {
-                totalAmount += item.getProduct().getPrice() * item.getQuantity();
+                totalAmount += (int) (item.getProduct().getPrice() * item.getQuantity());
             }
         }
 
@@ -242,9 +242,15 @@ public class CustomerController {
             return "redirect:/customer/shopping-cart";
         }
 
-        if (quantity<=0) {
+        if(product.getUnit().isAllowDecimal()) {
+            if (quantity <= 0) {
+                redirectAttributes.addFlashAttribute("error",
+                        "Số lượng phải lớn hơn 0.");
+                return "redirect:/customer/shopping-cart";
+            }
+        }else{
             redirectAttributes.addFlashAttribute("error",
-                    "Số lượng phải lớn hơn 0.");
+                    "Số lượng phải lớn hơn 1");
             return "redirect:/customer/shopping-cart";
         }
         if (!product.getUnit().isAllowDecimal()) {
@@ -295,12 +301,22 @@ public class CustomerController {
                                   @RequestParam(required = false)  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
                                   @RequestParam(defaultValue = "0")int page,
                                   @RequestParam(defaultValue = "5")int size){
-        Page<Order> orders=customerService.searchOrderHistory(principal.getName(), status, fromDate, toDate, page, size);
+        Page<Order> orders = customerService.searchOrderHistory(principal.getName(), status, fromDate, toDate, page, size);
 
         int totalSpent=0;
-        for(Order order : orders.getContent()){
-            if(orderStatusService.isDeliveredStatus(order)){
-                totalSpent+=order.getTotalAmount();
+        for(Order order : orders){
+            if(paymentMethodService.isCodMethod(order.getPaymentMethod())) {
+                if (orderStatusService.isDeliveredStatus(order)) {
+                    totalSpent += order.getTotalAmount();
+                }
+            } else if(paymentMethodService.isQrMethod(order.getPaymentMethod())){
+                if(orderStatusService.isDeliveredStatus(order)){
+                    totalSpent += order.getTotalAmount();
+                } else if (orderStatusService.isShippingStatus(order)) {
+                    totalSpent += order.getTotalAmount();
+                } else if(orderStatusService.isProcessingStatus(order)) {
+                    totalSpent += order.getTotalAmount();
+                }
             }
         }
         model.addAttribute("status",status);

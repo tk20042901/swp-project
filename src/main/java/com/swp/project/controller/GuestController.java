@@ -134,7 +134,6 @@ public class GuestController {
             model.addAttribute("categoryId", categoryId);
             model.addAttribute("url", "/");
             model.addAttribute("Title", "Trang danh sách sản phẩm");
-            model.addAttribute("showSearchBar", true);
             
         } catch (Exception e) {
            System.out.println(e.getMessage());
@@ -270,7 +269,6 @@ public class GuestController {
     public String addToCart(
             @RequestParam Long productId,
             @RequestParam Double quantity,
-            Model model,
             RedirectAttributes redirectAttributes,
             Principal principal) {
         try {
