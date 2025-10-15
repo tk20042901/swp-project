@@ -39,7 +39,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import vn.payos.PayOS;
-import vn.payos.type.PaymentData;
+import vn.payos.model.v2.paymentRequests.CreatePaymentLinkRequest;
 
 @SessionAttributes("shoppingCartItems")
 @RequiredArgsConstructor
@@ -421,15 +421,16 @@ public class CustomerController {
     public String payOsCheckout(@RequestParam Long orderId) {
         Order order = orderService.getOrderById(orderId);
         try {
-            PaymentData paymentData = PaymentData.builder()
-                    .orderCode(order.getId())
-                    .amount(order.getTotalAmount())
-                    .expiredAt(order.getPaymentExpiredAt().atZone(ZoneId.systemDefault()).toEpochSecond())
-                    .description("FruitShop " + order.getId())
-                    .returnUrl("http://localhost:8080/customer/order-success")
-                    .cancelUrl("http://localhost:8080/customer/order-cancel")
-                    .build();
-            String checkoutUrl = payOS.createPaymentLink(paymentData).getCheckoutUrl();
+            CreatePaymentLinkRequest paymentData =
+                    CreatePaymentLinkRequest.builder()
+                            .orderCode(order.getId())
+                            .amount(order.getTotalAmount())
+                            .expiredAt(order.getPaymentExpiredAt().atZone(ZoneId.systemDefault()).toEpochSecond())
+                            .description("FruitShop " + order.getId())
+                            .returnUrl("http://localhost:8080/customer/order-success")
+                            .cancelUrl("http://localhost:8080/customer/order-cancel")
+                            .build();
+            String checkoutUrl = payOS.paymentRequests().create(paymentData).getCheckoutUrl();
             order.setPaymentLink(checkoutUrl);
             orderService.saveOrder(order);
             return "redirect:" + checkoutUrl;
