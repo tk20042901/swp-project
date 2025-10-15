@@ -8,9 +8,6 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="/">Home</a>
-                    </li>
                     <li class="nav-item" th:if="${!#authorization.expression('isAuthenticated()')}">
                         <a class="nav-link" th:href="@{/login}">Đăng nhập</a>
                     </li>
@@ -28,10 +25,10 @@
                     </li>
                 </ul>
                 <!-- Search Form -->
-                <form method="get" th:action="@{/search-product}" class="d-flex ms-auto" th:if="${showSearchBar}">
+                <form method="get" th:action="@{/search-product}" class="d-flex ms-auto">
                     <input type="text" name="keyword" class="form-control me-2" placeholder="Tìm kiếm sản phẩm..."
                            th:value="${keyword}" aria-label="Tìm kiếm sản phẩm" required>
-                    <button class="btn btn-outline-success" type="submit">Tìm kiếm</button>
+                    <button class="btn btn-outline-success" style="width: 123px" type="submit">Tìm kiếm</button>
                 </form>
             </div>
         </div>

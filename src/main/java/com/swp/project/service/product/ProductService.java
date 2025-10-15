@@ -167,7 +167,9 @@ public class ProductService {
 
     public double getSoldQuantity(Long id) {
         return orderRepository.findAll().stream()
-                .filter(order -> orderStatusService.isDeliveredStatus(order))
+                .filter(order -> (orderStatusService.isProcessingStatus(order) ||
+                                  orderStatusService.isShippingStatus(order) ||
+                                  orderStatusService.isDeliveredStatus(order)))
                 .flatMap(order -> order.getOrderItem().stream())
                 .filter(item -> item.getProduct().getId().equals(id))
                 .mapToDouble(item -> item.getQuantity())

@@ -154,7 +154,7 @@ public class CustomerController {
         int totalAmount = 0;
         for (ShoppingCartItem item : cartItems) {
             if (selectedIds.contains(item.getProduct().getId())) {
-                totalAmount += item.getProduct().getPrice() * item.getQuantity();
+                totalAmount += (int) (item.getProduct().getPrice() * item.getQuantity());
             }
         }
 
@@ -232,13 +232,34 @@ public class CustomerController {
 
         Long productId= updateShoppingCartDto.getProductId();
         Product product =productService.getProductById(productId);
-        double quantity = updateShoppingCartDto.getQuantity();
+        String quantityStr = updateShoppingCartDto.getQuantity();
+        double quantity;
+        try {
+           quantity= Double.parseDouble(quantityStr);
+        } catch (NumberFormatException e) {
+            redirectAttributes.addFlashAttribute("error",
+                    "Số lượng không hợp lệ.");
+            return "redirect:/customer/shopping-cart";
+        }
+
+        if(product.getUnit().isAllowDecimal()) {
+            if (quantity <= 0) {
+                redirectAttributes.addFlashAttribute("error",
+                        "Số lượng phải lớn hơn 0.");
+                return "redirect:/customer/shopping-cart";
+            }
+        }else{
+            redirectAttributes.addFlashAttribute("error",
+                    "Số lượng phải lớn hơn 1");
+            return "redirect:/customer/shopping-cart";
+        }
         if (!product.getUnit().isAllowDecimal()) {
             if (quantity % 1 != 0) {
                 redirectAttributes.addFlashAttribute("error",
                         "Sản phẩm '" + product.getName() + "' chỉ cho phép nhập số lượng nguyên.");
                 return "redirect:/customer/shopping-cart";
-            }else{
+            }
+        }else{
                 double rounded = Math.round(quantity * 10.0)/10.0;
                 if(quantity != rounded){
                     redirectAttributes.addFlashAttribute("error",
@@ -247,7 +268,7 @@ public class CustomerController {
                 }
                 quantity = rounded;
             }
-        }
+
 
         double availableQuantity = productService.getAvailableQuantity(productId);
         if (quantity > availableQuantity) {
@@ -280,12 +301,22 @@ public class CustomerController {
                                   @RequestParam(required = false)  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
                                   @RequestParam(defaultValue = "0")int page,
                                   @RequestParam(defaultValue = "5")int size){
-        Page<Order> orders=customerService.searchOrderHistory(principal.getName(), status, fromDate, toDate, page, size);
+        Page<Order> orders = customerService.searchOrderHistory(principal.getName(), status, fromDate, toDate, page, size);
 
         int totalSpent=0;
-        for(Order order : orders.getContent()){
-            if(orderStatusService.isDeliveredStatus(order)){
-                totalSpent+=order.getTotalAmount();
+        for(Order order : orders){
+            if(paymentMethodService.isCodMethod(order.getPaymentMethod())) {
+                if (orderStatusService.isDeliveredStatus(order)) {
+                    totalSpent += order.getTotalAmount();
+                }
+            } else if(paymentMethodService.isQrMethod(order.getPaymentMethod())){
+                if(orderStatusService.isDeliveredStatus(order)){
+                    totalSpent += order.getTotalAmount();
+                } else if (orderStatusService.isShippingStatus(order)) {
+                    totalSpent += order.getTotalAmount();
+                } else if(orderStatusService.isProcessingStatus(order)) {
+                    totalSpent += order.getTotalAmount();
+                }
             }
         }
         model.addAttribute("status",status);

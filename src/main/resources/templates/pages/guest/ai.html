@@ -5,192 +5,200 @@
     <script src="/js/bootstrap/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="/css/style.css">
     <title>FruitShop - AI</title>
+    <style>
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
 </head>
 
 <body>
-    <div th:insert="~{fragments/header :: header}"></div>
-        <div class="bg-light vh-100 row justify-content-center h-100" style="overflow-x: hidden">
-            <div class="d-flex flex-column py-3">
-                <!-- Errors -->
-                <div th:if="${error}" class="alert alert-warning mb-3" role="alert" th:text="${error}"></div>
+<div th:replace="~{fragments/header :: header}"></div>
+<div class="chat-container">
+    <!-- Errors -->
+    <div th:if="${error}" class="alert alert-warning mx-3 mt-3 mb-0" role="alert" th:text="${error}"></div>
 
-            <!-- Conversation -->
-            <div id="chatMessages" class="chat-messages flex-grow-1 overflow-auto mb-3 px-5">
-                <ul class="list-unstyled m-0">
-                    <li th:if="${#lists.isEmpty(conversation)}" class="d-flex gap-2 align-items-start">
-                        <div class="avatar-circle bg-primary text-white flex-shrink-0">AI</div>
-                        <div class="bubble bubble-assistant">
-                            <div class="message-text" data-md="true">
-                                Xin chào! Mình là FruitShop AI Chatbot. Hãy nhập câu hỏi hoặc tải ảnh sản phẩm để được
-                                hỗ trợ nhé.
-                            </div>
-                        </div>
-                    </li>
+    <!-- Chat Messages Area (Scrollable) -->
+    <div id="chatMessages" class="chat-messages-wrapper">
+        <ul class="list-unstyled m-0">
+            <li th:if="${#lists.isEmpty(conversation)}" class="d-flex gap-2 align-items-start">
+                <div class="avatar-circle bg-primary text-white flex-shrink-0">AI</div>
+                <div class="bubble bubble-assistant">
+                    <div class="message-text" data-md="true">
+                        Xin chào! Mình là FruitShop AI Chatbot. Hãy nhập câu hỏi hoặc tải ảnh sản phẩm để được hỗ trợ nhé.
+                    </div>
+                </div>
+            </li>
 
-                    <li th:each="message : ${conversation}" th:with="isUser=${message.author == 'user'}"
-                        class="mb-3">
-                        <div class="d-flex align-items-start gap-2"
-                             th:classappend="${isUser} ? 'justify-content-end' : ''">
-                            <!-- Avatar -->
-                            <div class="avatar-circle flex-shrink-0"
-                                 th:classappend="${isUser} ? 'bg-secondary text-white order-2' : 'bg-primary text-white'"
-                                 th:text="${isUser} ? 'Bạn' : 'AI'">AI
-                            </div>
-
-                            <!-- Bubble -->
-                            <div class="bubble"
-                                 th:classappend="${isUser} ? 'bubble-user order-1' : 'bubble-assistant'">
-                                <!-- If assistant supports simple Markdown, render it on client side safely -->
-                                <div class="message-text" th:attr="data-md=${!isUser}" th:text="${message.content}">
-                                    ...
-                                </div>
-                                <div th:if="${message.image}" class="mt-2 text-center">
-                                    <img class="chat-image" loading="lazy" decoding="async" width="200" height="200"
-                                         th:src="'data:' + ${message.mimeType} + ';base64,' + ${message.image}"
-                                         alt="Ảnh người dùng gửi"/>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Composer -->
-            <div class="px-3" style="margin-top: auto">
-                <form id="chatForm" th:action="@{/ai}" method="post" enctype="multipart/form-data"
-                      class="chat-composer">
-                    <input type="hidden" name="conversationId" th:value="${conversationId}">
-                    <div class="d-flex align-items-end gap-2">
-                        <div class="flex-grow-1">
-                            <label class="visually-hidden" for="chatInput">Câu hỏi</label>
-                            <textarea id="chatInput" class="form-control" name="q" rows="2"
-                                      placeholder="Nhập câu hỏi... (Shift+Enter để xuống dòng)" autocomplete="off"
-                                      autofocus></textarea>
-                        </div>
-
-                        <div class="d-flex align-items-center gap-2">
-                            <input id="imageInput" type="file" name="image" accept="image/*" class="d-none">
-                            <label for="imageInput" class="btn btn-outline-secondary" title="Đính kèm ảnh">
-                                <span class="d-none d-sm-inline">Ảnh</span>
-                                <span class="d-inline d-sm-none">+</span>
-                            </label>
-                            <button id="sendButton" type="submit" class="btn btn-primary">Gửi</button>
-                        </div>
+            <li th:each="message : ${conversation}" th:with="isUser=${message.author == 'user'}"
+                class="mb-3">
+                <div class="d-flex align-items-start gap-2"
+                     th:classappend="${isUser} ? 'justify-content-end' : ''">
+                    <!-- Avatar -->
+                    <div class="avatar-circle flex-shrink-0"
+                         th:classappend="${isUser} ? 'bg-secondary text-white order-2' : 'bg-primary text-white'"
+                         th:text="${isUser} ? 'Bạn' : 'AI'">AI
                     </div>
 
-                    <!-- Preview (image) -->
-                    <div id="preview" class="mt-2 d-none">
-                        <div class="small text-muted mb-1">Ảnh đính kèm:</div>
-                        <img id="previewImg" src="data:," class="img-thumbnail" alt="Xem trước ảnh"
-                             style="max-height: 160px;">
+                    <!-- Bubble -->
+                    <div class="bubble"
+                         th:classappend="${isUser} ? 'bubble-user order-1' : 'bubble-assistant'">
+                        <!-- If assistant supports simple Markdown, render it on client side safely -->
+                        <div class="message-text" th:attr="data-md=${!isUser}" th:text="${message.content}">
+                            ...
+                        </div>
+                        <div th:if="${message.image}" class="mt-2 text-center">
+                            <img class="chat-image" loading="lazy" decoding="async" width="200" height="200"
+                                 th:src="'data:' + ${message.mimeType} + ';base64,' + ${message.image}"
+                                 alt="Ảnh người dùng gửi"/>
+                        </div>
                     </div>
-                </form>
-                <div class="mt-2 small text-muted text-center" style="display: inherit">
-                    Thông tin do AI cung cấp có thể không hoàn toàn chính xác, hãy kiểm tra lại trước khi đưa ra quyết
-                    định.
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Input Form (Sticky at bottom) -->
+    <div class="chat-composer-wrapper">
+        <form id="chatForm" th:action="@{/ai}" method="post" enctype="multipart/form-data"
+              class="chat-composer">
+            <input type="hidden" name="conversationId" th:value="${conversationId}">
+            <div class="d-flex align-items-end gap-2">
+                <div class="flex-grow-1">
+                    <label class="visually-hidden" for="chatInput">Câu hỏi</label>
+                    <textarea id="chatInput" class="form-control" name="q" rows="2"
+                              placeholder="Nhập câu hỏi... (Shift+Enter để xuống dòng)" autocomplete="off"
+                              autofocus></textarea>
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <input id="imageInput" type="file" name="image" accept="image/*" class="d-none">
+                    <label for="imageInput" class="btn btn-outline-secondary" title="Đính kèm ảnh">
+                        <span class="d-none d-sm-inline">Ảnh</span>
+                        <span class="d-inline d-sm-none">+</span>
+                    </label>
+                    <button id="sendButton" type="submit" class="btn btn-primary">Gửi</button>
                 </div>
             </div>
+
+            <!-- Preview (image) -->
+            <div id="preview" class="mt-2 d-none">
+                <div class="small text-muted mb-1">Ảnh đính kèm:</div>
+                <img id="previewImg" src="data:," class="img-thumbnail" alt="Xem trước ảnh"
+                     style="max-height: 160px;">
+            </div>
+        </form>
+        <div class="mt-2 small text-muted text-center w-100">
+            Thông tin do AI cung cấp có thể không chính xác, hãy kiểm tra lại trước khi đưa ra quyết định.
         </div>
-        <div th:insert="~{fragments/footer :: footer}"></div>
+    </div>
+</div>
 
-        <script th:inline="none">
-            // Auto-scroll to bottom
-            const chatMessages = document.getElementById('chatMessages');
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
+<script th:inline="none">
+    // Auto-scroll to bottom
+    const chatMessages = document.getElementById('chatMessages');
 
-            function scrollToBottom() {
-                if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
-            }
+    function scrollToBottom() {
+        if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
 
-            //Markdown rendering (limited): bold, italic, links, unordered lists
-            function renderMarkdown(md) {
-                let html = md || '';
+    //Markdown rendering (limited): bold, italic, links, unordered lists
+    function renderMarkdown(md) {
+        let html = md || '';
 
-                // Tách các khối bằng hai hoặc nhiều dấu xuống dòng
-                const blocks = html.trim().split(/\n\n+/);
+        // Tách các khối bằng hai hoặc nhiều dấu xuống dòng
+        const blocks = html.trim().split(/\n\n+/);
 
-                return blocks.map(block => {
-                    // Xử lý danh sách không sắp xếp
-                    // Kiểm tra nếu tất cả các dòng trong khối đều bắt đầu bằng '* '
-                    const lines = block.split('\n');
-                    if (lines.every(line => line.trim().startsWith('* '))) {
-                        const listItems = lines.map(line => {
-                            // Xóa ký tự '* ' ở đầu và xử lý inline markdown
-                            let itemContent = line.trim().substring(2);
-                            // Liên kết: [text](url) -> <a href="url">text</a>
-                            itemContent = itemContent.replace(/\[([^\]]+)]\(([^)]+)\)/g,
-                                '<a href="$2" target="_blank" rel="noopener noreferrer nofollow">$1</a>');
-                            // In đậm: **text** -> <strong>text</strong>
-                            itemContent = itemContent.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-                            // In nghiêng: *text* -> <em>text</em>
-                            itemContent = itemContent.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-                            return `<li>${itemContent}</li>`;
-                        }).join('');
-                        return `<ul class="list-unstyled m-0">${listItems}</ul>`;
-                    }
-
-                    // Xử lý đoạn văn
-                    // Thay thế các ký tự xuống dòng đơn lẻ bằng thẻ <br> để giữ nguyên định dạng
-                    let paragraphContent = block.replace(/\n/g, '<br>');
-
+        return blocks.map(block => {
+            // Xử lý danh sách không sắp xếp
+            // Kiểm tra nếu tất cả các dòng trong khối đều bắt đầu bằng '* '
+            const lines = block.split('\n');
+            if (lines.every(line => line.trim().startsWith('* '))) {
+                const listItems = lines.map(line => {
+                    // Xóa ký tự '* ' ở đầu và xử lý inline markdown
+                    let itemContent = line.trim().substring(2);
                     // Liên kết: [text](url) -> <a href="url">text</a>
-                    paragraphContent = paragraphContent.replace(/\[([^\]]+)]\(([^)]+)\)/g,
+                    itemContent = itemContent.replace(/\[([^\]]+)]\(([^)]+)\)/g,
                         '<a href="$2" target="_blank" rel="noopener noreferrer nofollow">$1</a>');
                     // In đậm: **text** -> <strong>text</strong>
-                    paragraphContent = paragraphContent.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+                    itemContent = itemContent.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
                     // In nghiêng: *text* -> <em>text</em>
-                    paragraphContent = paragraphContent.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-
-                    return `<p>${paragraphContent}</p>`;
+                    itemContent = itemContent.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+                    return `<li>${itemContent}</li>`;
                 }).join('');
+                return `<ul class="list-unstyled m-0">${listItems}</ul>`;
             }
 
-            function hydrateMarkdown() {
-                document.querySelectorAll('[data-md="true"]').forEach(el => {
-                    const raw = el.textContent || '';
-                    el.innerHTML = renderMarkdown(raw);
-                });
-            }
+            // Xử lý đoạn văn
+            // Thay thế các ký tự xuống dòng đơn lẻ bằng thẻ <br> để giữ nguyên định dạng
+            let paragraphContent = block.replace(/\n/g, '<br>');
 
-            // Textarea behavior: Enter to send, Shift+Enter for newline
-            const form = document.getElementById('chatForm');
-            const input = document.getElementById('chatInput');
-            const sendButton = document.getElementById('sendButton');
-            if (input && form) {
-                input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        form.requestSubmit();
-                    }
-                });
-            }
-            if (form && sendButton) {
-                form.addEventListener('submit', () => {
-                    sendButton.disabled = true;
-                    sendButton.textContent = 'Đang gửi...';
-                });
-            }
+            // Liên kết: [text](url) -> <a href="url">text</a>
+            paragraphContent = paragraphContent.replace(/\[([^\]]+)]\(([^)]+)\)/g,
+                '<a href="$2" target="_blank" rel="noopener noreferrer nofollow">$1</a>');
+            // In đậm: **text** -> <strong>text</strong>
+            paragraphContent = paragraphContent.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+            // In nghiêng: *text* -> <em>text</em>
+            paragraphContent = paragraphContent.replace(/\*([^*]+)\*/g, '<em>$1</em>');
 
-            // Image preview
-            const imageInput = document.getElementById('imageInput');
-            const preview = document.getElementById('preview');
-            const previewImg = document.getElementById('previewImg');
-            if (imageInput && preview && previewImg) {
-                imageInput.addEventListener('change', (e) => {
-                    const file = e.target.files && e.target.files[0];
-                    if (file) {
-                        previewImg.src = URL.createObjectURL(file);
-                        preview.classList.remove('d-none');
-                    } else {
-                        previewImg.src = 'data:,';
-                        preview.classList.add('d-none');
-                    }
-                });
-            }
+            return `<p>${paragraphContent}</p>`;
+        }).join('');
+    }
 
-            // Initial
-            hydrateMarkdown();
-            scrollToBottom();
-        </script>
-    </div>
-    </body>
+    function hydrateMarkdown() {
+        document.querySelectorAll('[data-md="true"]').forEach(el => {
+            const raw = el.textContent || '';
+            el.innerHTML = renderMarkdown(raw);
+        });
+    }
+
+    // Textarea behavior: Enter to send, Shift+Enter for newline
+    const form = document.getElementById('chatForm');
+    const input = document.getElementById('chatInput');
+    const sendButton = document.getElementById('sendButton');
+    if (input && form) {
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                form.requestSubmit();
+            }
+        });
+    }
+    if (form && sendButton) {
+        form.addEventListener('submit', () => {
+            sendButton.disabled = true;
+            sendButton.textContent = 'Đang gửi...';
+        });
+    }
+
+    // Image preview
+    const imageInput = document.getElementById('imageInput');
+    const preview = document.getElementById('preview');
+    const previewImg = document.getElementById('previewImg');
+    if (imageInput && preview && previewImg) {
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (file) {
+                previewImg.src = URL.createObjectURL(file);
+                preview.classList.remove('d-none');
+            } else {
+                previewImg.src = 'data:,';
+                preview.classList.add('d-none');
+            }
+        });
+    }
+
+    // Initial
+    hydrateMarkdown();
+    scrollToBottom();
+</script>
+</body>
 </html>

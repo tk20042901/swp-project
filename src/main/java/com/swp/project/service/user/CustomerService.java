@@ -320,6 +320,8 @@ public class CustomerService {
             throw new RuntimeException("Số lượng sản phẩm thêm vào phải lớn hơn 0");
         } else if (unit.isAllowDecimal() && quantity < 0.1) {
             throw new RuntimeException("Số lượng sản phẩm thêm vào phải lớn hơn hoặc bằng 0.1");
+        } else if (unit.isAllowDecimal() && (Math.round(quantity * 10.0) / 10.0 != quantity)) {
+            throw new RuntimeException("Sản phẩm này chỉ cho phép số lượng với 1 chữ số thập phân");
         }
 
         ShoppingCartItem existingItem = shoppingCartItemRepository.findByCustomer_EmailAndProduct_Id(principal.getName(), productId);

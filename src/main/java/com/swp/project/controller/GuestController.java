@@ -134,7 +134,6 @@ public class GuestController {
             model.addAttribute("categoryId", categoryId);
             model.addAttribute("url", "/");
             model.addAttribute("Title", "Trang danh sách sản phẩm");
-            model.addAttribute("showSearchBar", true);
             
         } catch (Exception e) {
            System.out.println(e.getMessage());
@@ -210,15 +209,26 @@ public class GuestController {
             Principal principal) {
         Product product = productService.getProductById(id);
         List<SubImage> subImages = product.getSub_images();
+        boolean isAllowDecimal = product.getUnit().isAllowDecimal();
         model.addAttribute("product", product);
         model.addAttribute("subImages", subImages);
-        model.addAttribute("maxQuantity", productService.getAvailableQuantity(id));
+
+        if (isAllowDecimal) {
+            model.addAttribute("maxQuantity", productService.getAvailableQuantity(id));
+        } else {
+            model.addAttribute("maxQuantity", (int) Math.floor(productService.getAvailableQuantity(id)));
+        }
 
         List<Product> relatedProducts = productService.getRelatedProducts(id, 6);
         model.addAttribute("relatedProducts", relatedProducts);
 
         double soldQuantity = productService.getSoldQuantity(id);
-        model.addAttribute("soldQuantity", soldQuantity);
+
+        if (isAllowDecimal) {
+            model.addAttribute("soldQuantity", soldQuantity);
+        } else {
+            model.addAttribute("soldQuantity", (int) Math.floor(soldQuantity));
+        }
 
         List<Category> categories = product.getCategories();
         model.addAttribute("categories", categories);
@@ -259,7 +269,6 @@ public class GuestController {
     public String addToCart(
             @RequestParam Long productId,
             @RequestParam Double quantity,
-            Model model,
             RedirectAttributes redirectAttributes,
             Principal principal) {
         try {
