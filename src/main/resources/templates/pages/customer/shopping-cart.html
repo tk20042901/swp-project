@@ -20,7 +20,6 @@
             background: white;
             border-radius: 10px;
             padding: 1rem;
-            margin-bottom: 1rem;
             border: 1px solid rgba(16, 24, 40, 0.06);
             transition: all 0.2s ease;
         }
@@ -85,77 +84,78 @@
 </head>
 
 <body>
-    <div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/header :: header}"></div>
 
-    <div class="container" style="margin-bottom: auto; margin-top: 30px">
-        <!-- Page Header -->
-        <div class="mb-4">
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-                <div>
-                    <h1 class="h3 mb-2 fw-bold brand">
-                        <i class="bi bi-cart3 me-2 text-primary"></i>
-                        Giỏ hàng của tôi
-                    </h1>
-                    <p class="text-muted mb-0">
-                        <i class="bi bi-bag me-1"></i>
-                        <span th:text="${#lists.size(cartItems)} + ' sản phẩm'">0 sản phẩm</span>
-                    </p>
-                </div>
-                <a class="btn btn-outline-secondary" th:href="@{/}">
-                    <i class="bi bi-arrow-left me-1"></i>
-                    Tiếp tục mua sắm
-                </a>
+<div class="container" style="margin-bottom: auto; margin-top: 30px">
+    <!-- Page Header -->
+    <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <h1 class="h3 mb-2 fw-bold brand">
+                    <i class="bi bi-cart3 me-2 text-primary"></i>
+                    Giỏ hàng của tôi
+                </h1>
+                <p class="text-muted mb-0">
+                    <i class="bi bi-bag me-1"></i>
+                    <span th:text="${#lists.size(cartItems)} + ' sản phẩm'">0 sản phẩm</span>
+                </p>
             </div>
+            <a class="btn btn-outline-secondary" th:href="@{/}">
+                <i class="bi bi-arrow-left me-1"></i>
+                Tiếp tục mua sắm
+            </a>
         </div>
+    </div>
 
-        <!-- Alert Messages -->
-        <div class="alerts-stack mb-3">
-            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="bi bi-check-circle-fill me-2"></i>
-                <span th:text="${success}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                <span th:text="${error}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
+    <!-- Alert Messages -->
+    <div class="alerts-stack mb-3">
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
 
-        <div class="row g-4">
-            <!-- Cart Items -->
-            <div class="col-lg-8">
-                <!-- Select All Card -->
-                <div class="card shadow-sm auth-card mb-3" th:if="${!#lists.isEmpty(cartItems)}">
-                    <div class="card-body p-3">
-                        <form th:action="@{/customer/shopping-cart/select-all}" method="post"
-                            class="d-flex align-items-center">
-                            <input type="checkbox" id="selectAllCheckbox" class="form-check-input me-2"
-                                th:checked="${#lists.size(selectedIds) == #lists.size(cartItems) and !#lists.isEmpty(cartItems)}"
-                                onchange="this.form.submit()">
-                            <label for="selectAllCheckbox" class="form-check-label fw-semibold mb-0">
-                                <i class="bi bi-check-all me-1"></i>
-                                Chọn tất cả sản phẩm
-                            </label>
-                        </form>
-                    </div>
+    <!-- Empty Cart State -->
+    <div th:if="${#lists.isEmpty(cartItems)}" class="card shadow-sm auth-card">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-cart-x empty-cart-icon d-block mb-3"></i>
+            <h5 class="text-muted mb-3">Giỏ hàng trống</h5>
+            <p class="text-muted mb-4">Bạn chưa có sản phẩm nào trong giỏ hàng</p>
+            <a th:href="@{/}" class="btn btn-primary px-4">
+                <i class="bi bi-shop me-2"></i>
+                Khám phá sản phẩm
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Cart Items -->
+        <div class="col-lg-8">
+            <!-- Select All Card -->
+            <div class="card shadow-sm auth-card mb-3" th:if="${!#lists.isEmpty(cartItems)}">
+                <div class="card-body p-3">
+                    <form th:action="@{/customer/shopping-cart/select-all}" method="post"
+                          class="d-flex align-items-center">
+                        <input type="checkbox" id="selectAllCheckbox" class="form-check-input me-2"
+                               th:checked="${#lists.size(selectedIds) == #lists.size(cartItems) and !#lists.isEmpty(cartItems)}"
+                               onchange="this.form.submit()">
+                        <label for="selectAllCheckbox" class="form-check-label fw-semibold mb-0">
+                            <i class="bi bi-check-all me-1"></i>
+                            Chọn tất cả sản phẩm
+                        </label>
+                    </form>
                 </div>
+            </div>
 
-                <!-- Empty Cart State -->
-                <div th:if="${#lists.isEmpty(cartItems)}" class="card shadow-sm auth-card">
-                    <div class="card-body text-center py-5">
-                        <i class="bi bi-cart-x empty-cart-icon d-block mb-3"></i>
-                        <h5 class="text-muted mb-3">Giỏ hàng trống</h5>
-                        <p class="text-muted mb-4">Bạn chưa có sản phẩm nào trong giỏ hàng</p>
-                        <a th:href="@{/}" class="btn btn-primary px-4">
-                            <i class="bi bi-shop me-2"></i>
-                            Khám phá sản phẩm
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Cart Items List -->
-                <div style="height: 50vh; overflow-y: scroll;padding-right: 10px; border: 1px solid #dee2e6; border-radius: 10px;">
+            <!-- Cart Items List -->
+            <div th:if="${!#lists.isEmpty(cartItems)}"
+                 style="max-height: 50vh; overflow-y: scroll;padding-right: 10px; border: 1px solid #cccccc; border-radius: 10px;">
                 <div th:each="item : ${cartItems}" class="cart-item">
                     <div class="d-flex gap-3 align-items-center">
                         <!-- Checkbox -->
@@ -163,8 +163,8 @@
                             <input type="hidden" name="cartIds" th:value="${item.product.id}">
                             <label>
                                 <input type="checkbox" class="form-check-input"
-                                    th:checked="${#lists.contains(selectedIds, item.product.id)}"
-                                    onchange="this.form.submit()">
+                                       th:checked="${#lists.contains(selectedIds, item.product.id)}"
+                                       onchange="this.form.submit()">
                             </label>
                         </form>
 
@@ -174,7 +174,7 @@
                         <!-- Product Info -->
                         <div class="flex-grow-1">
                             <a th:href="@{/product/{id}(id=${item.product.id})}" class="cart-item-name"
-                                th:text="${item.product.name}">Tên sản phẩm</a>
+                               th:text="${item.product.name}">Tên sản phẩm</a>
 
                             <div class="small text-muted mb-2">
                                 <i class="bi bi-tag me-1"></i>
@@ -185,19 +185,19 @@
                             <div class="d-flex gap-3 align-items-center flex-wrap">
                                 <!-- Quantity -->
                                 <form th:action="@{/customer/shopping-cart/update}" method="post"
-                                    class="d-flex align-items-center gap-2">
+                                      class="d-flex align-items-center gap-2">
                                     <input type="hidden" name="productId" th:value="${item.product.id}">
                                     <label class="small text-muted mb-0">
                                         Số lượng:
                                     </label>
                                     <label>
                                         <input type="number" name="quantity"
-                                            th:value="${item.product.unit.isAllowDecimal ?
+                                               th:value="${item.product.unit.isAllowDecimal ?
                                                           #numbers.formatDecimal(item.quantity, 1, 1, 'POINT') :
                                                           T(java.lang.Math).round(item.quantity)}"
-                                            min="1" th:attr="step=${item.product.unit.isAllowDecimal} ? 0.1 : 1"
-                                            class="form-control form-control-sm quantity-input"
-                                            onchange="this.form.submit()">
+                                               min="1" th:attr="step=${item.product.unit.isAllowDecimal} ? 0.1 : 1"
+                                               class="form-control form-control-sm quantity-input"
+                                               onchange="this.form.submit()">
                                     </label>
                                 </form>
 
@@ -213,81 +213,81 @@
                         <form th:action="@{/customer/shopping-cart/remove}" method="post">
                             <input type="hidden" name="productId" th:value="${item.product.id}">
                             <button type="submit" class="btn btn-outline-danger btn-sm"
-                                onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?')"
-                                title="Xóa khỏi giỏ hàng">
+                                    onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?')"
+                                    title="Xóa khỏi giỏ hàng">
                                 <i class="bi bi-trash"></i>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-                </div>
-            </div>
-
-            <!-- Summary Card -->
-            <div class="col-lg-4">
-                <div class="card summary-card shadow-sm" th:if="${!#lists.isEmpty(cartItems)}">
-                    <div class="card-body p-4">
-                        <h5 class="fw-bold mb-4">
-                            <i class="bi bi-receipt me-2"></i>
-                            Tóm tắt đơn hàng
-                        </h5>
-
-                        <div class="summary-row">
-                            <span>
-                                <i class="bi bi-check2-square me-1"></i>
-                                Đã chọn
-                            </span>
-                            <span class="fw-semibold" th:text="${#lists.size(selectedIds)} + ' sản phẩm'">0 sản phẩm</span>
-                        </div>
-
-                        <div class="summary-row">
-                            <span class="summary-total">Tổng tiền:</span>
-                            <span class="summary-total" th:text="${#numbers.formatInteger(totalAmount, 0, 'POINT')} + ' đ'">0
-                                đ</span>
-                        </div>
-
-                        <p th:if="${totalAmount == 0}" class="text-white-50 small mb-3 text-center">
-                            <i class="bi bi-info-circle me-1"></i>
-                            Vui lòng chọn sản phẩm để thanh toán
-                        </p>
-
-                        <form th:action="@{/customer/shopping-cart/check-out}" method="post" id="checkoutForm">
-                            <input th:each="id : ${selectedIds}" type="hidden" name="cartIds" th:value="${id}">
-                            <button type="submit" class="btn btn-primary w-100 fw-bold py-3 mt-3 bg"
-                                th:disabled="${totalAmount == 0}">
-                                <i class="bi bi-cart me-2"></i>
-                                Xác nhận mua hàng
                             </button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Summary Card -->
+        <div class="col-lg-4">
+            <div class="card summary-card shadow-sm" th:if="${!#lists.isEmpty(cartItems)}">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">
+                        <i class="bi bi-receipt me-2"></i>
+                        Tóm tắt đơn hàng
+                    </h5>
+
+                    <div class="summary-row">
+                            <span>
+                                <i class="bi bi-check2-square me-1"></i>
+                                Đã chọn
+                            </span>
+                        <span class="fw-semibold" th:text="${#lists.size(selectedIds)} + ' sản phẩm'">0 sản phẩm</span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span class="summary-total">Tổng tiền:</span>
+                        <span class="summary-total" th:text="${#numbers.formatInteger(totalAmount, 0, 'POINT')} + ' đ'">0
+                                đ</span>
+                    </div>
+
+                    <p th:if="${totalAmount == 0}" class="text-white-50 small mb-3 text-center">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Vui lòng chọn sản phẩm để thanh toán
+                    </p>
+
+                    <form th:action="@{/customer/shopping-cart/check-out}" method="post" id="checkoutForm">
+                        <input th:each="id : ${selectedIds}" type="hidden" name="cartIds" th:value="${id}">
+                        <button type="submit" class="btn btn-primary w-100 fw-bold py-3 mt-3 bg"
+                                th:disabled="${totalAmount == 0}">
+                            <i class="bi bi-cart me-2"></i>
+                            Xác nhận mua hàng
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div th:replace="~{fragments/footer :: footer}"></div>
-    <script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const checkoutForm = document.getElementById('checkoutForm');
-            if (checkoutForm) {
-                const checkoutButton = checkoutForm.querySelector('button[type="submit"]');
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const checkoutForm = document.getElementById('checkoutForm');
+        if (checkoutForm) {
+            const checkoutButton = checkoutForm.querySelector('button[type="submit"]');
 
-                checkoutButton.addEventListener('click', function (e) {
-                    let changed = false;
-                    document.querySelectorAll('input[name="quantity"]').forEach(input => {
-                        if (input.value !== input.defaultValue) changed = true;
-                    });
-
-                    if (changed) {
-                        e.preventDefault();
-                        alert('Vui lòng bấm Enter hoặc click ra ngoài để cập nhật số lượng trước khi thanh toán.');
-                    }
+            checkoutButton.addEventListener('click', function (e) {
+                let changed = false;
+                document.querySelectorAll('input[name="quantity"]').forEach(input => {
+                    if (input.value !== input.defaultValue) changed = true;
                 });
-            }
-        });
-    </script>
+
+                if (changed) {
+                    e.preventDefault();
+                    alert('Vui lòng bấm Enter hoặc click ra ngoài để cập nhật số lượng trước khi thanh toán.');
+                }
+            });
+        }
+    });
+</script>
 </body>
 
 </html>
