@@ -149,18 +149,8 @@
                 <td th:text="*{fullname}" class="col-lg-2"></td>
                 <td th:text="*{cid}" class="col-lg-2"></td>
                 <td th:text="*{address}" class="col-lg-3"></td>
-                <td th:text="*{(enabled == true) ? 'Có' : 'Không'}" class="col-lg-1"></td>
+                <td th:text="*{(enabled == true) ? 'Có' : 'Không'}" th:class="'col-lg-1 ' + *{(enabled == true) ? 'text-success' : 'text-danger'}"></td>
                 <td class="col-lg-1">
-                    <div class="d-flex gap-2">
-                        <form th:action="@{/manager/manage-seller}" method="post">
-                            <input name="queryName" th:value="${queryName}" hidden>
-                            <input name="queryCid" th:value="${queryCid}" hidden>
-                            <input name="email" th:value="*{email}" hidden>
-                            <button type="submit"
-                                    th:text="*{enabled == true ? 'Khóa' : 'Mở'}"
-                                    th:class="*{'btn btn-sm ' + (enabled == true ? 'btn-danger' : 'btn-success')}">
-                            </button>
-                        </form>
                         <form th:action="@{/manager/edit-staff}" method="get">
                             <input name="email" th:value="*{email}" hidden>
                             <button type="submit" name="clickedButton" value="Seller" class="btn btn-sm btn-outline-success">Sửa</button>

@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.swp.project.entity.product.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -27,6 +26,7 @@ import com.swp.project.dto.ChangePasswordDto;
 import com.swp.project.dto.DeliveryInfoDto;
 import com.swp.project.dto.UpdateShoppingCartDto;
 import com.swp.project.entity.order.Order;
+import com.swp.project.entity.product.Product;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.service.AddressService;
 import com.swp.project.service.order.OrderService;
