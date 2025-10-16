@@ -1,35 +1,209 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <title>Manage Managers</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Manager</title>
+    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f8f9fa, #e3f2fd);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem 0;
+        }
+
+        .page-header {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .data-table-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            white-space: nowrap;
+            background: #f8f9fa;
+            color: #495057;
+        }
+
+        .table tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .btn-action {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        @media (max-width: 768px) {
+            .table {
+                font-size: 0.875rem;
+            }
+
+            .page-header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Manager List</h1>
-    <div th:if="${success}" style="color: green;">
-        <p th:text="${success}"></p>
+<div class="main-content">
+    <div class="container-fluid px-4">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <h1 class="h4 mb-1 brand">
+                        <i class="bi bi-person-gear text-primary me-2"></i>
+                        Quản lý Manager
+                    </h1>
+                    <p class="text-muted mb-0">Quản lý thông tin và trạng thái manager trong hệ thống</p>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="/admin" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>
+                        Quay lại
+                    </a>
+                    <a th:href="@{/admin/create-manager}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-1"></i>
+                        Tạo Manager mới
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alerts -->
+        <div th:if="${success != null or failed != null}" class="mb-3">
+            <div class="alert alert-success alert-dismissible fade show" th:if="${success != null}">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <strong>Thành công!</strong> <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div class="alert alert-danger alert-dismissible fade show" th:if="${failed != null}">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <strong>Thất bại!</strong> <span th:text="${failed}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="data-table-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">
+                    <i class="bi bi-list-ul me-2 text-primary"></i>
+                    Danh sách Manager
+                </h5>
+                <span class="badge bg-primary" th:text="'Tổng: ' + ${managers.size()}">Tổng: 0</span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">
+                                <i class="bi bi-hash me-1"></i>ID
+                            </th>
+                            <th>
+                                <i class="bi bi-envelope me-1"></i>Email
+                            </th>
+                            <th style="width: 150px;" class="text-center">
+                                <i class="bi bi-toggle-on me-1"></i>Trạng thái
+                            </th>
+                            <th style="width: 120px;" class="text-center">
+                                <i class="bi bi-gear me-1"></i>Hành động
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="manager : ${managers}">
+                            <td>
+                                <span class="fw-semibold text-muted" th:text="${manager.id}"></span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-person-circle text-primary me-2" style="font-size: 1.5rem;"></i>
+                                    <span th:text="${manager.email}"></span>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span th:class="'status-badge ' + (${manager.enabled} ? 'status-active' : 'status-inactive')">
+                                    <i th:class="'bi ' + (${manager.enabled} ? 'bi-check-circle' : 'bi-x-circle') + ' me-1'"></i>
+                                    <span th:text="${manager.enabled} ? 'Hoạt động' : 'Vô hiệu hóa'"></span>
+                                </span>
+                            </td>
+                            <td class="text-center" style="width: 150px;">
+                                <form th:action="@{/admin/edit-manager/{id}(id=${manager.id})}" method="get" style="display:inline;">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary btn-action">
+                                        <i class="bi bi-pencil-square me-1"></i>
+                                        Chỉnh sửa
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${managers.isEmpty()}">
+                            <td colspan="4" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                                <p class="mt-2 mb-0">Không có manager nào trong hệ thống</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-    <div th:if="${failed}" style="color: red;">
-        <p th:text="${failed}"></p>
-    </div>
-    <a th:href="@{/admin}" th:text="'Back to admin page'"></a>
-    <a th:href="@{/admin/create-manager}" th:text="'Create New Manager'"></a>
-    <table border="1">
-        <tr>
-            <th>ID</th>
-            <th>Email</th>
-            <th>Enabled</th>
-            <th>Actions</th>
-        </tr>
-        <tr th:each="manager : ${managers}">
-            <td th:text="${manager.id}"></td>
-            <td th:text="${manager.email}"></td>
-            <td th:text="${manager.enabled}"></td>
-            <td>
-                <form th:action="@{/admin/edit-manager/{id}(id=${manager.id})}" method="get" style="display:inline;">
-                    <button type="submit">Edit</button>
-                </form>
-            </td>
-        </tr>
-    </table>
+</div>
+
+<script src="/js/bootstrap/bootstrap.bundle.min.js"></script>
 </body>
 </html>
