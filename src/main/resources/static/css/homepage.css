@@ -2,7 +2,7 @@
 
 /* Hero Section */
 .hero-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #96a629 0%, #2eb435 100%);
     color: white;
     padding: 4rem 0;
     margin-bottom: 3rem;
@@ -123,7 +123,7 @@
     left: 0;
     width: 60px;
     height: 3px;
-    background: linear-gradient(90deg, #667eea, #764ba2);
+    background: linear-gradient(90deg, #789c46, #31a43c);
     border-radius: 2px;
 }
 
@@ -143,7 +143,7 @@
 }
 
 .view-all-btn {
-    background: linear-gradient(45deg, #667eea, #764ba2);
+    background: linear-gradient(90deg, #789c46, #31a43c);
     color: white;
     border: none;
     padding: 0.5rem 1.5rem;
@@ -285,91 +285,12 @@
 }
 
 
-
-
-
-
-
 /* Categories showcase */
 .categories-showcase {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     border-radius: 20px;
     padding: 2rem;
     margin: 3rem 0;
-}
-
-/* Categories Carousel Styles */
-.categories-carousel {
-    position: relative;
-    margin-top: 2rem;
-}
-
-.categories-carousel .carousel-inner {
-    padding: 1rem 0;
-}
-
-.categories-carousel .carousel-item {
-    transition: transform 0.6s ease-in-out;
-}
-
-/* Carousel Controls */
-.categories-carousel .carousel-control-prev,
-.categories-carousel .carousel-control-next {
-    width: 50px;
-    height: 50px;
-    background: rgba(102, 126, 234, 0.9);
-    border-radius: 50%;
-    top: 50%;
-    transform: translateY(-50%);
-    opacity: 0.8;
-    transition: all 0.3s ease;
-}
-
-.categories-carousel .carousel-control-prev {
-    left: -25px;
-}
-
-.categories-carousel .carousel-control-next {
-    right: -25px;
-}
-
-.categories-carousel .carousel-control-prev:hover,
-.categories-carousel .carousel-control-next:hover {
-    opacity: 1;
-    background: rgba(102, 126, 234, 1);
-    transform: translateY(-50%) scale(1.1);
-}
-
-.categories-carousel .carousel-control-prev-icon,
-.categories-carousel .carousel-control-next-icon {
-    width: 20px;
-    height: 20px;
-    background-size: 100%;
-    filter: invert(1);
-}
-
-/* Carousel Indicators */
-.categories-carousel .carousel-indicators {
-    bottom: -30px;
-    margin-bottom: 0;
-}
-
-.categories-carousel .carousel-indicators button {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: none;
-    background-color: rgba(102, 126, 234, 0.3);
-    transition: all 0.3s ease;
-}
-
-.categories-carousel .carousel-indicators button.active {
-    background-color: #667eea;
-    transform: scale(1.2);
-}
-
-.categories-carousel .carousel-indicators button:hover {
-    background-color: rgba(102, 126, 234, 0.7);
 }
 
 .category-grid {
