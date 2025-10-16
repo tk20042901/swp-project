@@ -177,7 +177,7 @@ public class ShipperController {
             Order order = orderService.getOrderByOrderId(orderId);
             Long totalAmount = orderService.calculateTotalAmount(order);
             model.addAttribute("orderStatusService", shipperService.getOrderStatusService());
-            model.addAttribute("shipperStatusService", shippingStatusService);
+            model.addAttribute("shippingStatusService", shippingStatusService);
             model.addAttribute("order", order);
             model.addAttribute("totalAmount", totalAmount);
             model.addAttribute("shippedAt", orderService.getShippedAt(order));

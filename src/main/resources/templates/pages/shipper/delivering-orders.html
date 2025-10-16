@@ -43,22 +43,21 @@
             <input type="text" name="searchQuery" th:value="${searchQuery}" hidden>
             <tr class="row">
                 <th class="col-lg-2">
-                  <button type="submit" name="sortCriteria" value="id" th:class="'btn p-0 m-0 align-baseline text-decoration-none ' + (${sortCriteria.equals('id')} ? 'btn-primary' : 'btn-outline-primary')"
+                  <button type="submit" name="sortCriteria" value="id" th:class="'btn btn-sm ' + (${sortCriteria.equals('id')} ? 'btn-primary' : 'btn-outline-primary')"
                   th:text="'Mã đơn hàng ' + (${sortCriteria.equals('id') ? (k == 1 ? '▲' : '▼') : ''})">
                   </button>
                 </th>
                 <th class="col-lg-4">
-                  <button type="submit" name="sortCriteria" value="email" th:class="'btn p-0 m-0 align-baseline text-decoration-none ' + (${sortCriteria.equals('email')} ? 'btn-primary' : 'btn-outline-primary')"
+                  <button type="submit" name="sortCriteria" value="email" th:class="'btn btn-sm ' + (${sortCriteria.equals('email')} ? 'btn-primary' : 'btn-outline-primary')"
                   th:text="'Email ' + (${sortCriteria.equals('email') ? (k == 1 ? '▲' : '▼') : ''})">
                   </button>
                 </th>
-                <th class="col-lg-2">
-                  <button type="submit" name="sortCriteria" value="status" th:class="'btn p-0 m-0 align-baseline text-decoration-none ' + (${sortCriteria.equals('status')} ? 'btn-primary' : 'btn-outline-primary')"
+                <th class="col-lg-3">
+                  <button type="submit" name="sortCriteria" value="status" th:class="'btn btn-sm ' + (${sortCriteria.equals('status')} ? 'btn-primary' : 'btn-outline-primary')"
                   th:text="'Trạng thái ' + (${sortCriteria.equals('status') ? (k == 1 ? '▲' : '▼') : ''})">
                   </button>
                 </th>
-              <th class="col-lg-2">Chi tiết</th>
-              <th class="col-lg-2">Hành động</th>
+              <th class="col-lg-3">Hành động</th>
             </tr>
           </form>
         </thead>
@@ -69,31 +68,17 @@
         <tr th:each="order : ${deliveringOrders}" class="row">
           <td th:text="${order.id}" class="col-lg-2"></td>
           <td th:text="${order.customer.email}" class="col-lg-4"></td>
-          <td class="col-lg-2">
+          <td class="col-lg-3">
             <div th:text="${order.currentShippingStatus.description}" th:class="'badge ' + 
             ${shippingStatusService.isAwaitingPickupStatus(order.currentShippingStatus) ? 'bg-secondary' :
               shippingStatusService.isPickedUpStatus(order.currentShippingStatus) ? 'bg-warning text-dark-emphasis' :
               shippingStatusService.isShippingStatus(order.currentShippingStatus) ? 'bg-primary' : ''}"></div>
           </td>
-          <td class="col-lg-2">
+          <td class="col-lg-3">
             <a th:href="@{/shipper/orders/{id}(id=${order.id})}"
                class="text-decoration-none">
               <button class="btn btn-outline-secondary btn-sm">Xem chi tiết</button>
             </a>
-          </td>
-          <td class="col-lg-2">
-            <!-- Button to mark as picked up -->
-            <form th:action="@{/shipper/mark/{id}(id=${order.id})}" method="post" th:if="${shippingStatusService.isAwaitingPickupStatus(order.currentShippingStatus)}">
-              <button type="submit" class="btn btn-success btn-sm">Đã lấy hàng</button>
-            </form>
-            <!-- Button to mark as shipping -->
-            <form th:action="@{/shipper/mark/{id}(id=${order.id})}" method="post" th:if="${shippingStatusService.isPickedUpStatus(order.currentShippingStatus)}">
-              <button type="submit" class="btn btn-success btn-sm">Đang giao hàng</button>
-            </form>
-            <!-- Button to mark as delivered -->
-            <form th:action="@{/shipper/mark/{id}(id=${order.id})}" method="post" th:if="${shippingStatusService.isShippingStatus(order.currentShippingStatus)}">
-              <button type="submit" class="btn btn-success btn-sm">Hoàn thành</button>
-            </form>
           </td>
         </tr>
         </tbody>
