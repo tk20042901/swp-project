@@ -225,7 +225,7 @@ public class CustomerController {
     public String updateCartItem(@Valid UpdateShoppingCartDto updateShoppingCartDto, BindingResult bindingResult, RedirectAttributes redirectAttributes, Principal principal) {
 
         if (bindingResult.hasErrors()) {
-            String errorMessage = bindingResult.getAllErrors().getFirst().getDefaultMessage();
+            String errorMessage = bindingResult.getAllErrors().get(1).getDefaultMessage();
             redirectAttributes.addFlashAttribute("error", errorMessage);
             return "redirect:/customer/shopping-cart";
         }

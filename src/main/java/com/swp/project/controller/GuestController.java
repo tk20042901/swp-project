@@ -235,7 +235,7 @@ public class GuestController {
 
         double quantityInCart = customerService.getProductQuantityInCart(principal, id);
         model.addAttribute("quantityInCart", quantityInCart);
-        
+        model.addAttribute("showSearchBar", true);
         return "pages/guest/product";
     }
 

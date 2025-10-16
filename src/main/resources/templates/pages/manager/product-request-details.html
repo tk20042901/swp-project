@@ -6,7 +6,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chi tiết thay đổi sản phẩm</title>
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <style>
+        .no-image-text {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 1px dashed #ccc;
+            border-radius: 4px;
+            text-align: center;
+            line-height: 50px;
+            font-size: 10px;
+            color: #999;
+            background-color: #f8f9fa;
+        }
 
+        .image-cell {
+            text-align: center;
+            vertical-align: middle;
+            padding: 8px;
+        }
+
+        .image-cell img {
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .image-cell img:hover {
+            transform: scale(1.1);
+            z-index: 1000;
+            position: relative;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+    </style>
 </head>
 
 <body>
@@ -42,23 +77,27 @@
                         </td>
                         <td th:text="*{unit.name}"></td>
                         <td th:text="*{enabled}"></td>
-                        <td>
-                            <img th:src="*{main_image_url}" height="50" width="50" />
+                        <td class="image-cell">
+                            <img th:if="*{main_image_url != null and main_image_url != ''}" 
+                                 th:src="*{main_image_url}"
+                                 height="50" width="50" 
+                                 style="object-fit: cover; border-radius: 4px;" />
+                            <span th:if="*{main_image_url == null or main_image_url == ''}"
+                                  class="no-image-text">Empty</span>
                         </td>
-                        <td>
-                            <img th:src="${firstNewImage}" height="50" width="50" />
-                        </td>
-                        <td>
-                            <img th:src="${secondNewImage}" height="50" width="50" />
-                        </td>
-                        <td>
-                            <img th:src="${thirdNewImage}" height="50" width="50" />
+                        <td th:each="i : ${#numbers.sequence(0, 2)}" class="image-cell">
+                            <img th:if="${newProduct.sub_images != null and newProduct.sub_images.size() > i and newProduct.sub_images[i].sub_image_url != null and newProduct.sub_images[i].sub_image_url != ''}" 
+                                 th:src="${newProduct.sub_images[i].sub_image_url}"
+                                 height="50" width="50" 
+                                 style="object-fit: cover; border-radius: 4px;" />
+                            <span th:if="${newProduct.sub_images == null or newProduct.sub_images.size() <= i or newProduct.sub_images[i].sub_image_url == null or newProduct.sub_images[i].sub_image_url == ''}" 
+                                  class="no-image-text">Empty</span>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
-        <div th:if="${oldProduct != null}"  class="mb-4">
+        <div th:if="${oldProduct != null}" class="mb-4">
             <h4>Sản phẩm cũ</h4>
             <table class="table table-bordered">
                 <thead>
@@ -88,17 +127,21 @@
                         </td>
                         <td th:text="*{unit.name}"></td>
                         <td th:text="*{enabled}"></td>
-                        <td>
-                            <img th:src="*{main_image_url}" height="50" width="50" />
+                        <td class="image-cell">
+                            <img th:if="*{main_image_url != null and main_image_url != ''}" 
+                                 th:src="*{main_image_url}"
+                                 height="50" width="50" 
+                                 style="object-fit: cover; border-radius: 4px;" />
+                            <span th:if="*{main_image_url == null or main_image_url == ''}" 
+                                  class="no-image-text">Empty</span>
                         </td>
-                        <td>
-                            <img th:src="${firstNewImage}" height="50" width="50" />
-                        </td>
-                        <td>
-                            <img th:src="${secondNewImage}" height="50" width="50" />
-                        </td>
-                        <td>
-                            <img th:src="${thirdNewImage}" height="50" width="50" />
+                        <td th:each="i : ${#numbers.sequence(0, 2)}" class="image-cell">
+                            <img th:if="${oldProduct.sub_images != null and oldProduct.sub_images.size() > i and oldProduct.sub_images[i].sub_image_url != null and oldProduct.sub_images[i].sub_image_url != ''}" 
+                                 th:src="${oldProduct.sub_images[i].sub_image_url}"
+                                 height="50" width="50" 
+                                 style="object-fit: cover; border-radius: 4px;" />
+                            <span th:if="${oldProduct.sub_images == null or oldProduct.sub_images.size() <= i or oldProduct.sub_images[i].sub_image_url == null or oldProduct.sub_images[i].sub_image_url == ''}" 
+                                  class="no-image-text">Empty</span>
                         </td>
                     </tr>
                 </tbody>
@@ -107,8 +150,12 @@
         <form th:action="@{/manager/approve-product-request}" method="post">
             <input type="hidden" name="requestId" th:value="${requestId}" />
             <button type="submit" class="btn btn-success">Duyệt</button>
-            <a th:href="@{/manager/product-requests}" class="btn btn-secondary">Quay lại</a>
         </form>
+        <form th:action="@{/manager/reject-product-request}" method="post">
+            <input type="hidden" name="requestId" th:value="${requestId}" />
+            <button type="submit" class="btn btn-success">Từ chối</button>
+        </form>
+        <a th:href="@{/manager/product-requests}" class="btn btn-secondary">Quay lại</a>
     </div>
     <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>

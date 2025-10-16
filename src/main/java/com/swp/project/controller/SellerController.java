@@ -3,8 +3,9 @@ package com.swp.project.controller;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
+import com.swp.project.entity.product.SubImage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,14 +20,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import com.swp.project.dto.CreateProductDto;
 import com.swp.project.dto.SellerSearchOrderDto;
 import com.swp.project.dto.UpdateProductDto;
 import com.swp.project.entity.order.Order;
 import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.Product;
-import com.swp.project.entity.product.SubImage;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.order.OrderStatusService;
 import com.swp.project.service.product.CategoryService;
@@ -34,23 +33,8 @@ import com.swp.project.service.product.ImageService;
 import com.swp.project.service.product.ProductService;
 import com.swp.project.service.product.ProductUnitService;
 import com.swp.project.service.seller_request.SellerRequestService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.util.Pair;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Controller
@@ -189,9 +173,6 @@ public class SellerController {
                 .enabled(product.isEnabled())
                 .categories(product.getCategories().stream().map(Category::getId).toList())
                 .mainImage(product.getMain_image_url())
-                .firstSubImage(product.getSub_images().get(0).getSub_image_url())
-                .secondSubImage(product.getSub_images().get(1).getSub_image_url())
-                .thirdSubImage(product.getSub_images().get(2).getSub_image_url())
                 .build();
         model.addAttribute("units", unitService.getAllUnits());
         model.addAttribute("categories", categoryService.getAllCategories());
@@ -208,37 +189,32 @@ public class SellerController {
             RedirectAttributes redirectAttributes,
             Principal principal,
             @RequestParam MultipartFile imageFile,
-            @RequestParam MultipartFile firstImage,
-            @RequestParam MultipartFile secondImage,
-            @RequestParam MultipartFile thirdImage) {
+            @RequestParam MultipartFile[] subImages) {
         if (bindingResult.hasErrors()) {
             System.out.println(bindingResult.getAllErrors());
             return "redirect:/seller/seller-update-product/" + updateProductDto.getId();
         }
         try {
+            Product oldProduct = productService.getProductById(updateProductDto.getId());
             List<Category> categories = new ArrayList<>();
-            String productName = updateProductDto.getName().trim();
             for (Long catId : updateProductDto.getCategories()) {
                 categories.add(categoryService.getCategoryById(catId));
             }
-            if (productService.checkUniqueProductName(updateProductDto.getName())) {
+            if (!updateProductDto.getName().equals(oldProduct.getName()) && productService.checkUniqueProductName(updateProductDto.getName())) {
                 throw new Exception("Tên sản phẩm đã tồn tại");
             }
-            updateProductDto.setMainImage(imageService.saveImageToTemporaryFile(productName, imageFile));
-            updateProductDto
-                    .setFirstSubImage(imageService.saveImageToTemporaryFile(productName + "-1", firstImage));
-            updateProductDto.setSecondSubImage(
-                    imageService.saveImageToTemporaryFile(productName + "-2", secondImage));
-            updateProductDto
-                    .setThirdSubImage(imageService.saveImageToTemporaryFile(productName + "-3", thirdImage));
-
-            UpdateProductDto dto = UpdateProductDto
-                    .builder().id(updateProductDto.getId()).build();
-            sellerRequestService.saveUpdateRequest(
-                    updateProductDto,
-                    dto,
-                    principal.getName());
-
+            Product updateProduct = Product.builder()
+                    .id(updateProductDto.getId())
+                    .name(updateProductDto.getName())
+                    .description(updateProductDto.getDescription())
+                    .price(updateProductDto.getPrice())
+                    .unit(updateProductDto.getUnit())
+                    .enabled(updateProductDto.getEnabled())
+                    .main_image_url(oldProduct.getMain_image_url())
+                    .sub_images(oldProduct.getSub_images())
+                    .categories(categories)
+                    .build();
+            sellerRequestService.saveUpdateRequest(oldProduct, updateProduct, principal.getName());
             redirectAttributes.addFlashAttribute("msg", "Yêu cầu cập nhật sản phẩm đã được gửi đến quản lý");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
@@ -262,11 +238,9 @@ public class SellerController {
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes,
             Principal principal,
-            @RequestParam("image") MultipartFile imageFile,
-            @RequestParam MultipartFile firstImage,
-            @RequestParam MultipartFile secondImage,
-            @RequestParam MultipartFile thirdImage,
-            @RequestParam List<Long> categoryIds,   
+            @RequestParam List<Long> categoryIds,
+            @RequestParam MultipartFile imageFile,
+            @RequestParam MultipartFile[] subImageFiles,   
             Model model) {
 
         if (bindingResult.hasErrors()) {
@@ -283,18 +257,123 @@ public class SellerController {
                 categories.add(categoryService.getCategoryById(catId));
             }
             productDto.setCategories(categories);
-            String productName = productDto.getName().trim();
-            productDto.setMain_image_url(imageService.saveImageToTemporaryFile(productName, imageFile));
-            productDto.setFirstSubImage(imageService.saveImageToTemporaryFile(productName + "-1", firstImage));
-            productDto.setSecondSubImage(imageService.saveImageToTemporaryFile(productName + "-2", secondImage));
-            productDto.setThirdSubImage(imageService.saveImageToTemporaryFile(productName + "-3", thirdImage));
-            sellerRequestService.saveAddRequest(productDto, productName);
+            String fileName = ProductService.toSlugName(productDto.getName());
+            Product product = Product.builder()
+                    .name(productDto.getName())
+                    .description(productDto.getDescription())
+                    .price(productDto.getPrice())
+                    .unit(productDto.getUnit())
+                    .enabled(productDto.isEnabled())
+                    .categories(productDto.getCategories())
+                    .main_image_url(imageService.saveTemporaryImage(imageFile, fileName, "1.jpg"))
+                    .build();
+            List<SubImage> subImages = new ArrayList<>();
+            for (int i = 0; i < subImageFiles.length; i++) {
+                MultipartFile subImageFile = subImageFiles[i];
+                    String subImagePath = imageService.saveTemporaryImage(subImageFile, fileName, (i + 2) + ".jpg");
+                    SubImage subImage = SubImage.builder()
+                            .product(product)
+                            .sub_image_url(subImagePath)
+                            .build();
+                    subImages.add(subImage);
+            }
+            product.setSub_images(subImages);
+            sellerRequestService.saveAddRequest(product, principal.getName());
             redirectAttributes.addFlashAttribute("msg", "Yêu cầu tạo sản phẩm đã được gửi đến quản lý");
         } catch (Exception e) { 
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/seller";
         }
         return "redirect:/seller";
+    }
+
+    @GetMapping("/update-product-images/{productId}")
+    public String showUpdateProductImagesForm(@PathVariable Long productId, Model model) {
+        try {
+            Product product = productService.getProductById(productId);
+            if (product == null) {
+                throw new Exception("Sản phẩm không tồn tại");
+            }
+            model.addAttribute("product", product);
+            return "pages/seller/product/update-product-images";
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+            return "redirect:/seller/all-products";
+        }
+    }
+
+    @PostMapping("/update-product-images")
+    public String handleUpdateProductImages(
+            @RequestParam Long productId,
+            @RequestParam(required = false) MultipartFile mainImage,
+            @RequestParam(required = false) MultipartFile[] subImages,
+            RedirectAttributes redirectAttributes,
+            Principal principal) {
+        try {
+            Product oldProduct = productService.getProductById(productId);
+            if (oldProduct == null) {
+                throw new Exception("Sản phẩm không tồn tại");
+            }
+
+            Product updatedProduct = oldProduct.toBuilder().build();
+
+            if (mainImage != null && !mainImage.isEmpty()) {
+                if (!mainImage.getContentType().startsWith("image/")) {
+                    throw new Exception("Tệp hình ảnh chính không đúng định dạng");
+                }
+                                String mainImagePath = imageService.saveTemporaryImage(mainImage, productId + "", "temp-1.jpg");
+                updatedProduct.setMain_image_url(mainImagePath);
+            }
+
+            // Handle sub images update - filter out empty files and process valid ones
+            if (subImages != null && subImages.length > 0) {
+                List<MultipartFile> validSubImages = new ArrayList<>();
+                
+                // Filter out empty files
+                for (MultipartFile subImage : subImages) {
+                    if (subImage != null && !subImage.isEmpty()) {
+                        validSubImages.add(subImage);
+                    }
+                }
+
+                if (!validSubImages.isEmpty()) {
+                    List<SubImage> newSubImages = new ArrayList<>();                    
+                    for (int i = 0; i < validSubImages.size(); i++) {
+                        MultipartFile subImage = validSubImages.get(i);
+
+                        if (!subImage.getContentType().startsWith("image/")) {
+                            throw new Exception("Tệp hình ảnh phụ " + (i + 1) + " không đúng định dạng");
+                        }
+
+                        String subImagePath = imageService.saveTemporaryImage(subImage, productId + "","temp-" + (i + 2) + ".jpg");
+                        SubImage subImageEntity = SubImage.builder()
+                                .product(updatedProduct)
+                                .sub_image_url(subImagePath)
+                                .build();
+                        newSubImages.add(subImageEntity);
+                    }
+                    
+                    updatedProduct.setSub_images(newSubImages);
+                }
+            }
+            // Only proceed if at least one image was updated
+            boolean hasMainImageUpdate = mainImage != null && !mainImage.isEmpty();
+            boolean hasSubImagesUpdate = subImages != null && 
+                                        java.util.Arrays.stream(subImages).anyMatch(img -> img != null && !img.isEmpty());
+            
+            if (!hasMainImageUpdate && !hasSubImagesUpdate) {
+                throw new Exception("Vui lòng chọn ít nhất một hình ảnh để cập nhật");
+            }
+
+            // Submit update request
+            sellerRequestService.saveUpdateRequest(oldProduct, updatedProduct, principal.getName());
+            redirectAttributes.addFlashAttribute("msg", "Yêu cầu cập nhật hình ảnh sản phẩm đã được gửi đến quản lý");
+            
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/seller/update-product-images/" + productId;
+        }
+        return "redirect:/seller/product/product-detail/" + productId;
     }
 
 }

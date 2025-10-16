@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.function.Consumer;
 
 @RequiredArgsConstructor
 @Service
@@ -24,7 +25,7 @@ public class SellerRequestService {
     private final SellerService sellerService;
     private final ProductUnitService productUnitService;
 
-    public List<SellerRequest> getAllSellerRequest(){
+    public List<SellerRequest> getAllSellerRequest() {
         return sellerRequestRepository.findAll();
     }
 
@@ -43,6 +44,14 @@ public class SellerRequestService {
                 .build());
     }
 
+    public <T> void updatePendingRequestContent(Long requestId, T newContent) throws JsonProcessingException {
+        SellerRequest sellerRequest = getSellerRequestById(requestId);
+        if (sellerRequest != null && sellerRequestStatusService.isPendingStatus(sellerRequest)) {
+            sellerRequest.setContent(objectMapper.writeValueAsString(newContent));
+            sellerRequestRepository.save(sellerRequest);
+        }
+    }
+
     public <T> void saveUpdateRequest(T oldEntity, T entity, String sellerEmail) throws JsonProcessingException {
         sellerRequestRepository.save(SellerRequest.builder()
                 .entityName(entity.getClass().getSimpleName())
@@ -53,45 +62,43 @@ public class SellerRequestService {
                 .status(sellerRequestStatusService.getPendingStatus())
                 .createdAt(LocalDateTime.now())
                 .build());
-        System.out.println(entity.getClass().getSimpleName());
     }
 
     public <T> T getEntityFromContent(String content, Class<T> entityClass) throws JsonProcessingException {
         return objectMapper.readValue(content, entityClass);
     }
 
-    public void approveRequest(Long requestId) throws JsonProcessingException {
+    public <T> SellerRequest approveRequest(Long requestId, Class<T> entityClass, Consumer<T> addFunction, Consumer<T> updateFunction) throws Exception {
         SellerRequest sellerRequest = getSellerRequestById(requestId);
         sellerRequest.setStatus(sellerRequestStatusService.getApprovedStatus());
         sellerRequestRepository.save(sellerRequest);
-
         String requestTypeName = sellerRequest.getRequestType().getName();
         String requestContent = sellerRequest.getContent();
-        String entityName = sellerRequest.getEntityName();
-        if(requestTypeName.equals(sellerRequestTypeService.getAddType().getName())) {
-            if(entityName.equals(ProductUnit.class.getSimpleName())) {
-                executeAddProductUnitRequest(requestContent);
-            }
-        } else if(requestTypeName.equals(sellerRequestTypeService.getUpdateType().getName())) {
-            if(entityName.equals(ProductUnit.class.getSimpleName())) {
-                executeUpdateProductUnitRequest(requestContent);
-            }
+        
+        if (requestTypeName.equals(sellerRequestTypeService.getAddType().getName())) {
+            executeAddRequest(requestContent, entityClass, addFunction);
+        } else if (requestTypeName.equals(sellerRequestTypeService.getUpdateType().getName())) {
+            executeUpdateRequest(requestContent, entityClass, updateFunction);
         }
+        return sellerRequest;
     }
 
-    public void rejectRequest(Long requestId){
+    public void rejectRequest(Long requestId) {
         SellerRequest sellerRequest = getSellerRequestById(requestId);
         sellerRequest.setStatus(sellerRequestStatusService.getRejectedStatus());
         sellerRequestRepository.save(sellerRequest);
     }
 
-    public void executeAddProductUnitRequest(String requestContent) throws JsonProcessingException {
-        ProductUnit productUnit = objectMapper.readValue(requestContent, ProductUnit.class);
-        productUnitService.add(productUnit);
+    public <T> void executeAddRequest(String requestContent, Class<T> clazz, Consumer<T> addFunction)
+            throws JsonProcessingException {
+        T entity = objectMapper.readValue(requestContent, clazz);
+        addFunction.accept(entity);
     }
 
-    public void executeUpdateProductUnitRequest(String requestContent) throws JsonProcessingException {
-        ProductUnit productUnit = objectMapper.readValue(requestContent, ProductUnit.class);
-        productUnitService.update(productUnit);
+    public <T> void executeUpdateRequest(String requestContent, Class<T> clazz, Consumer<T> updateFunction)
+            throws JsonProcessingException {
+        T entity = objectMapper.readValue(requestContent, clazz);
+        updateFunction.accept(entity);
     }
+
 }
