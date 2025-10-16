@@ -29,7 +29,7 @@ public class CreateProductDto {
 
     @NotNull(message = "Giá sản phẩm không được để trống")
     @PositiveOrZero(message = "Giá sản phẩm phải là số nguyên dương hoặc bằng 0")
-    private Integer price;
+    private Long price;
 
     @NotNull(message = "Đơn vị sản phẩm không được để trống")
     private ProductUnit unit;
