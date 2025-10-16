@@ -126,7 +126,13 @@ public class ShipperService {
                 results.sort((o1, o2) -> k * o1.getCid().compareTo(o2.getCid()));
                 break;
             case "address":
-                results.sort((o1, o2) -> k * o1.getCommuneWard().toString().compareTo(o2.getCommuneWard().toString()));
+                results.sort((o1, o2) -> {
+                    int result = k * o1.getSpecificAddress().compareTo(o2.getSpecificAddress());
+                    if (result == 0) {
+                        result = k * o1.getId().compareTo(o2.getId());
+                    }
+                    return result;
+                });
                 break;
             case "enabled":
                 results.sort((o1, o2) -> {
