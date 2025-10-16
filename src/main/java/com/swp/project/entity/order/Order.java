@@ -1,8 +1,5 @@
 package com.swp.project.entity.order;
 
-
-import java.time.LocalDate;
-
 import com.swp.project.entity.address.CommuneWard;
 import com.swp.project.entity.order.shipping.Shipping;
 import com.swp.project.entity.user.Customer;
@@ -16,10 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.swp.project.entity.order.shipping.ShippingStatus;
-import com.swp.project.service.order.shipping.ShippingStatusService;
 
 @Getter
 @Setter
@@ -75,9 +69,9 @@ public class Order{
         shipping.add(shippingStatus);
     }
 
-    public int getTotalAmount(){
-        return (int) orderItem.stream()
-                        .mapToInt(od -> (int) (od.getProduct().getPrice() * od.getQuantity() / 1000) * 1000).sum();
+    public Long getTotalAmount(){
+        return orderItem.stream()
+                        .mapToLong(od -> (long) (od.getProduct().getPrice() * od.getQuantity() / 1000) * 1000).sum();
     }
 
     public String getAddressString(){

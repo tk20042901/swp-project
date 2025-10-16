@@ -39,7 +39,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import vn.payos.PayOS;
-import vn.payos.type.PaymentData;
+import vn.payos.model.v2.paymentRequests.CreatePaymentLinkRequest;
 
 @SessionAttributes("shoppingCartItems")
 @RequiredArgsConstructor
@@ -225,7 +225,7 @@ public class CustomerController {
     public String updateCartItem(@Valid UpdateShoppingCartDto updateShoppingCartDto, BindingResult bindingResult, RedirectAttributes redirectAttributes, Principal principal) {
 
         if (bindingResult.hasErrors()) {
-            String errorMessage = bindingResult.getAllErrors().getFirst().getDefaultMessage();
+            String errorMessage = bindingResult.getAllErrors().get(1).getDefaultMessage();
             redirectAttributes.addFlashAttribute("error", errorMessage);
             return "redirect:/customer/shopping-cart";
         }
@@ -249,9 +249,11 @@ public class CustomerController {
                 return "redirect:/customer/shopping-cart";
             }
         }else{
-            redirectAttributes.addFlashAttribute("error",
-                    "Số lượng phải lớn hơn 1");
-            return "redirect:/customer/shopping-cart";
+            if(quantity < 1) {
+                redirectAttributes.addFlashAttribute("error",
+                        "Số lượng phải lớn hơn 1");
+                return "redirect:/customer/shopping-cart";
+            }
         }
         if (!product.getUnit().isAllowDecimal()) {
             if (quantity % 1 != 0) {
@@ -421,15 +423,16 @@ public class CustomerController {
     public String payOsCheckout(@RequestParam Long orderId) {
         Order order = orderService.getOrderById(orderId);
         try {
-            PaymentData paymentData = PaymentData.builder()
-                    .orderCode(order.getId())
-                    .amount(order.getTotalAmount())
-                    .expiredAt(order.getPaymentExpiredAt().atZone(ZoneId.systemDefault()).toEpochSecond())
-                    .description("FruitShop " + order.getId())
-                    .returnUrl("http://localhost:8080/customer/order-success")
-                    .cancelUrl("http://localhost:8080/customer/order-cancel")
-                    .build();
-            String checkoutUrl = payOS.createPaymentLink(paymentData).getCheckoutUrl();
+            CreatePaymentLinkRequest paymentData =
+                    CreatePaymentLinkRequest.builder()
+                            .orderCode(order.getId())
+                            .amount(order.getTotalAmount())
+                            .expiredAt(order.getPaymentExpiredAt().atZone(ZoneId.systemDefault()).toEpochSecond())
+                            .description("FruitShop " + order.getId())
+                            .returnUrl("http://localhost:8080/customer/order-success")
+                            .cancelUrl("http://localhost:8080/customer/order-cancel")
+                            .build();
+            String checkoutUrl = payOS.paymentRequests().create(paymentData).getCheckoutUrl();
             order.setPaymentLink(checkoutUrl);
             orderService.saveOrder(order);
             return "redirect:" + checkoutUrl;

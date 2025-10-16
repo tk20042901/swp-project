@@ -70,7 +70,6 @@
 
 <h1 th:text="${'Chi tiết sản phẩm ' + product.name}"></h1>
 
-
 <table>
     <thead>
     <tr>
@@ -102,6 +101,9 @@
         <td>
             <a th:href="@{/seller/seller-update-product/{id}(id=${product.id})}"
                class="table-link">Cập nhật</a>
+            <br/>
+            <a th:href="@{/seller/update-product-images/{id}(id=${product.id})}"
+               class="table-link" style="color: #007bff; margin-top: 5px; display: inline-block;">Cập nhật hình ảnh</a>
         </td>
     </tr>
     </tbody>
@@ -130,6 +132,12 @@
 </div>
 
 <h3>Hình ảnh bổ sung</h3>
+<div style="margin-bottom: 15px;">
+    <a th:href="@{/seller/update-product-images/{id}(id=${product.id})}" 
+       style="background-color: #007bff; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; display: inline-block;">
+       <span style="margin-right: 5px;">📷</span> Cập nhật hình ảnh sản phẩm
+    </a>
+</div>
 <table>
     <thead>
     <tr>

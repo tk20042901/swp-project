@@ -3,6 +3,7 @@ package com.swp.project.dto;
 import java.util.List;
 
 import org.hibernate.validator.constraints.Length;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.ProductUnit;
@@ -28,7 +29,7 @@ public class CreateProductDto {
 
     @NotNull(message = "Giá sản phẩm không được để trống")
     @PositiveOrZero(message = "Giá sản phẩm phải là số nguyên dương hoặc bằng 0")
-    private Integer price;
+    private Long price;
 
     @NotNull(message = "Đơn vị sản phẩm không được để trống")
     private ProductUnit unit;
@@ -38,12 +39,6 @@ public class CreateProductDto {
 
     private String main_image_url;
 
-    private String firstSubImage;
-    
-    private String secondSubImage;
-
-    private String thirdSubImage;
-
     private List<Category> categories;
-
+ 
 }

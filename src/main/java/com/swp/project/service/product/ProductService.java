@@ -1,5 +1,8 @@
 package com.swp.project.service.product;
 
+import java.awt.JobAttributes.SidesType;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.Normalizer;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -18,6 +21,7 @@ import com.swp.project.dto.ViewProductDto;
 import com.swp.project.entity.order.OrderItem;
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.ProductBatch;
+import com.swp.project.entity.product.SubImage;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.listener.event.ProductRelatedUpdateEvent;
 import com.swp.project.repository.order.OrderItemRepository;
@@ -31,6 +35,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class ProductService {
+
+    private final SubImageService subImageService;
     private final ProductRepository productRepository;
     private final ProductBatchService productBatchService;
     private final OrderStatusService orderStatusService;
@@ -38,7 +44,7 @@ public class ProductService {
     private final OrderItemRepository orderItemRepository;
     private final ShoppingCartItemRepository shoppingCartItemRepository;
     private final ApplicationEventPublisher eventPublisher;
-
+    private final ImageService imageService;
     private static final Map<String, Sort> SORT_OPTIONS = Map.of(
             "price-asc", Sort.by("price").ascending(),
             "price-desc", Sort.by("price").descending(),
@@ -59,11 +65,45 @@ public class ProductService {
 
     public Product add(Product product) {
         Product savedProduct = productRepository.save(product);
+        Path oldDir = Path.of(ImageService.IMAGES_FINAL_PATH + ProductService.toSlugName(product.getName()));
+        Path newDir = Path.of(ImageService.IMAGES_FINAL_PATH + savedProduct.getId());
+        try {
+            Files.move(oldDir, newDir);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        savedProduct.setMain_image_url(ImageService.DISPLAY_FINAL_PATH + savedProduct.getId() + "/" +
+                "1.jpg");
+        savedProduct.getSub_images().get(0).setSub_image_url(
+                ImageService.DISPLAY_FINAL_PATH + savedProduct.getId() + "/" + "2.jpg");
+        savedProduct.getSub_images().get(1).setSub_image_url(
+                ImageService.DISPLAY_FINAL_PATH + savedProduct.getId() + "/" + "3.jpg");
+        savedProduct.getSub_images().get(2).setSub_image_url(
+                ImageService.DISPLAY_FINAL_PATH + savedProduct.getId() + "/" + "4.jpg");
+        savedProduct = productRepository.save(savedProduct);
+
         eventPublisher.publishEvent(new ProductRelatedUpdateEvent(savedProduct));
         return savedProduct;
     }
 
-    public void update(Product product) {
+    public void update(Product product) throws Exception {
+        if (product.getMain_image_url() != null && product.getMain_image_url().contains("temp-")) {
+            String newMainImageUrl = imageService.renameTempFileToFinalName(
+                    ImageService.IMAGES_FINAL_PATH + product.getId(),
+                    "temp-1.jpg");
+            product.setMain_image_url(newMainImageUrl);
+        }
+        if (product.getSub_images() != null) {
+            for (int i = 0; i < product.getSub_images().size(); i++) {
+                SubImage subImage = product.getSub_images().get(i);
+                if (subImage.getSub_image_url() != null && subImage.getSub_image_url().contains("temp-")) {
+                    String newSubImageUrl = imageService.renameTempFileToFinalName(
+                            ImageService.IMAGES_FINAL_PATH + product.getId(),
+                            "temp-" + (i + 2) + ".jpg");
+                    subImage.setSub_image_url(newSubImageUrl);
+                }
+            }
+        }
         Product savedProduct = productRepository.save(product);
         eventPublisher.publishEvent(new ProductRelatedUpdateEvent(savedProduct));
     }
@@ -168,8 +208,8 @@ public class ProductService {
     public double getSoldQuantity(Long id) {
         return orderRepository.findAll().stream()
                 .filter(order -> (orderStatusService.isProcessingStatus(order) ||
-                                  orderStatusService.isShippingStatus(order) ||
-                                  orderStatusService.isDeliveredStatus(order)))
+                        orderStatusService.isShippingStatus(order) ||
+                        orderStatusService.isDeliveredStatus(order)))
                 .flatMap(order -> order.getOrderItem().stream())
                 .filter(item -> item.getProduct().getId().equals(id))
                 .mapToDouble(item -> item.getQuantity())
