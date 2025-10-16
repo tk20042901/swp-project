@@ -139,7 +139,8 @@
                             <!-- Cart Info -->
                             <div class="alert alert-info py-2 px-3 mb-3" th:if="${quantityInCart > 0}">
                                 <i class="bi bi-cart-check-fill me-2"></i>
-                                <span th:text="'Trong giỏ hàng: ' + ${quantityInCart} + ' ' + ${product.unit.name}"></span>
+                                <a th:href="@{/customer/shopping-cart}" th:text="'Trong giỏ hàng: ' + ${quantityInCart} + ' ' + ${product.unit.name}"
+                                style="text-decoration: none;"></a>
                             </div>
 
                             <!-- Description -->

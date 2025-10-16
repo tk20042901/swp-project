@@ -30,7 +30,7 @@ public class Product implements Serializable{
     private String description;
 
     @Column(nullable = false)
-    private Integer price;
+    private Long price;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "unit_id")

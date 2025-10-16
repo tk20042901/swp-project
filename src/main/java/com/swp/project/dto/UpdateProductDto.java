@@ -25,7 +25,7 @@ public class UpdateProductDto{
 
     @NotNull(message = "Giá sản phẩm không được để trống")
     @Min(value = 0, message = "Giá sản phẩm phải lớn hơn hoặc bằng 0")
-    private Integer price;
+    private Long price;
 
     @NotNull(message = "Đơn vị sản phẩm không được để trống")
     private ProductUnit unit;

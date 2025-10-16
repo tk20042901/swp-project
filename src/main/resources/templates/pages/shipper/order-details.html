@@ -83,6 +83,18 @@
           Tổng cộng: <span th:text="${#numbers.formatInteger(totalAmount, 0, 'POINT')}"></span> đ
         </h4>
       </div>
+      <!-- Button to mark as picked up -->
+      <form th:action="@{/shipper/mark/{id}(id=${order.id})}" method="post" th:if="${shippingStatusService.isAwaitingPickupStatus(order.currentShippingStatus)}">
+        <button type="submit" class="btn btn-success btn-sm">Đã lấy hàng</button>
+      </form>
+      <!-- Button to mark as shipping -->
+      <form th:action="@{/shipper/mark/{id}(id=${order.id})}" method="post" th:if="${shippingStatusService.isPickedUpStatus(order.currentShippingStatus)}">
+        <button type="submit" class="btn btn-success btn-sm">Đang giao hàng</button>
+      </form>
+      <!-- Button to mark as delivered -->
+      <form th:action="@{/shipper/mark/{id}(id=${order.id})}" method="post" th:if="${shippingStatusService.isShippingStatus(order.currentShippingStatus)}">
+        <button type="submit" class="btn btn-success btn-sm">Hoàn thành</button>
+      </form>
     </div>
   </div>
 </div>

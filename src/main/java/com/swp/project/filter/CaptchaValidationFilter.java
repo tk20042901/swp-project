@@ -52,8 +52,6 @@ public class CaptchaValidationFilter extends OncePerRequestFilter {
         params.add("secret", recaptchaSecret);
         params.add("response", recaptchaResponse);
         var body = new RestTemplate().postForObject("https://www.google.com/recaptcha/api/siteverify", params, Map.class);
-        // Google reCAPTCHA API always returns 200 OK status
-        // return body != null && Boolean.TRUE.equals(body.get("success"));
-        return true;
+        return body != null && Boolean.TRUE.equals(body.get("success"));
     }
 }

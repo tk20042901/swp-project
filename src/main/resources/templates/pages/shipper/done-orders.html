@@ -43,12 +43,12 @@
             <input type="text" name="searchQuery" th:value="${searchQuery}" hidden>
             <tr class="row">
               <th class="col-lg-2">
-                <button type="submit" name="sortCriteria" value="id" th:class="'btn p-0 m-0 align-baseline text-decoration-none ' + (${sortCriteria.equals('id')} ? 'btn-primary' : 'btn-outline-primary')"
+                <button type="submit" name="sortCriteria" value="id" th:class="'btn btn-sm ' + (${sortCriteria.equals('id')} ? 'btn-primary' : 'btn-outline-primary')"
                 th:text="'Mã đơn hàng ' + (${sortCriteria.equals('id') ? (k == 1 ? '▲' : '▼') : ''})">
                 </button>
               </th>
               <th class="col-lg-8">
-                <button type="submit" name="sortCriteria" value="email" th:class="'btn p-0 m-0 align-baseline text-decoration-none ' + (${sortCriteria.equals('email')} ? 'btn-primary' : 'btn-outline-primary')"
+                <button type="submit" name="sortCriteria" value="email" th:class="'btn btn-sm ' + (${sortCriteria.equals('email')} ? 'btn-primary' : 'btn-outline-primary')"
                 th:text="'Email ' + (${sortCriteria.equals('email') ? (k == 1 ? '▲' : '▼') : ''})">
                 </button>
               </th>

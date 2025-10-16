@@ -140,7 +140,7 @@
                             <i class="bi bi-currency-dollar me-1"></i>
                             Số tiền đã thanh toán
                         </div>
-                        <div class="stat-value" th:text="${totalSpent}">0 đ</div>
+                        <div class="stat-value" th:text="${#numbers.formatInteger(totalSpent, 0, 'POINT')} + ' đ'">0 đ</div>
                     </div>
                 </div>
             </div>

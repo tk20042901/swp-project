@@ -8,8 +8,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vn.payos.PayOS;
-import vn.payos.type.Webhook;
-import vn.payos.type.WebhookData;
+import vn.payos.model.webhooks.WebhookData;
+
+import java.util.concurrent.CompletableFuture;
 
 @RequiredArgsConstructor
 @RestController
@@ -27,17 +28,14 @@ public class PayOsWebhookController {
         emailService.sendSimpleEmail(order.getCustomer().getEmail(),
                 "Xác nhận thanh toán cho đơn hàng " + orderId + " thành công",
                 "Đơn hàng " + orderId + " đã được thanh toán thành công với số tiền "
-                        + paymentData.getAmount() + paymentData.getCurrency() +".\n" +
+                        + paymentData.getAmount() + paymentData.getCurrency() + ".\n" +
                         "Thời gian thanh toán thành công: " + paymentData.getTransactionDateTime() + "\n" +
                         "Cảm ơn bạn đã tin tưởng và sử dụng dịch vụ của chúng tôi!");
     }
 
-    @PostMapping("/webhook")
-    public void payosWebhook(@RequestBody Webhook data) {
-        try {
-            orderConfirmed(payOS.verifyPaymentWebhookData(data));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    @PostMapping(path = "/webhook")
+    public void payosTransferHandler(@RequestBody Object body) {
+        WebhookData data = payOS.webhooks().verify(body);
+        CompletableFuture.runAsync(() -> orderConfirmed(data));
     }
 }

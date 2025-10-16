@@ -4,13 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.swp.project.service.order.OrderService;
-import com.swp.project.service.product.ImageService;
-import com.swp.project.service.product.ProductService;
-import com.swp.project.service.product.SubImageService;
-import com.swp.project.service.seller_request.SellerRequestService;
-import com.swp.project.service.seller_request.SellerRequestTypeService;
-
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,6 +25,12 @@ import com.swp.project.entity.seller_request.SellerRequest;
 import com.swp.project.entity.user.Seller;
 import com.swp.project.entity.user.Shipper;
 import com.swp.project.service.AddressService;
+import com.swp.project.service.order.OrderService;
+import com.swp.project.service.product.ImageService;
+import com.swp.project.service.product.ProductService;
+import com.swp.project.service.product.SubImageService;
+import com.swp.project.service.seller_request.SellerRequestService;
+import com.swp.project.service.seller_request.SellerRequestTypeService;
 import com.swp.project.service.user.SellerService;
 import com.swp.project.service.user.ShipperService;
 
@@ -183,46 +182,6 @@ public class ManagerController {
         }
 
         return "pages/manager/manage-shipper";
-    }
-
-    @PostMapping("/manage-seller")
-    public String manageSeller(
-            @RequestParam("email") String email,
-            RedirectAttributes redirectAttributes) {
-        try {
-            Seller seller = sellerService.getByEmail(email);
-
-            boolean isEnabled = !seller.isEnabled();
-            seller.setEnabled(isEnabled);
-            sellerService.save(seller);
-            sellerService.setSellerStatus(seller.getId(), isEnabled);
-
-            redirectAttributes.addFlashAttribute("msg",
-                    (isEnabled ? "Mở khóa " : "Khóa ") + seller.getName() + " thành công");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-        }
-        return "redirect:/manager/manage-seller";
-    }
-
-    @PostMapping("/manage-shipper")
-    public String manageShipper(
-            @RequestParam("email") String email,
-            RedirectAttributes redirectAttributes) {
-        try {
-            Shipper shipper = shipperService.getByEmail(email);
-
-            boolean isEnabled = !shipper.isEnabled();
-            shipper.setEnabled(isEnabled);
-            shipperService.save(shipper);
-            shipperService.setShipperStatus(shipper.getId(), isEnabled);
-
-            redirectAttributes.addFlashAttribute("msg",
-                    (isEnabled ? "Mở khóa " : "Khóa ") + shipper.getName() + " thành công");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-        }
-        return "redirect:/manager/manage-shipper";
     }
 
     @GetMapping("/edit-staff")
