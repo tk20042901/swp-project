@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,12 +20,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.swp.project.dto.StaffDto;
 import com.swp.project.entity.address.CommuneWard;
 import com.swp.project.entity.address.ProvinceCity;
+import com.swp.project.entity.order.Bill;
+import com.swp.project.entity.order.Order;
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.SubImage;
 import com.swp.project.entity.seller_request.SellerRequest;
 import com.swp.project.entity.user.Seller;
 import com.swp.project.entity.user.Shipper;
 import com.swp.project.service.AddressService;
+import com.swp.project.service.order.BillService;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.product.ImageService;
 import com.swp.project.service.product.ProductService;
@@ -54,6 +58,7 @@ public class ManagerController {
 
     private final int numEachPage = 10;
     private final OrderService orderService;
+    private final BillService billService;
 
     @GetMapping("")
     public String index() {
@@ -436,6 +441,43 @@ public class ManagerController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/manager/all-products-request";
+    }
+
+    @GetMapping("/bill-list")
+    public String getBills(Model model,
+                           @RequestParam(defaultValue = "1") int page,
+                           @RequestParam(defaultValue = "10") int size,
+                           @RequestParam(defaultValue = "sortCriteria") String sortCriteria,
+                           HttpSession session) {
+        if (session.getAttribute("k") == null) {
+            session.setAttribute("k", 1);
+        }
+        if (session.getAttribute("sortCriteria") != null) {
+            session.setAttribute("k", (int) session.getAttribute("k") * -1);
+        }
+
+        Page<Bill> bills = billService.getBills(page, size, sortCriteria, (int) session.getAttribute("k"));
+        model.addAttribute("k", session.getAttribute("k"));
+        model.addAttribute("bills", bills.getContent());
+        model.addAttribute("page", page);
+        model.addAttribute("size", size);
+        model.addAttribute("sortCriteria", sortCriteria);
+        model.addAttribute("totalPages", bills.getTotalPages());
+
+        return "pages/manager/bill-list";
+    }
+
+    @GetMapping("/orders/{billId}")
+    public String getOrdersByBillId(@PathVariable Long billId, Model model) {
+        Bill bill = billService.getBillById(billId);
+        if (bill == null) {
+            model.addAttribute("error", "Hóa đơn không tồn tại");
+            return "pages/manager/bill-list";
+        }
+        Order order = bill.getOrder();
+        model.addAttribute("order", order);
+        model.addAttribute("shippedAt", orderService.getShippedAt(order));
+        return "pages/manager/order-details";
     }
 
 }
