@@ -36,18 +36,16 @@ public class Product implements Serializable{
     @JoinColumn(name = "unit_id")
     private ProductUnit unit;
 
-    // @JsonIgnore
-    // seller-request can parse ra json
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String main_image_url;
 
     @Builder.Default
     @Column(nullable = false)
     private boolean enabled = true;
 
-    // @JsonIgnore
-    // seller-request can parse ra json
-    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL,
+    orphanRemoval = true,
+    fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<SubImage> sub_images;
 

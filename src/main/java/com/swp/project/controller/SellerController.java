@@ -173,9 +173,6 @@ public class SellerController {
                 .enabled(product.isEnabled())
                 .categories(product.getCategories().stream().map(Category::getId).toList())
                 .mainImage(product.getMain_image_url())
-                .firstSubImage(product.getSub_images().get(0).getSub_image_url())
-                .secondSubImage(product.getSub_images().get(1).getSub_image_url())
-                .thirdSubImage(product.getSub_images().get(2).getSub_image_url())
                 .build();
         model.addAttribute("units", unitService.getAllUnits());
         model.addAttribute("categories", categoryService.getAllCategories());
@@ -200,7 +197,6 @@ public class SellerController {
         try {
             Product oldProduct = productService.getProductById(updateProductDto.getId());
             List<Category> categories = new ArrayList<>();
-            String folderName = UUID.randomUUID().toString();
             for (Long catId : updateProductDto.getCategories()) {
                 categories.add(categoryService.getCategoryById(catId));
             }
@@ -214,27 +210,10 @@ public class SellerController {
                     .price(updateProductDto.getPrice())
                     .unit(updateProductDto.getUnit())
                     .enabled(updateProductDto.getEnabled())
+                    .main_image_url(oldProduct.getMain_image_url())
+                    .sub_images(oldProduct.getSub_images())
                     .categories(categories)
                     .build();
-            if(imageFile == null || imageFile.isEmpty()){
-                updateProduct.setMain_image_url(imageService.copyImageFromStorageToTemporaryFile(folderName, "1", String.valueOf(oldProduct.getId())));
-            }else{
-                updateProduct.setMain_image_url(imageService.saveImageToTemporaryFile(imageFile, folderName,"1"));
-            }
-            List<SubImage> tempSubImages = new ArrayList<>();
-            for(int i = 0; i < 3; i++){
-                String subImagePath;
-                if(subImages[i] == null || subImages[i].isEmpty()){
-                    subImagePath = imageService.copyImageFromStorageToTemporaryFile(folderName, i + 2 + "", String.valueOf(oldProduct.getId()));
-                }else{
-                    subImagePath = imageService.saveImageToTemporaryFile(subImages[i], folderName,i + 2 + "");
-                }
-                SubImage firstSubImage = new SubImage();
-                firstSubImage.setProduct(updateProduct);
-                firstSubImage.setSub_image_url(subImagePath);
-                tempSubImages.add(firstSubImage);
-            }
-            updateProduct.setSub_images(tempSubImages);
             sellerRequestService.saveUpdateRequest(oldProduct, updateProduct, principal.getName());
             redirectAttributes.addFlashAttribute("msg", "Yêu cầu cập nhật sản phẩm đã được gửi đến quản lý");
         } catch (Exception e) {
@@ -259,9 +238,9 @@ public class SellerController {
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes,
             Principal principal,
-            @RequestParam("image") MultipartFile imageFile,
-            @RequestParam MultipartFile[] subImages,
-            @RequestParam List<Long> categoryIds,   
+            @RequestParam List<Long> categoryIds,
+            @RequestParam MultipartFile imageFile,
+            @RequestParam MultipartFile[] subImageFiles,   
             Model model) {
 
         if (bindingResult.hasErrors()) {
@@ -273,15 +252,12 @@ public class SellerController {
             if (productService.checkUniqueProductName(productDto.getName())) {
                 throw new Exception("Tên sản phẩm đã tồn tại");
             }
-            String folderName = UUID.randomUUID().toString();
-            System.out.println(folderName);
             List<Category> categories = new ArrayList<>();
             for (Long catId : categoryIds) {
                 categories.add(categoryService.getCategoryById(catId));
             }
             productDto.setCategories(categories);
-
-            productDto.setMain_image_url(imageService.saveImageToTemporaryFile(imageFile, folderName,"1"));
+            String fileName = ProductService.toSlugName(productDto.getName());
             Product product = Product.builder()
                     .name(productDto.getName())
                     .description(productDto.getDescription())
@@ -289,18 +265,19 @@ public class SellerController {
                     .unit(productDto.getUnit())
                     .enabled(productDto.isEnabled())
                     .categories(productDto.getCategories())
-                    .main_image_url(productDto.getMain_image_url())
+                    .main_image_url(imageService.saveTemporaryImage(imageFile, fileName, "1.jpg"))
                     .build();
-
-            List<SubImage> tempSubImages = new ArrayList<>();
-            for(int i = 0; i < 3; i++){
-                String firstSubImagePath = imageService.saveImageToTemporaryFile(subImages[i], folderName,i + 2 + "");
-                SubImage firstSubImage = new SubImage();
-                firstSubImage.setProduct(product);
-                firstSubImage.setSub_image_url(firstSubImagePath);
-                tempSubImages.add(firstSubImage);
+            List<SubImage> subImages = new ArrayList<>();
+            for (int i = 0; i < subImageFiles.length; i++) {
+                MultipartFile subImageFile = subImageFiles[i];
+                    String subImagePath = imageService.saveTemporaryImage(subImageFile, fileName, (i + 2) + ".jpg");
+                    SubImage subImage = SubImage.builder()
+                            .product(product)
+                            .sub_image_url(subImagePath)
+                            .build();
+                    subImages.add(subImage);
             }
-            product.setSub_images(tempSubImages);
+            product.setSub_images(subImages);
             sellerRequestService.saveAddRequest(product, principal.getName());
             redirectAttributes.addFlashAttribute("msg", "Yêu cầu tạo sản phẩm đã được gửi đến quản lý");
         } catch (Exception e) { 
@@ -308,6 +285,95 @@ public class SellerController {
             return "redirect:/seller";
         }
         return "redirect:/seller";
+    }
+
+    @GetMapping("/update-product-images/{productId}")
+    public String showUpdateProductImagesForm(@PathVariable Long productId, Model model) {
+        try {
+            Product product = productService.getProductById(productId);
+            if (product == null) {
+                throw new Exception("Sản phẩm không tồn tại");
+            }
+            model.addAttribute("product", product);
+            return "pages/seller/product/update-product-images";
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+            return "redirect:/seller/all-products";
+        }
+    }
+
+    @PostMapping("/update-product-images")
+    public String handleUpdateProductImages(
+            @RequestParam Long productId,
+            @RequestParam(required = false) MultipartFile mainImage,
+            @RequestParam(required = false) MultipartFile[] subImages,
+            RedirectAttributes redirectAttributes,
+            Principal principal) {
+        try {
+            Product oldProduct = productService.getProductById(productId);
+            if (oldProduct == null) {
+                throw new Exception("Sản phẩm không tồn tại");
+            }
+
+            Product updatedProduct = oldProduct.toBuilder().build();
+
+            if (mainImage != null && !mainImage.isEmpty()) {
+                if (!mainImage.getContentType().startsWith("image/")) {
+                    throw new Exception("Tệp hình ảnh chính không đúng định dạng");
+                }
+                                String mainImagePath = imageService.saveTemporaryImage(mainImage, productId + "", "temp-1.jpg");
+                updatedProduct.setMain_image_url(mainImagePath);
+            }
+
+            // Handle sub images update - filter out empty files and process valid ones
+            if (subImages != null && subImages.length > 0) {
+                List<MultipartFile> validSubImages = new ArrayList<>();
+                
+                // Filter out empty files
+                for (MultipartFile subImage : subImages) {
+                    if (subImage != null && !subImage.isEmpty()) {
+                        validSubImages.add(subImage);
+                    }
+                }
+
+                if (!validSubImages.isEmpty()) {
+                    List<SubImage> newSubImages = new ArrayList<>();                    
+                    for (int i = 0; i < validSubImages.size(); i++) {
+                        MultipartFile subImage = validSubImages.get(i);
+
+                        if (!subImage.getContentType().startsWith("image/")) {
+                            throw new Exception("Tệp hình ảnh phụ " + (i + 1) + " không đúng định dạng");
+                        }
+
+                        String subImagePath = imageService.saveTemporaryImage(subImage, productId + "","temp-" + (i + 2) + ".jpg");
+                        SubImage subImageEntity = SubImage.builder()
+                                .product(updatedProduct)
+                                .sub_image_url(subImagePath)
+                                .build();
+                        newSubImages.add(subImageEntity);
+                    }
+                    
+                    updatedProduct.setSub_images(newSubImages);
+                }
+            }
+            // Only proceed if at least one image was updated
+            boolean hasMainImageUpdate = mainImage != null && !mainImage.isEmpty();
+            boolean hasSubImagesUpdate = subImages != null && 
+                                        java.util.Arrays.stream(subImages).anyMatch(img -> img != null && !img.isEmpty());
+            
+            if (!hasMainImageUpdate && !hasSubImagesUpdate) {
+                throw new Exception("Vui lòng chọn ít nhất một hình ảnh để cập nhật");
+            }
+
+            // Submit update request
+            sellerRequestService.saveUpdateRequest(oldProduct, updatedProduct, principal.getName());
+            redirectAttributes.addFlashAttribute("msg", "Yêu cầu cập nhật hình ảnh sản phẩm đã được gửi đến quản lý");
+            
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/seller/update-product-images/" + productId;
+        }
+        return "redirect:/seller/product/product-detail/" + productId;
     }
 
 }

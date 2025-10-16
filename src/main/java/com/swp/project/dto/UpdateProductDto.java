@@ -37,11 +37,4 @@ public class UpdateProductDto{
     private List<Long> categories;
 
     private String mainImage; 
-
-    private String firstSubImage;
-    
-    private String secondSubImage;
-
-    private String thirdSubImage;
-
 }

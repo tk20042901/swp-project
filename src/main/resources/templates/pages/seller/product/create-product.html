@@ -115,6 +115,32 @@
         .revert-btn:hover {
             background-color: #5a6268;
         }
+
+        .image-preview-container {
+            margin-top: 10px;
+        }
+
+        .image-preview-container img {
+            display: block;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+
+        .remove-image-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin-top: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .remove-image-btn:hover {
+            background-color: #c82333;
+        }
     </style>
 </head>
 
@@ -168,36 +194,125 @@
             </div>
         </div>
 
-        <div class="form-group">
-            <label>Hình ảnh chính:</label>
-            <input type="file" name="image" id="image1" accept="image/*">
-            <img id="preview1" src="" width="150" height="150" alt="Anh xem trước">
-            <button type="button" class="revert-btn" data-preview="preview1" data-input="image1">Hoàn tác</button>
+        <!-- Main Image Upload -->
+        <div class="form-group file-input-group">
+            <label for="mainImageFile">Ảnh chính: <span style="color: red;">*</span></label>
+            <input type="file" name="imageFile" id="mainImageFile" accept="image/*" required />
+            <small>Chọn ảnh chính cho sản phẩm (JPG, PNG). Kích thước tối đa: 5MB</small>
+            <div class="image-preview-container">
+                <img id="previewMainImage" src="#" alt="Preview Main Image" width="150" height="150" style="display: none;" />
+            </div>
         </div>
 
-        <div class="form-group">
-            <label>Ảnh phụ 1:</label>
-            <input type="file" name="subImages" id="image2" accept="image/*">
-            <img id="preview2" src="" width="150" height="150" alt="Ảnh xem trước">
-            <button type="button" class="revert-btn" data-preview="preview2" data-input="image2">Hoàn tác</button>
+        <!-- Sub Images Upload -->
+        <div class="form-group file-input-group">
+            <label for="subImageFile1">Ảnh phụ 1:</label>
+            <input type="file" name="subImageFiles" id="subImageFile1" accept="image/*" required/>
+            <small>Ảnh phụ thứ nhất</small>
+            <div class="image-preview-container">
+                <img id="previewSubImage1" src="#" alt="Preview Sub Image 1" width="100" height="100" style="display: none;" />
+            </div>
         </div>
 
-        <div class="form-group">
-            <label>Ảnh phụ 2:</label>
-            <input type="file" name="subImages" id="image3" accept="image/*">
-            <img id="preview3" src="" width="150" height="150" alt="Ảnh xem trước">
-            <button type="button" class="revert-btn" data-preview="preview3" data-input="image3">Hoàn tác</button>
+        <div class="form-group file-input-group">
+            <label for="subImageFile2">Ảnh phụ 2:</label>
+            <input type="file" name="subImageFiles" id="subImageFile2" accept="image/*" required/>
+            <small>Ảnh phụ thứ hai</small>
+            <div class="image-preview-container">
+                <img id="previewSubImage2" src="#" alt="Preview Sub Image 2" width="100" height="100" style="display: none;" />
+            </div>
         </div>
 
-        <div class="form-group">
-            <label>Ảnh phụ 3:</label>
-            <input type="file" name="subImages" id="image4" accept="image/*">
-            <img id="preview4" src="" width="150" height="150" alt="Ảnh xem trước">
-            <button type="button" class="revert-btn" data-preview="preview4" data-input="image4">Hoàn tác</button>
+        <div class="form-group file-input-group">
+            <label for="subImageFile3">Ảnh phụ 3:</label>
+            <input type="file" name="subImageFiles" id="subImageFile3" accept="image/*" required/>
+            <small>Ảnh phụ thứ ba</small>
+            <div class="image-preview-container">
+                <img id="previewSubImage3" src="#" alt="Preview Sub Image 3" width="100" height="100" style="display: none;" />
+            </div>
         </div>
 
         <button type="submit">Gửi yêu cầu</button>
     </form>
+    
+    <script>
+        // Image preview functionality
+        function setupImagePreview(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            
+            if (input && preview) {
+                input.addEventListener('change', function(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        // Validate file type
+                        if (!file.type.startsWith('image/')) {
+                            alert('Vui lòng chọn file ảnh hợp lệ!');
+                            this.value = '';
+                            preview.style.display = 'none';
+                            return;
+                        }
+                        
+                        // Validate file size (5MB max)
+                        if (file.size > 5 * 1024 * 1024) {
+                            alert('Kích thước file không được vượt quá 5MB!');
+                            this.value = '';
+                            preview.style.display = 'none';
+                            return;
+                        }
+                        
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            preview.src = e.target.result;
+                            preview.style.display = 'block';
+                            
+                            // Add remove button if not exists
+                            let removeBtn = preview.nextElementSibling;
+                            if (!removeBtn || !removeBtn.classList.contains('remove-image-btn')) {
+                                removeBtn = document.createElement('button');
+                                removeBtn.type = 'button';
+                                removeBtn.textContent = 'Xóa ảnh';
+                                removeBtn.className = 'remove-image-btn';
+                                removeBtn.onclick = function() {
+                                    input.value = '';
+                                    preview.style.display = 'none';
+                                    removeBtn.remove();
+                                };
+                                preview.parentNode.insertBefore(removeBtn, preview.nextSibling);
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        preview.style.display = 'none';
+                        // Remove the remove button if exists
+                        let removeBtn = preview.nextElementSibling;
+                        if (removeBtn && removeBtn.classList.contains('remove-image-btn')) {
+                            removeBtn.remove();
+                        }
+                    }
+                });
+            }
+        }
+
+        // Setup preview for all image inputs
+        document.addEventListener('DOMContentLoaded', function() {
+            setupImagePreview('mainImageFile', 'previewMainImage');
+            setupImagePreview('subImageFile1', 'previewSubImage1');
+            setupImagePreview('subImageFile2', 'previewSubImage2');
+            setupImagePreview('subImageFile3', 'previewSubImage3');
+            
+            // Form validation
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(event) {
+                const mainImageInput = document.getElementById('mainImageFile');
+                if (!mainImageInput.files[0]) {
+                    alert('Vui lòng chọn ảnh chính cho sản phẩm!');
+                    event.preventDefault();
+                    return false;
+                }
+            });
+        });
+    </script>
     <script th:src="@{/js/seller/create-product.js}"></script>
 </body>
 
