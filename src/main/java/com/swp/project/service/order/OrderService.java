@@ -1,5 +1,8 @@
 package com.swp.project.service.order;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.security.Principal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -9,6 +12,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.swp.project.dto.RevenueDto;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -605,5 +612,36 @@ public class OrderService {
         return result;
     }
 
+    public ByteArrayInputStream exportDaysRevenueToExcel() throws IOException {
+        List<Object[]> raw = orderRepository.getRevenueLast7Days();
 
+        // Chuyển sang List<RevenueDto>
+        List<RevenueDto> revenues = new ArrayList<>();
+        for (Object[] row : raw) {
+            String date = (String) row[0];
+            Long revenue = ((Number) row[1]).longValue();
+            revenues.add(new RevenueDto(date, revenue));
+        }
+
+        // Tạo workbook Excel
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Revenue 7 Days");
+            Row header = sheet.createRow(0);
+            header.createCell(0).setCellValue("Ngày");
+            header.createCell(1).setCellValue("Doanh thu");
+
+            int rowIdx = 1;
+            for (RevenueDto dto : revenues) {
+                Row row = sheet.createRow(rowIdx++);
+                row.createCell(0).setCellValue(dto.getDate());
+                row.createCell(1).setCellValue(dto.getRevenue());
+            }
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            workbook.write(out);
+            return new ByteArrayInputStream(out.toByteArray());
+        }
+
+
+    }
 }
