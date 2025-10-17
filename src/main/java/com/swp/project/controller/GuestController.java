@@ -16,10 +16,12 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.swp.project.dto.AiMessageDto;
+import com.swp.project.dto.CategoryDto;
 import com.swp.project.dto.RegisterDto;
 import com.swp.project.dto.ViewProductDto;
 import com.swp.project.entity.product.Category;
@@ -62,7 +64,8 @@ public class GuestController {
     }
 
     @PostMapping("/register")
-    public String processRegister(@Valid @ModelAttribute RegisterDto registerDto, BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model) {
+    public String processRegister(@Valid @ModelAttribute RegisterDto registerDto, BindingResult bindingResult,
+            RedirectAttributes redirectAttributes, Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("siteKey", recaptchaSite);
             return "/pages/guest/register";
@@ -79,8 +82,8 @@ public class GuestController {
 
     @GetMapping("/verify-otp")
     public String showVerifyOtpForm(@ModelAttribute("email") String email,
-                                    Model model) {
-        if(email == null || email.isEmpty()){
+            Model model) {
+        if (email == null || email.isEmpty()) {
             return "redirect:/register";
         }
         model.addAttribute("email", email);
@@ -89,8 +92,8 @@ public class GuestController {
 
     @PostMapping("/verify-otp")
     public String verifyOtp(@RequestParam String email,
-                            @RequestParam String otp,
-                            Model model) {
+            @RequestParam String otp,
+            Model model) {
         try {
             customerService.verifyOtp(email, otp);
             return "redirect:/login?register_success";
@@ -119,26 +122,17 @@ public class GuestController {
         return "redirect:/forgot-password";
     }
 
-
     @GetMapping({ "/" })
     public String getHomepage(
-        @RequestParam(defaultValue = "0") Long categoryId,
-        Model model) {
+            Model model) {
         try {
-            List<Category> categories = categoryService.getAllCategories();
-            Map<String, Page<ViewProductDto>> homepageProducts = productService.getHomepageProductsBatch(categoryId, CAROUSEL_SIZE);
-            model.addAttribute("productByCategory", homepageProducts.get("productByCategory"));
-            model.addAttribute("newestProducts", homepageProducts.get("newestProducts"));
-            model.addAttribute("mostSoldProducts", homepageProducts.get("mostSoldProducts"));
-            model.addAttribute("categories", categories);
-            model.addAttribute("categoryId", categoryId);
             model.addAttribute("url", "/");
             model.addAttribute("Title", "Trang danh sách sản phẩm");
-            
+
         } catch (Exception e) {
-           System.out.println(e.getMessage());
+            System.out.println(e.getMessage());
         }
-        
+
         return "pages/guest/homepage";
     }
 
@@ -150,15 +144,16 @@ public class GuestController {
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "default") String sortBy,
             Model model) {
-        
+
         // Handle empty or null keywords
         if (keyword == null || keyword.trim().isEmpty()) {
             return "redirect:/product-category-sorting?categoryId=" + categoryId + "&sortBy=" + sortBy;
         }
-        
-        Page<ViewProductDto> products = productService.searchViewProductDto(keyword,categoryId,page,size,sortBy);      
-        List<Category> categories = categoryService.getUniqueCategoriesBaseOnPageOfProduct(productService.searchViewProductDto(keyword,0L,page,size,"default").getContent());
-        
+
+        Page<ViewProductDto> products = productService.searchViewProductDto(keyword, categoryId, page, size, sortBy);
+        List<Category> categories = categoryService.getUniqueCategoriesBaseOnPageOfProduct(
+                productService.searchViewProductDto(keyword, 0L, page, size, "default").getContent());
+
         model.addAttribute("viewProductDto", products);
         model.addAttribute("totalElement", products.getTotalElements());
         model.addAttribute("currentPage", page);
@@ -184,8 +179,9 @@ public class GuestController {
 
         // Add categories for the dropdown filter
         List<Category> categories = categoryService.getAllCategories();
-        Page<ViewProductDto> productsPage = productService.getViewProductsByCategoryWithPagingAndSorting(categoryId, page, size, sortBy);
-        
+        Page<ViewProductDto> productsPage = productService.getViewProductsByCategoryWithPagingAndSorting(categoryId,
+                page, size, sortBy);
+
         model.addAttribute("viewProductDto", productsPage);
         model.addAttribute("totalElement", productsPage.getTotalElements());
         model.addAttribute("currentPage", page);
@@ -199,8 +195,28 @@ public class GuestController {
         return "pages/guest/product-category-sorting";
     }
 
+    @GetMapping("/api/products")
+    @ResponseBody
+    public List<ViewProductDto> getViewProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "" + PAGE_SIZE) int size,
+            @RequestParam(defaultValue = "0") Long categoryId,
+            @RequestParam(required = false) String sortBy) {
+        Page<ViewProductDto> productsPage = productService.getViewProductsByCategoryWithPagingAndSorting(categoryId,
+                page, size, sortBy);
+        return productsPage.getContent();
+    }
 
-    
+    @GetMapping("/api/categories")
+    @ResponseBody
+    public List<CategoryDto> getCategory() {
+        return categoryService.getAllCategories().stream().map(category -> {
+            CategoryDto dto = new CategoryDto();
+            dto.setId(category.getId());
+            dto.setName(category.getName());
+            return dto;
+        }).toList();
+    }
 
     @GetMapping("/product/{id}")
     public String getProductDetail(
