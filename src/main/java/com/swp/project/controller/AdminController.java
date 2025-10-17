@@ -1,27 +1,22 @@
 package com.swp.project.controller;
 
-
 import com.swp.project.dto.EditManagerDto;
 import com.swp.project.dto.ManagerRegisterDto;
-
+import com.swp.project.dto.ProvinceDto;
 import com.swp.project.dto.ViewManagerDto;
+import com.swp.project.dto.WardDto;
 import com.swp.project.entity.user.Manager;
+import com.swp.project.service.AddressService;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.user.ManagerService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
 import java.util.List;
-
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.bind.annotation.GetMapping;
-
 
 @RequiredArgsConstructor
 @Controller
@@ -30,22 +25,24 @@ public class AdminController {
 
     private final ManagerService managerService;
     private final OrderService orderService;
+    private final AddressService addressService;
+
     @GetMapping("")
     public String showAdminMainPage(Model model) {
         return "pages/admin/index";
     }
-    
+
     @GetMapping("/create-manager")
     public String getCreateManagerPage(Model model) {
         model.addAttribute("managerRegisterDto", new ManagerRegisterDto());
         return "pages/admin/create-manager";
     }
-    
+
     @GetMapping("/edit-manager/{id}")
     public String getEditManagerPage(
-        @PathVariable Long id, 
-        Model model, 
-        RedirectAttributes redirectAttributes) {
+            @PathVariable Long id,
+            Model model,
+            RedirectAttributes redirectAttributes) {
         Manager manager = managerService.getManagerById(id);
         if (manager == null) {
             redirectAttributes.addFlashAttribute("failed", "Không tìm thấy quản lý.");
@@ -66,7 +63,7 @@ public class AdminController {
     }
 
     @GetMapping("/manage-manager")
-        public String showManageManagersPage(
+    public String showManageManagersPage(
             Model model) {
         List<ViewManagerDto> managers = managerService.getAllViewManager();
         model.addAttribute("managers", managers);
@@ -75,10 +72,10 @@ public class AdminController {
 
     @PostMapping("/create-manager")
     public String createManager(
-        @Valid @ModelAttribute ManagerRegisterDto managerRegisterDto,
-        BindingResult bindingResult,
-        RedirectAttributes redirectAttributes,
-        Model model) {
+            @Valid @ModelAttribute ManagerRegisterDto managerRegisterDto,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes,
+            Model model) {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("managerRegisterDto", managerRegisterDto);
@@ -87,8 +84,7 @@ public class AdminController {
         try {
             managerService.createManager(managerRegisterDto);
             redirectAttributes.addFlashAttribute("success", "Tạo quản lý thành công.");
-        } 
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("failed", e.getMessage());
             return "redirect:/admin/create-manager";
         }
@@ -97,8 +93,8 @@ public class AdminController {
 
     @PostMapping("/edit-manager/{id}")
     public String editManager(@PathVariable Long id,
-                              @Valid @ModelAttribute EditManagerDto editManagerDto,
-                              RedirectAttributes redirectAttributes) {
+            @Valid @ModelAttribute EditManagerDto editManagerDto,
+            RedirectAttributes redirectAttributes) {
         try {
             managerService.updateManager(id, editManagerDto);
             redirectAttributes.addFlashAttribute("success", "Cập nhật quản lý thành công.");
@@ -128,4 +124,29 @@ public class AdminController {
         return "pages/admin/statistic-report";
     }
 
+    @GetMapping("/provinces")
+    @ResponseBody
+    public List<ProvinceDto> getAllProvinceCities() {
+        return addressService.getAllProvinceCity().stream()
+                .map(pc -> {
+                    ProvinceDto dto = new ProvinceDto();
+                    dto.setCode(pc.getCode());
+                    dto.setName(pc.getName());
+                    return dto;
+                })
+                .toList();
+    }
+
+    @GetMapping("/wards{provinceId}")
+    @ResponseBody
+    public List<WardDto> getAllSelectedWard(@RequestParam String provinceId) {
+        return addressService.getAllCommuneWardByProvinceCityCode(provinceId).stream()
+                .map(ward -> {
+                    WardDto dto = new WardDto();
+                    dto.setCode(ward.getCode());
+                    dto.setName(ward.getName());
+                    return dto;
+                })
+                .toList();
+    }
 }

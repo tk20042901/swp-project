@@ -85,9 +85,7 @@
                                 Product Name
                             </div>
                             <div class="product-price">
-                                <span
-                                    th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}">0</span>
-                                ₫
+                                <span th:text="${#numbers.formatInteger(product.price, 3, 'POINT')}"></span> VND
                             </div>
                         </div>
                     </a>
