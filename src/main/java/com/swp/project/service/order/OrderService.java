@@ -4,9 +4,11 @@ import java.security.Principal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.swp.project.dto.RevenueDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -576,5 +578,32 @@ public class OrderService {
         }
         return "Chưa giao";
     }
+
+    public List<RevenueDto> getDaysRevenue(){
+        List<Object[]> raw = orderRepository.getRevenueLast7Days();
+        List<RevenueDto> result = new ArrayList<>();
+
+        for (Object[] row : raw) {
+            String date = (String) row[0];
+            Long revenue = ((Number) row[1]).longValue();
+            result.add(new RevenueDto(date, revenue));
+        }
+
+        return result;
+
+    }
+    public List<RevenueDto> getMonthsRevenue(){
+        List<Object[]> raw = orderRepository.getRevenueLast12Months();
+        List<RevenueDto> result = new ArrayList<>();
+
+        for (Object[] row : raw) {
+            String date = (String) row[0];
+            Long revenue = ((Number) row[1]).longValue();
+            result.add(new RevenueDto(date, revenue));
+        }
+
+        return result;
+    }
+
 
 }
