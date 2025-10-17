@@ -463,7 +463,7 @@ public class ManagerController {
         model.addAttribute("size", size);
         model.addAttribute("sortCriteria", sortCriteria);
         model.addAttribute("totalPages", bills.getTotalPages());
-
+        model.addAttribute("billService", billService);
         return "pages/manager/bill-list";
     }
 
@@ -475,8 +475,10 @@ public class ManagerController {
             return "pages/manager/bill-list";
         }
         Order order = bill.getOrder();
+        Long totalAmount = orderService.calculateTotalAmount(order);
         model.addAttribute("order", order);
         model.addAttribute("shippedAt", orderService.getShippedAt(order));
+        model.addAttribute("totalAmount", totalAmount);
         return "pages/manager/order-details";
     }
 
