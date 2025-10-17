@@ -6,6 +6,7 @@ import java.util.List;
 
 
 import com.swp.project.dto.RevenueDto;
+import com.swp.project.service.order.BillService;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.product.ImageService;
 import com.swp.project.service.product.ProductService;
@@ -13,7 +14,7 @@ import com.swp.project.service.product.SubImageService;
 import com.swp.project.service.seller_request.SellerRequestService;
 import com.swp.project.service.seller_request.SellerRequestTypeService;
 
-
+import org.springframework.data.domain.Page;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,18 +30,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.swp.project.dto.StaffDto;
 import com.swp.project.entity.address.CommuneWard;
 import com.swp.project.entity.address.ProvinceCity;
+import com.swp.project.entity.order.Bill;
+import com.swp.project.entity.order.Order;
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.SubImage;
 import com.swp.project.entity.seller_request.SellerRequest;
 import com.swp.project.entity.user.Seller;
 import com.swp.project.entity.user.Shipper;
 import com.swp.project.service.AddressService;
-import com.swp.project.service.order.OrderService;
-import com.swp.project.service.product.ImageService;
-import com.swp.project.service.product.ProductService;
-import com.swp.project.service.product.SubImageService;
-import com.swp.project.service.seller_request.SellerRequestService;
-import com.swp.project.service.seller_request.SellerRequestTypeService;
 import com.swp.project.service.user.SellerService;
 import com.swp.project.service.user.ShipperService;
 
@@ -59,9 +56,7 @@ public class ManagerController {
     private final AddressService addressService;
     private final SellerRequestService sellerRequestService;
     private final ProductService productService;
-    private final SubImageService subImageService;
-    private final ImageService imageService;
-
+    private final BillService billService;
     private final int numEachPage = 10;
     private final OrderService orderService;
 
@@ -418,29 +413,16 @@ public class ManagerController {
             if (productService.checkUniqueProductName(newProduct.getName())) {
                 throw new IOException("Tên sản phẩm đã tồn tại");
             }
-            Pair<String, List<SubImage>> images;
-            if (sellerRequestTypeService.isUpdateType(sellerRequest)) {
-                Long oldProductId = sellerRequestService
-                        .getEntityFromContent(sellerRequest.getOldContent(), Product.class).getId();
-                Product oldProduct = productService.getProductById(oldProductId);
-                images = imageService.getAllFinalImage(newProduct.getSub_images(), newProduct.getName(), oldProduct);
-                oldProduct.setName(newProduct.getName());
-                oldProduct.setDescription(newProduct.getDescription());
-                oldProduct.setPrice(newProduct.getPrice());
-                oldProduct.setUnit(newProduct.getUnit());
-                oldProduct.setMain_image_url(images.getFirst());
-                oldProduct.setEnabled(newProduct.isEnabled());
-                oldProduct.setCategories(newProduct.getCategories());
-                oldProduct.setSub_images(images.getSecond());
-                productService.update(oldProduct);
-            } else {
-                newProduct = productService.add(newProduct);
-                images = imageService.getAllFinalImage(newProduct.getSub_images(), newProduct.getName(), newProduct);
-                newProduct.setMain_image_url(images.getFirst());
-                newProduct.setSub_images(images.getSecond());
-                productService.update(newProduct);
-            }
-            sellerRequestService.approveRequest(requestId);
+            
+            sellerRequestService.approveRequest(requestId,Product.class,
+            productService::add,
+            t -> {
+                try {
+                    productService.update(t);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
 
             redirectAttributes.addFlashAttribute("msg", "Đã duyệt yêu cầu thành công");
         } catch (Exception e) {

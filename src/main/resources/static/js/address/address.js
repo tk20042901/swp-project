@@ -1,41 +1,45 @@
+const provinceSelect = document.getElementById('provinceCityCode');
+const wardSelect = document.getElementById('communeWardCode');
+document.addEventListener('DOMContentLoaded', function () {
+  fetch('http://localhost:8080/admin/provinces')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Lỗi http status: ' + response.status);
+      }
+      return response.json();
+    })
+    .then(data => {
 
-async function loadProvinces() {
-  const res = await fetch("/admin/address/provinces"); // backend API
-  const provinces = await res.json();
+      let optionHtml = `<option value="">Chọn tỉnh/thành phố</option>`;
+      data.forEach(element => {
+        optionHtml += `<option value="${element.code}">${element.name}</option>`;
+      });
+      provinceSelect.innerHTML = optionHtml;
+      wardSelect.innerHTML = `<option value="">Chọn phường/xã</option>`;
+      wardSelect.disabled = true;
+    });
+});
 
-  const provinceSelect = document.getElementById("provinceCityCode");
-  provinceSelect.innerHTML = "<option value=''>-- Select Province --</option>";
-
-  provinces.forEach(p => {
-    const option = document.createElement("option");
-    option.value = p.code;  
-    option.text = p.name;
-    provinceSelect.add(option);
-  });
-
-  // when province changes → load wards
-  provinceSelect.onchange = () => loadWards(provinceSelect.value);
-}
-
-async function loadWards(provinceCode) {
-  if (!provinceCode) {
-    document.getElementById("communeWardCode").innerHTML = "<option value=''>-- Select Ward --</option>";
-    return;
+provinceSelect.addEventListener('change', (event) => {
+  const provinceId = event.target.value;
+  wardSelect.disabled = true; 
+  if (provinceId !== "") {
+    fetch(`http://localhost:8080/admin/wards?provinceId=` + provinceId)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Lỗi http status: ' + response.status);
+        }
+        return response.json();
+      })
+      .then(data => {
+        let optionHtml = '<option value="">Chọn phường/xã</option>';
+        data.forEach(element => { 
+          optionHtml += `<option value="${element.code}">${element.name}</option>`;
+        });
+        wardSelect.innerHTML = optionHtml;
+      });
+  }else{
+    wardSelect.innerHTML = `<option value="">Chọn phường/xã</option>`;
   }
-
-  const res = await fetch(`/admin/address/wards/${provinceCode}`);
-  const wards = await res.json();
-
-  const wardSelect = document.getElementById("communeWardCode");
-  wardSelect.innerHTML = "<option value=''>-- Select Ward --</option>";
-
-  wards.forEach(w => {
-    const option = document.createElement("option");
-    option.value = w.code;   
-    option.text = w.name;
-    wardSelect.add(option);
-  });
-}
-
-
-window.onload = loadProvinces;
+  wardSelect.disabled = false; 
+});
