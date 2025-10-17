@@ -1,5 +1,6 @@
 package com.swp.project.controller;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +15,12 @@ import com.swp.project.service.product.SubImageService;
 import com.swp.project.service.seller_request.SellerRequestService;
 import com.swp.project.service.seller_request.SellerRequestTypeService;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.util.Pair;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -489,6 +494,19 @@ public class ManagerController {
         model.addAttribute("shippedAt", orderService.getShippedAt(order));
         model.addAttribute("totalAmount", totalAmount);
         return "pages/manager/order-details";
+    }
+
+    @GetMapping("/export-excel")
+    public ResponseEntity<InputStreamResource> exportExcel() throws IOException {
+        ByteArrayInputStream in = orderService.exportDaysRevenueToExcel();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=revenue-7-days.xlsx");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(new InputStreamResource(in));
     }
 
 }
