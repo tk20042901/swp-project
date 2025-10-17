@@ -75,7 +75,7 @@
 
           <tr th:each="bill : ${bills}" class="row">
             <td th:text="${bill.id}" class="col-lg-1"></td>
-            <td th:text="${bill.paymentTime}" class="col-lg-2"></td>
+            <td th:text="${billService.getPaidAt(bill)}" class="col-lg-2"></td>
             <td th:text="${bill.shopName}" class="col-lg-2"></td>
             <td th:text="${bill.shopAddress}" class="col-lg-2"></td>
             <td th:text="${bill.shopPhone}" class="col-lg-2"></td>

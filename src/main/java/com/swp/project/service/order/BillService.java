@@ -1,5 +1,6 @@
 package com.swp.project.service.order;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -50,5 +51,14 @@ public class BillService {
 
     public Bill getBillById(Long id) {
         return billRepository.findById(id).orElse(null);
+    }
+
+    public String getPaidAt(Bill bill) {
+        LocalDateTime paymentTime = bill.getPaymentTime();
+        if (paymentTime == null) {
+            return "N/A";
+        }
+        return "Ngày " + paymentTime.getDayOfMonth() + " tháng " + paymentTime.getMonthValue() + " năm " + paymentTime.getYear() +
+                " lúc " + String.format("%02d", paymentTime.getHour()) + ":" + String.format("%02d", paymentTime.getMinute());
     }
 }

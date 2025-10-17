@@ -569,11 +569,12 @@ public class OrderService {
     }
 
     public String getShippedAt(Order order){
-        if (order.getShipping() == null || order.getShipping().isEmpty()) return null;
-        if (shippingStatusService.isDeliveredStatus(order.getCurrentShippingStatus())) {
-            LocalDateTime occurredAt = order.getCurrentShipping().getOccurredAt();
-            return "Ngày " + occurredAt.getDayOfMonth() + " tháng " + occurredAt.getMonthValue() + " năm " + occurredAt.getYear() + 
-                    " lúc " + String.format("%02d", occurredAt.getHour()) + ":" + String.format("%02d", occurredAt.getMinute());
+        if (order.getShipping() != null && !order.getShipping().isEmpty()) {
+            if (shippingStatusService.isDeliveredStatus(order.getCurrentShippingStatus())) {
+                LocalDateTime occurredAt = order.getCurrentShipping().getOccurredAt();
+                return "Ngày " + occurredAt.getDayOfMonth() + " tháng " + occurredAt.getMonthValue() + " năm " + occurredAt.getYear() + 
+                        " lúc " + String.format("%02d", occurredAt.getHour()) + ":" + String.format("%02d", occurredAt.getMinute());
+            }
         }
         return "Chưa giao";
     }

@@ -470,5 +470,43 @@ public class ManagerController {
         return "redirect:/manager/all-products-request";
     }
 
+    @GetMapping("/bill-list")
+    public String getBills(Model model,
+                           @RequestParam(defaultValue = "1") int page,
+                           @RequestParam(defaultValue = "10") int size,
+                           @RequestParam(defaultValue = "sortCriteria") String sortCriteria,
+                           HttpSession session) {
+        if (session.getAttribute("k") == null) {
+            session.setAttribute("k", 1);
+        }
+        if (session.getAttribute("sortCriteria") != null) {
+            session.setAttribute("k", (int) session.getAttribute("k") * -1);
+        }
+
+        Page<Bill> bills = billService.getBills(page, size, sortCriteria, (int) session.getAttribute("k"));
+        model.addAttribute("k", session.getAttribute("k"));
+        model.addAttribute("bills", bills.getContent());
+        model.addAttribute("page", page);
+        model.addAttribute("size", size);
+        model.addAttribute("sortCriteria", sortCriteria);
+        model.addAttribute("totalPages", bills.getTotalPages());
+        model.addAttribute("billService", billService);
+        return "pages/manager/bill-list";
+    }
+
+    @GetMapping("/orders/{billId}")
+    public String getOrdersByBillId(@PathVariable Long billId, Model model) {
+        Bill bill = billService.getBillById(billId);
+        if (bill == null) {
+            model.addAttribute("error", "Hóa đơn không tồn tại");
+            return "pages/manager/bill-list";
+        }
+        Order order = bill.getOrder();
+        Long totalAmount = orderService.calculateTotalAmount(order);
+        model.addAttribute("order", order);
+        model.addAttribute("shippedAt", orderService.getShippedAt(order));
+        model.addAttribute("totalAmount", totalAmount);
+        return "pages/manager/order-details";
+    }
 
 }
