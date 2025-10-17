@@ -14,6 +14,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.swp.project.entity.order.Order;
 import com.swp.project.entity.order.shipping.ShippingStatus;
+import com.swp.project.service.order.BillService;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.order.OrderStatusService;
 import com.swp.project.service.order.shipping.ShippingStatusService;
@@ -33,6 +34,7 @@ public class ShipperController {
     private final OrderService orderService;
     private final ShippingStatusService shippingStatusService;
     private final OrderStatusService orderStatusService;
+    private final BillService billService;
 
     @GetMapping("")
     public String shipperMain(Model model, Principal principal) {
@@ -108,7 +110,7 @@ public class ShipperController {
         if (session.getAttribute("k") == null) {
             session.setAttribute("k", 1);
         }
-                if (session.getAttribute("sortCriteria") == null) {
+        if (session.getAttribute("sortCriteria") == null) {
             session.setAttribute("sortCriteria", "id");
         }
         if (sortCriteria != null) {
@@ -188,6 +190,5 @@ public class ShipperController {
             return "redirect:/shipper/delivering-orders";
         }
     }
-    
     
 }

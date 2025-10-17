@@ -6,5 +6,37 @@
 </head>
 <body>
 <h1>Chi tiết thống kê</h1>
+<a th:href="@{/manager/statistic-report}">Thống kê</a>
+
+<h3>Doanh thu 7 ngày gần đây</h3>
+<table>
+    <thead>
+    <tr>
+        <th>Thời gian</th>
+        <th>Doanh thu</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="item : ${daysReport}">
+        <td th:text = "${item.date}"></td>
+        <td th:text = "${item.revenue} + 'VND'"></td>
+    </tr>
+    </tbody>
+</table>
+<h3>Doanh thu 12 tháng gần đây</h3>
+<table>
+    <thead>
+    <tr>
+        <th>Thời gian</th>
+        <th>Doanh thu</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="item : ${monthsReport}">
+        <td th:text = "${item.date}"></td>
+        <td th:text = "${item.revenue} + 'VND'"></td>
+    </tr>
+    </tbody>
+</table>
 </body>
 </html>

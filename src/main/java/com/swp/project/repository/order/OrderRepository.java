@@ -1,8 +1,10 @@
 package com.swp.project.repository.order;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.swp.project.dto.RevenueDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -53,24 +55,36 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
    @Query("""
         SELECT coalesce(Sum(oi.quantity * oi.product.price),0)
         From OrderItem oi
-        Where oi.order.orderStatus.name ='Đã giao hàng'
+      WHERE (
+            (oi.order.orderStatus.name = 'Đã Giao Hàng' AND oi.order.paymentMethod.id = 'COD')
+         OR (oi.order.orderStatus.name IN ('Đang Chuẩn Bị Hàng', 'Đang Giao Hàng', 'Đã Giao Hàng') 
+             AND oi.order.paymentMethod.id = 'QR')
+          )
         And function('DATE',oi.order.orderAt)= current_date
 """)
     Long getRevenueToday();
 
     @Query("""
-        SELECT COALESCE(SUM(oi.quantity * oi.product.price), 0)
-        FROM OrderItem oi
-        WHERE oi.order.orderStatus.name = 'Đã Giao Hàng'
-          AND oi.order.orderAt >= FUNCTION('DATE_TRUNC', 'week', CURRENT_DATE)
-    """)
+    SELECT COALESCE(SUM(oi.quantity * oi.product.price), 0)
+    FROM OrderItem oi
+    WHERE (
+            (oi.order.orderStatus.name = 'Đã Giao Hàng' AND oi.order.paymentMethod.id = 'COD')
+         OR (oi.order.orderStatus.name IN ('Đang Chuẩn Bị Hàng', 'Đang Giao Hàng', 'Đã Giao Hàng') 
+             AND oi.order.paymentMethod.id = 'QR')
+          )
+      AND oi.order.orderAt >= FUNCTION('DATE_TRUNC', 'week', CURRENT_TIMESTAMP)
+""")
     Long getRevenueThisWeek();
 
 
     @Query("""
         SELECT COALESCE(SUM(oi.quantity * oi.product.price), 0)
         FROM OrderItem oi
-        WHERE oi.order.orderStatus.name = 'Đã Giao Hàng'
+        WHERE (
+            (oi.order.orderStatus.name = 'Đã Giao Hàng' AND oi.order.paymentMethod.id = 'COD')
+         OR (oi.order.orderStatus.name IN ('Đang Chuẩn Bị Hàng', 'Đang Giao Hàng', 'Đã Giao Hàng') 
+             AND oi.order.paymentMethod.id = 'QR')
+          )
           AND oi.order.orderAt >= FUNCTION('DATE_TRUNC', 'month', CURRENT_DATE)
     """)
     Long getRevenueThisMonth();
@@ -96,7 +110,11 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         SELECT COALESCE(SUM(oi.quantity * oi.product.price), 0)
         FROM OrderItem oi
         JOIN oi.order o
-        WHERE o.orderStatus.name='Đã giao hàng'
+          WHERE (
+            (oi.order.orderStatus.name = 'Đã Giao Hàng' AND oi.order.paymentMethod.id = 'COD')
+         OR (oi.order.orderStatus.name IN ('Đang Chuẩn Bị Hàng', 'Đang Giao Hàng', 'Đã Giao Hàng') 
+             AND oi.order.paymentMethod.id = 'QR')
+          )
         AND o.orderAt BETWEEN :start AND :end
 """)
     Long getRevenueBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
@@ -104,12 +122,56 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("""
     SELECT COALESCE(SUM(oi.quantity * oi.product.price), 0)
     FROM OrderItem oi
-    WHERE oi.order.orderStatus.name = 'Đã Giao Hàng'
+      WHERE (
+            (oi.order.orderStatus.name = 'Đã Giao Hàng' AND oi.order.paymentMethod.id = 'COD')
+         OR (oi.order.orderStatus.name IN ('Đang Chuẩn Bị Hàng', 'Đang Giao Hàng', 'Đã Giao Hàng') 
+             AND oi.order.paymentMethod.id = 'QR')
+          )
       AND function('DATE', oi.order.orderAt) = :date
 """)
     Long getRevenueByDate(@Param("date") LocalDateTime date);
 
+
     Page<Order> findByCustomerAndOrderStatus_NameAndOrderAtAfter(Customer customer, String orderStatus, LocalDateTime fromDate, Pageable pageable);
 
     Page<Order> findByCustomerAndOrderStatus_NameAndOrderAtBefore(Customer customer, String orderStatusName, LocalDateTime toDate, Pageable pageable);
+
+    @Query("""
+        SELECT FUNCTION('TO_CHAR', o.orderAt, 'YYYY-MM-DD'),
+               SUM(oi.quantity * p.price)
+        FROM Order o
+        JOIN o.orderItem oi
+        JOIN oi.product p
+        GROUP BY FUNCTION('TO_CHAR', o.orderAt, 'YYYY-MM-DD')
+        ORDER BY FUNCTION('TO_CHAR', o.orderAt, 'YYYY-MM-DD')
+    """)
+    List<Object[]> getRevenueLastDays();
+
+    @Query(value = """
+        SELECT 
+            TO_CHAR(d::date, 'YYYY-MM-DD') AS date,
+            COALESCE(SUM(oi.quantity * p.price), 0) AS revenue
+        FROM generate_series(CURRENT_DATE - INTERVAL '6 day', CURRENT_DATE, '1 day') d
+        LEFT JOIN orders o ON DATE(o.order_at) = d::date
+        LEFT JOIN order_item oi ON o.id = oi.order_id
+        LEFT JOIN product p ON oi.product_id = p.id
+        GROUP BY d
+        ORDER BY d desc
+    """, nativeQuery = true)
+    List<Object[]> getRevenueLast7Days();
+
+
+    @Query(value = """
+    SELECT 
+    TO_CHAR(d::date,'YYYY/MM') AS month,
+    COALESCE(SUM(oi.quantity * p.price),0) AS revenue
+    FROM generate_series(CURRENT_DATE - INTERVAL '11 month', CURRENT_DATE, '1 month') d
+    LEFT JOIN orders o ON DATE_TRUNC('month', o.order_at) = DATE_TRUNC('month', d::date)
+    LEFT JOIN order_item oi ON o.id = oi.order_id
+    LEFT JOIN product p ON oi.product_id = p.id
+    GROUP BY d
+    ORDER BY d desc
+    """, nativeQuery = true)
+    List<Object[]> getRevenueLast12Months();
 }
+

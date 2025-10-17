@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chi tiết đơn hàng</title>
+  <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="auth-body">
+<a th:href="${'/manager/bill-list'}" class="btn btn-light position-absolute top-0 start-0 m-3">← Quay lại</a>
+<div class="container py-5">
+  <div class="auth-card p-4 shadow-sm">
+    <div th:object="${order}">
+      <h1 class="h4 mb-4 text-primary">🧾 Chi tiết đơn hàng</h1>
+
+      <p><strong>Mã đơn hàng:</strong> <span th:text="*{id}"></span></p>
+      <p><strong>Tên khách hàng:</strong> <span th:text="*{fullName}"></span></p>
+      <p><strong>Địa chỉ giao hàng:</strong> <span th:text="*{addressString}"></span></p>
+      <p><strong>Ngày giao hàng:</strong> <span th:text="${shippedAt}"></span></p>
+
+      <h2 class="h5 mt-4">📦 Thông tin sản phẩm</h2>
+      <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>STT</th>
+              <th>Sản phẩm</th>
+              <th>Đơn giá</th>
+              <th>Số lượng</th>
+              <th>Thành tiền</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="item, iterStat : *{orderItem}">
+              <td th:text="${iterStat.index + 1}"></td>
+              <td>
+                <div class="d-flex align-items-center">
+                  <img th:src="@{${item.product.main_image_url}}" alt="" class="me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                  <span th:text="${item.product.name}"></span>
+                </div>
+              </td>
+              <td th:text="${#numbers.formatInteger(item.product.price, 0, 'POINT')} + 'đ / ' + ${item.product.unit.name}"></td>
+              <td th:text="${#numbers.formatInteger(item.quantity, 0, 'POINT')}"></td>
+              <td th:text="${#numbers.formatInteger(item.product.price * item.quantity, 0, 'POINT')} + 'đ'"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Tổng tiền -->
+      <div class="text-end mt-3">
+        <h4 class="text-danger">
+          Tổng cộng: <span th:text="${#numbers.formatInteger(totalAmount, 0, 'POINT')}"></span>đ
+        </h4>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/js/bootstrap/bootstrap.bundle.min.js"></script>
+</body>
+</html>
