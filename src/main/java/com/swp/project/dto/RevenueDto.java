@@ -10,6 +10,6 @@ import lombok.*;
 public class RevenueDto {
     private String date;
     private Long revenue;
-
+    private Double growthPercent;
 
 }

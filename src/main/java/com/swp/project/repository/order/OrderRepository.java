@@ -151,7 +151,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         SELECT 
             TO_CHAR(d::date, 'YYYY-MM-DD') AS date,
             COALESCE(SUM(oi.quantity * p.price), 0) AS revenue
-        FROM generate_series(CURRENT_DATE - INTERVAL '6 day', CURRENT_DATE, '1 day') d
+        FROM generate_series(CURRENT_DATE - INTERVAL '7 day', CURRENT_DATE, '1 day') d
         LEFT JOIN orders o ON DATE(o.order_at) = d::date
         LEFT JOIN order_item oi ON o.id = oi.order_id
         LEFT JOIN product p ON oi.product_id = p.id
