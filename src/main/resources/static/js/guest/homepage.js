@@ -1,6 +1,10 @@
 const productContainer = document.getElementById('productCategoryContainer')
 const categoryContainer = document.getElementById('category');
 
+
+
+
+
 async function loadAllCategory() {
     categoryContainer.innerHTML = '';
     const loadingOption = document.createElement('option');
@@ -64,12 +68,95 @@ async function loadProductsByCategory(categoryId, container, sortBy = 'default')
     });
 }
 
+async function initBestSellerContainer() {
+    const container = document.getElementById('bestSellerContainer');
+    let url = `http://localhost:8080/api/products?page=0&size=6&sortBy=best-seller`;
+    let products = [];
+    try {
+        const response = await fetch(url);
+        products = await response.json();
+    } catch (error) {
+        console.error('Error fetching products:', error);
+    }
+    container.innerHTML = '';
+    products.forEach(product => {
+        const productCard = document.createElement('div');
+        productCard.className = 'product-card';
+        productCard.innerHTML = `
+            <a href="/product/${product.id}" class="product-card-link">
+                <div class="card product-card h-100">
+                    <div class="product-badge"
+                                     style="background: linear-gradient(45deg, #FF5722, #D84315);">
+                                    Bán chạy
+                    </div>
+                    <div class="product-image">
+                        <img src="${product.main_image_url}" class="card-img-top" alt="Product Image">
+                    </div>
+                    <div class="card-body product-info">
+                        <div class="product-title">
+                            <span>${product.name}</span>
+                        </div>
+                        <div class="product-price">
+                            <span>${Number(product.price).toLocaleString('en-US')}</span>
+                        </div>
+                    </div>
+                </div>
+            </a>`;
+        if (product.soldQuantity > 0) {
+            productCard.querySelector('.product-price').innerHTML += 
+            `<span class="badge bg-danger ms-2">
+                <i class="fas fa-fire"></i> ${product.soldQuantity} đã bán
+            </span>`;
+        }
+        container.appendChild(productCard);
+    });
+}
+
+
+async function initNewestContainer() {
+    const container = document.getElementById('newestProductContainer');
+    let url = `http://localhost:8080/api/products?page=0&size=6&sortBy=newest`;
+    let products = [];
+    try {
+        const response = await fetch(url);
+        products = await response.json();
+    } catch (error) {
+        console.error('Error fetching products:', error);
+    }
+    container.innerHTML = '';
+    products.forEach(product => {
+        const productCard = document.createElement('div');
+        productCard.className = 'product-card';
+        productCard.innerHTML = `
+            <a href="/product/${product.id}" class="product-card-link">
+                <div class="card product-card h-100">
+                    <div class="product-badge"
+                        style="background: linear-gradient(45deg, #2196F3, #1976D2);">Mới
+                    </div>
+                    <div class="product-image">
+                        <img src="${product.main_image_url}" class="card-img-top" alt="Product Image">
+                    </div>
+                    <div class="card-body product-info">
+                        <div class="product-title">
+                            <span>${product.name}</span>
+                        </div>
+                        <div class="product-price">
+                            <span>${Number(product.price).toLocaleString('en-US')}</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        `;
+        container.appendChild(productCard);
+    });
+}
+
 
 document.addEventListener('DOMContentLoaded', () => {
     loadAllCategory();
     loadProductsByCategory(0, productContainer);
-    loadProductsByCategory(0, document.getElementById('bestSellerContainer'), 'best-seller');
-    loadProductsByCategory(0, document.getElementById('newestProductContainer'), 'newest');
+    initBestSellerContainer();
+    initNewestContainer();
 });
 
 categoryContainer.addEventListener('change', (event) => {

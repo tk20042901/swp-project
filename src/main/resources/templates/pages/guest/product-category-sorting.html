@@ -94,6 +94,13 @@
 
             <!-- Enhanced Pagination -->
             <div class="pagination-wrapper" th:if="${viewProductDto.totalPages > 1}">
+                <!-- Nút trang đầu -->
+                <a th:href="@{${url}(page=0, size=${viewProductDto.size}, categoryId=${categoryId}, sortBy=${sortBy}, keyword=${keyword})}"
+                    th:if="${!viewProductDto.first}" class="btn btn-primary btn-pagination">
+                    <i class="fas fa-angle-double-left"></i> Trang đầu
+                </a>
+                
+                <!-- Nút trang trước -->
                 <a th:href="@{${url}(page=${viewProductDto.number - 1}, size=${viewProductDto.size}, categoryId=${categoryId}, sortBy=${sortBy}, keyword=${keyword})}"
                     th:if="${!viewProductDto.first}" class="btn btn-primary btn-pagination">
                     <i class="fas fa-chevron-left"></i> Trang trước
@@ -105,10 +112,18 @@
                     <strong th:text="${viewProductDto.totalPages}">1</strong>
                 </div>
 
+                <!-- Nút trang sau -->
                 <a th:href="@{${url}(page=${viewProductDto.number + 1}, size=${viewProductDto.size}, categoryId=${categoryId}, sortBy=${sortBy}, keyword=${keyword})}"
                     th:if="${!viewProductDto.last}" class="btn btn-primary btn-pagination">
                     Trang sau <i class="fas fa-chevron-right"></i>
                 </a>
+                
+                <!-- Nút trang cuối -->
+                <a th:href="@{${url}(page=${viewProductDto.totalPages - 1}, size=${viewProductDto.size}, categoryId=${categoryId}, sortBy=${sortBy}, keyword=${keyword})}"
+                    th:if="${!viewProductDto.last}" class="btn btn-primary btn-pagination">
+                    Trang cuối <i class="fas fa-angle-double-right"></i>
+                </a>
+                
             </div>
 
             <!-- Empty State -->
