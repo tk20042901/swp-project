@@ -19,11 +19,11 @@
     <tbody>
     <tr th:each="item : ${daysReport}">
         <td th:text = "${item.date}"></td>
-        <td th:text = "${item.revenue} + 'VND'"></td>
+        <td th:text = "${item.revenue} + ' VND'"></td>
     </tr>
     </tbody>
 </table>
-<a th:href="@{/manager/export-excel}">Xuất</a>
+<a th:href="@{/manager/days/export-excel}">Xuất</a>
 <h3>Doanh thu 12 tháng gần đây</h3>
 <table>
     <thead>
@@ -35,9 +35,10 @@
     <tbody>
     <tr th:each="item : ${monthsReport}">
         <td th:text = "${item.date}"></td>
-        <td th:text = "${item.revenue} + 'VND'"></td>
+        <td th:text = "${item.revenue} + ' VND'"></td>
     </tr>
     </tbody>
 </table>
+<a th:href="@{/manager/months/export-excel}">Xuất</a>
 </body>
 </html>
