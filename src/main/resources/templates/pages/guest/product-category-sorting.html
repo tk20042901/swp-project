@@ -6,15 +6,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/css/product-category-sorting.css">
     <script src="/js/bootstrap/bootstrap.bundle.min.js"></script>
-    <title>FruitShop - Trang danh sách sản phẩm </title>
+    <title>Danh sách sản phẩm </title>
 </head>
 
 <body>
-    <div th:insert="~{fragments/header :: header}"></div>
+    <div th:replace="~{fragments/header :: header}"></div>
     <main style="overflow-x: hidden">
         <div class="product-header text-center" th:if="${keyword != null}">
             <div class="container">
-                <h1 class="mb-3" th:text="${Title}">Trang danh sách sản phẩm</h1>
+                <h1 class="mb-3" th:text="${Title}">Danh sách sản phẩm</h1>
                 <div class="stats-badge">
                     Tìm thấy <span th:text="${totalElement}">0</span> sản phẩm phù hợp
                 </div>
@@ -22,7 +22,7 @@
         </div>
         <div class="product-header text-center" th:if="${keyword == null}">
             <div class="container">
-                <h1 class="mb-3" th:text="${Title}">Trang danh sách sản phẩm</h1>
+                <h1 class="mb-3" th:text="${Title}">Danh sách sản phẩm</h1>
             </div>
         </div>
         <div class="container">
@@ -139,7 +139,7 @@
             </div>
         </div>
     </main>
-    <div th:insert="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
     <script src="/js/bootstrap/bootstrap.bundle.min.js"></script>
 </body>
 </html>

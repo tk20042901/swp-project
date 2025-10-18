@@ -111,7 +111,7 @@ public class CustomerAiService {
                                         .build())
                                 .documentRetriever(VectorStoreDocumentRetriever.builder()
                                         .topK(10)
-                                        .similarityThreshold(0.7)
+                                        .similarityThreshold(0.75)
                                         .vectorStore(vectorStore)
                                         .build())
                                 .queryAugmenter(ContextualQueryAugmenter.builder()
@@ -132,6 +132,7 @@ public class CustomerAiService {
                         .defaultOptions(VertexAiGeminiChatOptions.builder()
                                 .model("gemini-2.5-flash")
                                 .maxOutputTokens(128)
+                                .temperature(0.0)
                                 .build())
                         .vertexAI(new VertexAI("gen-lang-client-0228656505","asia-southeast1"))
                         .build())
@@ -143,9 +144,9 @@ public class CustomerAiService {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Đây là tài liệu thông tin chi tiết về sản phẩm hoa quả của cửa hàng. ");
         sb.append("Tên sản phẩm: ").append(product.getName()).append(". ");
         sb.append("Mô tả sản phẩm: ").append(product.getDescription()).append(". ");
+        sb.append("Link sản phẩm: /product/").append(product.getId()).append(". ");
 
         if (product.getCategories() != null && !product.getCategories().isEmpty()) {
             String categoryNames = product.getCategories().stream()
@@ -181,7 +182,6 @@ public class CustomerAiService {
         } else {
             sb.append("Tình trạng tồn kho: Hết hàng. Sản phẩm chưa có lô hàng nào. ");
         }
-        sb.append("Link sản phẩm: /product/").append(product.getId()).append(". ");
         return sb.toString();
     }
 

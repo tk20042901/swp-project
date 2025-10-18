@@ -3,7 +3,7 @@ package com.swp.project.controller;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.Objects;
 
 import com.swp.project.entity.product.SubImage;
 import org.springframework.data.domain.Page;
@@ -50,14 +50,14 @@ public class SellerController {
     private final ImageService imageService;
 
     @GetMapping("")
-    public String sellerMain() {
+    public String index() {
         return "pages/seller/index";
     }
 
     @GetMapping("/all-orders")
-    public String sellerProducts(@Valid @ModelAttribute SellerSearchOrderDto sellerSearchOrderDto,
-            BindingResult bindingResult,
-            Model model) {
+    public String allOrdersList(@Valid @ModelAttribute SellerSearchOrderDto sellerSearchOrderDto,
+                                BindingResult bindingResult,
+                                Model model) {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("orders", orderService.getAllOrder());
@@ -187,9 +187,7 @@ public class SellerController {
             @Valid @ModelAttribute UpdateProductDto updateProductDto,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes,
-            Principal principal,
-            @RequestParam MultipartFile imageFile,
-            @RequestParam MultipartFile[] subImages) {
+            Principal principal) {
         if (bindingResult.hasErrors()) {
             System.out.println(bindingResult.getAllErrors());
             return "redirect:/seller/seller-update-product/" + updateProductDto.getId();
@@ -318,7 +316,7 @@ public class SellerController {
             Product updatedProduct = oldProduct.toBuilder().build();
 
             if (mainImage != null && !mainImage.isEmpty()) {
-                if (!mainImage.getContentType().startsWith("image/")) {
+                if (!Objects.requireNonNull(mainImage.getContentType()).startsWith("image/")) {
                     throw new Exception("Tệp hình ảnh chính không đúng định dạng");
                 }
                                 String mainImagePath = imageService.saveTemporaryImage(mainImage, productId + "", "temp-1.jpg");
@@ -341,7 +339,7 @@ public class SellerController {
                     for (int i = 0; i < validSubImages.size(); i++) {
                         MultipartFile subImage = validSubImages.get(i);
 
-                        if (!subImage.getContentType().startsWith("image/")) {
+                        if (!Objects.requireNonNull(subImage.getContentType()).startsWith("image/")) {
                             throw new Exception("Tệp hình ảnh phụ " + (i + 1) + " không đúng định dạng");
                         }
 

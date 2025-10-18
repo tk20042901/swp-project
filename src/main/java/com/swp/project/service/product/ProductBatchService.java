@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -16,8 +17,8 @@ public class ProductBatchService {
     private final ProductBatchRepository productBatchRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-    public List<ProductBatch> getByProductId(Long productId) {
-        return productBatchRepository.getByProduct_Id(productId);
+    public List<ProductBatch> getNotExpiredBatchByProductId(Long productId) {
+        return productBatchRepository.getByProduct_IdAndExpiredDateAfter(productId, LocalDateTime.now());
     }
 
     public void add(ProductBatch productBatch) {

@@ -3,7 +3,6 @@ package com.swp.project.controller;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -45,7 +44,6 @@ public class GuestController {
     private final CustomerAiService customerAiService;
     private final CustomerService customerService;
     private final static int PAGE_SIZE = 9;
-    private final static int CAROUSEL_SIZE = 6;
 
     @Value("${recaptcha.site-key}")
     private String recaptchaSite;
@@ -189,7 +187,7 @@ public class GuestController {
         model.addAttribute("categoryId", categoryId);
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("categories", categories);
-        model.addAttribute("Title", "Trang danh sách sản phẩm");
+        model.addAttribute("Title", "Danh sách sản phẩm");
         model.addAttribute("url", "/product-category-sorting");
         model.addAttribute("showSearchBar", true);
         return "pages/guest/product-category-sorting";
