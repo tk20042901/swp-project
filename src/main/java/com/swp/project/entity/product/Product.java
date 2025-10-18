@@ -60,12 +60,11 @@ public class Product implements Serializable{
     @Transient
     private int totalQuantity;
 
-    // Formula tính sold quantity trong DB - chỉ tính các đơn hàng đã giao thành công
+    // Formula tính sold quantity trong DB - đang giao hàng và đã giao hàng
     @Formula("(SELECT COALESCE(SUM(oi.quantity), 0) " +
             "FROM order_item oi " +
             "INNER JOIN orders o ON o.id = oi.order_id " +
             "INNER JOIN order_status os ON o.order_status_id = os.id " +
-            "WHERE oi.product_id = id AND os.name = 'Đã Giao Hàng')")
+            "WHERE oi.product_id = id AND os.name IN ('Đã Giao Hàng','Đang Giao Hàng'))")
     private Integer soldQuantity;
-
 }
