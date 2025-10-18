@@ -496,12 +496,25 @@ public class ManagerController {
         return "pages/manager/order-details";
     }
 
-    @GetMapping("/export-excel")
-    public ResponseEntity<InputStreamResource> exportExcel() throws IOException {
+    @GetMapping("/days/export-excel")
+    public ResponseEntity<InputStreamResource> exportDaysRevenueToExcel() throws IOException {
         ByteArrayInputStream in = orderService.exportDaysRevenueToExcel();
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=revenue-7-days.xlsx");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(new InputStreamResource(in));
+    }
+
+    @GetMapping("/months/export-excel")
+    public ResponseEntity<InputStreamResource> exportMonthsRevenueToExcel() throws IOException {
+        ByteArrayInputStream in = orderService.exportMonthsRevenueToExcel();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=revenue-12-months.xlsx");
 
         return ResponseEntity.ok()
                 .headers(headers)

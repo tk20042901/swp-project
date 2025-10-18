@@ -634,7 +634,7 @@ public class OrderService {
             for (RevenueDto dto : revenues) {
                 Row row = sheet.createRow(rowIdx++);
                 row.createCell(0).setCellValue(dto.getDate());
-                row.createCell(1).setCellValue(dto.getRevenue());
+                row.createCell(1).setCellValue(dto.getRevenue()+" VND");
             }
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -642,6 +642,36 @@ public class OrderService {
             return new ByteArrayInputStream(out.toByteArray());
         }
 
+    }
+    public ByteArrayInputStream exportMonthsRevenueToExcel() throws IOException {
+        List<Object[]> raw = orderRepository.getRevenueLast12Months();
+
+        // Chuyển sang List<RevenueDto>
+        List<RevenueDto> revenues = new ArrayList<>();
+        for (Object[] row : raw) {
+            String date = (String) row[0];
+            Long revenue = ((Number) row[1]).longValue();
+            revenues.add(new RevenueDto(date, revenue));
+        }
+
+        // Tạo workbook Excel
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Revenue 12 Months");
+            Row header = sheet.createRow(0);
+            header.createCell(0).setCellValue("Tháng");
+            header.createCell(1).setCellValue("Doanh thu");
+
+            int rowIdx = 1;
+            for (RevenueDto dto : revenues) {
+                Row row = sheet.createRow(rowIdx++);
+                row.createCell(0).setCellValue(dto.getDate());
+                row.createCell(1).setCellValue(dto.getRevenue()+" VND");
+            }
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            workbook.write(out);
+            return new ByteArrayInputStream(out.toByteArray());
+        }
 
     }
 }
