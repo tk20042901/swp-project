@@ -1,6 +1,5 @@
 package com.swp.project.service.product;
 
-import java.awt.JobAttributes.SidesType;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.Normalizer;
@@ -36,7 +35,6 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class ProductService {
 
-    private final SubImageService subImageService;
     private final ProductRepository productRepository;
     private final ProductBatchService productBatchService;
     private final OrderStatusService orderStatusService;
@@ -114,7 +112,7 @@ public class ProductService {
 
     @Transactional
     public void pickProductInProductBatch(Long productId, double quantity) {
-        List<ProductBatch> productBatches = productBatchService.getByProductId(productId);
+        List<ProductBatch> productBatches = productBatchService.getNotExpiredBatchByProductId(productId);
         productBatches.sort(Comparator.comparing(ProductBatch::getExpiredDate)
                 .thenComparingDouble(ProductBatch::getQuantity));
         for (ProductBatch productBatch : productBatches) {
@@ -132,7 +130,7 @@ public class ProductService {
     }
 
     public double getAvailableQuantity(Long productId) {
-        double productBatchQuantity = productBatchService.getByProductId(productId)
+        double productBatchQuantity = productBatchService.getNotExpiredBatchByProductId(productId)
                 .stream()
                 .mapToDouble(ProductBatch::getQuantity)
                 .sum();
@@ -198,11 +196,10 @@ public class ProductService {
         List<Product> allProducts = productRepository.findAllByEnabled(true).stream()
                 .filter(p -> !p.getId().equals(id))
                 .toList();
-        List<Product> relatedProducts = allProducts.stream()
+        return allProducts.stream()
                 .filter(p -> isProductNameRelated(p.getName(), productName))
                 .limit(limit)
                 .toList();
-        return relatedProducts;
     }
 
     public double getSoldQuantity(Long id) {
@@ -212,12 +209,12 @@ public class ProductService {
                         orderStatusService.isDeliveredStatus(order)))
                 .flatMap(order -> order.getOrderItem().stream())
                 .filter(item -> item.getProduct().getId().equals(id))
-                .mapToDouble(item -> item.getQuantity())
+                .mapToDouble(OrderItem::getQuantity)
                 .sum();
     }
 
     private boolean isProductNameRelated(String productName, String anotherName) {
-        if (productName.equals("") || anotherName.equals(""))
+        if (productName.isEmpty() || anotherName.isEmpty())
             return false;
         String[] keywords = anotherName.split(" ");
         for (String keyword : keywords) {
@@ -229,7 +226,7 @@ public class ProductService {
     }
 
     private boolean isKeywordInProductName(String productName, String keyword) {
-        if (productName.equals("") || keyword.equals(""))
+        if (productName.isEmpty() || keyword.isEmpty())
             return false;
         String[] splitedWords = productName.split(" ");
         for (String word : splitedWords) {
@@ -289,13 +286,12 @@ public class ProductService {
         return normalized;
     }
 
-    public boolean checkUniqueProductName(String name) throws Exception {
+    public boolean checkUniqueProductName(String name){
         String slugName = toSlugName(name);
-        boolean duplicate = productRepository
+        return productRepository
                 .findAll()
                 .stream()
                 .anyMatch(p -> toSlugName(p.getName()).equals(slugName));
-        return duplicate;
     }
 
 }
