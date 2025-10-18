@@ -659,19 +659,43 @@ public class OrderService {
             Long revenue = ((Number) row[1]).longValue();
             revenues.add(new RevenueDto(date, revenue,null));
         }
+        for (int i = 0; i < revenues.size(); i++) {
+            if (i == revenues.size() - 1) {
+                revenues.get(i).setGrowthPercent(0.0); // ngày cũ nhất không có hôm sau để so sánh
+            } else {
+                long today = revenues.get(i).getRevenue();
+                long yesterday = revenues.get(i + 1).getRevenue();
 
+                double growth;
+                if (yesterday == 0 && today == 0) {
+                    growth = 0.0;
+                } else if (yesterday == 0) {
+                    growth = 100.0;
+                } else {
+                    growth = ((today - yesterday) / (double) yesterday) * 100;
+                }
+
+                revenues.get(i).setGrowthPercent(growth);
+            }
+        }
+
+        if (revenues.size() > 7) {
+            revenues = revenues.subList(0, 7);
+        }
         // Tạo workbook Excel
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Revenue 7 Days");
             Row header = sheet.createRow(0);
             header.createCell(0).setCellValue("Ngày");
             header.createCell(1).setCellValue("Doanh thu");
+            header.createCell(2).setCellValue("(%) Tăng trưởng");
 
             int rowIdx = 1;
             for (RevenueDto dto : revenues) {
                 Row row = sheet.createRow(rowIdx++);
                 row.createCell(0).setCellValue(dto.getDate());
                 row.createCell(1).setCellValue(dto.getRevenue()+" VND");
+                row.createCell(2).setCellValue(dto.getGrowthPercent()+" %");
             }
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -691,18 +715,21 @@ public class OrderService {
             revenues.add(new RevenueDto(date, revenue,null));
         }
 
+
         // Tạo workbook Excel
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Revenue 12 Months");
             Row header = sheet.createRow(0);
             header.createCell(0).setCellValue("Tháng");
             header.createCell(1).setCellValue("Doanh thu");
+            header.createCell(2).setCellValue("(%) Tăng trưởng");
 
             int rowIdx = 1;
             for (RevenueDto dto : revenues) {
                 Row row = sheet.createRow(rowIdx++);
                 row.createCell(0).setCellValue(dto.getDate());
                 row.createCell(1).setCellValue(dto.getRevenue()+" VND");
+                row.createCell(2).setCellValue(dto.getGrowthPercent()+" %");
             }
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();

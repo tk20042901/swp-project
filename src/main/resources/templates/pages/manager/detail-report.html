@@ -121,13 +121,13 @@
         <tr>
             <th>Thời gian</th>
             <th>Doanh thu</th>
-            <th>(%)Doanh thu</th>
+            <th>(%)Tăng trưởng</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="item : ${daysReport}">
             <td th:text="${item.date}"></td>
-            <td th:text="${item.revenue} + ' VND'"></td>
+            <td th:text="${#numbers.formatInteger(item.revenue, 0, 'POINT')} + ' đ'"></td>
             <td th:text="${ #numbers.formatDecimal(item.growthPercent, 1, 2) + ' %'}"></td>
         </tr>
         </tbody>
@@ -140,13 +140,13 @@
         <tr>
             <th>Thời gian</th>
             <th>Doanh thu</th>
-            <th>(%)Doanh thu</th>
+            <th>(%)Tăng trưởng</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="item : ${monthsReport}">
             <td th:text="${item.date}"></td>
-            <td th:text="${item.revenue} + ' VND'"></td>
+            <td th:text="${#numbers.formatInteger(item.revenue, 0, 'POINT')} + ' đ'"></td>
             <td th:text="${ #numbers.formatDecimal(item.growthPercent, 1, 2) + ' %'}"></td>
         </tr>
         </tbody>
