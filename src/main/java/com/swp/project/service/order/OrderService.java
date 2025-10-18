@@ -593,10 +593,29 @@ public class OrderService {
         for (Object[] row : raw) {
             String date = (String) row[0];
             Long revenue = ((Number) row[1]).longValue();
-            result.add(new RevenueDto(date, revenue));
+            result.add(new RevenueDto(date, revenue,null));
         }
 
-        return result;
+        for (int i = 0; i < result.size(); i++) {
+            if (i == result.size() - 1) {
+                result.get(i).setGrowthPercent(null);
+            } else {
+                long today = result.get(i).getRevenue();
+                long yesterday = result.get(i + 1).getRevenue();
+                if (yesterday == 0 && today ==0) {
+                    result.get(i).setGrowthPercent(0.0);
+                }
+                else if(yesterday == 0){
+                    result.get(i).setGrowthPercent(100.0);
+                }
+                else
+                    result.get(i).setGrowthPercent(((today - yesterday) / (double) yesterday) * 100) ;
+            }
+
+        }
+
+
+        return result.subList(0, 7);
 
     }
     public List<RevenueDto> getMonthsRevenue(){
@@ -606,10 +625,28 @@ public class OrderService {
         for (Object[] row : raw) {
             String date = (String) row[0];
             Long revenue = ((Number) row[1]).longValue();
-            result.add(new RevenueDto(date, revenue));
+            result.add(new RevenueDto(date, revenue,null));
+        }
+        for (int i = 0; i < result.size(); i++) {
+            if (i == result.size() - 1) {
+                result.get(i).setGrowthPercent(null);
+            } else {
+                long thisMonth = result.get(i).getRevenue();
+                long lastMonth = result.get(i + 1).getRevenue();
+                if (lastMonth == 0 && thisMonth ==0) {
+                    result.get(i).setGrowthPercent(0.0);
+                }
+                else if(lastMonth == 0){
+                    result.get(i).setGrowthPercent(100.0);
+                }
+                else
+                    result.get(i).setGrowthPercent(((thisMonth - lastMonth) / (double) lastMonth) * 100) ;
+            }
+
         }
 
-        return result;
+
+        return result.subList(0, 7);
     }
 
     public ByteArrayInputStream exportDaysRevenueToExcel() throws IOException {
@@ -620,7 +657,7 @@ public class OrderService {
         for (Object[] row : raw) {
             String date = (String) row[0];
             Long revenue = ((Number) row[1]).longValue();
-            revenues.add(new RevenueDto(date, revenue));
+            revenues.add(new RevenueDto(date, revenue,null));
         }
 
         // Tạo workbook Excel
@@ -651,7 +688,7 @@ public class OrderService {
         for (Object[] row : raw) {
             String date = (String) row[0];
             Long revenue = ((Number) row[1]).longValue();
-            revenues.add(new RevenueDto(date, revenue));
+            revenues.add(new RevenueDto(date, revenue,null));
         }
 
         // Tạo workbook Excel
