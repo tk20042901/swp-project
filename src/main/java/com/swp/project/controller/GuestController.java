@@ -217,11 +217,18 @@ public class GuestController {
     }
 
     @GetMapping("/product/{id}")
-    public String getProductDetail(
+    public String getProductDetails(
             @PathVariable(name = "id") Long id,
             Model model,
-            Principal principal) {
+            Principal principal,
+            RedirectAttributes redirectAttributes) {
         Product product = productService.getProductById(id);
+
+        if (product == null) {
+            redirectAttributes.addFlashAttribute("error", "Sản phẩm đã bị xóa hoặc không còn tồn tại");
+            return "redirect:/";
+        }
+
         List<SubImage> subImages = product.getSub_images();
         boolean isAllowDecimal = product.getUnit().isAllowDecimal();
         model.addAttribute("product", product);
@@ -281,17 +288,25 @@ public class GuestController {
 
     @PostMapping("/product/add")
     public String addToCart(
-            @RequestParam Long productId,
-            @RequestParam Double quantity,
+            @RequestParam(value = "productId") String productIdString,
+            @RequestParam(value = "quantity") String quantityString,
             RedirectAttributes redirectAttributes,
             Principal principal) {
         try {
+            Long productId;
+            Double quantity;
+            try {
+                productId = Long.valueOf(productIdString);
+                quantity = Double.valueOf(quantityString);
+            } catch (NumberFormatException e) {
+                throw new Exception("Dữ liệu không hợp lệ");
+            }
             customerService.addShoppingCartItem(principal, productId, quantity);
         } catch (Exception ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
-            return "redirect:/product/" + productId;
+            return "redirect:/product/" + productIdString;
         }
         redirectAttributes.addFlashAttribute("msg", "Thêm sản phẩm vào giỏ hàng thành công");
-        return "redirect:/product/" + productId;
+        return "redirect:/product/" + productIdString;
     }
 }

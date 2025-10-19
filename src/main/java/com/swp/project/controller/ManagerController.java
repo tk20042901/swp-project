@@ -5,20 +5,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-
-import com.swp.project.dto.RevenueDto;
-import com.swp.project.service.order.BillService;
-import com.swp.project.service.order.OrderService;
-import com.swp.project.service.product.ImageService;
-import com.swp.project.service.product.ProductService;
-import com.swp.project.service.product.SubImageService;
-import com.swp.project.service.seller_request.SellerRequestService;
-import com.swp.project.service.seller_request.SellerRequestTypeService;
-
-import org.springframework.http.HttpHeaders;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
-import org.springframework.data.util.Pair;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -32,17 +21,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.swp.project.dto.RevenueDto;
 import com.swp.project.dto.StaffDto;
 import com.swp.project.entity.address.CommuneWard;
 import com.swp.project.entity.address.ProvinceCity;
 import com.swp.project.entity.order.Bill;
 import com.swp.project.entity.order.Order;
 import com.swp.project.entity.product.Product;
-import com.swp.project.entity.product.SubImage;
 import com.swp.project.entity.seller_request.SellerRequest;
 import com.swp.project.entity.user.Seller;
 import com.swp.project.entity.user.Shipper;
 import com.swp.project.service.AddressService;
+import com.swp.project.service.order.BillService;
+import com.swp.project.service.order.OrderService;
+import com.swp.project.service.product.ProductService;
+import com.swp.project.service.seller_request.SellerRequestService;
+import com.swp.project.service.seller_request.SellerRequestTypeService;
 import com.swp.project.service.user.SellerService;
 import com.swp.project.service.user.ShipperService;
 
@@ -211,6 +205,12 @@ public class ManagerController {
                     session.setAttribute("newClassName", clickedButton);
                     if (email != null && !email.isEmpty()) {
                         Seller seller = sellerService.getByEmail(email);
+
+                        if (seller == null) {
+                            staffDto = new StaffDto();
+                            break;
+                        }
+
                         staffDto = new StaffDto().parse(seller);
                     } else {
                         staffDto = new StaffDto();
@@ -220,6 +220,12 @@ public class ManagerController {
                     session.setAttribute("newClassName", clickedButton);
                     if (email != null && !email.isEmpty()) {
                         Shipper shipper = shipperService.getByEmail(email);
+
+                        if (shipper == null) {
+                            staffDto = new StaffDto();
+                            break;
+                        }
+
                         staffDto = new StaffDto().parse(shipper);
                     } else {
                         staffDto = new StaffDto();
