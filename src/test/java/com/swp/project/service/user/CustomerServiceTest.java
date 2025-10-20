@@ -69,34 +69,6 @@ class CustomerServiceTest {
         verify(pendingRegisterRepository).save(any());
     }
 
-    @Test
-    @DisplayName("Register success when pending register already exists")
-    void register_Success_PendingRegisterAlreadyExists() {
-
-        RegisterDto registerDto = new RegisterDto();
-
-        // password and confirmPassword match
-        registerDto.setPassword("password");
-        registerDto.setConfirmPassword(registerDto.getPassword());
-
-        // email does not exist in the system
-        when(userRepository.existsByEmail(nullable(String.class))).thenReturn(false);
-
-        // pending registration for the email already exists
-        when(pendingRegisterRepository.findByEmail(nullable(String.class))).thenReturn(new PendingRegister());
-
-        customerService.register(registerDto);
-
-        // verify pendingRegisterRepository.delete() is called
-        verify(pendingRegisterRepository).delete(any());
-
-        // verify emailService.sendSimpleEmail() is called
-        verify(emailService).sendSimpleEmail(nullable(String.class), anyString(), anyString());
-
-        // verify pendingRegisterRepository.save() is called
-        verify(pendingRegisterRepository).save(any());
-    }
-
 
     @Test
     @DisplayName("Register fails when password and confirmPassword do not match")
@@ -128,8 +100,8 @@ class CustomerServiceTest {
     }
 
     @Test
-    @DisplayName("Register fails when sending email failed")
-    void register_Fail_SendEmailFailed() {
+    @DisplayName("Register fails when sending email failed and pending register already exists")
+    void register_Fail_SendEmailFailed_PendingRegisterAlreadyExists() {
         RegisterDto registerDto = new RegisterDto();
         registerDto.setEmail("test@email.com");
 
@@ -140,11 +112,17 @@ class CustomerServiceTest {
         // email exists in the system
         when(userRepository.existsByEmail(anyString())).thenReturn(false);
 
+        // pending registration for the email already exists
+        when(pendingRegisterRepository.findByEmail(nullable(String.class))).thenReturn(new PendingRegister());
+
         // mock sending email to throw exception
         doThrow(RuntimeException.class).when(emailService).sendSimpleEmail(nullable(String.class), anyString(), anyString());
 
         var exception = assertThrows(RuntimeException.class, () -> customerService.register(registerDto));
         assertEquals("Gửi email thất bại. Vui lòng thử lại sau.", exception.getMessage());
+
+        // verify pendingRegisterRepository.delete() is called
+        verify(pendingRegisterRepository).delete(any());
     }
 
     @Test
