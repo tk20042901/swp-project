@@ -3,7 +3,6 @@ package com.swp.project.service.product;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.Normalizer;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.swp.project.dto.ViewProductDto;
 import com.swp.project.entity.order.OrderItem;
 import com.swp.project.entity.product.Product;
-import com.swp.project.entity.product.ProductBatch;
 import com.swp.project.entity.product.SubImage;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.listener.event.ProductRelatedUpdateEvent;
@@ -36,7 +34,6 @@ import lombok.RequiredArgsConstructor;
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final ProductBatchService productBatchService;
     private final OrderStatusService orderStatusService;
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
@@ -111,36 +108,19 @@ public class ProductService {
     }
 
     @Transactional
-    public void pickProductInProductBatch(Long productId, double quantity) {
-        List<ProductBatch> productBatches = productBatchService.getNotExpiredBatchByProductId(productId);
-        productBatches.sort(Comparator.comparing(ProductBatch::getExpiredDate)
-                .thenComparingDouble(ProductBatch::getQuantity));
-        for (ProductBatch productBatch : productBatches) {
-            if (quantity <= 0)
-                break;
-            if (productBatch.getQuantity() >= quantity) {
-                productBatch.setQuantity(productBatch.getQuantity() - quantity);
-                quantity = 0;
-            } else {
-                quantity -= productBatch.getQuantity();
-                productBatch.setQuantity(0);
-            }
-            productBatchService.update(productBatch);
-        }
+    public void reduceProductQuantity(Long productId, double quantity) {
+        Product product = getProductById(productId);
+        product.setQuantity(product.getQuantity() - quantity);
+        productRepository.save(product);
     }
 
     public double getAvailableQuantity(Long productId) {
-        double productBatchQuantity = productBatchService.getNotExpiredBatchByProductId(productId)
-                .stream()
-                .mapToDouble(ProductBatch::getQuantity)
-                .sum();
-
         double pendingPaymentQuantity = orderItemRepository
                 .getByProduct_IdAndOrder_OrderStatus(productId, orderStatusService.getPendingPaymentStatus()).stream()
                 .mapToDouble(OrderItem::getQuantity)
                 .sum();
 
-        return productBatchQuantity - pendingPaymentQuantity;
+        return getProductById(productId).getQuantity() - pendingPaymentQuantity;
     }
 
     public ShoppingCartItem getShoppingCartItemByCustomerEmailAndProductId(String email, Long productId) {
