@@ -154,7 +154,6 @@ public class SellerController {
         model.addAttribute("unitSold", orderService.getUnitSold());
         model.addAttribute("totalCanceledOrder", orderService.getTotalCancelledOrders());
         model.addAttribute("nearlySoldOutProducts", orderService.getNearlySoldOutProduct());
-        model.addAttribute("nearlyExpiredProducts", orderService.getNearlyExpiredProduct());
         return "pages/seller/statistic-report/overview";
     }
 

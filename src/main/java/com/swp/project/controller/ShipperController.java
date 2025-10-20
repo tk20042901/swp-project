@@ -177,6 +177,11 @@ public class ShipperController {
                                    RedirectAttributes redirectAttributes) {
         try {
             Order order = orderService.getOrderByOrderId(orderId);
+
+            if (order == null) {
+                throw new Exception("Đơn hàng không tồn tại.");
+            }
+
             Long totalAmount = orderService.calculateTotalAmount(order);
             model.addAttribute("orderStatusService", shipperService.getOrderStatusService());
             model.addAttribute("shippingStatusService", shippingStatusService);
@@ -187,7 +192,7 @@ public class ShipperController {
             return "pages/shipper/order-details";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/shipper/delivering-orders";
+            return "redirect:/shipper";
         }
     }
     

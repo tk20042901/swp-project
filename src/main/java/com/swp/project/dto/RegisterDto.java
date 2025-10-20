@@ -18,6 +18,7 @@ public class RegisterDto {
     @Size(min = 6, max = 255, message = "Mật khẩu phải có độ dài từ 6 đến 255 ký tự")
     private String password;
 
+    @Size(min = 6, max = 255, message = "Xác nhận mật khẩu phải có độ dài từ 6 đến 255 ký tự")
     private String confirmPassword;
     
 }

@@ -24,7 +24,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.swp.project.dto.ChangePasswordDto;
 import com.swp.project.dto.DeliveryInfoDto;
-import com.swp.project.dto.UpdateShoppingCartDto;
 import com.swp.project.entity.order.Order;
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
@@ -222,18 +221,26 @@ public class CustomerController {
 
 
     @PostMapping("/shopping-cart/update")
-    public String updateCartItem(@Valid UpdateShoppingCartDto updateShoppingCartDto, BindingResult bindingResult, RedirectAttributes redirectAttributes, Principal principal) {
+    public String updateCartItem(@RequestParam("productId") Long productId,
+                                 @RequestParam("quantity") String quantityStr,
+                                 RedirectAttributes redirectAttributes,
+                                 Principal principal) {
 
-        if (bindingResult.hasErrors()) {
-            String errorMessage = bindingResult.getAllErrors().get(1).getDefaultMessage();
-            redirectAttributes.addFlashAttribute("error", errorMessage);
+        // Kiểm tra đầu vào
+        if (quantityStr == null || quantityStr.isBlank()) {
+            redirectAttributes.addFlashAttribute("error", "Vui lòng nhập số lượng hợp lệ.");
             return "redirect:/customer/shopping-cart";
         }
 
-        Long productId= updateShoppingCartDto.getProductId();
-        Product product =productService.getProductById(productId);
-        String quantityStr = updateShoppingCartDto.getQuantity();
+        Product product = productService.getProductById(productId);
         double quantity;
+
+        try {
+            quantity = Double.parseDouble(quantityStr);
+        } catch (NumberFormatException e) {
+            redirectAttributes.addFlashAttribute("error", "Số lượng không hợp lệ.");
+            return "redirect:/customer/shopping-cart";
+        }
         try {
            quantity= Double.parseDouble(quantityStr);
         } catch (NumberFormatException e) {
@@ -457,4 +464,10 @@ public class CustomerController {
         return "redirect:/";
     }
 
+    @GetMapping("/header")
+    public String customerHeader(Model model, Principal principal) {
+        List<ShoppingCartItem> cartItems = customerService.getCart(principal.getName());
+        model.addAttribute("cartItems", cartItems);
+        return "fragments/header";
+    }
 }

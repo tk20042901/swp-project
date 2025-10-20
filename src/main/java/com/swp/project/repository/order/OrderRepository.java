@@ -1,10 +1,9 @@
 package com.swp.project.repository.order;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.swp.project.dto.RevenueDto;
+import com.swp.project.entity.product.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,7 +12,6 @@ import org.springframework.data.repository.query.Param;
 
 import com.swp.project.entity.order.Order;
 import com.swp.project.entity.order.OrderStatus;
-import com.swp.project.entity.product.ProductBatch;
 import com.swp.project.entity.user.Customer;
 import com.swp.project.entity.user.Shipper;
 
@@ -57,7 +55,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         From OrderItem oi
       WHERE (
             (oi.order.orderStatus.name = 'Đã Giao Hàng' AND oi.order.paymentMethod.id = 'COD')
-         OR (oi.order.orderStatus.name IN ('Đang Chuẩn Bị Hàng', 'Đang Giao Hàng', 'Đã Giao Hàng') 
+         OR (oi.order.orderStatus.name IN ('Đang Chuẩn Bị Hàng', 'Đang Giao Hàng', 'Đã Giao Hàng')
              AND oi.order.paymentMethod.id = 'QR')
           )
         And function('DATE',oi.order.orderAt)= current_date
@@ -69,7 +67,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     FROM OrderItem oi
     WHERE (
             (oi.order.orderStatus.name = 'Đã Giao Hàng' AND oi.order.paymentMethod.id = 'COD')
-         OR (oi.order.orderStatus.name IN ('Đang Chuẩn Bị Hàng', 'Đang Giao Hàng', 'Đã Giao Hàng') 
+         OR (oi.order.orderStatus.name IN ('Đang Chuẩn Bị Hàng', 'Đang Giao Hàng', 'Đã Giao Hàng')
              AND oi.order.paymentMethod.id = 'QR')
           )
       AND oi.order.orderAt >= FUNCTION('DATE_TRUNC', 'week', CURRENT_TIMESTAMP)
@@ -82,29 +80,20 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         FROM OrderItem oi
         WHERE (
             (oi.order.orderStatus.name = 'Đã Giao Hàng' AND oi.order.paymentMethod.id = 'COD')
-         OR (oi.order.orderStatus.name IN ('Đang Chuẩn Bị Hàng', 'Đang Giao Hàng', 'Đã Giao Hàng') 
+         OR (oi.order.orderStatus.name IN ('Đang Chuẩn Bị Hàng', 'Đang Giao Hàng', 'Đã Giao Hàng')
              AND oi.order.paymentMethod.id = 'QR')
           )
           AND oi.order.orderAt >= FUNCTION('DATE_TRUNC', 'month', CURRENT_DATE)
     """)
     Long getRevenueThisMonth();
 
-    @Query(value = """
-    SELECT *
-    FROM product_batch
-    WHERE expired_date
-          BETWEEN CURRENT_DATE
-          AND CURRENT_DATE +  INTERVAL '5 day'
-    """, nativeQuery = true)
-    List<ProductBatch> findingNearlyExpiredProduct();
-
     @Query("""
         SELECT pb
-        FROM ProductBatch pb
+        FROM Product pb
         WHERE pb.quantity <= :unitSoldOut
         ORDER BY pb.quantity ASC
     """)
-    List<ProductBatch> findingNearlySoldOutProduct(@Param("unitSoldOut") int unitSoldOut);
+    List<Product> findingNearlySoldOutProduct(@Param("unitSoldOut") int unitSoldOut);
 
     @Query("""
         SELECT COALESCE(SUM(oi.quantity * oi.product.price), 0)
@@ -112,7 +101,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         JOIN oi.order o
           WHERE (
             (oi.order.orderStatus.name = 'Đã Giao Hàng' AND oi.order.paymentMethod.id = 'COD')
-         OR (oi.order.orderStatus.name IN ('Đang Chuẩn Bị Hàng', 'Đang Giao Hàng', 'Đã Giao Hàng') 
+         OR (oi.order.orderStatus.name IN ('Đang Chuẩn Bị Hàng', 'Đang Giao Hàng', 'Đã Giao Hàng')
              AND oi.order.paymentMethod.id = 'QR')
           )
         AND o.orderAt BETWEEN :start AND :end
@@ -124,7 +113,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     FROM OrderItem oi
       WHERE (
             (oi.order.orderStatus.name = 'Đã Giao Hàng' AND oi.order.paymentMethod.id = 'COD')
-         OR (oi.order.orderStatus.name IN ('Đang Chuẩn Bị Hàng', 'Đang Giao Hàng', 'Đã Giao Hàng') 
+         OR (oi.order.orderStatus.name IN ('Đang Chuẩn Bị Hàng', 'Đang Giao Hàng', 'Đã Giao Hàng')
              AND oi.order.paymentMethod.id = 'QR')
           )
       AND function('DATE', oi.order.orderAt) = :date
@@ -148,10 +137,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Object[]> getRevenueLastDays();
 
     @Query(value = """
-        SELECT 
+        SELECT
             TO_CHAR(d::date, 'YYYY-MM-DD') AS date,
             COALESCE(SUM(oi.quantity * p.price), 0) AS revenue
-        FROM generate_series(CURRENT_DATE - INTERVAL '6 day', CURRENT_DATE, '1 day') d
+        FROM generate_series(CURRENT_DATE - INTERVAL '7 day', CURRENT_DATE, '1 day') d
         LEFT JOIN orders o ON DATE(o.order_at) = d::date
         LEFT JOIN order_item oi ON o.id = oi.order_id
         LEFT JOIN product p ON oi.product_id = p.id
@@ -162,10 +151,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
 
     @Query(value = """
-    SELECT 
+    SELECT
     TO_CHAR(d::date,'YYYY/MM') AS month,
     COALESCE(SUM(oi.quantity * p.price),0) AS revenue
-    FROM generate_series(CURRENT_DATE - INTERVAL '11 month', CURRENT_DATE, '1 month') d
+    FROM generate_series(CURRENT_DATE - INTERVAL '12 month', CURRENT_DATE, '1 month') d
     LEFT JOIN orders o ON DATE_TRUNC('month', o.order_at) = DATE_TRUNC('month', d::date)
     LEFT JOIN order_item oi ON o.id = oi.order_id
     LEFT JOIN product p ON oi.product_id = p.id

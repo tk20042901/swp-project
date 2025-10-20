@@ -33,7 +33,6 @@ import com.swp.project.entity.order.OrderItem;
 import com.swp.project.entity.order.OrderStatus;
 import com.swp.project.entity.order.shipping.Shipping;
 import com.swp.project.entity.product.Product;
-import com.swp.project.entity.product.ProductBatch;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.repository.order.BillRepository;
 import com.swp.project.repository.order.OrderRepository;
@@ -201,13 +200,13 @@ public class OrderService {
     @Transactional
     public void doWhenOrderConfirmed(Order order) {
         setOrderStatus(order.getId(), orderStatusService.getProcessingStatus());
-        pickProductForOrder(order);
+        reductProductQuantityForOrder(order);
     }
 
     @Transactional
-    public void pickProductForOrder(Order order) {
+    public void reductProductQuantityForOrder(Order order) {
         order.getOrderItem().forEach(item ->
-                productService.pickProductInProductBatch(item.getProduct().getId(), item.getQuantity()));
+                productService.reduceProductQuantity(item.getProduct().getId(), item.getQuantity()));
     }
 
     public void createBillForOrder(Order order) {
@@ -303,11 +302,7 @@ public class OrderService {
         return orderRepository.getRevenueThisWeek();
     }
 
-    public List<ProductBatch> getNearlyExpiredProduct(){
-        return orderRepository.findingNearlyExpiredProduct();
-    }
-
-    public List<ProductBatch> getNearlySoldOutProduct(){
+    public List<Product> getNearlySoldOutProduct(){
         int unitsoldOut = 20;
         return orderRepository.findingNearlySoldOutProduct(unitsoldOut);
     }
@@ -593,10 +588,29 @@ public class OrderService {
         for (Object[] row : raw) {
             String date = (String) row[0];
             Long revenue = ((Number) row[1]).longValue();
-            result.add(new RevenueDto(date, revenue));
+            result.add(new RevenueDto(date, revenue,null));
         }
 
-        return result;
+        for (int i = 0; i < result.size(); i++) {
+            if (i == result.size() - 1) {
+                result.get(i).setGrowthPercent(null);
+            } else {
+                long today = result.get(i).getRevenue();
+                long yesterday = result.get(i + 1).getRevenue();
+                if (yesterday == 0 && today ==0) {
+                    result.get(i).setGrowthPercent(0.0);
+                }
+                else if(yesterday == 0){
+                    result.get(i).setGrowthPercent(100.0);
+                }
+                else
+                    result.get(i).setGrowthPercent(((today - yesterday) / (double) yesterday) * 100) ;
+            }
+
+        }
+
+
+        return result.subList(0, 7);
 
     }
     public List<RevenueDto> getMonthsRevenue(){
@@ -606,10 +620,28 @@ public class OrderService {
         for (Object[] row : raw) {
             String date = (String) row[0];
             Long revenue = ((Number) row[1]).longValue();
-            result.add(new RevenueDto(date, revenue));
+            result.add(new RevenueDto(date, revenue,null));
+        }
+        for (int i = 0; i < result.size(); i++) {
+            if (i == result.size() - 1) {
+                result.get(i).setGrowthPercent(null);
+            } else {
+                long thisMonth = result.get(i).getRevenue();
+                long lastMonth = result.get(i + 1).getRevenue();
+                if (lastMonth == 0 && thisMonth ==0) {
+                    result.get(i).setGrowthPercent(0.0);
+                }
+                else if(lastMonth == 0){
+                    result.get(i).setGrowthPercent(100.0);
+                }
+                else
+                    result.get(i).setGrowthPercent(((thisMonth - lastMonth) / (double) lastMonth) * 100) ;
+            }
+
         }
 
-        return result;
+
+        return result.subList(0, 12);
     }
 
     public ByteArrayInputStream exportDaysRevenueToExcel() throws IOException {
@@ -620,8 +652,26 @@ public class OrderService {
         for (Object[] row : raw) {
             String date = (String) row[0];
             Long revenue = ((Number) row[1]).longValue();
-            revenues.add(new RevenueDto(date, revenue));
+            revenues.add(new RevenueDto(date, revenue,null));
         }
+        for (int i = 0; i < revenues.size() - 1; i++) {
+                long today = revenues.get(i).getRevenue();
+                long yesterday = revenues.get(i + 1).getRevenue();
+
+                double growth;
+                if (yesterday == 0 && today == 0) {
+                    growth = 0.0;
+                } else if (yesterday == 0) {
+                    growth = 100.0;
+                } else {
+                    growth = ((today - yesterday) / (double) yesterday) * 100;
+                }
+
+                revenues.get(i).setGrowthPercent(growth);
+
+        }
+
+            revenues = revenues.subList(0, 7);
 
         // Tạo workbook Excel
         try (Workbook workbook = new XSSFWorkbook()) {
@@ -629,12 +679,14 @@ public class OrderService {
             Row header = sheet.createRow(0);
             header.createCell(0).setCellValue("Ngày");
             header.createCell(1).setCellValue("Doanh thu");
+            header.createCell(2).setCellValue("(%) Tăng trưởng");
 
             int rowIdx = 1;
             for (RevenueDto dto : revenues) {
                 Row row = sheet.createRow(rowIdx++);
                 row.createCell(0).setCellValue(dto.getDate());
-                row.createCell(1).setCellValue(dto.getRevenue());
+                row.createCell(1).setCellValue(dto.getRevenue()+" VND");
+                row.createCell(2).setCellValue(dto.getGrowthPercent()+" %");
             }
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -642,6 +694,59 @@ public class OrderService {
             return new ByteArrayInputStream(out.toByteArray());
         }
 
+    }
+    public ByteArrayInputStream exportMonthsRevenueToExcel() throws IOException {
+        List<Object[]> raw = orderRepository.getRevenueLast12Months();
+
+        // Chuyển sang List<RevenueDto>
+        List<RevenueDto> revenues = new ArrayList<>();
+        for (Object[] row : raw) {
+            String date = (String) row[0];
+            Long revenue = ((Number) row[1]).longValue();
+            revenues.add(new RevenueDto(date, revenue,null));
+        }
+
+        for (int i = 0; i < revenues.size() - 1; i++) {
+
+                long thisMonth = revenues.get(i).getRevenue();
+                long lastMonth = revenues.get(i + 1).getRevenue();
+
+                double growth;
+                if (lastMonth == 0 && thisMonth == 0) {
+                    growth = 0.0;
+                } else if (lastMonth == 0) {
+                    growth = 100.0;
+                } else {
+                    growth = ((thisMonth - lastMonth) / (double) lastMonth) * 100;
+                }
+
+                revenues.get(i).setGrowthPercent(growth);
+
+        }
+
+            revenues = revenues.subList(0, 12);
+
+
+        // Tạo workbook Excel
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Revenue 12 Months");
+            Row header = sheet.createRow(0);
+            header.createCell(0).setCellValue("Tháng");
+            header.createCell(1).setCellValue("Doanh thu");
+            header.createCell(2).setCellValue("(%) Tăng trưởng");
+
+            int rowIdx = 1;
+            for (RevenueDto dto : revenues) {
+                Row row = sheet.createRow(rowIdx++);
+                row.createCell(0).setCellValue(dto.getDate());
+                row.createCell(1).setCellValue(dto.getRevenue()+" VND");
+                row.createCell(2).setCellValue(dto.getGrowthPercent()+" %");
+            }
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            workbook.write(out);
+            return new ByteArrayInputStream(out.toByteArray());
+        }
 
     }
 }
