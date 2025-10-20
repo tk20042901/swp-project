@@ -33,7 +33,6 @@ import com.swp.project.entity.order.OrderItem;
 import com.swp.project.entity.order.OrderStatus;
 import com.swp.project.entity.order.shipping.Shipping;
 import com.swp.project.entity.product.Product;
-import com.swp.project.entity.product.ProductBatch;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.repository.order.BillRepository;
 import com.swp.project.repository.order.OrderRepository;
@@ -201,13 +200,13 @@ public class OrderService {
     @Transactional
     public void doWhenOrderConfirmed(Order order) {
         setOrderStatus(order.getId(), orderStatusService.getProcessingStatus());
-        pickProductForOrder(order);
+        reductProductQuantityForOrder(order);
     }
 
     @Transactional
-    public void pickProductForOrder(Order order) {
+    public void reductProductQuantityForOrder(Order order) {
         order.getOrderItem().forEach(item ->
-                productService.pickProductInProductBatch(item.getProduct().getId(), item.getQuantity()));
+                productService.reduceProductQuantity(item.getProduct().getId(), item.getQuantity()));
     }
 
     public void createBillForOrder(Order order) {
@@ -303,11 +302,7 @@ public class OrderService {
         return orderRepository.getRevenueThisWeek();
     }
 
-    public List<ProductBatch> getNearlyExpiredProduct(){
-        return orderRepository.findingNearlyExpiredProduct();
-    }
-
-    public List<ProductBatch> getNearlySoldOutProduct(){
+    public List<Product> getNearlySoldOutProduct(){
         int unitsoldOut = 20;
         return orderRepository.findingNearlySoldOutProduct(unitsoldOut);
     }

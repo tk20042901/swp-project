@@ -1,10 +1,8 @@
 package com.swp.project.service;
 
-import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.ai.chat.client.ChatClient;
@@ -32,7 +30,6 @@ import com.google.cloud.vertexai.VertexAI;
 import com.swp.project.dto.AiMessageDto;
 import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.Product;
-import com.swp.project.entity.product.ProductBatch;
 import com.swp.project.service.product.ProductService;
 
 @Service
@@ -159,28 +156,13 @@ public class CustomerAiService {
         sb.append("Giá niêm yết: ").append(String.format("%,d", product.getPrice())).append(" VNĐ mỗi ").append(unitName).append(". ");
         sb.append("Tình trạng kinh doanh: ").append(product.isEnabled() ? "Đang được bày bán" : "Tạm ngừng kinh doanh").append(". ");
 
-        if (product.getProductBatches() != null && !product.getProductBatches().isEmpty()) {
-            List<ProductBatch> validBatches = product.getProductBatches().stream()
-                    .filter(batch -> batch.getQuantity() > 0 && batch.getExpiredDate().isAfter(LocalDateTime.now()))
-                    .toList();
+        double quantity = product.getQuantity();
+        if (quantity > 0) {
+            sb.append("Tình trạng tồn kho: Còn hàng").append(". ");
+            sb.append("Tổng số lượng còn trong kho là: ").append(quantity).append(" ").append(unitName).append(". ");
 
-            double totalStock = validBatches.stream()
-                    .mapToDouble(ProductBatch::getQuantity)
-                    .sum();
-
-            sb.append("Tình trạng tồn kho: ").append(totalStock > 0 ? "Còn hàng" : "Hết hàng").append(". ");
-            sb.append("Tổng số lượng còn trong kho là: ").append(totalStock).append(" ").append(unitName).append(". ");
-
-            if (!validBatches.isEmpty()) {
-                Set<String> supplierNames = validBatches.stream()
-                        .map(batch -> batch.getSuppliers().getName())
-                        .collect(Collectors.toSet());
-                sb.append("Sản phẩm này được cung cấp bởi các nhà cung cấp: ").append(String.join(", ", supplierNames)).append(". ");
-            } else {
-                sb.append("Hiện tại không có lô hàng nào còn hạn sử dụng. ");
-            }
         } else {
-            sb.append("Tình trạng tồn kho: Hết hàng. Sản phẩm chưa có lô hàng nào. ");
+            sb.append("Tình trạng tồn kho: Hết hàng. ");
         }
         return sb.toString();
     }
