@@ -165,7 +165,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     SELECT 
     TO_CHAR(d::date,'YYYY/MM') AS month,
     COALESCE(SUM(oi.quantity * p.price),0) AS revenue
-    FROM generate_series(CURRENT_DATE - INTERVAL '11 month', CURRENT_DATE, '1 month') d
+    FROM generate_series(CURRENT_DATE - INTERVAL '12 month', CURRENT_DATE, '1 month') d
     LEFT JOIN orders o ON DATE_TRUNC('month', o.order_at) = DATE_TRUNC('month', d::date)
     LEFT JOIN order_item oi ON o.id = oi.order_id
     LEFT JOIN product p ON oi.product_id = p.id

@@ -646,7 +646,7 @@ public class OrderService {
         }
 
 
-        return result.subList(0, 7);
+        return result.subList(0, 12);
     }
 
     public ByteArrayInputStream exportDaysRevenueToExcel() throws IOException {
@@ -659,10 +659,7 @@ public class OrderService {
             Long revenue = ((Number) row[1]).longValue();
             revenues.add(new RevenueDto(date, revenue,null));
         }
-        for (int i = 0; i < revenues.size(); i++) {
-            if (i == revenues.size() - 1) {
-                revenues.get(i).setGrowthPercent(0.0); // ngày cũ nhất không có hôm sau để so sánh
-            } else {
+        for (int i = 0; i < revenues.size() - 1; i++) {
                 long today = revenues.get(i).getRevenue();
                 long yesterday = revenues.get(i + 1).getRevenue();
 
@@ -676,12 +673,11 @@ public class OrderService {
                 }
 
                 revenues.get(i).setGrowthPercent(growth);
-            }
+
         }
 
-        if (revenues.size() > 7) {
             revenues = revenues.subList(0, 7);
-        }
+
         // Tạo workbook Excel
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Revenue 7 Days");
@@ -714,6 +710,26 @@ public class OrderService {
             Long revenue = ((Number) row[1]).longValue();
             revenues.add(new RevenueDto(date, revenue,null));
         }
+
+        for (int i = 0; i < revenues.size() - 1; i++) {
+
+                long thisMonth = revenues.get(i).getRevenue();
+                long lastMonth = revenues.get(i + 1).getRevenue();
+
+                double growth;
+                if (lastMonth == 0 && thisMonth == 0) {
+                    growth = 0.0;
+                } else if (lastMonth == 0) {
+                    growth = 100.0;
+                } else {
+                    growth = ((thisMonth - lastMonth) / (double) lastMonth) * 100;
+                }
+
+                revenues.get(i).setGrowthPercent(growth);
+
+        }
+
+            revenues = revenues.subList(0, 12);
 
 
         // Tạo workbook Excel
