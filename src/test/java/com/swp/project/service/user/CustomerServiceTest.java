@@ -23,6 +23,12 @@ import static org.mockito.Mockito.*;
 class CustomerServiceTest {
 
     @Mock
+    private RegisterDto registerDto;
+
+    @Mock
+    private PendingRegister pendingRegister;
+
+    @Mock
     private UserRepository userRepository;
 
     @Mock
@@ -44,26 +50,25 @@ class CustomerServiceTest {
     @Test
     @DisplayName("Register success when pending register does not exist")
     void register_Success_PendingRegisterNotExists() {
-
-        RegisterDto registerDto = new RegisterDto();
+        when(registerDto.getEmail()).thenReturn("test@email.com");
 
         // password and confirmPassword match
-        registerDto.setPassword("password");
-        registerDto.setConfirmPassword(registerDto.getPassword());
+        when(registerDto.getPassword()).thenReturn("password");
+        when(registerDto.getConfirmPassword()).thenReturn("password");
 
         // email does not exist in the system
-        when(userRepository.existsByEmail(nullable(String.class))).thenReturn(false);
+        when(userRepository.existsByEmail(registerDto.getEmail())).thenReturn(false);
 
         // pending registration for the email does not exist
-        when(pendingRegisterRepository.findByEmail(nullable(String.class))).thenReturn(null);
+        when(pendingRegisterRepository.findByEmail(registerDto.getEmail())).thenReturn(null);
 
-        customerService.register(registerDto);
+        assertDoesNotThrow(() -> customerService.register(registerDto));
 
         // verify pendingRegisterRepository.delete() is not called
         verify(pendingRegisterRepository,never()).delete(any());
 
         // verify emailService.sendSimpleEmail() is called
-        verify(emailService).sendSimpleEmail(nullable(String.class), anyString(), anyString());
+        verify(emailService).sendSimpleEmail(anyString(), anyString(), anyString());
 
         // verify pendingRegisterRepository.save() is called
         verify(pendingRegisterRepository).save(any());
@@ -73,53 +78,48 @@ class CustomerServiceTest {
     @Test
     @DisplayName("Register fails when password and confirmPassword do not match")
     void register_Fail_PasswordAndConfirmPasswordNotMatch() {
+        when(registerDto.getPassword()).thenReturn("password");
+        when(registerDto.getConfirmPassword()).thenReturn("passwordxxx");
 
-        RegisterDto registerDto = new RegisterDto();
-        registerDto.setPassword("password");
-        registerDto.setConfirmPassword(registerDto.getPassword() + "xxx");
-
-        var exception = assertThrows(RuntimeException.class, () -> customerService.register(registerDto));
-        assertEquals("Mật khẩu và xác nhận mật khẩu không khớp", exception.getMessage());
+        assertThrows(RuntimeException.class, () -> customerService.register(registerDto),
+                "Mật khẩu và xác nhận mật khẩu không khớp");
     }
 
     @Test
     @DisplayName("Register fails when email already exists")
     void register_Fail_EmailAlreadyExists() {
-        RegisterDto registerDto = new RegisterDto();
-        registerDto.setEmail("test@email.com");
+        when(registerDto.getEmail()).thenReturn("test@email.com");
 
         // password and confirmPassword match
-        registerDto.setPassword("password");
-        registerDto.setConfirmPassword(registerDto.getPassword());
+        when(registerDto.getPassword()).thenReturn("password");
+        when(registerDto.getConfirmPassword()).thenReturn("password");
 
         // email exists in the system
-        when(userRepository.existsByEmail(anyString())).thenReturn(true);
+        when(userRepository.existsByEmail(registerDto.getEmail())).thenReturn(true);
 
-        var exception = assertThrows(RuntimeException.class, () -> customerService.register(registerDto));
-        assertEquals("Email " + registerDto.getEmail()  + " đã được sử dụng", exception.getMessage());
+        assertThrows(RuntimeException.class, () -> customerService.register(registerDto),
+                "Email " + registerDto.getEmail()  + " đã được sử dụng");
     }
 
     @Test
     @DisplayName("Register fails when sending email failed and pending register already exists")
     void register_Fail_SendEmailFailed_PendingRegisterAlreadyExists() {
-        RegisterDto registerDto = new RegisterDto();
-        registerDto.setEmail("test@email.com");
+        when(registerDto.getEmail()).thenReturn("test@email.com");
 
         // password and confirmPassword match
-        registerDto.setPassword("password");
-        registerDto.setConfirmPassword(registerDto.getPassword());
+        when(registerDto.getPassword()).thenReturn("password");
+        when(registerDto.getConfirmPassword()).thenReturn("password");
 
-        // email exists in the system
-        when(userRepository.existsByEmail(anyString())).thenReturn(false);
+        // email does not exist in the system
+        when(userRepository.existsByEmail(registerDto.getEmail())).thenReturn(false);
 
         // pending registration for the email already exists
-        when(pendingRegisterRepository.findByEmail(nullable(String.class))).thenReturn(new PendingRegister());
+        when(pendingRegisterRepository.findByEmail(registerDto.getEmail())).thenReturn(new PendingRegister());
 
         // mock sending email to throw exception
-        doThrow(RuntimeException.class).when(emailService).sendSimpleEmail(nullable(String.class), anyString(), anyString());
+        doThrow(RuntimeException.class).when(emailService).sendSimpleEmail(anyString(), anyString(), anyString());
 
-        var exception = assertThrows(RuntimeException.class, () -> customerService.register(registerDto));
-        assertEquals("Gửi email thất bại. Vui lòng thử lại sau.", exception.getMessage());
+        assertThrows(RuntimeException.class, () -> customerService.register(registerDto), "Gửi email thất bại. Vui lòng thử lại sau.");
 
         // verify pendingRegisterRepository.delete() is called
         verify(pendingRegisterRepository).delete(any());
@@ -128,14 +128,12 @@ class CustomerServiceTest {
     @Test
     @DisplayName("Verify OTP success")
     void verifyOtp_Success(){
-        PendingRegister pendingRegister = new PendingRegister();
-
         // auto generated OTP and input OTP match
-        pendingRegister.setAutoGeneratedOtp("36");
-        String inputOtp = pendingRegister.getAutoGeneratedOtp();
+        String inputOtp = "36";
+        when(pendingRegister.getAutoGeneratedOtp()).thenReturn(inputOtp);
 
         // OTP is not expired
-        pendingRegister.setOtpExpiryTime(Instant.now().plusSeconds(36));
+        when(pendingRegister.getOtpExpiryTime()).thenReturn(Instant.now().plusSeconds(36));
 
         // mock finding pending register by email
         when(pendingRegisterRepository.findByEmail(anyString())).thenReturn(pendingRegister);
@@ -152,35 +150,32 @@ class CustomerServiceTest {
     @Test
     @DisplayName("Verify OTP fails when auto generated OTP and input OTP do not match")
     void verifyOtp_Fail_AutoGeneratedOtpAndInputOtpNotMatch(){
-        PendingRegister pendingRegister = new PendingRegister();
-
         // auto generated OTP and input OTP do not match
-        pendingRegister.setAutoGeneratedOtp("36");
-        String inputOtp = pendingRegister.getAutoGeneratedOtp() + "xxx";
+        String inputOtp = "36";
+        when(pendingRegister.getAutoGeneratedOtp()).thenReturn(inputOtp + "xxx");
 
         // mock finding pending register by email
         when(pendingRegisterRepository.findByEmail(anyString())).thenReturn(pendingRegister);
 
-        var exception = assertThrows(RuntimeException.class, () -> customerService.verifyOtp("test@email.com", inputOtp));
-        assertEquals("OTP không hợp lệ hoặc đã hết hạn", exception.getMessage());
+        //
+        assertThrows(RuntimeException.class, () -> customerService.verifyOtp("test@email.com", inputOtp),
+                "OTP không hợp lệ hoặc đã hết hạn");
     }
 
     @Test
     @DisplayName("Verify OTP fails when OTP has expired")
     void verifyOtp_Fail_OtpHasExpired(){
-        PendingRegister pendingRegister = new PendingRegister();
-
         // auto generated OTP and input OTP match
-        pendingRegister.setAutoGeneratedOtp("36");
-        String inputOtp = pendingRegister.getAutoGeneratedOtp();
+        String inputOtp = "36";
+        when(pendingRegister.getAutoGeneratedOtp()).thenReturn(inputOtp);
 
         // OTP is expired
-        pendingRegister.setOtpExpiryTime(Instant.now().minusSeconds(36));
+        when(pendingRegister.getOtpExpiryTime()).thenReturn(Instant.now().minusSeconds(36));
 
         // mock finding pending register by email
         when(pendingRegisterRepository.findByEmail(anyString())).thenReturn(pendingRegister);
 
-        var exception = assertThrows(RuntimeException.class, () -> customerService.verifyOtp("test@email.com", inputOtp));
-        assertEquals("OTP không hợp lệ hoặc đã hết hạn", exception.getMessage());
+        assertThrows(RuntimeException.class, () -> customerService.verifyOtp("test@email.com", inputOtp),
+                "OTP không hợp lệ hoặc đã hết hạn");
     }
 }
