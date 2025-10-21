@@ -55,14 +55,6 @@
             border-radius: 6px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
-
-        .total-quantity {
-            font-size: 16px;
-            font-weight: bold;
-            margin-top: 10px;
-            text-align: right;
-            color: #222;
-        }
     </style>
 </head>
 <body>
@@ -77,6 +69,7 @@
         <th>Tên sản phẩm</th>
         <th>Mô tả</th>
         <th>Giá thành</th>
+        <th>Số lượng</th>
         <th>Danh mục</th>
         <th>Trạng thái</th>
         <th>Hành động</th>
@@ -88,9 +81,9 @@
             <img th:src="${product.main_image_url}" alt="Product Image" style="max-width: 150px; max-height: 150px;">
         </td>
         <td><span th:text="${product.name}"></span></td>
-        </td>
         <td th:text="${product.description}"></td>
         <td th:text="${product.price + ' VND/' + (product.unit != null ? product.unit.name : '')}"></td>
+        <td th:text="${availableQuantity}"></td>
         <td>
             <span th:each="category, iterStat : ${product.categories}">
                 <span th:text="${category.name}"></span>
@@ -101,57 +94,18 @@
         <td>
             <a th:href="@{/seller/seller-update-product/{id}(id=${product.id})}"
                class="table-link">Cập nhật</a>
-            <br/>
-            <a th:href="@{/seller/update-product-images/{id}(id=${product.id})}"
-               class="table-link" style="color: #007bff; margin-top: 5px; display: inline-block;">Cập nhật hình ảnh</a>
         </td>
     </tr>
     </tbody>
 </table>
 
-<h3>Danh sách các lô hàng</h3>
-<table>
-    <thead>
-    <tr>
-        <th>Mã lô hàng</th>
-        <th>Số lượng</th>
-        <th>Hạn sử dụng</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="batch : ${product.productBatches}">
-        <td th:text="${batch.id}"></td>
-        <td th:text="${batch.quantity}"></td>
-        <td th:text="${batch.expiredDate != null ? #temporals.format(batch.expiredDate, 'dd/MM/yyyy') : 'N/A'}"></td>
-    </tr>
-    </tbody>
-</table>
-
-<div class="total-quantity">
-    Tổng số lượng: <span th:text="${availableQuantity}"></span>
-</div>
-
 <h3>Hình ảnh bổ sung</h3>
-<div style="margin-bottom: 15px;">
-    <a th:href="@{/seller/update-product-images/{id}(id=${product.id})}" 
-       style="background-color: #007bff; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; display: inline-block;">
-       <span style="margin-right: 5px;">📷</span> Cập nhật hình ảnh sản phẩm
-    </a>
-</div>
 <table>
-    <thead>
-    <tr>
-        <th>Hình ảnh bổ sung</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="image, iterStat :  ${product.sub_images}">
+    <tr th:each="image :  ${product.sub_images}">
         <td>
-            <span th:text="${iterStat.index+1}"></span>
             <img th:src="${image.sub_image_url}" alt="Additional Image" style="max-width: 150px; max-height: 150px;">
         </td>
     </tr>
-    </tbody>
 </table>
 
 </body>

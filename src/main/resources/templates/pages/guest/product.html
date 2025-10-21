@@ -120,7 +120,7 @@
                             <!-- Categories -->
                             <div class="mb-3" th:if="${!categories.isEmpty()}">
                                 <span th:each="category : ${categories}">
-                                    <a th:href="@{'/?categoryId=' + ${category.id}}"
+                                    <a th:href="@{'/product-category-sorting?sortBy=default&categoryId=' + ${category.id}}"
                                        th:text="${category.name}"
                                        class="category-badge"></a>
                                 </span>
