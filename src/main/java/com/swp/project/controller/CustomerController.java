@@ -236,12 +236,6 @@ public class CustomerController {
         double quantity;
 
         try {
-            quantity = Double.parseDouble(quantityStr);
-        } catch (NumberFormatException e) {
-            redirectAttributes.addFlashAttribute("error", "Số lượng không hợp lệ.");
-            return "redirect:/customer/shopping-cart";
-        }
-        try {
            quantity= Double.parseDouble(quantityStr);
         } catch (NumberFormatException e) {
             redirectAttributes.addFlashAttribute("error",
@@ -435,7 +429,7 @@ public class CustomerController {
                             .orderCode(order.getId())
                             .amount(order.getTotalAmount())
                             .expiredAt(order.getPaymentExpiredAt().atZone(ZoneId.systemDefault()).toEpochSecond())
-                            .description("FruitShop " + order.getId())
+                            .description("FS-" + order.getId())
                             .returnUrl("http://localhost:8080/customer/order-success")
                             .cancelUrl("http://localhost:8080/customer/order-cancel")
                             .build();
