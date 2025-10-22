@@ -1,17 +1,21 @@
 package com.swp.project.controller;
 
-import com.swp.project.dto.EditManagerDto;
-import com.swp.project.dto.ManagerRegisterDto;
-import com.swp.project.dto.ProvinceDto;
-import com.swp.project.dto.ViewManagerDto;
-import com.swp.project.dto.WardDto;
+import com.swp.project.dto.*;
 import com.swp.project.entity.user.Manager;
 import com.swp.project.service.AddressService;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.user.ManagerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.List;
+
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -148,5 +152,41 @@ public class AdminController {
                     return dto;
                 })
                 .toList();
+    }
+
+    @GetMapping("/detail-report")
+    public String getDetailReport(Model model){
+        List<RevenueDto> daysReport = orderService.getDaysRevenue();
+        List<RevenueDto> monthsReport = orderService.getMonthsRevenue();
+        model.addAttribute("daysReport", daysReport);
+        model.addAttribute("monthsReport", monthsReport);
+        return "pages/manager/detail-report";
+
+    }
+
+    @GetMapping("/days/export-excel")
+    public ResponseEntity<InputStreamResource> exportDaysRevenueToExcel() throws IOException {
+        ByteArrayInputStream in = orderService.exportDaysRevenueToExcel();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=revenue-7-days.xlsx");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(new InputStreamResource(in));
+    }
+
+    @GetMapping("/months/export-excel")
+    public ResponseEntity<InputStreamResource> exportMonthsRevenueToExcel() throws IOException {
+        ByteArrayInputStream in = orderService.exportMonthsRevenueToExcel();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=revenue-12-months.xlsx");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(new InputStreamResource(in));
     }
 }
