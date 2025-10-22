@@ -37,6 +37,8 @@ public class CreateProductDto {
     @NotNull(message = "Danh mục sản phẩm không được để trống")
     private boolean enabled = true;
 
+    private double quantity;
+
     private String main_image_url;
 
     private List<Category> categories;

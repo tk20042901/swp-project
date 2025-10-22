@@ -309,4 +309,5 @@ public class GuestController {
         redirectAttributes.addFlashAttribute("msg", "Thêm sản phẩm vào giỏ hàng thành công");
         return "redirect:/product/" + productIdString;
     }
+    
 }

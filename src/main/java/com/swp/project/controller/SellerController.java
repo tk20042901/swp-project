@@ -263,6 +263,7 @@ public class SellerController {
                     .enabled(productDto.isEnabled())
                     .categories(productDto.getCategories())
                     .main_image_url(imageService.saveTemporaryImage(imageFile, fileName, "1.jpg"))
+                    .quantity(productDto.getQuantity())
                     .build();
             List<SubImage> subImages = new ArrayList<>();
             for (int i = 0; i < subImageFiles.length; i++) {
