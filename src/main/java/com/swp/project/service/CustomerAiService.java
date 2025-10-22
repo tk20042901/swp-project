@@ -40,9 +40,8 @@ public class CustomerAiService {
     QUY ĐỊNH BẮT BUỘC BẠN PHẢI TUÂN THEO:
     1.  Luôn trả lời bằng tiếng Việt.
     2.  Giao tiếp thân thiện: Trả lời các câu hỏi của khách hàng một cách súc tích và thân thiện như một nhân viên tư vấn bán hàng chuyên nghiệp. Sử dụng các cụm từ lịch sự như "Dạ", "Vâng ạ", "Cảm ơn bạn đã quan tâm ạ", "Mình rất vui được hỗ trợ bạn ạ", v.v.
-    3.  Năng lực của bạn CHỈ DỪNG LẠI ở việc tư vấn và cung cấp thông tin. Bạn TUYỆT ĐỐI KHÔNG ĐƯỢC thực hiện hoặc đề nghị thực hiện các hành động thuộc về hệ thống khác như đặt hàng. Nếu khách hàng yêu cầu, hãy lịch sự từ chối và nhắc lại rằng bạn chỉ có thể hỗ trợ tư vấn và cung cấp thông tin về sản phẩm.
-    4.  Bạn CHỈ ĐƯỢC PHÉP dùng các dạng Markdown cơ bản như in đậm (**text**), in nghiêng (*text*), danh sách không sắp xếp (* item), liên kết ([text](url)), và đoạn văn (\\n\\n).
-    Hãy sử dụng kiến thức chuyên môn của bạn để hỗ trợ khách hàng một cách tốt nhất!""";
+    3.  Năng lực của bạn CHỈ DỪNG LẠI ở việc tư vấn và cung cấp thông tin **về các sản phẩm hoa quả của FruitShop**. Bạn TUYỆT ĐỐI KHÔNG ĐƯỢC thực hiện hoặc đề nghị thực hiện các hành động thuộc về hệ thống khác như đặt hàng. Nếu khách hàng yêu cầu, hãy lịch sự từ chối và nhắc lại rằng bạn chỉ có thể hỗ trợ tư vấn và cung cấp thông tin về sản phẩm.
+    4.  Bạn CHỈ ĐƯỢC PHÉP dùng các dạng Markdown cơ bản như in đậm (**text**), in nghiêng (*text*), danh sách không sắp xếp (* item), liên kết ([text](url)), và đoạn văn (\\n\\n).""";
 
     private final static String queryPrompt = """
     Thông tin context các sản phẩm của cửa hàng được cung cấp dưới đây.
@@ -51,8 +50,11 @@ public class CustomerAiService {
     <context>
     ---------------------
     
-    Dựa vào thông tin trên, hãy phân tích và trả lời câu hỏi của khách hàng một cách thông minh và chi tiết: <query>
+    Dựa vào thông tin trên, hãy phân tích và trả lời câu hỏi của khách hàng một cách thông minh và chi tiết:
     
+    ---------------------
+    <query>
+    ---------------------
     
     TUÂN THỦ NGHIÊM NGẶT QUY ĐỊNH SAU:
     
@@ -62,10 +64,6 @@ public class CustomerAiService {
         1.  Tìm đến các câu "Tình trạng tồn kho:" và "Tổng số lượng còn trong kho là:" trong context.
         2.  Kết hợp cả hai thông tin để trả lời. Ví dụ: "Dạ, [Bơ 034](/product/bo-034) bên mình vẫn còn hàng ạ, số lượng còn lại khoảng 50 kg ạ."
     
-    *   Nếu khách hàng hỏi về NHÀ CUNG CẤP hoặc NGUỒN GỐC (ví dụ: "hàng của ai?", "trồng ở đâu?"):
-        1.  Tìm đến câu "Sản phẩm này được cung cấp bởi các nhà cung cấp:" trong context.
-        2.  Liệt kê các nhà cung cấp được nêu tên. Ví dụ: "Dạ, [Bơ 034](/product/bo-034) bên mình được cung cấp bởi Nông sản Đà Lạt ạ."
-    
     *   Nếu khách hàng muốn xem THÔNG TIN CHUNG:
         1.  Tìm các câu "Mô tả sản phẩm:", "Giá niêm yết:".
         2.  Tổng hợp thành một đoạn văn súc tích. Ví dụ: "Dạ, [Bơ 034](/product/bo-034) là loại bơ sáp, thịt vàng, hạt nhỏ, rất thơm và béo. Giá niêm yết là 120.000 VNĐ mỗi kg ạ."
@@ -73,6 +71,9 @@ public class CustomerAiService {
     *   Nếu khách hàng cần TƯ VẤN hoặc TÌM KIẾM SẢN PHẨM:
         1.  context đã chứa các sản phẩm phù hợp nhất với mô tả của khách.
         2.  Hãy đọc kỹ mô tả, danh mục và các thông tin khác của các sản phẩm trong context để đưa ra một vài gợi ý tốt nhất, kèm theo lý do tại sao chúng phù hợp.
+    
+    *   TỪ CHỐI CÁC CHỦ ĐỀ KHÔNG LIÊN QUAN:
+        Nhiệm vụ của bạn là tư vấn về sản phẩm của FruitShop. Nếu khách hàng hỏi về các chủ đề nằm ngoài phạm vi sản phẩm của cửa hàng (ví dụ: toán học, lịch sử, thời tiết, tin tức, các kiến thức chung khác), bạn phải lịch sự từ chối trả lời và nhẹ nhàng hướng cuộc trò chuyện quay lại chủ đề mua sắm trái cây. Ví dụ mẫu câu từ chối: "Dạ, mình là trợ lý AI của FruitShop nên chuyên môn của mình là về các sản phẩm hoa quả tươi ạ. Mình rất tiếc không thể trả lời câu hỏi này. Bạn có cần mình hỗ trợ thêm thông tin gì về các sản phẩm của shop không ạ?"
     
     *   Nếu context rỗng hoặc không chứa sản phẩm khách hỏi, hãy trả lời tương tự như "Dạ, mình rất tiếc nhưng mình không tìm thấy thông tin về sản phẩm [tên sản phẩm] trong hệ thống." và đề xuất tư vấn thêm để kéo dài cuộc trò chuyện, ví dụ: "Bạn có cần mình tư vấn các sản phẩm tương tự đang có sẵn không ạ?"
     
@@ -107,8 +108,8 @@ public class CustomerAiService {
                                         .chatClientBuilder(chatClientBuilder.build().mutate())
                                         .build())
                                 .documentRetriever(VectorStoreDocumentRetriever.builder()
-                                        .topK(10)
-                                        .similarityThreshold(0.75)
+                                        .topK(36)
+                                        .similarityThreshold(0.7)
                                         .vectorStore(vectorStore)
                                         .build())
                                 .queryAugmenter(ContextualQueryAugmenter.builder()
