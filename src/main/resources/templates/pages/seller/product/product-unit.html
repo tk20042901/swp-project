@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Unit</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: white;
+            padding: 40px 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+            padding: 10px 20px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        a:hover {
+            border-color: #999;
+            background-color: #f9f9f9;
+        }
+
+        h2 {
+            color: #333;
+            margin: 30px 0 20px;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        form {
+            background-color: white;
+            padding: 25px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: inline-block;
+            margin-right: 15px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        select {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: white;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+            margin-right: 15px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #999;
+        }
+
+        button {
+            padding: 10px 25px;
+            background-color: white;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background-color: #f9f9f9;
+            border-color: #999;
+        }
+
+        table {
+            width: 100%;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            overflow: hidden;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: white;
+            border-bottom: 2px solid #ddd;
+        }
+
+        th {
+            padding: 18px 20px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 16px;
+            color: #333;
+        }
+
+        td {
+            padding: 18px 20px;
+            border-bottom: 1px solid #eee;
+            color: #333;
+        }
+
+        tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a th:href="@{/}">← Trang chủ</a>
+
+    <h2>Tất cả các đơn vị</h2>
+
+    <h2>Tìm kiếm</h2>
+    <form th:action="@{/seller/product-unit}" method="get">
+        <label>
+            Cho phép thập phân:
+            <select name="allowDecimal">
+                <option value="">-- Tất cả --</option>
+                <option th:value="true" th:selected="${allowDecimal == true}">Có</option>
+                <option th:value="false" th:selected="${allowDecimal == false}">Không</option>
+            </select>
+        </label>
+        <button type="submit">Tìm</button>
+        <a th:if="${allowDecimal != null}" th:href="@{/seller/product-unit}">Bỏ tìm</a>
+    </form>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Mã đơn vị</th>
+            <th>Tên đơn vị</th>
+            <th>Cho phép thập phân</th>
+            <th>Thao tác</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="unit : ${productUnits}">
+            <td th:text="${unit.id}"></td>
+            <td th:text="${unit.name}"></td>
+            <td th:text="${unit.allowDecimal ? 'Có' : 'Không'}"></td>
+            <td>Hẹ Hẹ</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

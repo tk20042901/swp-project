@@ -35,4 +35,12 @@ public class ProductUnitService {
              eventPublisher.publishEvent(new ProductRelatedUpdateEvent(product));
         }
     }
+
+    public List<ProductUnit> getAllProductUnit(){
+        return productUnitRepository.findAll();
+    }
+
+    public List<ProductUnit> getUnitsByAllowDecimal(boolean allowDecimal){
+        return productUnitRepository.findByIsAllowDecimal(allowDecimal);
+    }
 }
