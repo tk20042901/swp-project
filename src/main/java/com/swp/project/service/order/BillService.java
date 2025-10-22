@@ -32,13 +32,6 @@ public class BillService {
                 case "id" -> k * o1.getId().compareTo(o2.getId());
                 case "paymentTime" ->
                         k * o1.getOrder().getCurrentShippingStatus().getId().compareTo(o2.getOrder().getCurrentShippingStatus().getId());
-                case "shopName" -> {
-                    int result = o1.getShopName().compareTo(o2.getShopName());
-                    if (result == 0) {
-                        result = k * o1.getId().compareTo(o2.getId());
-                    }
-                    yield result;
-                }
                 default -> 0;
             };
         })
