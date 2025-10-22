@@ -13,12 +13,11 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(data => {
       let optionHtml = ``;
       data.forEach(element => {
-        optionHtml += `<option value="${element.code}">${element.name}</option>`;
-        if(element.code === saveProvinceCode.value){
-          provinceSelect.value = saveProvinceCode.value;
-        }
+        
+          optionHtml += `<option value="${element.code}">${element.name}</option>`;
       });
       provinceSelect.innerHTML = optionHtml;
+      provinceSelect.value = saveProvinceCode.value;
       wardSelect.innerHTML = ``;
       fetch(`http://localhost:8080/admin/wards?provinceId=` + saveProvinceCode.value)
         .then(response => {
