@@ -19,8 +19,6 @@ import lombok.RequiredArgsConstructor;
 public class BillService {
 
     private final BillRepository billRepository;
-    // private final OrderStatusService orderStatusService;
-
 
     public Page<Bill> getBills(int page, int size, String sortCriteria, int k) {
         Pageable pageable = PageRequest.of(page - 1, size);
