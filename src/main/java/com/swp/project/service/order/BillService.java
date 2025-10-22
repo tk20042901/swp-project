@@ -17,10 +17,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class BillService {
-
     private final BillRepository billRepository;
-    // private final OrderStatusService orderStatusService;
-
 
     public Page<Bill> getBills(int page, int size, String sortCriteria, int k) {
         Pageable pageable = PageRequest.of(page - 1, size);
@@ -32,13 +29,6 @@ public class BillService {
                 case "id" -> k * o1.getId().compareTo(o2.getId());
                 case "paymentTime" ->
                         k * o1.getOrder().getCurrentShippingStatus().getId().compareTo(o2.getOrder().getCurrentShippingStatus().getId());
-                case "shopName" -> {
-                    int result = o1.getShopName().compareTo(o2.getShopName());
-                    if (result == 0) {
-                        result = k * o1.getId().compareTo(o2.getId());
-                    }
-                    yield result;
-                }
                 default -> 0;
             };
         })
