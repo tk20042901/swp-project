@@ -1,9 +1,11 @@
 package com.swp.project.controller;
 
 import com.swp.project.dto.*;
+import com.swp.project.entity.product.ProductUnit;
 import com.swp.project.entity.user.Manager;
 import com.swp.project.service.AddressService;
 import com.swp.project.service.order.OrderService;
+import com.swp.project.service.product.ProductUnitService;
 import com.swp.project.service.user.ManagerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ public class AdminController {
     private final ManagerService managerService;
     private final OrderService orderService;
     private final AddressService addressService;
+    private final ProductUnitService productUnitService;
 
     @GetMapping("")
     public String showAdminMainPage(Model model) {
