@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.swp.project.entity.product.ProductUnit;
 import com.swp.project.entity.product.SubImage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -48,6 +49,7 @@ public class SellerController {
     private final CategoryService categoryService;
     private final SellerRequestService sellerRequestService;
     private final ImageService imageService;
+    private final ProductUnitService productUnitService;
 
     @GetMapping("")
     public String index() {
@@ -373,5 +375,19 @@ public class SellerController {
         }
         return "redirect:/seller/product/product-detail/" + productId;
     }
+    @GetMapping("/product-unit")
+    public String getProductUnitList(Model model,
+                                     @RequestParam(value = "allowDecimal", required = false) Boolean allowDecimal){
+        List<ProductUnit> productUnits;
 
+        if (allowDecimal != null) {
+            productUnits = productUnitService.getUnitsByAllowDecimal(allowDecimal);
+        } else {
+            productUnits = productUnitService.getAllProductUnit();
+        }
+
+        model.addAttribute("productUnits", productUnits);
+        model.addAttribute("allowDecimal", allowDecimal);
+        return "pages/seller/product/product-unit";
+    }
 }
