@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class BillService {
-
     private final BillRepository billRepository;
 
     public Page<Bill> getBills(int page, int size, String sortCriteria, int k) {
