@@ -1,118 +1,263 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>Danh sách hóa đơn</title>
-  <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
-  <link rel="stylesheet" href="/css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách hóa đơn</title>
+    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .main-content {
+            flex: 1;
+            padding: 2rem 0;
+        }
+
+        .page-header {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-card {
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .stats-card .stats-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stats-card .stats-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .data-table-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        .table thead th {
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            white-space: nowrap;
+            background-color: #f8f9fa;
+            vertical-align: middle;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-btn {
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .pagination-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .shop-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .shop-info i {
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .table {
+                font-size: 0.875rem;
+            }
+
+            .stats-card .stats-number {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </head>
-<body class="auth-body">
+<body>
+<div class="main-content">
+    <div class="container-fluid">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <h1 class="h4 mb-1 brand">
+                        <i class="bi bi-receipt-cutoff text-primary me-2"></i>
+                        Danh sách hóa đơn
+                    </h1>
+                    <p class="text-muted mb-0">Quản lý và theo dõi tất cả hóa đơn thanh toán trong hệ thống</p>
+                </div>
+                <a href="/manager" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Quay về trang chủ
+                </a>
+            </div>
+        </div>
 
-<!-- Nút quay lại -->
-<a href="/manager" class="btn btn-light position-absolute top-0 start-0 m-3">← Quay lại</a>
+        <!-- Alerts -->
+        <div th:if="${msg != null or error != null}" class="mb-3">
+            <div class="alert alert-success alert-dismissible fade show" th:if="${msg != null}">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <strong>Thành công!</strong> <span th:text="${msg}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div class="alert alert-danger alert-dismissible fade show" th:if="${error != null}">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <strong>Thất bại!</strong> <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
 
-<!-- Alerts -->
-<div class="alerts-stack" style="height: 0px; width: fit-content; margin: 0px 50px 0px auto;">
-  <div class="alert alert-success alert-dismissible fade show" th:hidden="${msg == null}">
-    <strong>Thành công!</strong> <span th:text="${msg}"></span>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-  </div>
-  <div class="alert alert-danger alert-dismissible fade show" th:hidden="${error == null}">
-    <strong>Thất bại!</strong> <span th:text="${error}"></span>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-  </div>
-</div>
+        <!-- Statistics Card -->
+        <div class="stats-card" th:if="${bills != null}">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="stats-number">
+                        <i class="bi bi-file-earmark-text me-2"></i>
+                        <span th:text="${bills.size()}">0</span>
+                    </div>
+                    <div class="stats-label">Tổng số hóa đơn trong hệ thống</div>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <i class="bi bi-graph-up-arrow" style="font-size: 3rem; opacity: 0.3;"></i>
+                </div>
+            </div>
+        </div>
 
-<!-- Nội dung chính -->
-<div class="container-fluid py-4">
-  <br>
-  <br>
-  <div class="auth-card p-4 shadow-sm mb-5">
-    <h1 class="h5 mb-3 text-primary">📄 Danh sách hóa đơn</h1>
+        <!-- Data Table -->
+        <div class="data-table-card">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                    <tr>
+                        <th style="width: 5%;">
+                            <form th:action="@{/manager/bill-list}" method="get" class="d-inline">
+                                <button type="submit" name="sortCriteria" value="id"
+                                        th:class="'btn btn-sm ' + (${sortCriteria.equals('id')} ? 'btn-primary' : 'btn-outline-primary')">
+                                    <i class="bi bi-hash me-1"></i>
+                                    ID <span th:if="${sortCriteria.equals('id')}" th:text="${k == 1 ? '▲' : '▼'}"></span>
+                                </button>
+                            </form>
+                        </th>
+                        <th style="width: 15%;">
+                            <form th:action="@{/manager/bill-list}" method="get" class="d-inline">
+                                <button type="submit" name="sortCriteria" value="paymentTime"
+                                        th:class="'btn btn-sm ' + (${sortCriteria.equals('paymentTime')} ? 'btn-primary' : 'btn-outline-primary')">
+                                    <i class="bi bi-calendar-event me-1"></i>
+                                    Ngày thanh toán <span th:if="${sortCriteria.equals('paymentTime')}" th:text="${k == 1 ? '▲' : '▼'}"></span>
+                                </button>
+                            </form>
+                        </th>
+                        <th style="width: 20%;">
+                            <i class="bi bi-shop text-muted"></i> Tên cửa hàng
+                        </th>
+                        <th style="width: 20%;">
+                            <i class="bi bi-geo-alt text-muted"></i> Địa chỉ
+                        </th>
+                        <th style="width: 15%;">
+                            <i class="bi bi-telephone text-muted"></i> Số điện thoại
+                        </th>
+                        <th style="width: 15%;">
+                            <i class="bi bi-envelope text-muted"></i> Email
+                        </th>
+                        <th class="text-center" style="width: 10%;">
+                            <i class="bi bi-gear text-muted"></i> Hành động
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(bills)}">
+                        <td colspan="7" class="text-center text-muted py-5">
+                            <i class="bi bi-inbox" style="font-size: 3rem; opacity: 0.3;"></i>
+                            <p class="mt-2 mb-0">Không có hóa đơn nào trong hệ thống</p>
+                        </td>
+                    </tr>
 
-    <!-- Tổng hóa đơn -->
-    <h5 th:if="${bills != null}" class="mb-3">Tổng hóa đơn: 
-      <span th:text="${bills.size()}">0</span>
-    </h5>
+                    <tr th:each="bill : ${bills}">
+                        <td>
+                            <span class="badge bg-primary" th:text="${bill.id}"></span>
+                        </td>
+                        <td>
+                            <i class="bi bi-clock me-1 text-muted"></i>
+                            <span th:text="${billService.getPaidAt(bill)}"></span>
+                        </td>
+                        <td>
+                            <div class="shop-info">
+                                <i class="bi bi-shop-window"></i>
+                                <strong th:text="${bill.shopName}"></strong>
+                            </div>
+                        </td>
+                        <td>
+                            <small class="text-muted" th:text="${bill.shopAddress}"></small>
+                        </td>
+                        <td>
+                            <i class="bi bi-phone me-1 text-muted"></i>
+                            <span th:text="${bill.shopPhone}"></span>
+                        </td>
+                        <td>
+                            <i class="bi bi-envelope me-1 text-muted"></i>
+                            <small th:text="${bill.shopEmail}"></small>
+                        </td>
+                        <td class="text-center">
+                            <a th:href="@{/manager/orders/{id}(id=${bill.id})}" class="text-decoration-none">
+                                <button class="btn btn-outline-primary btn-sm action-btn" style="width: 150px;">
+                                    <i class="bi bi-eye me-1"></i>
+                                    Chi tiết đơn hàng
+                                </button>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
 
-    <!-- Bảng danh sách -->
-    <div class="">
-      <table class="table table-striped table-hover align-middle">
-        <thead class="table-light">
-          <!-- Nút sắp xếp -->
-          <form th:action="@{/manager/bill-list}" method="get">
-            <tr class="row">
-              <th class="col-lg-1">
-                <button type="submit" name="sortCriteria" value="id"
-                        th:class="'btn btn-sm ' + (${sortCriteria.equals('id')} ? 'btn-primary' : 'btn-outline-primary')"
-                        th:text="'ID ' + (${sortCriteria.equals('id') ? (k == 1 ? '▲' : '▼') : ''})">
-                </button>
-              </th>
-              <th class="col-lg-2">
-                <button type="submit" name="sortCriteria" value="paymentTime"
-                        th:class="'btn btn-sm ' + (${sortCriteria.equals('paymentTime')} ? 'btn-primary' : 'btn-outline-primary')"
-                        th:text="'Ngày thanh toán ' + (${sortCriteria.equals('paymentTime') ? (k == 1 ? '▲' : '▼') : ''})">
-                </button>
-              </th>
-              <th class="col-lg-2">Tên cửa hàng</th>
-              <th class="col-lg-2">Địa chỉ</th>
-              <th class="col-lg-2">Số điện thoại</th>
-              <th class="col-lg-2">Email</th>
-              <th class="col-lg-1">Chi tiết</th>
-            </tr>
-          </form>
-        </thead>
+            <!-- Pagination -->
+            <nav th:if="${totalPages > 1}">
+                <div class="pagination-wrapper">
+                    <a th:href="@{/manager/bill-list(page=${page - 1}, size=${size}, sortCriteria=${sortCriteria})}"
+                       th:class="'btn btn-sm ' + (${page == 1} ? 'btn-outline-secondary disabled' : 'btn-outline-primary')">
+                        <i class="bi bi-chevron-left"></i> Trước
+                    </a>
 
-        <tbody>
-          <tr th:if="${#lists.isEmpty(bills)}">
-            <td colspan="8" class="text-center text-muted fst-italic">Không có hóa đơn nào.</td>
-          </tr>
+                    <div th:each="i : ${#numbers.sequence(1, totalPages)}" class="d-inline">
+                        <a th:href="@{/manager/bill-list(page=${i}, size=${size}, sortCriteria=${sortCriteria})}"
+                           th:class="'btn btn-sm ' + (${i == page} ? 'btn-primary' : 'btn-outline-primary')"
+                           th:text="${i}">
+                        </a>
+                    </div>
 
-          <tr th:each="bill : ${bills}" class="row">
-            <td th:text="${bill.id}" class="col-lg-1"></td>
-            <td th:text="${billService.getPaidAt(bill)}" class="col-lg-2"></td>
-            <td th:text="${bill.shopName}" class="col-lg-2"></td>
-            <td th:text="${bill.shopAddress}" class="col-lg-2"></td>
-            <td th:text="${bill.shopPhone}" class="col-lg-2"></td>
-            <td th:text="${bill.shopEmail}" class="col-lg-2"></td>
-            <td class="col-lg-1 text-center">
-              <a th:href="@{/manager/orders/{id}(id=${bill.id})}" class="text-decoration-none">
-                <button class="btn btn-outline-secondary btn-sm">Xem</button>
-              </a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+                    <a th:href="@{/manager/bill-list(page=${page + 1}, size=${size}, sortCriteria=${sortCriteria})}"
+                       th:class="'btn btn-sm ' + (${page == totalPages} ? 'btn-outline-secondary disabled' : 'btn-outline-primary')">
+                        Sau <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+            </nav>
+        </div>
     </div>
-
-    <!-- Pagination -->
-    <nav th:if="${totalPages > 1}">
-      <ul class="pagination justify-content-center">
-        <li class="page-item" th:classappend="${page == 1} ? 'disabled'">
-          <a class="page-link"
-             th:href="@{/manager/bill-list(page=${page - 1}, size=${size}, sortCriteria=${sortCriteria})}">
-             Trước
-          </a>
-        </li>
-
-        <li class="page-item"
-            th:each="i : ${#numbers.sequence(1, totalPages)}"
-            th:classappend="${i == page} ? 'active'">
-          <a class="page-link"
-             th:text="${i}"
-             th:href="@{/manager/bill-list(page=${i}, size=${size}, sortCriteria=${sortCriteria})}">
-          </a>
-        </li>
-
-        <li class="page-item" th:classappend="${page == totalPages} ? 'disabled'">
-          <a class="page-link"
-             th:href="@{/manager/bill-list(page=${page + 1}, size=${size}, sortCriteria=${sortCriteria})}">
-             Sau
-          </a>
-        </li>
-      </ul>
-    </nav>
-  </div>
 </div>
 
 <script src="/js/bootstrap/bootstrap.bundle.min.js"></script>
