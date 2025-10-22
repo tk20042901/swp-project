@@ -321,7 +321,7 @@
                         <td>
                             <span th:class="'status-badge ' + (*{enabled} ? 'status-active' : 'status-inactive')">
                                 <i th:class="'bi ' + (*{enabled} ? 'bi-check-circle-fill' : 'bi-x-circle-fill') + ' me-1'"></i>
-                                <span th:text="*{enabled ? 'Hoạt động' : 'Đã khóa'}"></span>
+                                <span th:text="*{enabled ? 'Đang mở khóa' : 'Đã khóa'}"></span>
                             </span>
                         </td>
                         <td class="text-center">
