@@ -1,5 +1,7 @@
 const provinceSelect = document.getElementById('provinceCityCode');
 const wardSelect = document.getElementById('communeWardCode');
+const saveProvinceCode = document.getElementById('savedProvinceCode'); 
+const saveWardCode = document.getElementById('savedWardCode');
 document.addEventListener('DOMContentLoaded', function () {
   fetch('http://localhost:8080/admin/provinces')
     .then(response => {
@@ -9,13 +11,31 @@ document.addEventListener('DOMContentLoaded', function () {
       return response.json();
     })
     .then(data => {
-      let optionHtml = `<option value="">Chọn tỉnh/thành phố</option>`;
+      let optionHtml = ``;
       data.forEach(element => {
         optionHtml += `<option value="${element.code}">${element.name}</option>`;
+        if(element.code === saveProvinceCode.value){
+          provinceSelect.value = saveProvinceCode.value;
+        }
       });
       provinceSelect.innerHTML = optionHtml;
-      wardSelect.innerHTML = `<option value="">Chọn phường/xã</option>`;
-      wardSelect.disabled = true;
+      wardSelect.innerHTML = ``;
+      fetch(`http://localhost:8080/admin/wards?provinceId=` + saveProvinceCode.value)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Lỗi http status: ' + response.status);
+          }
+          return response.json();
+        })
+        .then(data => {
+          let optionHtml = '';
+          data.forEach(element => { 
+            optionHtml += `<option value="${element.code}">${element.name}</option>`;
+          });
+          wardSelect.innerHTML = optionHtml;
+          wardSelect.value = saveWardCode.value;
+        });
+      wardSelect.disabled = false;
     });
 });
 
