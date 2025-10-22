@@ -3,7 +3,7 @@
         <div class="container-fluid">
             <a class="navbar-brand fw-bold" href="/">FruitShop</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -18,19 +18,26 @@
                         <a class="nav-link" th:href="@{/ai}">AI chatbot</a>
                     </li>
                     <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
-                        <a class="nav-link" th:href="@{/customer/shopping-cart}">Giỏ hàng</a>
-                    </li>
-                    <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
                         <a class="nav-link" th:href="@{/customer/order-history}">Lịch sử đơn hàng</a>
                     </li>
                 </ul>
+                <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
+                        <a class="nav-link position-relative" th:href="@{/customer/shopping-cart}">
+                            <img th:src="@{/images/icons/cart.svg}" width="16" height="16" alt="cart icon">
+                            <span
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                id="cartNumber">
+                            </span>
+                        </a>
+                </li>
                 <!-- Search Form -->
                 <form method="get" th:action="@{/search-product}" class="d-flex ms-auto">
                     <input type="text" name="keyword" class="form-control me-2" placeholder="Tìm kiếm sản phẩm..."
-                           th:value="${keyword}" aria-label="Tìm kiếm sản phẩm" required>
+                        th:value="${keyword}" aria-label="Tìm kiếm sản phẩm" required>
                     <button class="btn btn-outline-success" style="width: 123px" type="submit">Tìm kiếm</button>
                 </form>
             </div>
         </div>
     </nav>
+    <script th:src="@{/js/customer/cartItem.js}"></script>
 </div>
