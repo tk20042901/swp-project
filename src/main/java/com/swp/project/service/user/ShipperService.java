@@ -146,14 +146,12 @@ public class ShipperService {
 
     public void add(StaffDto staffDto) {
         if (staffDto != null) {
-            if (staffDto.getId() == 0) {
-                if (existsCid(staffDto.getCid())) {
+                if (existsCid(staffDto.getCid(), staffDto.getId())) {
                     throw new RuntimeException("Mã căn cước công dân đã được dùng");
                 }
-                if (userRepository.existsByEmail(staffDto.getEmail())) {
+                if (existsEmail(staffDto.getEmail(), staffDto.getId())) {
                     throw new RuntimeException("Email đã được dùng");
                 }
-            }
             Shipper shipper;
             try {
                 if(staffDto.getId() == 0) {
@@ -185,10 +183,16 @@ public class ShipperService {
         }
     }
 
-    private boolean existsCid(String cid) {
-        return sellerRepository.findByCid(cid) != null ||
-                shipperRepository.findByCid(cid) != null ||
-                managerRepository.findByCid(cid) != null;
+    private boolean existsCid(String cid, long id) {
+        return (sellerRepository.findByCid(cid) != null && sellerRepository.findByCid(cid).getId() != id) ||
+                (shipperRepository.findByCid(cid) != null && shipperRepository.findByCid(cid).getId() != id) ||
+                (managerRepository.findByCid(cid) != null && managerRepository.findByCid(cid).getId() != id);
+    }
+
+    private boolean existsEmail(String email, long id) {
+        return (sellerRepository.findByEmail(email) != null && sellerRepository.findByEmail(email).getId() != id) ||
+                (shipperRepository.findByEmail(email) != null && shipperRepository.findByEmail(email).getId() != id) ||
+                (managerRepository.findByEmail(email) != null && managerRepository.findByEmail(email).getId() != id);
     }
 
     public void findByNameAndCid(String name, String cid) {
