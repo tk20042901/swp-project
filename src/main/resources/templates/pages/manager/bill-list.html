@@ -54,12 +54,7 @@
                         th:text="'Ngày thanh toán ' + (${sortCriteria.equals('paymentTime') ? (k == 1 ? '▲' : '▼') : ''})">
                 </button>
               </th>
-              <th class="col-lg-2">
-                <button type="submit" name="sortCriteria" value="shopName"
-                        th:class="'btn btn-sm ' + (${sortCriteria.equals('shopName')} ? 'btn-primary' : 'btn-outline-primary')"
-                        th:text="'Tên cửa hàng ' + (${sortCriteria.equals('shopName') ? (k == 1 ? '▲' : '▼') : ''})">
-                </button>
-              </th>
+              <th class="col-lg-2">Tên cửa hàng</th>
               <th class="col-lg-2">Địa chỉ</th>
               <th class="col-lg-2">Số điện thoại</th>
               <th class="col-lg-2">Email</th>
