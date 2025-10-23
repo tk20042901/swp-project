@@ -208,7 +208,7 @@
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                     <tr>
-                        <th>
+                        <th class="col-lg-1">
                             <form th:action="@{/manager/manage-seller}" method="get" class="d-inline">
                                 <label>
                                     <input name="queryName" th:value="${queryName}" hidden>
@@ -223,7 +223,7 @@
                                 </button>
                             </form>
                         </th>
-                        <th>
+                        <th class="col-lg-2">
                             <form th:action="@{/manager/manage-seller}" method="get" class="d-inline">
                                 <label>
                                     <input name="queryName" th:value="${queryName}" hidden>
@@ -238,7 +238,7 @@
                                 </button>
                             </form>
                         </th>
-                        <th>
+                        <th class="col-lg-2">
                             <form th:action="@{/manager/manage-seller}" method="get" class="d-inline">
                                 <label>
                                     <input name="queryName" th:value="${queryName}" hidden>
@@ -253,7 +253,7 @@
                                 </button>
                             </form>
                         </th>
-                        <th>
+                        <th class="col-lg-2">
                             <form th:action="@{/manager/manage-seller}" method="get" class="d-inline">
                                 <label>
                                     <input name="queryName" th:value="${queryName}" hidden>
@@ -283,7 +283,7 @@
                                 </button>
                             </form>
                         </th>
-                        <th>
+                        <th class="col-lg-1">
                             <form th:action="@{/manager/manage-seller}" method="get" class="d-inline">
                                 <label>
                                     <input name="queryName" th:value="${queryName}" hidden>
@@ -298,7 +298,7 @@
                                 </button>
                             </form>
                         </th>
-                        <th class="text-center">Hành động</th>
+                        <th class="text-center col-lg-1">Hành động</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -313,18 +313,18 @@
                                          ((session.numEachPage * session.subpageIndex - 1) < session.list.size() ?
                                          (session.numEachPage * session.subpageIndex - 1) : (session.list.size() - 1)))}"
                         th:object="${session.list[index]}">
-                        <td th:text="*{id}"></td>
-                        <td th:text="*{email}"></td>
-                        <td th:text="*{fullname}"></td>
-                        <td th:text="*{cid}"></td>
-                        <td th:text="*{address}"></td>
-                        <td>
+                        <td th:text="*{id}" class="col-lg-1"></td>
+                        <td th:text="*{email}" class="col-lg-2"></td>
+                        <td th:text="*{fullname}" class="col-lg-2"></td>
+                        <td th:text="*{cid}" class="col-lg-2"></td>
+                        <td th:text="*{address}" class="col-lg-3"></td>
+                        <td class="col-lg-1">
                             <span th:class="'status-badge ' + (*{enabled} ? 'status-active' : 'status-inactive')">
                                 <i th:class="'bi ' + (*{enabled} ? 'bi-check-circle-fill' : 'bi-x-circle-fill') + ' me-1'"></i>
                                 <span th:text="*{enabled ? 'Đang mở khóa' : 'Đã khóa'}"></span>
                             </span>
                         </td>
-                        <td class="text-center">
+                        <td class="text-center col-lg-1">
                             <form th:action="@{/manager/edit-staff}" method="get" class="d-inline">
                                 <label>
                                     <input name="email" th:value="*{email}" hidden>
