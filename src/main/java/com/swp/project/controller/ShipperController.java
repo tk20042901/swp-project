@@ -95,6 +95,7 @@ public class ShipperController {
         model.addAttribute("searchQuery", session.getAttribute("searchQuery"));
         model.addAttribute("sortCriteria", session.getAttribute("sortCriteria"));
         model.addAttribute("k", (int) session.getAttribute("k"));
+        model.addAttribute("orderNumber", orderService.countDeliveringOrders(principal));
         return "pages/shipper/delivering-orders";
     }
 
@@ -144,6 +145,7 @@ public class ShipperController {
         model.addAttribute("searchQuery", session.getAttribute("searchQuery"));
         model.addAttribute("sortCriteria", session.getAttribute("sortCriteria"));
         model.addAttribute("k", (int) session.getAttribute("k"));
+        model.addAttribute("orderNumber", orderService.countDoneOrders(principal));
         return "pages/shipper/done-orders";
     }
 

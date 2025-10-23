@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.swp.project.dto.RevenueDto;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -26,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.swp.project.dto.DeliveryInfoDto;
+import com.swp.project.dto.RevenueDto;
 import com.swp.project.dto.SellerSearchOrderDto;
 import com.swp.project.entity.order.Bill;
 import com.swp.project.entity.order.Order;
@@ -748,5 +748,25 @@ public class OrderService {
             return new ByteArrayInputStream(out.toByteArray());
         }
 
+    }
+
+    public long countDeliveringOrders(Principal principal) {
+        if (principal == null) {
+            throw new RuntimeException("Người giao hàng không xác định");
+        }
+        return orderRepository.findByShipper_Email(principal.getName())
+            .stream()
+            .filter(orderStatusService::isShippingStatus)
+            .count();
+    }
+
+    public long countDoneOrders(Principal principal) {
+        if (principal == null) {
+            throw new RuntimeException("Người giao hàng không xác định");
+        }
+        return orderRepository.findByShipper_Email(principal.getName())
+            .stream()
+            .filter(orderStatusService::isDeliveredStatus)
+            .count();
     }
 }
