@@ -20,8 +20,7 @@
                     <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
                         <a class="nav-link" th:href="@{/customer/order-history}">Lịch sử đơn hàng</a>
                     </li>
-                </ul>
-                <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
+                    <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
                         <a class="nav-link position-relative" th:href="@{/customer/shopping-cart}">
                             <img th:src="@{/images/icons/cart.svg}" width="16" height="16" alt="cart icon">
                             <span
@@ -29,7 +28,9 @@
                                 id="cartNumber">
                             </span>
                         </a>
-                </li>
+                    </li>
+                </ul>
+                
                 <!-- Search Form -->
                 <form method="get" th:action="@{/search-product}" class="d-flex ms-auto">
                     <input type="text" name="keyword" class="form-control me-2" placeholder="Tìm kiếm sản phẩm..."

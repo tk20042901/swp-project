@@ -36,5 +36,11 @@ public class UpdateProductDto{
     @NotNull(message = "Danh mục sản phẩm không được để trống")
     private List<Long> categories;
 
+    @NotNull(message = "Số lượng sản phẩm không được để trống")
+    private Double quantity;
+
+    private String subDisplay1;
+    private String subDisplay2;
+    private String subDisplay3;
     private String mainImage; 
 }
