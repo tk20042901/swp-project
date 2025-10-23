@@ -21,6 +21,7 @@
                         <a class="nav-link" th:href="@{/customer/order-history}">Lịch sử đơn hàng</a>
                     </li>
                     <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
+                    <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
                         <a class="nav-link position-relative" th:href="@{/customer/shopping-cart}">
                             <img th:src="@{/images/icons/cart.svg}" width="16" height="16" alt="cart icon">
                             <span class="position-absolute translate-middle badge rounded-pill bg-danger"

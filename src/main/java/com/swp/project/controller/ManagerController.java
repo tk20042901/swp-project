@@ -379,9 +379,6 @@ public class ManagerController {
     public String getAllProductsRequest(
             Model model) {
         model.addAttribute("sellerRequests", sellerRequestService.getAllSellerRequest());
-        for (SellerRequest sr : sellerRequestService.getAllSellerRequest()) {
-            System.out.println(sr.getRequestType().getName());
-        }
         return "pages/manager/all-products-request";
     }
 

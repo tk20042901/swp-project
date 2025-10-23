@@ -174,6 +174,10 @@ public class SellerController {
                 .enabled(product.isEnabled())
                 .categories(product.getCategories().stream().map(Category::getId).toList())
                 .mainImage(product.getMain_image_url())
+                .subDisplay1(product.getSub_images().get(0).getSub_image_url())
+                .subDisplay2(product.getSub_images().get(1).getSub_image_url())
+                .subDisplay3(product.getSub_images().get(2).getSub_image_url())
+                .quantity(product.getQuantity())
                 .build();
         model.addAttribute("units", unitService.getAllUnits());
         model.addAttribute("categories", categoryService.getAllCategories());
@@ -188,6 +192,8 @@ public class SellerController {
             @Valid @ModelAttribute UpdateProductDto updateProductDto,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes,
+            @RequestParam MultipartFile imageFile,
+            @RequestParam MultipartFile[] subImageFiles,  
             Principal principal) {
         if (bindingResult.hasErrors()) {
             System.out.println(bindingResult.getAllErrors());
@@ -196,6 +202,7 @@ public class SellerController {
         try {
             Product oldProduct = productService.getProductById(updateProductDto.getId());
             List<Category> categories = new ArrayList<>();
+            List<SubImage> subImages = new ArrayList<>();
             for (Long catId : updateProductDto.getCategories()) {
                 categories.add(categoryService.getCategoryById(catId));
             }
@@ -209,10 +216,38 @@ public class SellerController {
                     .price(updateProductDto.getPrice())
                     .unit(updateProductDto.getUnit())
                     .enabled(updateProductDto.getEnabled())
-                    .main_image_url(oldProduct.getMain_image_url())
-                    .sub_images(oldProduct.getSub_images())
                     .categories(categories)
                     .build();
+            if(imageFile == null || imageFile.isEmpty()){
+                updateProduct.setMain_image_url(oldProduct.getMain_image_url());
+            }else{
+                updateProduct.setMain_image_url(imageService.saveTemporaryImage(imageFile, oldProduct.getId()+"", "temp-1.jpg"));
+            }
+            if(subImageFiles[0] == null || subImageFiles[0].isEmpty()){
+                subImages.add(oldProduct.getSub_images().get(0));
+            }else{
+                SubImage sub = new SubImage();
+                sub.setProduct(updateProduct);
+                sub.setSub_image_url(imageService.saveTemporaryImage(subImageFiles[0], oldProduct.getId()+"", "temp-2.jpg"));
+                subImages.add(sub);
+            }
+            if(subImageFiles[1] == null || subImageFiles[1].isEmpty()){
+                subImages.add(oldProduct.getSub_images().get(1));
+            }else{
+                SubImage sub = new SubImage();
+                sub.setProduct(updateProduct);
+                sub.setSub_image_url(imageService.saveTemporaryImage(subImageFiles[1], oldProduct.getId()+"", "temp-3.jpg"));
+                subImages.add(sub);
+            }
+            if(subImageFiles[2] == null || subImageFiles[2].isEmpty()){
+                subImages.add(oldProduct.getSub_images().get(2));
+            }else{
+                SubImage sub = new SubImage();
+                sub.setProduct(updateProduct);
+                sub.setSub_image_url(imageService.saveTemporaryImage(subImageFiles[2], oldProduct.getId()+"", "temp-4.jpg"));
+                subImages.add(sub);
+            }
+            updateProduct.setSub_images(subImages);
             sellerRequestService.saveUpdateRequest(oldProduct, updateProduct, principal.getName());
             redirectAttributes.addFlashAttribute("msg", "Yêu cầu cập nhật sản phẩm đã được gửi đến quản lý");
         } catch (Exception e) {
