@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.swp.project.entity.product.Category;
+import com.swp.project.service.product.CategoryService;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
@@ -58,6 +60,7 @@ public class ManagerController {
     private final BillService billService;
     private final int numEachPage = 10;
     private final OrderService orderService;
+    private final CategoryService categoryService;
 
     @GetMapping("")
     public String index() {

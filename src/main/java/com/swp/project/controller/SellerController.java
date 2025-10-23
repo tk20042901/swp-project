@@ -10,6 +10,7 @@ import com.swp.project.entity.product.SubImage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -389,5 +390,16 @@ public class SellerController {
         model.addAttribute("productUnits", productUnits);
         model.addAttribute("allowDecimal", allowDecimal);
         return "pages/seller/product/product-unit";
+    }
+
+    @GetMapping("/product-category")
+    public String getAllProductUnit(Model model,
+                                    @RequestParam(value = "categoryName", required = false) String categoryName,
+                                    @RequestParam(defaultValue = "0") int page,
+                                    @RequestParam(defaultValue = "5") int size){
+        Page<Category> categories = categoryService.searchByCategoryName(categoryName, size, page);
+        model.addAttribute("categories", categories);
+        model.addAttribute("categoryName", categoryName);
+        return "pages/seller/product/product-category";
     }
 }
