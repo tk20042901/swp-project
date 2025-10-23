@@ -129,25 +129,25 @@
     </style>
 
     <div class="sidebar">
-        <h2>🌿 Seller Panel</h2>
+        <h2><i class="bi bi-shop"></i> Seller Panel</h2>
         <a th:href="@{/seller/product-category}">
-            <span>📂</span> <span style="margin-left: 12px;">Quản lý danh mục</span>
+            <i class="bi bi-folder"></i> <span style="margin-left: 12px;">Quản lý danh mục</span>
         </a>
         <a th:href="@{/seller/product-unit}">
-            <span>📦</span> <span style="margin-left: 12px;">Quản lý đơn vị</span>
+            <i class="bi bi-box"></i> <span style="margin-left: 12px;">Quản lý đơn vị</span>
         </a>
         <a th:href="@{/seller/all-products}">
-            <span>🛍️</span> <span style="margin-left: 12px;">Quản lý sản phẩm</span>
+            <i class="bi bi-bag"></i> <span style="margin-left: 12px;">Quản lý sản phẩm</span>
         </a>
         <a th:href="@{/seller/all-orders}">
-            <span>📋</span> <span style="margin-left: 12px;">Tất cả đơn hàng</span>
+            <i class="bi bi-clipboard-check"></i> <span style="margin-left: 12px;">Tất cả đơn hàng</span>
         </a>
         <a th:href="@{/seller/statistic-report/overview}">
-            <span>📊</span> <span style="margin-left: 12px;">Thống kê</span>
+            <i class="bi bi-bar-chart"></i> <span style="margin-left: 12px;">Thống kê</span>
         </a>
 
         <form th:action="@{/logout}" method="post">
-            <button type="submit">🚪 Đăng xuất</button>
+            <button type="submit"><i class="bi bi-box-arrow-right"></i> Đăng xuất</button>
         </form>
     </div>
 </div>
