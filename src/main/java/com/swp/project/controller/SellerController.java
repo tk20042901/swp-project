@@ -10,6 +10,7 @@ import com.swp.project.entity.product.SubImage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -260,9 +261,9 @@ public class SellerController {
     @GetMapping("/seller-create-product")
     public String showCreateProductForm(Model model) {
         CreateProductDto newProduct = new CreateProductDto();
+        newProduct.setCategories(categoryService.getAllCategories());
         model.addAttribute("productDto", newProduct);
         model.addAttribute("units", unitService.getAllUnits());
-        model.addAttribute("categories", categoryService.getAllCategories());
         return "pages/seller/product/create-product";
     }
 
@@ -272,143 +273,15 @@ public class SellerController {
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes,
             Principal principal,
-            @RequestParam List<Long> categoryIds,
-            @RequestParam MultipartFile imageFile,
-            @RequestParam MultipartFile[] subImageFiles,   
             Model model) {
-
-        if (bindingResult.hasErrors()) {
-            System.out.println(bindingResult.getAllErrors());
-            model.addAttribute("error", "Vui lòng kiểm tra các trường thông tin");
-            return "redirect:/seller/seller-create-product";
-        }
         try {
-            if (productService.checkUniqueProductName(productDto.getName())) {
-                throw new Exception("Tên sản phẩm đã tồn tại");
-            }
-            List<Category> categories = new ArrayList<>();
-            for (Long catId : categoryIds) {
-                categories.add(categoryService.getCategoryById(catId));
-            }
-            productDto.setCategories(categories);
-            String fileName = ProductService.toSlugName(productDto.getName());
-            Product product = Product.builder()
-                    .name(productDto.getName())
-                    .description(productDto.getDescription())
-                    .price(productDto.getPrice())
-                    .unit(productDto.getUnit())
-                    .enabled(productDto.isEnabled())
-                    .categories(productDto.getCategories())
-                    .main_image_url(imageService.saveTemporaryImage(imageFile, fileName, "1.jpg"))
-                    .quantity(productDto.getQuantity())
-                    .build();
-            List<SubImage> subImages = new ArrayList<>();
-            for (int i = 0; i < subImageFiles.length; i++) {
-                MultipartFile subImageFile = subImageFiles[i];
-                    String subImagePath = imageService.saveTemporaryImage(subImageFile, fileName, (i + 2) + ".jpg");
-                    SubImage subImage = SubImage.builder()
-                            .product(product)
-                            .sub_image_url(subImagePath)
-                            .build();
-                    subImages.add(subImage);
-            }
-            product.setSub_images(subImages);
+            Product product = productService.createProductForAddRequest(productDto,bindingResult);
             sellerRequestService.saveAddRequest(product, principal.getName());
-            redirectAttributes.addFlashAttribute("msg", "Yêu cầu tạo sản phẩm đã được gửi đến quản lý");
+            redirectAttributes.addFlashAttribute("success", "Yêu cầu tạo sản phẩm đã được gửi đến quản lý");
         } catch (Exception e) { 
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/seller";
         }
-        return "redirect:/seller";
-    }
-
-    @GetMapping("/update-product-images/{productId}")
-    public String showUpdateProductImagesForm(@PathVariable Long productId, Model model) {
-        try {
-            Product product = productService.getProductById(productId);
-            if (product == null) {
-                throw new Exception("Sản phẩm không tồn tại");
-            }
-            model.addAttribute("product", product);
-            return "pages/seller/product/update-product-images";
-        } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
-            return "redirect:/seller/all-products";
-        }
-    }
-
-    @PostMapping("/update-product-images")
-    public String handleUpdateProductImages(
-            @RequestParam Long productId,
-            @RequestParam(required = false) MultipartFile mainImage,
-            @RequestParam(required = false) MultipartFile[] subImages,
-            RedirectAttributes redirectAttributes,
-            Principal principal) {
-        try {
-            Product oldProduct = productService.getProductById(productId);
-            if (oldProduct == null) {
-                throw new Exception("Sản phẩm không tồn tại");
-            }
-
-            Product updatedProduct = oldProduct.toBuilder().build();
-
-            if (mainImage != null && !mainImage.isEmpty()) {
-                if (!Objects.requireNonNull(mainImage.getContentType()).startsWith("image/")) {
-                    throw new Exception("Tệp hình ảnh chính không đúng định dạng");
-                }
-                                String mainImagePath = imageService.saveTemporaryImage(mainImage, productId + "", "temp-1.jpg");
-                updatedProduct.setMain_image_url(mainImagePath);
-            }
-
-            // Handle sub images update - filter out empty files and process valid ones
-            if (subImages != null && subImages.length > 0) {
-                List<MultipartFile> validSubImages = new ArrayList<>();
-                
-                // Filter out empty files
-                for (MultipartFile subImage : subImages) {
-                    if (subImage != null && !subImage.isEmpty()) {
-                        validSubImages.add(subImage);
-                    }
-                }
-
-                if (!validSubImages.isEmpty()) {
-                    List<SubImage> newSubImages = new ArrayList<>();                    
-                    for (int i = 0; i < validSubImages.size(); i++) {
-                        MultipartFile subImage = validSubImages.get(i);
-
-                        if (!Objects.requireNonNull(subImage.getContentType()).startsWith("image/")) {
-                            throw new Exception("Tệp hình ảnh phụ " + (i + 1) + " không đúng định dạng");
-                        }
-
-                        String subImagePath = imageService.saveTemporaryImage(subImage, productId + "","temp-" + (i + 2) + ".jpg");
-                        SubImage subImageEntity = SubImage.builder()
-                                .product(updatedProduct)
-                                .sub_image_url(subImagePath)
-                                .build();
-                        newSubImages.add(subImageEntity);
-                    }
-                    
-                    updatedProduct.setSub_images(newSubImages);
-                }
-            }
-            // Only proceed if at least one image was updated
-            boolean hasMainImageUpdate = mainImage != null && !mainImage.isEmpty();
-            boolean hasSubImagesUpdate = subImages != null && 
-                                        java.util.Arrays.stream(subImages).anyMatch(img -> img != null && !img.isEmpty());
-            
-            if (!hasMainImageUpdate && !hasSubImagesUpdate) {
-                throw new Exception("Vui lòng chọn ít nhất một hình ảnh để cập nhật");
-            }
-
-            // Submit update request
-            sellerRequestService.saveUpdateRequest(oldProduct, updatedProduct, principal.getName());
-            redirectAttributes.addFlashAttribute("msg", "Yêu cầu cập nhật hình ảnh sản phẩm đã được gửi đến quản lý");
-            
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/seller/update-product-images/" + productId;
-        }
-        return "redirect:/seller/product/product-detail/" + productId;
+        return "redirect:/seller/seller-create-product";
     }
     @GetMapping("/product-unit")
     public String getProductUnitList(Model model,
@@ -424,5 +297,16 @@ public class SellerController {
         model.addAttribute("productUnits", productUnits);
         model.addAttribute("allowDecimal", allowDecimal);
         return "pages/seller/product/product-unit";
+    }
+
+    @GetMapping("/product-category")
+    public String getAllProductUnit(Model model,
+                                    @RequestParam(value = "categoryName", required = false) String categoryName,
+                                    @RequestParam(defaultValue = "0") int page,
+                                    @RequestParam(defaultValue = "5") int size){
+        Page<Category> categories = categoryService.searchByCategoryName(categoryName, size, page);
+        model.addAttribute("categories", categories);
+        model.addAttribute("categoryName", categoryName);
+        return "pages/seller/product/product-category";
     }
 }

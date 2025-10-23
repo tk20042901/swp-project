@@ -10,6 +10,10 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -41,5 +45,16 @@ public class CategoryService {
     public List<Category> getUniqueCategoriesBaseOnPageOfProduct(List<ViewProductDto> content) {
         List<Long> ids = content.stream().map(ViewProductDto::getId).toList();
         return categoryRepository.findDistinctCategoriesByProductIds(ids);
+    }
+
+    public Page<Category> searchByCategoryName(String categoryName,int size, int page){
+        Pageable pageable= PageRequest.of(page,size);
+        boolean hasCategoryName = categoryName != null && !categoryName.trim().isEmpty();
+        if(hasCategoryName){
+            return categoryRepository.findByCategoryName(categoryName, pageable);
+        }else
+        {
+            return categoryRepository.findAll(pageable);
+        }
     }
 }
