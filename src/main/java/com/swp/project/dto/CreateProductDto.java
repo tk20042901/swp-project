@@ -37,10 +37,13 @@ public class CreateProductDto {
     @NotNull(message = "Danh mục sản phẩm không được để trống")
     private boolean enabled = true;
 
+    @PositiveOrZero(message = "Số lượng sản phẩm phải là số nguyên dương hoặc bằng 0")
     private double quantity;
 
-    private String main_image_url;
-
+    @NotNull(message = "Hình ảnh chính sản phẩm không được để trống")
+    private MultipartFile image;
+    private List<MultipartFile> subImages;
     private List<Category> categories;
- 
+    private List<Long> categoryIds;
+
 }

@@ -22,6 +22,10 @@
                     <i class="bi bi-exclamation-triangle-fill me-2"></i>
                     <span th:text="${error}"></span>
                 </div>
+                <div th:if="${success}" class="success-message">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    <span th:text="${success}"></span>
+                </div>
 
                 <form th:action="@{/seller/seller-create-product}" method="post" th:object="${productDto}"
                     enctype="multipart/form-data">
@@ -83,7 +87,6 @@
                                     <input class="form-check-input" type="checkbox" th:field="*{enabled}" 
                                         id="productEnabled" value="true" />
                                     <label class="form-check-label" for="productEnabled">
-                                        <i class="bi bi-check-circle me-1"></i>
                                         Kích hoạt sản phẩm
                                     </label>
                                 </div>
@@ -99,10 +102,10 @@
                         </div>
 
                         <div class="checkbox-group" id="categoriesGroup">
-                            <div th:each="category : ${categories}" class="checkbox-item">
-                                <input type="checkbox" name="categoryIds" th:value="${category.id}"
-                                    th:id="'category_' + ${category.id}" />
-                                <label th:for="'category_' + ${category.id}" th:text="${category.name}"></label>
+                            <div th:each="category : *{categories}" class="checkbox-item">
+                                <input type="checkbox" th:field="*{categoryIds}" th:value="${category.id}"
+                                    th:id="${category.id}" />
+                                <label th:for="${category.id}" th:text="${category.name}"></label>
                             </div>
                         </div>
                     </div>
@@ -119,11 +122,11 @@
                             <label for="mainImageFile" class="form-label">
                                 Ảnh chính<span class="required-mark">*</span>
                             </label>
-                            <input type="file" class="form-control" name="imageFile" id="mainImageFile" 
+                            <input type="file" class="form-control" th:field="*{image}" id="mainImageFile" 
                                 accept="image/*" required />
                             <small class="file-input-label">
                                 <i class="bi bi-info-circle me-1"></i>
-                                Chọn ảnh chính cho sản phẩm (JPG, PNG). Kích thước tối đa: 5MB
+                                Chọn ảnh chính cho sản phẩm (JPG, PNG)
                             </small>
                             <div class="image-preview-container">
                                 <img id="previewMainImage" src="#" alt="Preview Main Image" 
@@ -141,7 +144,7 @@
                                 <label for="subImageFile1" class="form-label">
                                     Ảnh phụ 1<span class="required-mark">*</span>
                                 </label>
-                                <input type="file" class="form-control" name="subImageFiles" id="subImageFile1" 
+                                <input type="file" class="form-control" th:field="*{subImages}" id="subImageFile1" 
                                     accept="image/*" required/>
                                 <small class="file-input-label">Ảnh phụ thứ nhất</small>
                                 <div class="image-preview-container">
@@ -158,7 +161,7 @@
                                 <label for="subImageFile2" class="form-label">
                                     Ảnh phụ 2<span class="required-mark">*</span>
                                 </label>
-                                <input type="file" class="form-control" name="subImageFiles" id="subImageFile2" 
+                                <input type="file" class="form-control" th:field="*{subImages}" id="subImageFile2" 
                                     accept="image/*" required/>
                                 <small class="file-input-label">Ảnh phụ thứ hai</small>
                                 <div class="image-preview-container">
@@ -175,7 +178,7 @@
                                 <label for="subImageFile3" class="form-label">
                                     Ảnh phụ 3<span class="required-mark">*</span>
                                 </label>
-                                <input type="file" class="form-control" name="subImageFiles" id="subImageFile3" 
+                                <input type="file" class="form-control" th:field="*{subImages}" id="subImageFile3" 
                                     accept="image/*" required/>
                                 <small class="file-input-label">Ảnh phụ thứ ba</small>
                                 <div class="image-preview-container">
