@@ -272,19 +272,15 @@ public class SellerController {
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes,
             Principal principal,
-            @RequestParam List<Long> categoryIds,
-            @RequestParam MultipartFile imageFile,
-            @RequestParam MultipartFile[] subImageFiles,   
             Model model) {
         try {
             Product product = productService.createProductForAddRequest(productDto,bindingResult);
             sellerRequestService.saveAddRequest(product, principal.getName());
-            redirectAttributes.addFlashAttribute("msg", "Yêu cầu tạo sản phẩm đã được gửi đến quản lý");
+            redirectAttributes.addFlashAttribute("success", "Yêu cầu tạo sản phẩm đã được gửi đến quản lý");
         } catch (Exception e) { 
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/seller";
         }
-        return "redirect:/seller";
+        return "redirect:/seller/seller-create-product";
     }
     @GetMapping("/product-unit")
     public String getProductUnitList(Model model,

@@ -1,7 +1,6 @@
 package com.swp.project.controller;
 
 import com.swp.project.dto.*;
-import com.swp.project.entity.product.ProductUnit;
 import com.swp.project.entity.user.Manager;
 import com.swp.project.service.AddressService;
 import com.swp.project.service.order.OrderService;
@@ -9,11 +8,9 @@ import com.swp.project.service.product.ProductUnitService;
 import com.swp.project.service.user.ManagerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
-
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -32,7 +29,6 @@ public class AdminController {
     private final ManagerService managerService;
     private final OrderService orderService;
     private final AddressService addressService;
-    private final ProductUnitService productUnitService;
 
     @GetMapping("")
     public String showAdminMainPage(Model model) {
@@ -83,13 +79,8 @@ public class AdminController {
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes,
             Model model) {
-
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("managerRegisterDto", managerRegisterDto);
-            return "pages/admin/create-manager";
-        }
         try {
-            managerService.createManager(managerRegisterDto);
+            managerService.createManager(managerRegisterDto, bindingResult);
             redirectAttributes.addFlashAttribute("success", "Tạo quản lý thành công.");
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("failed", e.getMessage());

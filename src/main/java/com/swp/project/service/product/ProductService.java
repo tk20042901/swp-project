@@ -3,6 +3,7 @@ package com.swp.project.service.product;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.Normalizer;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,9 +15,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.swp.project.dto.CreateProductDto;
 import com.swp.project.dto.ViewProductDto;
 import com.swp.project.entity.order.OrderItem;
+import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.SubImage;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
@@ -40,6 +46,7 @@ public class ProductService {
     private final ShoppingCartItemRepository shoppingCartItemRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final ImageService imageService;
+    private final CategoryService categoryService;
     private static final Map<String, Sort> SORT_OPTIONS = Map.of(
             "price-asc", Sort.by("price").ascending(),
             "price-desc", Sort.by("price").descending(),
@@ -266,7 +273,7 @@ public class ProductService {
         return normalized;
     }
 
-    public boolean checkUniqueProductName(String name){
+    public boolean checkUniqueProductName(String name) {
         String slugName = toSlugName(name);
         return productRepository
                 .findAll()
@@ -274,4 +281,40 @@ public class ProductService {
                 .anyMatch(p -> toSlugName(p.getName()).equals(slugName));
     }
 
+    public Product createProductForAddRequest(CreateProductDto productDto, BindingResult bindingResult) throws Exception {
+        if (bindingResult.hasErrors()) {
+            FieldError fieldError = bindingResult.getFieldErrors().get(0);
+            String message = fieldError.getField() + ": " + fieldError.getDefaultMessage();
+            throw new RuntimeException(message);
+        }
+        if (checkUniqueProductName(productDto.getName())) {
+            throw new Exception("Tên sản phẩm đã tồn tại");
+        }
+        productDto.setCategories(new ArrayList<>());
+        for (Long catId : productDto.getCategoryIds()) {
+            productDto.getCategories().add(categoryService.getCategoryById(catId));
+        }
+        String fileName = ProductService.toSlugName(productDto.getName());
+        Product product = Product.builder()
+                .name(productDto.getName())
+                .description(productDto.getDescription())
+                .price(productDto.getPrice())
+                .unit(productDto.getUnit())
+                .enabled(productDto.isEnabled())
+                .categories(productDto.getCategories())
+                .main_image_url(imageService.saveTemporaryImage(productDto.getImage(), fileName, "1.jpg"))
+                .sub_images(new ArrayList<>())
+                .quantity(productDto.getQuantity())
+                .build();
+        for (int i = 0; i < productDto.getSubImages().size(); i++) {
+            MultipartFile subImageFile = productDto.getSubImages().get(i);
+            String subImagePath = imageService.saveTemporaryImage(subImageFile, fileName, (i + 2) + ".jpg");
+            SubImage subImage = SubImage.builder()
+                    .product(product)
+                    .sub_image_url(subImagePath)
+                    .build();
+            product.getSub_images().add(subImage);
+        }
+        return product;
+    }
 }

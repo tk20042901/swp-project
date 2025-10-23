@@ -12,14 +12,14 @@ import com.swp.project.repository.user.SellerRepository;
 import com.swp.project.repository.user.ShipperRepository;
 import com.swp.project.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
-
 import java.time.LocalDate;
 import java.util.List;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 
 @RequiredArgsConstructor
 @Service
@@ -89,7 +89,12 @@ public class ManagerService {
         managerRepository.save(existingManager);
     }
 
-    public void createManager(ManagerRegisterDto registerDto) {
+    public void createManager(ManagerRegisterDto registerDto, BindingResult bindingResult) {
+        if(bindingResult.hasErrors()){
+            FieldError fieldError = bindingResult.getFieldErrors().get(0);
+            String message = fieldError.getField() + ": " + fieldError.getDefaultMessage();
+            throw new RuntimeException(message);
+        }
         CommuneWard ward = communeWardRepository.findById(registerDto.getCommuneWardCode())
             .orElseThrow(() -> new RuntimeException("Không tìm thấy xã"));
         if (!registerDto.getConfirmPassword().equals(registerDto.getPassword())) {
@@ -120,5 +125,7 @@ public class ManagerService {
             .map(m -> new ViewManagerDto(m.getId(), m.getEmail(),m.isEnabled()))
             .toList();
     }
+
+   
     
 }
