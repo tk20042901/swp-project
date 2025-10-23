@@ -112,32 +112,6 @@
     </tbody>
 </table>
 
-<h1>Sản phẩm sắp hết hạn</h1>
-<table>
-    <thead>
-    <tr>
-        <th>Mã sản phẩm</th>
-        <th>Sản phẩm</th>
-        <th>Hạn sử dụng</th>
-    </tr>
-    </thead>
-    <tbody>
 
-    <tr th:if="${#lists.isEmpty(nearlyExpiredProducts)}">
-        <td colspan="3" class="no-data">Không có sản phẩm nào</td>
-    </tr>
-
-    <tr th:each="item : ${nearlyExpiredProducts}">
-        <td th:text="${item.product.id}"></td>
-        <td>
-            <img th:src="${item.product.main_image_url}" alt="image">
-            <span th:text="${item.product.name}"></span>
-        </td>
-        <td th:text="${#temporals.format(item.expiredDate,'dd/MM/yyyy')}"></td>
-    </tr>
-
-
-    </tbody>
-</table>
 </body>
 </html>

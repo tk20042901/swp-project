@@ -6,112 +6,122 @@
     <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
     <style>
         body {
-            background: linear-gradient(135deg, #f8f9fa, #e3f2fd);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: "Poppins", sans-serif;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
         }
 
         .seller-container {
             background: #fff;
-            padding: 40px 60px;
+            padding: 50px 60px;
             border-radius: 20px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
             text-align: center;
-            width: 420px;
+            width: 100%;
+            max-width: 450px;
         }
 
-        h1, p {
-            font-size: 28px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 20px;
+        p {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         h4 {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             font-weight: 500;
+            padding: 12px;
+            background-color: #d4edda;
+            border-radius: 10px;
+            color: #155724;
         }
 
-        .btn {
+        .btn, a.btn {
+            display: block;
             width: 100%;
             margin-bottom: 15px;
             font-size: 16px;
-            font-weight: 500;
-            border-radius: 30px;
-            padding: 10px 0;
+            font-weight: 600;
+            border-radius: 12px;
+            padding: 14px 0;
             transition: all 0.3s ease;
             text-decoration: none;
             color: white;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Nút đăng xuất */
-        .btn-logout {
-            background-color: #ff4d4f;
             border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover, a.btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .btn-logout {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
         }
 
         .btn-logout:hover {
-            background-color: #e04344;
+            background: linear-gradient(135deg, #ee5a6f, #ff6b6b);
         }
 
-        /* Nút xem tất cả sản phẩm */
+        .btn-unit {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+        }
+
+        .btn-unit:hover {
+            background: linear-gradient(135deg, #f5576c, #f093fb);
+        }
+
         .btn-products {
-            background-color: #007bff;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
         }
 
         .btn-products:hover {
-            background-color: #0069d9;
+            background: linear-gradient(135deg, #00f2fe, #4facfe);
         }
 
-        /* Nút cập nhật sản phẩm */
-        .btn-update {
-            background-color: #6f42c1;
-        }
-
-        .btn-update:hover {
-            background-color: #5a32a3;
-        }
-
-        /* Nút đơn hàng */
         .btn-orders {
-            background-color: #17a2b8;
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
         }
 
         .btn-orders:hover {
-            background-color: #138496;
+            background: linear-gradient(135deg, #38f9d7, #43e97b);
         }
 
-        /* Nút thống kê */
         .btn-stat {
-            background-color: #28a745;
+            background: linear-gradient(135deg, #fa709a, #fee140);
         }
 
         .btn-stat:hover {
-            background-color: #218838;
+            background: linear-gradient(135deg, #fee140, #fa709a);
+        }
+
+        form {
+            margin-bottom: 0;
         }
     </style>
 </head>
 <body>
 <div class="seller-container">
-    <p>Seller</p>
+    <p>Seller Dashboard</p>
 
-    <h4 th:if="${msg}" th:text="${msg}" style="color: green;"></h4>
+    <h4 th:if="${msg}" th:text="${msg}"></h4>
 
     <form th:action="@{/logout}" method="post">
-        <button type="submit" class="btn btn-logout">Đăng xuất</button>
+        <button type="submit" class="btn btn-logout">🚪 Đăng xuất</button>
     </form>
 
-    <a th:href="@{/seller/all-products}" class="btn btn-products">Quản lý sản phẩm</a>
-    <a th:href="@{/seller/all-orders}" class="btn btn-orders">Tất cả đơn hàng</a>
-    <a th:href="@{/seller/statistic-report/overview}" class="btn btn-stat">Thống kê</a>
+    <a th:href="@{/seller/product-unit}" class="btn btn-unit">📦 Quản lý đơn vị</a>
+    <a th:href="@{/seller/all-products}" class="btn btn-products">🛍️ Quản lý sản phẩm</a>
+    <a th:href="@{/seller/all-orders}" class="btn btn-orders">📋 Tất cả đơn hàng</a>
+    <a th:href="@{/seller/statistic-report/overview}" class="btn btn-stat">📊 Thống kê</a>
 </div>
 
 <script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.swp.project.entity.product.ProductUnit;
 import com.swp.project.entity.product.SubImage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -48,6 +49,7 @@ public class SellerController {
     private final CategoryService categoryService;
     private final SellerRequestService sellerRequestService;
     private final ImageService imageService;
+    private final ProductUnitService productUnitService;
 
     @GetMapping("")
     public String index() {
@@ -320,6 +322,107 @@ public class SellerController {
         return "redirect:/seller";
     }
 
-   
+    @GetMapping("/update-product-images/{productId}")
+    public String showUpdateProductImagesForm(@PathVariable Long productId, Model model) {
+        try {
+            Product product = productService.getProductById(productId);
+            if (product == null) {
+                throw new Exception("Sản phẩm không tồn tại");
+            }
+            model.addAttribute("product", product);
+            return "pages/seller/product/update-product-images";
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+            return "redirect:/seller/all-products";
+        }
+    }
 
+    @PostMapping("/update-product-images")
+    public String handleUpdateProductImages(
+            @RequestParam Long productId,
+            @RequestParam(required = false) MultipartFile mainImage,
+            @RequestParam(required = false) MultipartFile[] subImages,
+            RedirectAttributes redirectAttributes,
+            Principal principal) {
+        try {
+            Product oldProduct = productService.getProductById(productId);
+            if (oldProduct == null) {
+                throw new Exception("Sản phẩm không tồn tại");
+            }
+
+            Product updatedProduct = oldProduct.toBuilder().build();
+
+            if (mainImage != null && !mainImage.isEmpty()) {
+                if (!Objects.requireNonNull(mainImage.getContentType()).startsWith("image/")) {
+                    throw new Exception("Tệp hình ảnh chính không đúng định dạng");
+                }
+                                String mainImagePath = imageService.saveTemporaryImage(mainImage, productId + "", "temp-1.jpg");
+                updatedProduct.setMain_image_url(mainImagePath);
+            }
+
+            // Handle sub images update - filter out empty files and process valid ones
+            if (subImages != null && subImages.length > 0) {
+                List<MultipartFile> validSubImages = new ArrayList<>();
+                
+                // Filter out empty files
+                for (MultipartFile subImage : subImages) {
+                    if (subImage != null && !subImage.isEmpty()) {
+                        validSubImages.add(subImage);
+                    }
+                }
+
+                if (!validSubImages.isEmpty()) {
+                    List<SubImage> newSubImages = new ArrayList<>();                    
+                    for (int i = 0; i < validSubImages.size(); i++) {
+                        MultipartFile subImage = validSubImages.get(i);
+
+                        if (!Objects.requireNonNull(subImage.getContentType()).startsWith("image/")) {
+                            throw new Exception("Tệp hình ảnh phụ " + (i + 1) + " không đúng định dạng");
+                        }
+
+                        String subImagePath = imageService.saveTemporaryImage(subImage, productId + "","temp-" + (i + 2) + ".jpg");
+                        SubImage subImageEntity = SubImage.builder()
+                                .product(updatedProduct)
+                                .sub_image_url(subImagePath)
+                                .build();
+                        newSubImages.add(subImageEntity);
+                    }
+                    
+                    updatedProduct.setSub_images(newSubImages);
+                }
+            }
+            // Only proceed if at least one image was updated
+            boolean hasMainImageUpdate = mainImage != null && !mainImage.isEmpty();
+            boolean hasSubImagesUpdate = subImages != null && 
+                                        java.util.Arrays.stream(subImages).anyMatch(img -> img != null && !img.isEmpty());
+            
+            if (!hasMainImageUpdate && !hasSubImagesUpdate) {
+                throw new Exception("Vui lòng chọn ít nhất một hình ảnh để cập nhật");
+            }
+
+            // Submit update request
+            sellerRequestService.saveUpdateRequest(oldProduct, updatedProduct, principal.getName());
+            redirectAttributes.addFlashAttribute("msg", "Yêu cầu cập nhật hình ảnh sản phẩm đã được gửi đến quản lý");
+            
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/seller/update-product-images/" + productId;
+        }
+        return "redirect:/seller/product/product-detail/" + productId;
+    }
+    @GetMapping("/product-unit")
+    public String getProductUnitList(Model model,
+                                     @RequestParam(value = "allowDecimal", required = false) Boolean allowDecimal){
+        List<ProductUnit> productUnits;
+
+        if (allowDecimal != null) {
+            productUnits = productUnitService.getUnitsByAllowDecimal(allowDecimal);
+        } else {
+            productUnits = productUnitService.getAllProductUnit();
+        }
+
+        model.addAttribute("productUnits", productUnits);
+        model.addAttribute("allowDecimal", allowDecimal);
+        return "pages/seller/product/product-unit";
+    }
 }

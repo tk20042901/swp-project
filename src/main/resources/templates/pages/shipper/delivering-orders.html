@@ -122,8 +122,8 @@
         <h5 class="fw-bold mb-3">
           <i class="bi bi-list-ul text-primary me-2"></i>
           Danh sách đơn hàng đang giao
-          <span class="badge bg-primary rounded-pill ms-2" th:if="${deliveringOrders != null}"
-                th:text="${deliveringOrders.size()}">0</span>
+          <span class="badge bg-primary rounded-pill ms-2"
+                th:text="${orderNumber}">0</span>
         </h5>
       </div>
 
@@ -131,7 +131,7 @@
         <table class="table order-table mb-0">
           <thead>
             <tr>
-              <th scope="col">
+              <th scope="col-3">
                 <form th:action="@{/shipper/delivering-orders}" method="get" class="d-inline">
                   <input type="hidden" name="searchQuery" th:value="${searchQuery}">
                   <button type="submit" name="sortCriteria" value="id"
@@ -142,7 +142,7 @@
                   </button>
                 </form>
               </th>
-              <th scope="col">
+              <th scope="col-5">
                 <form th:action="@{/shipper/delivering-orders}" method="get" class="d-inline">
                   <input type="hidden" name="searchQuery" th:value="${searchQuery}">
                   <button type="submit" name="sortCriteria" value="email"
@@ -153,7 +153,7 @@
                   </button>
                 </form>
               </th>
-              <th scope="col">
+              <th scope="col-2">
                 <form th:action="@{/shipper/delivering-orders}" method="get" class="d-inline">
                   <input type="hidden" name="searchQuery" th:value="${searchQuery}">
                   <button type="submit" name="sortCriteria" value="status"
@@ -164,7 +164,7 @@
                   </button>
                 </form>
               </th>
-              <th scope="col" class="text-end">
+              <th scope="col-2" class="text-end">
                 <i class="bi bi-gear me-1"></i>
                 Hành động
               </th>
@@ -178,21 +178,21 @@
               </td>
             </tr>
             <tr th:each="order : ${deliveringOrders}">
-              <td>
+              <td class="col-3">
                 <span class="fw-semibold text-primary" th:text="'#' + ${order.id}">#123456</span>
               </td>
-              <td>
+              <td class="col-5">
                 <i class="bi bi-person me-1 text-muted"></i>
                 <span th:text="${order.customer.email}">customer@email.com</span>
               </td>
-              <td>
+              <td class="col-2">
                 <span class="badge status-badge"
                       th:classappend="${shippingStatusService.isAwaitingPickupStatus(order.currentShippingStatus)} ? ' bg-secondary' :
                                       (${shippingStatusService.isPickedUpStatus(order.currentShippingStatus)} ? ' bg-warning text-dark' :
                                       (${shippingStatusService.isShippingStatus(order.currentShippingStatus)} ? ' bg-primary' : ' bg-info'))"
                       th:text="${order.currentShippingStatus.description}">Đang giao</span>
               </td>
-              <td class="text-end">
+              <td class="text-end col-2">
                 <a class="btn btn-sm btn-outline-primary" th:href="@{/shipper/orders/{id}(id=${order.id})}">
                   <i class="bi bi-eye me-1"></i>
                   Chi tiết
@@ -209,7 +209,7 @@
       <nav>
         <ul class="pagination justify-content-center mb-0">
           <li class="page-item" th:classappend="${currentPageDelivering == 1} ? 'disabled'">
-            <a class="page-link" th:href="@{/shipper/orders(pageDelivering=${currentPageDelivering - 1}, pageOther=${currentPageOther})}">
+            <a class="page-link" th:href="@{/shipper/delivering-orders(pageDelivering=${currentPageDelivering - 1}, pageOther=${currentPageOther})}">
               <i class="bi bi-chevron-left"></i>
               Trước
             </a>
@@ -217,10 +217,10 @@
           <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPagesDelivering)}"
               th:classappend="${i == currentPageDelivering} ? 'active'">
             <a class="page-link" th:text="${i}"
-               th:href="@{/shipper/orders(pageDelivering=${i}, pageOther=${currentPageOther})}"></a>
+               th:href="@{/shipper/delivering-orders(pageDelivering=${i}, pageOther=${currentPageOther})}"></a>
           </li>
           <li class="page-item" th:classappend="${currentPageDelivering == totalPagesDelivering} ? 'disabled'">
-            <a class="page-link" th:href="@{/shipper/orders(pageDelivering=${currentPageDelivering + 1}, pageOther=${currentPageOther})}">
+            <a class="page-link" th:href="@{/shipper/delivering-orders(pageDelivering=${currentPageDelivering + 1}, pageOther=${currentPageOther})}">
               Sau
               <i class="bi bi-chevron-right"></i>
             </a>
