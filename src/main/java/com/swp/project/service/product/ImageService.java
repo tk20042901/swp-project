@@ -180,7 +180,6 @@ public class ImageService {
             // Replace existing file or create new one
             Files.move(tempFile, newFilePath, StandardCopyOption.REPLACE_EXISTING);
             
-            System.out.println("Renamed: " + fileName + " -> " + newFileName);
             
             if (directoryPath.contains(IMAGES_TEMPORARY_PATH)) {
                 String relativePath = directoryPath.replace(IMAGES_TEMPORARY_PATH, "");
