@@ -1,0 +1,153 @@
+<div th:fragment="seller-sidebar">
+    <style>
+        /* === BỐ CỤC TỔNG THỂ === */
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* === SIDEBAR === */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, #2d7a4f 0%, #1e5a3a 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            padding: 24px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 35px;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            padding: 14px 24px;
+            color: #e8f5e9;
+            text-decoration: none;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            margin: 2px 0;
+        }
+
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-left-color: #a7f3d0;
+            color: #fff;
+            padding-left: 28px;
+        }
+
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-left-color: #6ee7b7;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        /* === NÚT ĐĂNG XUẤT === */
+        .sidebar form {
+            margin-top: auto;
+            padding: 0 20px;
+        }
+
+        .sidebar form button {
+            width: 100%;
+            padding: 12px 20px;
+            background: #ff6b6b;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar form button:hover {
+            background: #ee5a52;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* === NỘI DUNG CHÍNH === */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 30px;
+            background: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+
+            .sidebar h2 {
+                font-size: 18px;
+                writing-mode: vertical-rl;
+                transform: rotate(180deg);
+            }
+
+            .sidebar a {
+                justify-content: center;
+                padding: 14px 10px;
+                font-size: 20px;
+            }
+
+            .sidebar a span {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 70px;
+                padding: 20px;
+            }
+        }
+    </style>
+
+    <div class="sidebar">
+        <h2>🌿 Seller Panel</h2>
+        <a th:href="@{/seller/product-category}">
+            <span>📂</span> <span style="margin-left: 12px;">Quản lý danh mục</span>
+        </a>
+        <a th:href="@{/seller/product-unit}">
+            <span>📦</span> <span style="margin-left: 12px;">Quản lý đơn vị</span>
+        </a>
+        <a th:href="@{/seller/all-products}">
+            <span>🛍️</span> <span style="margin-left: 12px;">Quản lý sản phẩm</span>
+        </a>
+        <a th:href="@{/seller/all-orders}">
+            <span>📋</span> <span style="margin-left: 12px;">Tất cả đơn hàng</span>
+        </a>
+        <a th:href="@{/seller/statistic-report/overview}">
+            <span>📊</span> <span style="margin-left: 12px;">Thống kê</span>
+        </a>
+
+        <form th:action="@{/logout}" method="post">
+            <button type="submit">🚪 Đăng xuất</button>
+        </form>
+    </div>
+</div>
