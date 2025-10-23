@@ -280,8 +280,7 @@ public class ProductService {
                 .stream()
                 .anyMatch(p -> toSlugName(p.getName()).equals(slugName));
     }
-
-    public Product createProductForAddRequest(CreateProductDto productDto, BindingResult bindingResult) throws Exception {
+    private void validateProductDto(CreateProductDto productDto, BindingResult bindingResult) throws Exception {
         if (bindingResult.hasErrors()) {
             FieldError fieldError = bindingResult.getFieldErrors().get(0);
             String message = fieldError.getField() + ": " + fieldError.getDefaultMessage();
@@ -290,6 +289,18 @@ public class ProductService {
         if (checkUniqueProductName(productDto.getName())) {
             throw new Exception("Tên sản phẩm đã tồn tại");
         }
+        if (productDto.getImage() == null || productDto.getImage().isEmpty()) {
+            throw new Exception("Vui lòng tải lên ảnh chính cho sản phẩm");
+        }
+        for (MultipartFile file : productDto.getSubImages()) {
+            if (file == null || file.isEmpty()) {
+                throw new Exception("Vui lòng tải lên đủ 3 ảnh phụ cho sản phẩm");
+            }
+        }
+    }
+
+    public Product createProductForAddRequest(CreateProductDto productDto, BindingResult bindingResult) throws Exception {
+        validateProductDto(productDto, bindingResult);
         productDto.setCategories(new ArrayList<>());
         for (Long catId : productDto.getCategoryIds()) {
             productDto.getCategories().add(categoryService.getCategoryById(catId));
@@ -317,4 +328,5 @@ public class ProductService {
         }
         return product;
     }
+    
 }
