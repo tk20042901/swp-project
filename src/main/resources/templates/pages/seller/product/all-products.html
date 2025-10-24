@@ -4,15 +4,40 @@
     <meta charset="UTF-8">
     <title>Quản lý sản phẩm</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" th:href="@{/css/bootstrap/bootstrap.min.css}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
-        body {
-            min-height: 100vh;
+        :root {
+            --white: #ffffff;
+            --light-gray: #f8f9fa;
+            --button-bg: #e9ecef;
+            --border-color: #dee2e6;
+            --text-dark: #212529;
+            --text-muted: #6c757d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            background: var(--white);
+            color: var(--text-dark);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        }
+
+        .layout {
             display: flex;
-            flex-direction: column;
-            background: linear-gradient(180deg, #f8f9fa, #ffffff 80%);
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 30px;
+            background: var(--white);
         }
 
         .product-table thead th {
@@ -61,9 +86,151 @@
 
         .filter-card {
             background: white;
-            border-radius: var(--auth-card-radius);
-            border: 1px solid rgba(16, 24, 40, 0.06);
-            box-shadow: var(--auth-shadow);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+        }
+
+        .header {
+            background: var(--light-gray);
+            padding: 20px 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+        }
+
+        .header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin: 8px 0;
+        }
+
+        .header a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .header a:hover {
+            color: var(--text-dark);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .form-control, .form-select {
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #adb5bd;
+            box-shadow: none;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-primary {
+            background: #0d6efd;
+            border-color: #0d6efd;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0b5ed7;
+            border-color: #0a58ca;
+        }
+
+        .btn-success {
+            background: #198754;
+            border-color: #198754;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #157347;
+            border-color: #146c43;
+        }
+
+        .btn-outline-secondary {
+            background: var(--button-bg);
+            color: var(--text-dark);
+        }
+
+        .btn-outline-secondary:hover {
+            background: #d3d6d9;
+            color: var(--text-dark);
+        }
+
+        .btn-outline-primary {
+            background: transparent;
+            color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+        .btn-outline-primary:hover {
+            background: #0d6efd;
+            color: white;
+        }
+
+        .card {
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .card-footer {
+            background: var(--light-gray);
+            border-top: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .badge {
+            padding: 0.4rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.813rem;
+            font-weight: 600;
+        }
+
+        .bg-success {
+            background-color: #198754 !important;
+            color: white;
+        }
+
+        .bg-danger {
+            background-color: #dc3545 !important;
+            color: white;
+        }
+
+        .bg-primary {
+            background-color: #0d6efd !important;
+            color: white;
         }
 
         .pagination-controls {
@@ -74,186 +241,182 @@
         }
 
         .page-info {
-            padding: 0.25rem 0.75rem;
-            background-color: #f8f9fa;
+            padding: 0.5rem 0.75rem;
+            background-color: var(--white);
             border-radius: 6px;
             font-size: 0.875rem;
             font-weight: 600;
-            color: #495057;
+            color: var(--text-dark);
+            border: 1px solid var(--border-color);
         }
+
+        @media (max-width: 1024px) {
+            .filter-card form > div {
+                flex-wrap: wrap;
+            }
+
+            .filter-card form > div > div {
+                flex: 1 1 calc(50% - 0.5rem);
+                min-width: 200px;
+            }
+
+            .filter-card .btn {
+                flex: 1 1 calc(50% - 0.5rem);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filter-card form > div > div,
+            .filter-card .btn {
+                flex: 1 1 100%;
+            }
+
+            .main-content {
+                margin-left: 70px;
+                padding: 16px;
+            }
+        }
+
+
     </style>
 </head>
 <body>
+<div class="layout">
+    <div th:replace="~{fragments/seller-sidebar :: seller-sidebar}"></div>
 
-<div class="container py-4">
-    <!-- Page Header -->
-    <div class="mb-4">
-        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-            <div>
-                <h1 class="h3 mb-2 fw-bold brand">
-                    <i class="bi bi-box-seam me-2 text-primary"></i>
-                    Quản lý sản phẩm
-                </h1>
-                <p class="text-muted mb-0">Tra cứu, lọc và quản lý danh sách sản phẩm của bạn</p>
-            </div>
-            <a class="btn btn-outline-secondary" th:href="@{/}">
-                <i class="bi bi-house me-1"></i>
-                Trang chủ
-            </a>
+    <div class="main-content">
+        <!-- Page Header -->
+        <div class="header">
+            <a th:href="@{/}"><i class="bi bi-arrow-left"></i> Trang chủ</a>
+            <h2>
+                <i class="bi bi-box-seam"></i> Quản lý sản phẩm
+            </h2>
         </div>
-    </div>
 
-    <!-- Filter Card -->
-    <div class="card shadow-sm filter-card mb-4">
-        <div class="card-body p-3 p-sm-4">
-            <h5 class="fw-bold mb-3">
-                <i class="bi bi-funnel text-primary me-2"></i>
-                Bộ lọc tìm kiếm
-            </h5>
-            <form class="row g-3" th:action="@{/seller/all-products}" method="get">
-                <div class="col-12 col-md-6 col-lg-4">
-                    <label class="form-label fw-semibold" for="productName">
-                        <i class="bi bi-search me-1"></i>
-                        Tên sản phẩm
-                    </label>
-                    <input id="productName" type="text" class="form-control" name="name"
-                           th:value="${name}" placeholder="Nhập tên sản phẩm...">
-                </div>
-                <div class="col-12 col-md-6 col-lg-3">
-                    <label class="form-label fw-semibold" for="statusFilter">
-                        <i class="bi bi-flag me-1"></i>
-                        Trạng thái
-                    </label>
-                    <select id="statusFilter" class="form-select" name="enabled">
-                        <option th:value="''">Tất cả</option>
-                        <option th:value="true" th:selected="${enabled == true}">Đang bán</option>
-                        <option th:value="false" th:selected="${enabled == false}">Ngừng bán</option>
-                    </select>
-                </div>
-                <div class="col-12 col-lg-3 d-flex align-items-end gap-2">
-                    <button type="submit" class="btn btn-primary flex-grow-1">
-                        <i class="bi bi-search me-2"></i>
-                        Tìm kiếm
-                    </button>
-                    <a th:if="${(name != null and !#strings.isEmpty(name)) or enabled != null}"
-                       th:href="@{/seller/all-products}" class="btn btn-outline-secondary">
-                        <i class="bi bi-x-circle me-1"></i>
-                        Xóa lọc
-                    </a>
-                </div>
-                <div class="col-12 col-lg-2 d-flex align-items-end">
-                    <a th:href="@{/seller/seller-create-product}" class="btn btn-success w-100">
-                        <i class="bi bi-plus-circle me-2"></i>
-                        Tạo sản phẩm
-                    </a>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Results Card -->
-    <div class="card shadow-sm auth-card">
-        <div class="card-body p-0">
-            <div class="p-3 p-sm-4 pb-0">
-                <h5 class="fw-bold mb-3">
-                    <i class="bi bi-list-ul text-primary me-2"></i>
-                    Danh sách sản phẩm
-                    <span class="badge bg-primary rounded-pill ms-2" th:text="${products.totalElements}">0</span>
+        <!-- Filter Card -->
+        <div class="filter-card">
+            <div class="card-body">
+                <h5 style="font-weight: 600; margin-bottom: 1.5rem;">
+                    <i class="bi bi-funnel"></i> Bộ lọc tìm kiếm
                 </h5>
+                <form th:action="@{/seller/all-products}" method="get">
+                    <div style="display: flex; gap: 1rem; align-items: flex-end;">
+                        <div style="flex: 0 0 300px;">
+                            <label class="form-label"><i class="bi bi-search"></i> Tên sản phẩm</label>
+                            <input type="text" class="form-control" name="name"
+                                   th:value="${name}" placeholder="Nhập tên sản phẩm...">
+                        </div>
+                        <div style="flex: 0 0 200px;">
+                            <label class="form-label"><i class="bi bi-toggle-on"></i> Trạng thái</label>
+                            <select class="form-select" name="enabled">
+                                <option th:value="''">Tất cả</option>
+                                <option th:value="true" th:selected="${enabled == true}">Đang bán</option>
+                                <option th:value="false" th:selected="${enabled == false}">Ngừng bán</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="min-width: 120px;">
+                            <i class="bi bi-search"></i> Tìm kiếm
+                        </button>
+                        <a th:href="@{/seller/seller-create-product}" class="btn btn-success" style="min-width: 140px;text-decoration: none;">
+                            <i class="bi bi-plus-circle"></i> Tạo sản phẩm
+                        </a>
+                    </div>
+                </form>
+                <div th:if="${(name != null and !#strings.isEmpty(name)) or enabled != null}"
+                     style="margin-top: 1rem;">
+                    <a th:href="@{/seller/all-products}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Xóa bộ lọc
+                    </a>
+                </div>
             </div>
+        </div>
 
-            <div class="table-responsive">
-                <table class="table product-table mb-0">
+
+
+
+        <!-- Results Card -->
+        <div class="card">
+            <div class="card-body" style="padding: 0;">
+                <div style="padding: 1.5rem; padding-bottom: 0;">
+                    <h5 style="font-weight: 600; margin-bottom: 1.5rem;">
+                        📋 Danh sách sản phẩm
+                        <span class="badge bg-primary" th:text="${products.totalElements}">0</span>
+                    </h5>
+                </div>
+
+                <table class="product-table">
                     <thead>
                     <tr>
-                        <th scope="col">Mã SP</th>
-                        <th scope="col">
-                            <i class="bi bi-box me-1"></i>
-                            Sản phẩm
-                        </th>
-                        <th scope="col" class="text-center">
-                            <i class="bi bi-flag me-1"></i>
-                            Trạng thái
-                        </th>
-                        <th scope="col" class="text-end">
-                            <i class="bi bi-gear me-1"></i>
-                            Thao tác
-                        </th>
+                        <th>Mã SP</th>
+                        <th>Sản phẩm</th>
+                        <th style="text-align: center;">Trạng thái</th>
+                        <th style="text-align: right;">Thao tác</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr th:if="${products.isEmpty()}">
-                        <td colspan="4" class="text-center text-muted py-5">
-                            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                            <p class="mb-0">Không có sản phẩm phù hợp</p>
+                        <td colspan="4" style="text-align: center; padding: 40px 16px; color: var(--text-muted);">
+                            Không có sản phẩm phù hợp
                         </td>
                     </tr>
                     <tr th:each="product : ${products}">
                         <td>
-                            <span class="fw-semibold text-primary" th:text="${product.id}">#123</span>
+                            <span style="font-weight: 600; color: #0d6efd;" th:text="${product.id}">#123</span>
                         </td>
                         <td>
                             <div class="product-cell">
                                 <img th:src="@{${product.main_image_url}}" alt="Ảnh sản phẩm" class="product-img">
-                                <span class="fw-semibold" th:text="${product.name}">Tên sản phẩm</span>
+                                <span style="font-weight: 600;" th:text="${product.name}">Tên sản phẩm</span>
                             </div>
                         </td>
-                        <td class="text-center">
+                        <td style="text-align: center;">
                             <span class="badge status-badge"
                                   th:classappend="${product.enabled} ? 'bg-success' : 'bg-danger'"
                                   th:text="${product.enabled? 'Đang bán' : 'Ngừng bán'}">
                                 Đang bán
                             </span>
                         </td>
-                        <td class="text-end">
+                        <td style="text-align: right;">
                             <a th:href="@{/seller/product/product-detail/{id}(id=${product.id})}"
-                               class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-eye me-1"></i>
-                                Chi tiết
+                               class="btn btn-outline-primary" style="font-size: 13px; padding: 6px 12px; text-decoration: none">
+                                <i class="bi bi-eye"></i> Chi tiết
                             </a>
                         </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
-        </div>
 
-        <!-- Pagination Footer -->
-        <div class="card-footer bg-light" th:if="!${products.isEmpty()}">
-            <div class="pagination-controls">
-                <a th:if="!${products.first}"
-                   th:href="@{/seller/all-products (page=0, size=${products.size}, name=${name}, enabled=${enabled}, sort=${sort})}"
-                   class="btn btn-sm btn-outline-primary">
-                    <i class="bi bi-chevron-bar-left"></i>
-                    Trang đầu
-                </a>
-                <a th:if="${products.hasPrevious()}"
-                   th:href="@{/seller/all-products (page=${products.number - 1},size=${products.size},name=${name},enabled=${enabled},sort=${sort})}"
-                   class="btn btn-sm btn-outline-primary">
-                    <i class="bi bi-chevron-left"></i>
-                    Trước
-                </a>
-                <span class="page-info">
-                    Trang <span th:text="${products.number + 1}">1</span> / <span th:text="${products.totalPages}">10</span>
-                </span>
-                <a th:if="${products.hasNext()}"
-                   th:href="@{/seller/all-products (page=${products.number + 1},size=${products.size},name=${name},enabled=${enabled},sort=${sort})}"
-                   class="btn btn-sm btn-outline-primary">
-                    Sau
-                    <i class="bi bi-chevron-right"></i>
-                </a>
-                <a th:if="!${products.last}"
-                   th:href="@{/seller/all-products (page=${products.totalPages - 1}, size=${products.size}, name=${name}, enabled=${enabled}, sort=${sort})}"
-                   class="btn btn-sm btn-outline-primary">
-                    Trang cuối
-                    <i class="bi bi-chevron-bar-right"></i>
-                </a>
+            <!-- Pagination Footer -->
+            <div class="card-footer" th:if="!${products.isEmpty()}">
+                <div class="pagination-controls">
+                    <a th:if="!${products.first}"
+                       th:href="@{/seller/all-products(page=0, size=${products.size}, name=${name}, enabled=${enabled}, sort=${sort})}"
+                       class="btn btn-outline-primary" style="font-size: 13px; padding: 6px 12px;">
+                         Đầu
+                    </a>
+                    <a th:if="${products.hasPrevious()}"
+                       th:href="@{/seller/all-products(page=${products.number - 1}, size=${products.size}, name=${name}, enabled=${enabled}, sort=${sort})}"
+                       class="btn btn-outline-primary" style="font-size: 13px; padding: 6px 12px;">
+                        ‹ Trước
+                    </a>
+                    <span class="page-info">
+                        Trang <strong th:text="${products.number + 1}">1</strong> / <strong th:text="${products.totalPages}">10</strong>
+                    </span>
+                    <a th:if="${products.hasNext()}"
+                       th:href="@{/seller/all-products(page=${products.number + 1}, size=${products.size}, name=${name}, enabled=${enabled}, sort=${sort})}"
+                       class="btn btn-outline-primary" style="font-size: 13px; padding: 6px 12px;">
+                        Sau ›
+                    </a>
+                    <a th:if="!${products.last}"
+                       th:href="@{/seller/all-products(page=${products.totalPages - 1}, size=${products.size}, name=${name}, enabled=${enabled}, sort=${sort})}"
+                       class="btn btn-outline-primary" style="font-size: 13px; padding: 6px 12px;">
+                        Cuối
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
-<script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
-
 </body>
 </html>
