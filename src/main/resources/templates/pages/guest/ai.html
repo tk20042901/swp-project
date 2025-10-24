@@ -27,15 +27,6 @@
     <!-- Chat Messages Area (Scrollable) -->
     <div id="chatMessages" class="chat-messages-wrapper">
         <ul class="list-unstyled m-0">
-            <li th:if="${#lists.isEmpty(conversation)}" class="d-flex gap-2 align-items-start">
-                <div class="avatar-circle bg-primary text-white flex-shrink-0">AI</div>
-                <div class="bubble bubble-assistant">
-                    <div class="message-text" data-md="true">
-                        Xin chào! Mình là FruitShop AI Chatbot. Hãy nhập câu hỏi hoặc tải ảnh sản phẩm để được hỗ trợ nhé.
-                    </div>
-                </div>
-            </li>
-
             <li th:each="message : ${conversation}" th:with="isUser=${message.author == 'user'}"
                 class="mb-3">
                 <div class="d-flex align-items-start gap-2"
@@ -72,8 +63,9 @@
             <div class="d-flex align-items-end gap-2">
                 <div class="flex-grow-1">
                     <label class="visually-hidden" for="chatInput">Câu hỏi</label>
-                    <textarea id="chatInput" class="form-control" name="q" rows="2"
-                              placeholder="Nhập câu hỏi... (Shift+Enter để xuống dòng)" autocomplete="off"
+                    <textarea id="chatInput" class="form-control" name="q" rows="2" minlength="1" maxlength="360" required
+                              placeholder="Nhập câu hỏi... (Shift+Enter để xuống dòng)"
+                              autocomplete="off"
                               autofocus></textarea>
                 </div>
 

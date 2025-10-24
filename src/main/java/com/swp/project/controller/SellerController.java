@@ -51,7 +51,7 @@ public class SellerController {
 
     @GetMapping("")
     public String index() {
-        return "pages/seller/index";
+        return "forward:/seller/statistic-report";
     }
 
     @GetMapping("/all-orders")
@@ -155,6 +155,13 @@ public class SellerController {
         model.addAttribute("totalCanceledOrder", orderService.getTotalCancelledOrders());
         model.addAttribute("nearlySoldOutProducts", orderService.getNearlySoldOutProduct());
         return "pages/seller/statistic-report/overview";
+    }
+    @GetMapping("/statistic-report")
+    public String getSellerReport(Model model) {
+        model.addAttribute("unitSold", orderService.getUnitSold());
+        model.addAttribute("totalCanceledOrder", orderService.getTotalCancelledOrders());
+        model.addAttribute("nearlySoldOutProducts", orderService.getNearlySoldOutProduct());
+        return "pages/seller/index";
     }
 
     @GetMapping("/seller-update-product/{id}")
