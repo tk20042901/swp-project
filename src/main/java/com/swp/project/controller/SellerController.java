@@ -3,14 +3,11 @@ package com.swp.project.controller;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-
 import com.swp.project.entity.product.ProductUnit;
 import com.swp.project.entity.product.SubImage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -59,8 +56,8 @@ public class SellerController {
 
     @GetMapping("/all-orders")
     public String allOrdersList(@Valid @ModelAttribute SellerSearchOrderDto sellerSearchOrderDto,
-                                BindingResult bindingResult,
-                                Model model) {
+            BindingResult bindingResult,
+            Model model) {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("orders", orderService.getAllOrder());
@@ -172,26 +169,10 @@ public class SellerController {
             @PathVariable Long id,
             Model model) {
         Product product = productService.getProductById(id);
-        UpdateProductDto dto = UpdateProductDto
-                .builder()
-                .id(product.getId())
-                .name(product.getName())
-                .description(product.getDescription())
-                .price(product.getPrice())
-                .unit(product.getUnit())
-                .enabled(product.isEnabled())
-                .categories(product.getCategories().stream().map(Category::getId).toList())
-                .mainImage(product.getMain_image_url())
-                .subDisplay1(product.getSub_images().get(0).getSub_image_url())
-                .subDisplay2(product.getSub_images().get(1).getSub_image_url())
-                .subDisplay3(product.getSub_images().get(2).getSub_image_url())
-                .quantity(product.getQuantity())
-                .build();
         model.addAttribute("units", unitService.getAllUnits());
         model.addAttribute("categories", categoryService.getAllCategories());
         model.addAttribute("products", productService.getAllProducts());
-        model.addAttribute("selectedProduct", product);
-        model.addAttribute("updateProductDto", dto);
+        model.addAttribute("updateProductDto", productService.mappingProductDtoFromProduct(product));
         return "pages/seller/product/update-product";
     }
 
@@ -201,10 +182,9 @@ public class SellerController {
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes,
             @RequestParam MultipartFile imageFile,
-            @RequestParam MultipartFile[] subImageFiles,  
+            @RequestParam MultipartFile[] subImageFiles,
             Principal principal) {
         if (bindingResult.hasErrors()) {
-            System.out.println(bindingResult.getAllErrors());
             return "redirect:/seller/seller-update-product/" + updateProductDto.getId();
         }
         try {
@@ -214,9 +194,10 @@ public class SellerController {
             for (Long catId : updateProductDto.getCategories()) {
                 categories.add(categoryService.getCategoryById(catId));
             }
-            if (!updateProductDto.getName().equals(oldProduct.getName()) && productService.checkUniqueProductName(updateProductDto.getName())) {
-                throw new Exception("Tên sản phẩm đã tồn tại");
-            }
+            // if (!updateProductDto.getName().equals(oldProduct.getName())
+            //         && productService.checkUniqueProductName(updateProductDto.getName())) {
+            //     throw new Exception("Tên sản phẩm đã tồn tại");
+            // }
             Product updateProduct = Product.builder()
                     .id(updateProductDto.getId())
                     .name(updateProductDto.getName())
@@ -226,34 +207,21 @@ public class SellerController {
                     .enabled(updateProductDto.getEnabled())
                     .categories(categories)
                     .build();
-            if(imageFile == null || imageFile.isEmpty()){
+
+            if (imageFile == null || imageFile.isEmpty()) {
                 updateProduct.setMain_image_url(oldProduct.getMain_image_url());
-            }else{
-                updateProduct.setMain_image_url(imageService.saveTemporaryImage(imageFile, oldProduct.getId()+"", "temp-1.jpg"));
+            } else {
+                updateProduct.setMain_image_url(ImageService.convertToBase64WithPrefix(imageFile));
             }
-            if(subImageFiles[0] == null || subImageFiles[0].isEmpty()){
-                subImages.add(oldProduct.getSub_images().get(0));
-            }else{
-                SubImage sub = new SubImage();
-                sub.setProduct(updateProduct);
-                sub.setSub_image_url(imageService.saveTemporaryImage(subImageFiles[0], oldProduct.getId()+"", "temp-2.jpg"));
-                subImages.add(sub);
-            }
-            if(subImageFiles[1] == null || subImageFiles[1].isEmpty()){
-                subImages.add(oldProduct.getSub_images().get(1));
-            }else{
-                SubImage sub = new SubImage();
-                sub.setProduct(updateProduct);
-                sub.setSub_image_url(imageService.saveTemporaryImage(subImageFiles[1], oldProduct.getId()+"", "temp-3.jpg"));
-                subImages.add(sub);
-            }
-            if(subImageFiles[2] == null || subImageFiles[2].isEmpty()){
-                subImages.add(oldProduct.getSub_images().get(2));
-            }else{
-                SubImage sub = new SubImage();
-                sub.setProduct(updateProduct);
-                sub.setSub_image_url(imageService.saveTemporaryImage(subImageFiles[2], oldProduct.getId()+"", "temp-4.jpg"));
-                subImages.add(sub);
+            for (int i = 0; i < subImageFiles.length; i++) {
+                if (subImageFiles[i] == null || subImageFiles[i].isEmpty()) {
+                    subImages.add(oldProduct.getSub_images().get(i));
+                } else {
+                    SubImage sub = new SubImage();
+                    sub.setProduct(updateProduct);
+                    sub.setSub_image_url(ImageService.convertToBase64WithPrefix(subImageFiles[i]));
+                    subImages.add(sub);
+                }
             }
             updateProduct.setSub_images(subImages);
             sellerRequestService.saveUpdateRequest(oldProduct, updateProduct, principal.getName());
@@ -282,17 +250,18 @@ public class SellerController {
             Principal principal,
             Model model) {
         try {
-            Product product = productService.createProductForAddRequest(productDto,bindingResult);
+            Product product = productService.createProductForAddRequest(productDto, bindingResult);
             sellerRequestService.saveAddRequest(product, principal.getName());
             redirectAttributes.addFlashAttribute("success", "Yêu cầu tạo sản phẩm đã được gửi đến quản lý");
-        } catch (Exception e) { 
+        } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/seller/seller-create-product";
     }
+
     @GetMapping("/product-unit")
     public String getProductUnitList(Model model,
-                                     @RequestParam(value = "allowDecimal", required = false) Boolean allowDecimal){
+            @RequestParam(value = "allowDecimal", required = false) Boolean allowDecimal) {
         List<ProductUnit> productUnits;
 
         if (allowDecimal != null) {
@@ -308,9 +277,9 @@ public class SellerController {
 
     @GetMapping("/product-category")
     public String getAllProductUnit(Model model,
-                                    @RequestParam(value = "categoryName", required = false) String categoryName,
-                                    @RequestParam(defaultValue = "0") int page,
-                                    @RequestParam(defaultValue = "5") int size){
+            @RequestParam(value = "categoryName", required = false) String categoryName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
         Page<Category> categories = categoryService.searchByCategoryName(categoryName, size, page);
         model.addAttribute("categories", categories);
         model.addAttribute("categoryName", categoryName);

@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,8 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.swp.project.dto.CreateProductDto;
+import com.swp.project.dto.UpdateProductDto;
 import com.swp.project.dto.ViewProductDto;
 import com.swp.project.entity.order.OrderItem;
 import com.swp.project.entity.product.Category;
@@ -66,11 +65,22 @@ public class ProductService {
     }
 
     public Product add(Product product) {
+        String mainImagePath = product.getMain_image_url();
+        String firstSubImage = product.getSub_images().get(0).getSub_image_url();
+        String secondSubImage = product.getSub_images().get(1).getSub_image_url();
+        String thirdSubImage = product.getSub_images().get(2).getSub_image_url();
+        product.setMain_image_url("");
+        product.getSub_images().get(0).setSub_image_url("");
+        product.getSub_images().get(1).setSub_image_url("");
+        product.getSub_images().get(2).setSub_image_url("");
         Product savedProduct = productRepository.save(product);
-        Path oldDir = Path.of(ImageService.IMAGES_FINAL_PATH + ProductService.toSlugName(product.getName()));
-        Path newDir = Path.of(ImageService.IMAGES_FINAL_PATH + savedProduct.getId());
+        String savedDir = ImageService.IMAGES_FINAL_PATH + savedProduct.getId();
         try {
-            Files.move(oldDir, newDir);
+            Files.createDirectories(Path.of(savedDir));
+            imageService.base64ToFileNIO(mainImagePath, savedDir + "/1.jpg");
+            imageService.base64ToFileNIO(firstSubImage, savedDir+"/2.jpg");
+            imageService.base64ToFileNIO(secondSubImage, savedDir+"/3.jpg");
+            imageService.base64ToFileNIO(thirdSubImage, savedDir+"/4.jpg");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -83,26 +93,22 @@ public class ProductService {
         savedProduct.getSub_images().get(2).setSub_image_url(
                 ImageService.DISPLAY_FINAL_PATH + savedProduct.getId() + "/" + "4.jpg");
         savedProduct = productRepository.save(savedProduct);
-
         eventPublisher.publishEvent(new ProductRelatedUpdateEvent(savedProduct));
         return savedProduct;
     }
 
     public void update(Product product) throws Exception {
-        if (product.getMain_image_url() != null && product.getMain_image_url().contains("temp-")) {
-            String newMainImageUrl = imageService.renameTempFileToFinalName(
-                    ImageService.IMAGES_FINAL_PATH + product.getId(),
-                    "temp-1.jpg");
-            product.setMain_image_url(newMainImageUrl);
+        if (product.getMain_image_url() != null && product.getMain_image_url().contains("base64")) {
+            imageService.base64ToFileNIO(product.getMain_image_url(), ImageService.IMAGES_FINAL_PATH + product.getId() + "/"+"1.jpg");
+            product.setMain_image_url(ImageService.DISPLAY_FINAL_PATH + product.getId() + "/"+"1.jpg");
         }
         if (product.getSub_images() != null) {
             for (int i = 0; i < product.getSub_images().size(); i++) {
                 SubImage subImage = product.getSub_images().get(i);
-                if (subImage.getSub_image_url() != null && subImage.getSub_image_url().contains("temp-")) {
-                    String newSubImageUrl = imageService.renameTempFileToFinalName(
-                            ImageService.IMAGES_FINAL_PATH + product.getId(),
-                            "temp-" + (i + 2) + ".jpg");
-                    subImage.setSub_image_url(newSubImageUrl);
+                
+                if (subImage.getSub_image_url() != null && subImage.getSub_image_url().contains("base64")) {
+                    imageService.base64ToFileNIO(subImage.getSub_image_url(), ImageService.IMAGES_FINAL_PATH + product.getId() + "/"+(i+2)+".jpg");
+                    subImage.setSub_image_url(ImageService.DISPLAY_FINAL_PATH+ product.getId() + "/"+(i+2)+".jpg");
                 }
             }
         }
@@ -273,28 +279,40 @@ public class ProductService {
         return normalized;
     }
 
-    public boolean checkUniqueProductName(String name) {
+    public boolean checkUniqueProductName(long productId,String name) {
         String slugName = toSlugName(name);
         return productRepository
                 .findAll()
                 .stream()
-                .anyMatch(p -> toSlugName(p.getName()).equals(slugName));
+                .anyMatch(p -> toSlugName(p.getName()).equals(slugName) && p.getId() != productId);
     }
 
-    public Product createProductForAddRequest(CreateProductDto productDto, BindingResult bindingResult) throws Exception {
+    private void validateProductDto(CreateProductDto productDto, BindingResult bindingResult) throws Exception {
         if (bindingResult.hasErrors()) {
             FieldError fieldError = bindingResult.getFieldErrors().get(0);
             String message = fieldError.getField() + ": " + fieldError.getDefaultMessage();
             throw new RuntimeException(message);
         }
-        if (checkUniqueProductName(productDto.getName())) {
+        if (checkUniqueProductName(productDto.getId(),productDto.getName())) {
             throw new Exception("Tên sản phẩm đã tồn tại");
         }
+        if (productDto.getImage() == null || productDto.getImage().isEmpty()) {
+            throw new Exception("Vui lòng tải lên ảnh chính cho sản phẩm");
+        }
+        for (MultipartFile file : productDto.getSubImages()) {
+            if (file == null || file.isEmpty()) {
+                throw new Exception("Vui lòng tải lên đủ 3 ảnh phụ cho sản phẩm");
+            }
+        }
+    }
+
+    public Product createProductForAddRequest(CreateProductDto productDto, BindingResult bindingResult)
+            throws Exception { 
+        validateProductDto(productDto, bindingResult);
         productDto.setCategories(new ArrayList<>());
         for (Long catId : productDto.getCategoryIds()) {
             productDto.getCategories().add(categoryService.getCategoryById(catId));
         }
-        String fileName = ProductService.toSlugName(productDto.getName());
         Product product = Product.builder()
                 .name(productDto.getName())
                 .description(productDto.getDescription())
@@ -302,19 +320,39 @@ public class ProductService {
                 .unit(productDto.getUnit())
                 .enabled(productDto.isEnabled())
                 .categories(productDto.getCategories())
-                .main_image_url(imageService.saveTemporaryImage(productDto.getImage(), fileName, "1.jpg"))
                 .sub_images(new ArrayList<>())
                 .quantity(productDto.getQuantity())
+                .main_image_url(ImageService.convertToBase64WithPrefix(productDto.getImage()))
                 .build();
+        List<SubImage> pendingSubImages = new ArrayList<>();
+
         for (int i = 0; i < productDto.getSubImages().size(); i++) {
-            MultipartFile subImageFile = productDto.getSubImages().get(i);
-            String subImagePath = imageService.saveTemporaryImage(subImageFile, fileName, (i + 2) + ".jpg");
             SubImage subImage = SubImage.builder()
                     .product(product)
-                    .sub_image_url(subImagePath)
+                    .sub_image_url(ImageService.convertToBase64WithPrefix(productDto.getSubImages().get(i)))
                     .build();
-            product.getSub_images().add(subImage);
+            pendingSubImages.add(subImage);
         }
+        product.setSub_images(pendingSubImages);
         return product;
+    }
+
+    public UpdateProductDto mappingProductDtoFromProduct(Product product) {
+        UpdateProductDto dto = UpdateProductDto
+                .builder()
+                .id(product.getId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .unit(product.getUnit())
+                .enabled(product.isEnabled())
+                .categories(product.getCategories().stream().map(Category::getId).toList())
+                .mainImage(product.getMain_image_url())
+                .subDisplay1(product.getSub_images().get(0).getSub_image_url())
+                .subDisplay2(product.getSub_images().get(1).getSub_image_url())
+                .subDisplay3(product.getSub_images().get(2).getSub_image_url())
+                .quantity(product.getQuantity())
+                .build();
+        return dto;
     }
 }
