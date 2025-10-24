@@ -6,7 +6,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.concurrent.CompletableFuture;
+
 import javax.imageio.ImageIO;
+
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
@@ -75,21 +79,20 @@ public class ImageService {
         return IMAGES_FINAL_PATH + ProductService.toSlugName(fileName);
     }
 
-    public String saveTemporaryImage(MultipartFile uploadFile, String folderName, String fileName)
-            throws Exception {
-                System.out.println(fileName);
-        if (uploadFile == null || uploadFile.isEmpty()) {
-            return null;
-        }
+    @Async  
+    public CompletableFuture<String> saveTemporaryImageAsync(MultipartFile uploadFile, String folderName, String fileName) {
         try (InputStream inputStream = uploadFile.getInputStream()) {
+            if (uploadFile == null || uploadFile.isEmpty()) {
+                throw new IllegalArgumentException("File upload không được để trống");
+            }
             Path folderPath = Paths.get(IMAGES_FINAL_PATH + folderName);
             Files.createDirectories(folderPath);
             BufferedImage image = ImageIO.read(inputStream);
             Path filePath = folderPath.resolve(fileName);
             ImageIO.write(image, "jpg", filePath.toFile());
-            return DISPLAY_FINAL_PATH + folderName + "/" + fileName;
+            return CompletableFuture.completedFuture(DISPLAY_FINAL_PATH + folderName + "/" + fileName);
         } catch (Exception e) {
-            throw new Exception("Upload ảnh lỗi " + e.getMessage(), e);
+            return CompletableFuture.failedFuture(new Exception("Lỗi lưu ảnh: " + e.getMessage(), e));
         }
     }
 
@@ -144,18 +147,19 @@ public class ImageService {
     }
 
     /**
-     * Renames a specific file from "temp-[number].jpg" format to "[number].jpg" format,
+     * Renames a specific file from "temp-[number].jpg" format to "[number].jpg"
+     * format,
      * replacing existing file if it exists, and returns the display path.
      * 
      * @param directoryPath The path to the directory containing the file
-     * @param fileName The name of the temp file to rename (e.g., "temp-1.jpg")
+     * @param fileName      The name of the temp file to rename (e.g., "temp-1.jpg")
      * @return The display path of the renamed file, or null if operation failed
      * @throws Exception if there's an error during the file renaming process
      */
     public String renameTempFileToFinalName(String directoryPath, String fileName) throws Exception {
         try {
             Path directory = Paths.get(directoryPath);
-            
+
             if (!Files.exists(directory) || !Files.isDirectory(directory)) {
                 throw new Exception("Directory does not exist or is not a directory: " + directoryPath);
             }
@@ -166,7 +170,7 @@ public class ImageService {
             }
 
             Path tempFile = directory.resolve(fileName);
-            
+
             if (!Files.exists(tempFile)) {
                 throw new Exception("File does not exist: " + tempFile.toString());
             }
@@ -174,13 +178,12 @@ public class ImageService {
             // Extract the number from "temp-[number].jpg"
             String numberPart = fileName.substring(5, fileName.lastIndexOf(".jpg"));
             String newFileName = numberPart + ".jpg";
-            
+
             Path newFilePath = tempFile.getParent().resolve(newFileName);
-            
+
             // Replace existing file or create new one
             Files.move(tempFile, newFilePath, StandardCopyOption.REPLACE_EXISTING);
-            
-            
+
             if (directoryPath.contains(IMAGES_TEMPORARY_PATH)) {
                 String relativePath = directoryPath.replace(IMAGES_TEMPORARY_PATH, "");
                 return DISPLAY_TEMPORARY_PATH + relativePath + "/" + newFileName;
@@ -190,9 +193,26 @@ public class ImageService {
             } else {
                 return directoryPath + "/" + newFileName;
             }
-                    
+
         } catch (Exception e) {
             throw new Exception("Error renaming temp file: " + e.getMessage(), e);
+        }
+    }
+    public String saveTemporaryImage(MultipartFile uploadFile, String folderName, String fileName)
+            throws Exception {
+                System.out.println(fileName);
+        if (uploadFile == null || uploadFile.isEmpty()) {
+            return null;
+        }
+        try (InputStream inputStream = uploadFile.getInputStream()) {
+            Path folderPath = Paths.get(IMAGES_FINAL_PATH + folderName);
+            Files.createDirectories(folderPath);
+            BufferedImage image = ImageIO.read(inputStream);
+            Path filePath = folderPath.resolve(fileName);
+            ImageIO.write(image, "jpg", filePath.toFile());
+            return DISPLAY_FINAL_PATH + folderName + "/" + fileName;
+        } catch (Exception e) {
+            throw new Exception("Upload ảnh lỗi " + e.getMessage(), e);
         }
     }
 }

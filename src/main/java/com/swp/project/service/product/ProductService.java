@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -20,6 +21,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.swp.project.dto.CreateProductDto;
+import com.swp.project.dto.UpdateProductDto;
 import com.swp.project.dto.ViewProductDto;
 import com.swp.project.entity.order.OrderItem;
 import com.swp.project.entity.product.Category;
@@ -280,6 +282,7 @@ public class ProductService {
                 .stream()
                 .anyMatch(p -> toSlugName(p.getName()).equals(slugName));
     }
+
     private void validateProductDto(CreateProductDto productDto, BindingResult bindingResult) throws Exception {
         if (bindingResult.hasErrors()) {
             FieldError fieldError = bindingResult.getFieldErrors().get(0);
@@ -299,8 +302,10 @@ public class ProductService {
         }
     }
 
-    public Product createProductForAddRequest(CreateProductDto productDto, BindingResult bindingResult) throws Exception {
+    public Product createProductForAddRequest(CreateProductDto productDto, BindingResult bindingResult)
+            throws Exception { 
         validateProductDto(productDto, bindingResult);
+        
         productDto.setCategories(new ArrayList<>());
         for (Long catId : productDto.getCategoryIds()) {
             productDto.getCategories().add(categoryService.getCategoryById(catId));
@@ -313,20 +318,65 @@ public class ProductService {
                 .unit(productDto.getUnit())
                 .enabled(productDto.isEnabled())
                 .categories(productDto.getCategories())
-                .main_image_url(imageService.saveTemporaryImage(productDto.getImage(), fileName, "1.jpg"))
                 .sub_images(new ArrayList<>())
                 .quantity(productDto.getQuantity())
                 .build();
+        
+        List<CompletableFuture<?>> allFutures = new ArrayList<>();
+
+        CompletableFuture<String> mainImageFuture = imageService.saveTemporaryImageAsync(
+                productDto.getImage(), fileName, "1.jpg");
+        allFutures.add(mainImageFuture);
+
+        List<SubImage> pendingSubImages = new ArrayList<>();
+        List<CompletableFuture<String>> subImageFutures = new ArrayList<>();
+
         for (int i = 0; i < productDto.getSubImages().size(); i++) {
             MultipartFile subImageFile = productDto.getSubImages().get(i);
-            String subImagePath = imageService.saveTemporaryImage(subImageFile, fileName, (i + 2) + ".jpg");
+            
             SubImage subImage = SubImage.builder()
                     .product(product)
-                    .sub_image_url(subImagePath)
                     .build();
+            pendingSubImages.add(subImage);
+
+            CompletableFuture<String> subImageFuture = imageService.saveTemporaryImageAsync(
+                    subImageFile, fileName, (i + 2) + ".jpg");
+            
+            subImageFutures.add(subImageFuture);
+            allFutures.add(subImageFuture);
+        }
+
+        CompletableFuture.allOf(allFutures.toArray(new CompletableFuture[0])).join();
+
+        product.setMain_image_url(mainImageFuture.join());
+
+        for (int i = 0; i < pendingSubImages.size(); i++) {
+            SubImage subImage = pendingSubImages.get(i);
+            String subImagePath = subImageFutures.get(i).join(); 
+            
+            subImage.setSub_image_url(subImagePath); 
             product.getSub_images().add(subImage);
         }
+
         return product;
     }
-    
+
+    public UpdateProductDto mappingProductDtoFromProduct(Product product) {
+        UpdateProductDto dto = UpdateProductDto
+                .builder()
+                .id(product.getId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .unit(product.getUnit())
+                .enabled(product.isEnabled())
+                .categories(product.getCategories().stream().map(Category::getId).toList())
+                .mainImage(product.getMain_image_url())
+                .subDisplay1(product.getSub_images().get(0).getSub_image_url())
+                .subDisplay2(product.getSub_images().get(1).getSub_image_url())
+                .subDisplay3(product.getSub_images().get(2).getSub_image_url())
+                .quantity(product.getQuantity())
+                .build();
+        return dto;
+    }
 }

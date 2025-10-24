@@ -3,14 +3,11 @@ package com.swp.project.controller;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-
 import com.swp.project.entity.product.ProductUnit;
 import com.swp.project.entity.product.SubImage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -165,26 +162,10 @@ public class SellerController {
             @PathVariable Long id,
             Model model) {
         Product product = productService.getProductById(id);
-        UpdateProductDto dto = UpdateProductDto
-                .builder()
-                .id(product.getId())
-                .name(product.getName())
-                .description(product.getDescription())
-                .price(product.getPrice())
-                .unit(product.getUnit())
-                .enabled(product.isEnabled())
-                .categories(product.getCategories().stream().map(Category::getId).toList())
-                .mainImage(product.getMain_image_url())
-                .subDisplay1(product.getSub_images().get(0).getSub_image_url())
-                .subDisplay2(product.getSub_images().get(1).getSub_image_url())
-                .subDisplay3(product.getSub_images().get(2).getSub_image_url())
-                .quantity(product.getQuantity())
-                .build();
         model.addAttribute("units", unitService.getAllUnits());
         model.addAttribute("categories", categoryService.getAllCategories());
         model.addAttribute("products", productService.getAllProducts());
-        model.addAttribute("selectedProduct", product);
-        model.addAttribute("updateProductDto", dto);
+        model.addAttribute("updateProductDto",productService.mappingProductDtoFromProduct(product));
         return "pages/seller/product/update-product";
     }
 
