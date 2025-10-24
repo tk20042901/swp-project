@@ -262,9 +262,13 @@ public class GuestController {
 
     @GetMapping("/ai")
     public String ask(Model model, HttpSession session) {
-        model.addAttribute("conversationId", UUID.randomUUID().toString());
+        String conversationId = UUID.randomUUID().toString();
+        model.addAttribute("conversationId", conversationId);
         session.removeAttribute("conversation");
-        session.setAttribute("conversation", new ArrayList<AiMessageDto>());
+        List<AiMessageDto> conversation = new ArrayList<>();
+        session.setAttribute("conversation", conversation);
+        customerAiService.initChat(conversationId,conversation);
+        model.addAttribute("conversation", conversation);
         return "pages/guest/ai";
     }
 
@@ -293,11 +297,11 @@ public class GuestController {
             RedirectAttributes redirectAttributes,
             Principal principal) {
         try {
-            Long productId;
-            Double quantity;
+            long productId;
+            double quantity;
             try {
-                productId = Long.valueOf(productIdString);
-                quantity = Double.valueOf(quantityString);
+                productId = Long.parseLong(productIdString);
+                quantity = Double.parseDouble(quantityString);
             } catch (NumberFormatException e) {
                 throw new Exception("Dữ liệu không hợp lệ");
             }
