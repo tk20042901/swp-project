@@ -2,6 +2,7 @@ package com.swp.project.service.seller_request;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.ProductUnit;
 import com.swp.project.entity.seller_request.SellerRequest;
 import com.swp.project.repository.seller_request.SellerRequestRepository;
@@ -82,7 +83,6 @@ public class SellerRequestService {
         }
         return sellerRequest;
     }
-
     public void rejectRequest(Long requestId) {
         SellerRequest sellerRequest = getSellerRequestById(requestId);
         sellerRequest.setStatus(sellerRequestStatusService.getRejectedStatus());
@@ -101,4 +101,8 @@ public class SellerRequestService {
         updateFunction.accept(entity);
     }
 
+    public<T> void updateOldContent(T oldProduct, SellerRequest sellerRequest) throws JsonProcessingException {
+        sellerRequest.setOldContent(objectMapper.writeValueAsString(oldProduct));
+        sellerRequestRepository.save(sellerRequest);
+    }
 }

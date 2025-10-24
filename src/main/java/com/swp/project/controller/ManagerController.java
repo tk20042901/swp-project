@@ -4,9 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.swp.project.entity.product.Category;
-import com.swp.project.service.product.CategoryService;
+import com.swp.project.service.product.ImageService;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
@@ -22,7 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import com.swp.project.dto.RevenueDto;
 import com.swp.project.dto.StaffDto;
 import com.swp.project.entity.address.CommuneWard;
@@ -38,6 +35,7 @@ import com.swp.project.service.order.BillService;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.product.ProductService;
 import com.swp.project.service.seller_request.SellerRequestService;
+import com.swp.project.service.seller_request.SellerRequestStatusService;
 import com.swp.project.service.seller_request.SellerRequestTypeService;
 import com.swp.project.service.user.SellerService;
 import com.swp.project.service.user.ShipperService;
@@ -60,7 +58,8 @@ public class ManagerController {
     private final BillService billService;
     private final int numEachPage = 10;
     private final OrderService orderService;
-    private final CategoryService categoryService;
+    private final SellerRequestStatusService sellerRequestStatusService;
+    private final ImageService imageService;
 
     @GetMapping("")
     public String index() {
@@ -369,7 +368,7 @@ public class ManagerController {
     }
 
     @GetMapping("/detail-report")
-    public String getDetailReport(Model model){
+    public String getDetailReport(Model model) {
         List<RevenueDto> daysReport = orderService.getDaysRevenue();
         List<RevenueDto> monthsReport = orderService.getMonthsRevenue();
         model.addAttribute("daysReport", daysReport);
@@ -395,7 +394,14 @@ public class ManagerController {
             throw new Exception("Yêu cầu không tồn tại");
         }
         Product newProduct = sellerRequestService.getEntityFromContent(sellerRequest.getContent(), Product.class);
-        if (sellerRequestTypeService.isUpdateType(sellerRequest)) {
+        if (sellerRequestStatusService.isPendingStatus(sellerRequest)
+                && sellerRequestTypeService.isUpdateType(sellerRequest)) {
+            long oldProductId = sellerRequestService.getEntityFromContent(sellerRequest.getOldContent(), Product.class)
+                    .getId();
+            Product oldProduct = productService.getProductById(oldProductId);
+            model.addAttribute("oldProduct", oldProduct);
+        } else if (!sellerRequestStatusService.isPendingStatus(sellerRequest)
+                && sellerRequestTypeService.isUpdateType(sellerRequest)) {
             model.addAttribute("oldProduct",
                     sellerRequestService.getEntityFromContent(sellerRequest.getOldContent(), Product.class));
         }
@@ -404,6 +410,8 @@ public class ManagerController {
         model.addAttribute("secondNewImage", newProduct.getSub_images().get(1).getSub_image_url());
         model.addAttribute("thirdNewImage", newProduct.getSub_images().get(2).getSub_image_url());
         model.addAttribute("sellerRequest", sellerRequest);
+        model.addAttribute("isPending", sellerRequestStatusService.isPendingStatus(sellerRequest));
+
         return "pages/manager/product-request-details";
     }
 
@@ -421,19 +429,30 @@ public class ManagerController {
             if (newProduct == null) {
                 throw new Exception("Dữ liệu sản phẩm không hợp lệ");
             }
-            if (productService.checkUniqueProductName(newProduct.getName())) {
-                throw new IOException("Tên sản phẩm đã tồn tại");
+            if (sellerRequestTypeService.isUpdateType(sellerRequest)) {
+                Product oldProduct = sellerRequestService.getEntityFromContent(sellerRequest.getOldContent(),
+                        Product.class);
+
+                String mainImageUrl = imageService.convertFromDisplayPathToBase64(oldProduct.getMain_image_url()).get();
+                String firstSubImage = imageService.convertFromDisplayPathToBase64(oldProduct.getSub_images().get(0).getSub_image_url()).get();
+                String secondSubImage = imageService.convertFromDisplayPathToBase64(oldProduct.getSub_images().get(1).getSub_image_url()).get();
+                String thirdSubImage = imageService.convertFromDisplayPathToBase64(oldProduct.getSub_images().get(2).getSub_image_url()).get();
+                oldProduct.setMain_image_url(mainImageUrl);
+                oldProduct.getSub_images().get(0).setSub_image_url(firstSubImage);
+                oldProduct.getSub_images().get(1).setSub_image_url(secondSubImage);
+                oldProduct.getSub_images().get(2).setSub_image_url(thirdSubImage);
+                sellerRequestService.updateOldContent(oldProduct,sellerRequest);
             }
-            
-            sellerRequestService.approveRequest(requestId,Product.class,
-            productService::add,
-            t -> {
-                try {
-                    productService.update(t);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            });
+
+            sellerRequestService.approveRequest(requestId, Product.class,
+                    productService::add,
+                    t -> {
+                        try {
+                            productService.update(t);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
 
             redirectAttributes.addFlashAttribute("msg", "Đã duyệt yêu cầu thành công");
         } catch (Exception e) {
@@ -465,10 +484,10 @@ public class ManagerController {
 
     @GetMapping("/bill-list")
     public String getBills(Model model,
-                           @RequestParam(defaultValue = "1") int page,
-                           @RequestParam(defaultValue = "10") int size,
-                           @RequestParam(defaultValue = "sortCriteria") String sortCriteria,
-                           HttpSession session) {
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "sortCriteria") String sortCriteria,
+            HttpSession session) {
         if (session.getAttribute("k") == null) {
             session.setAttribute("k", 1);
         }
@@ -511,7 +530,8 @@ public class ManagerController {
 
         return ResponseEntity.ok()
                 .headers(headers)
-                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .contentType(
+                        MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(new InputStreamResource(in));
     }
 
@@ -524,7 +544,8 @@ public class ManagerController {
 
         return ResponseEntity.ok()
                 .headers(headers)
-                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .contentType(
+                        MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(new InputStreamResource(in));
     }
 
