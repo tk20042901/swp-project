@@ -200,7 +200,10 @@
                         </a>
                     </form>
                 </div>
-
+                <div th:if="${error}" class="error-message" style="color: red; margin-bottom: 16px;">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <span th:text="${error}"></span>
+                </div>
                 <table>
                     <thead>
                         <tr>

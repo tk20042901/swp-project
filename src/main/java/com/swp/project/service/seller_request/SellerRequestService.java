@@ -26,6 +26,10 @@ public class SellerRequestService {
         return sellerRequestRepository.findAll();
     }
 
+    public List<SellerRequest> getSellerRequestByEntityName(Class<?> entityClass) {
+        return sellerRequestRepository.findByEntityName(entityClass.getSimpleName());
+    }
+
     public SellerRequest getSellerRequestById(Long id) {
         return sellerRequestRepository.findById(id).orElse(null);
     }
@@ -76,13 +80,14 @@ public class SellerRequestService {
         return objectMapper.readValue(content, entityClass);
     }
 
-    public <T> SellerRequest approveRequest(Long requestId, Class<T> entityClass, Consumer<T> addFunction, Consumer<T> updateFunction) throws Exception {
+    public <T> SellerRequest approveRequest(Long requestId, Class<T> entityClass, Consumer<T> addFunction,
+            Consumer<T> updateFunction) throws Exception {
         SellerRequest sellerRequest = getSellerRequestById(requestId);
         sellerRequest.setStatus(sellerRequestStatusService.getApprovedStatus());
         sellerRequestRepository.save(sellerRequest);
         String requestTypeName = sellerRequest.getRequestType().getName();
         String requestContent = sellerRequest.getContent();
-        
+
         if (requestTypeName.equals(sellerRequestTypeService.getAddType().getName())) {
             executeAddRequest(requestContent, entityClass, addFunction);
         } else if (requestTypeName.equals(sellerRequestTypeService.getUpdateType().getName())) {
@@ -91,7 +96,8 @@ public class SellerRequestService {
         return sellerRequest;
     }
 
-    public <T> void approveDeleteRequest(Long requestId, Class<T> entityClass, Consumer<T> deleteFunction) throws Exception {
+    public <T> void approveDeleteRequest(Long requestId, Class<T> entityClass, Consumer<T> deleteFunction)
+            throws Exception {
         SellerRequest sellerRequest = getSellerRequestById(requestId);
         sellerRequest.setStatus(sellerRequestStatusService.getApprovedStatus());
         sellerRequestRepository.save(sellerRequest);
@@ -118,8 +124,7 @@ public class SellerRequestService {
         updateFunction.accept(entity);
     }
 
-
-    public<T> void updateOldContent(T oldProduct, SellerRequest sellerRequest) throws JsonProcessingException {
+    public <T> void updateOldContent(T oldProduct, SellerRequest sellerRequest) throws JsonProcessingException {
         sellerRequest.setOldContent(objectMapper.writeValueAsString(oldProduct));
         sellerRequestRepository.save(sellerRequest);
     }

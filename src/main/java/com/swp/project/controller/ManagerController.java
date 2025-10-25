@@ -26,6 +26,7 @@ import com.swp.project.entity.address.CommuneWard;
 import com.swp.project.entity.address.ProvinceCity;
 import com.swp.project.entity.order.Bill;
 import com.swp.project.entity.order.Order;
+import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.ProductUnit;
 import com.swp.project.entity.seller_request.SellerRequest;
@@ -34,6 +35,7 @@ import com.swp.project.entity.user.Shipper;
 import com.swp.project.service.AddressService;
 import com.swp.project.service.order.BillService;
 import com.swp.project.service.order.OrderService;
+import com.swp.project.service.product.CategoryService;
 import com.swp.project.service.product.ProductService;
 import com.swp.project.service.product.ProductUnitService;
 import com.swp.project.service.seller_request.SellerRequestService;
@@ -58,6 +60,7 @@ public class ManagerController {
     private final SellerRequestService sellerRequestService;
     private final ProductService productService;
     private final ProductUnitService productUnitService;
+    private final CategoryService categoryService;
     private final BillService billService;
     private final int numEachPage = 10;
     private final OrderService orderService;
@@ -404,6 +407,14 @@ public class ManagerController {
             }
             model.addAttribute("newProductUnit", newProductUnit);
             returnPage = "pages/manager/product-unit-request-details";
+        } else if (sellerRequest.getEntityName().equals(Category.class.getSimpleName())) {
+            Category newCategory = sellerRequestService.getEntityFromContent(sellerRequest.getContent(), Category.class);
+            if (sellerRequestTypeService.isUpdateType(sellerRequest)) {
+                model.addAttribute("oldCategory",
+                        sellerRequestService.getEntityFromContent(sellerRequest.getOldContent(), Category.class));
+            }
+            model.addAttribute("newCategory", newCategory);
+            returnPage = "pages/manager/category-request-details";
         } else if (sellerRequest.getEntityName().equals(Product.class.getSimpleName())) {
             Product newProduct = sellerRequestService.getEntityFromContent(sellerRequest.getContent(), Product.class);
             if (sellerRequestStatusService.isPendingStatus(sellerRequest)
@@ -547,6 +558,60 @@ public class ManagerController {
             sellerRequestService.rejectRequest(requestId);
 
             redirectAttributes.addFlashAttribute("msg", "Đã từ chối yêu cầu đơn vị sản phẩm");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/manager/all-products-request";
+    }
+
+    @PostMapping("/approve-category-request")
+    public String approveCategoryRequest(
+            @RequestParam Long requestId,
+            RedirectAttributes redirectAttributes) {
+        try {
+            SellerRequest sellerRequest = sellerRequestService.getSellerRequestById(requestId);
+            if (sellerRequest == null) {
+                throw new Exception("Yêu cầu không tồn tại");
+            }
+
+            Category newCategory = sellerRequestService.getEntityFromContent(sellerRequest.getContent(), Category.class);
+            if (newCategory == null) {
+                throw new Exception("Dữ liệu danh mục không hợp lệ");
+            }
+            if(sellerRequestTypeService.isDeleteType(sellerRequest)) {
+                sellerRequestService.approveDeleteRequest(requestId, Category.class, categoryService::delete);
+            }else{
+                sellerRequestService.approveRequest(requestId, Category.class,
+                        categoryService::add,
+                        t -> {
+                            try {
+                                categoryService.update(t);
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
+            }
+            redirectAttributes.addFlashAttribute("msg", "Đã duyệt yêu cầu danh mục thành công");
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/manager/all-products-request";
+    }
+
+    @PostMapping("/reject-category-request")
+    public String rejectCategoryRequest(
+            @RequestParam Long requestId,
+            RedirectAttributes redirectAttributes) {
+        try {
+            SellerRequest sellerRequest = sellerRequestService.getSellerRequestById(requestId);
+            if (sellerRequest == null) {
+                throw new Exception("Yêu cầu không tồn tại");
+            }
+
+            sellerRequestService.rejectRequest(requestId);
+
+            redirectAttributes.addFlashAttribute("msg", "Đã từ chối yêu cầu danh mục");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }

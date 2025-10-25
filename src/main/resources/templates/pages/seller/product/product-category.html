@@ -288,23 +288,42 @@
                     <button type="submit">Tìm kiếm</button>
                     <a th:if="${categoryName != null && !#strings.isEmpty(categoryName)}"
                        th:href="@{/seller/product-category}">Xóa bộ lọc</a>
+                    <a th:href="@{/seller/create-product-category}"
+                       style="background: #198754; color: white; border-color: #198754;">
+                        <i class="bi bi-plus-circle"></i> Yêu cầu tạo danh mục mới
+                    </a>
                 </form>
             </div>
-
+            <div th:if="${error}" class="error-message" style="color: red; margin-bottom: 16px;">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span th:text="${error}"></span>
+            </div>
             <table>
                 <thead>
                 <tr>
                     <th>ID</th>
                     <th>Tên danh mục</th>
+                    <th>Thao tác</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:if="${categories.isEmpty()}" class="empty-row">
-                    <td colspan="2">Không tìm thấy danh mục nào</td>
+                    <td colspan="3">Không tìm thấy danh mục nào</td>
                 </tr>
                 <tr th:each="category : ${categories}">
                     <td th:text="${category.id}"></td>
                     <td th:text="${category.name}"></td>
+                    <td>
+                        <a th:href="@{/seller/edit-product-category(id=${category.id})}" 
+                           style="background: #ffc107; color: #000; border-color: #ffc107; text-decoration: none; padding: 6px 12px; border-radius: 6px; display: inline-block; margin-right: 5px;">
+                            <i class="bi bi-pencil"></i> Sửa
+                        </a>
+                        <a th:href="@{/seller/delete-product-category(id=${category.id})}"
+                           class="delete-category-btn"
+                           style="background: #dc3545; color: white; border-color: #dc3545; text-decoration: none; padding: 6px 12px; border-radius: 6px; display: inline-block;">
+                            <i class="bi bi-trash"></i> Xóa
+                        </a>
+                    </td>
                 </tr>
                 </tbody>
             </table>
@@ -319,5 +338,15 @@
         </div>
     </div>
 </div>
+<script>
+    document.querySelectorAll('.delete-category-btn').forEach(button => {
+        button.addEventListener('click', function (event) {
+            event.preventDefault();
+            if (confirm('Bạn có chắc chắn muốn gửi yêu cầu xóa danh mục này?')) {
+                window.location.href = this.href;
+            }
+        });
+    });
+</script>
 </body>
 </html>

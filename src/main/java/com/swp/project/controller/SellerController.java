@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import com.swp.project.entity.product.ProductUnit;
 import com.swp.project.entity.product.SubImage;
+import com.swp.project.entity.seller_request.SellerRequest;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,11 +19,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.swp.project.dto.CreateCategoryDto;
 import com.swp.project.dto.CreateProductDto;
 import com.swp.project.dto.CreateProductUnitDto;
 import com.swp.project.dto.SellerSearchOrderDto;
+import com.swp.project.dto.UpdateCategoryDto;
 import com.swp.project.dto.UpdateProductDto;
 import com.swp.project.dto.UpdateProductUnitDto;
 import com.swp.project.entity.order.Order;
@@ -34,6 +41,9 @@ import com.swp.project.service.product.ImageService;
 import com.swp.project.service.product.ProductService;
 import com.swp.project.service.product.ProductUnitService;
 import com.swp.project.service.seller_request.SellerRequestService;
+import com.swp.project.service.seller_request.SellerRequestStatusService;
+import com.swp.project.service.seller_request.SellerRequestTypeService;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -49,7 +59,8 @@ public class SellerController {
     private final CategoryService categoryService;
     private final SellerRequestService sellerRequestService;
     private final ProductUnitService productUnitService;
-
+    private final SellerRequestTypeService sellerRequestTypeService;
+    private final SellerRequestStatusService sellerRequestStatusService;
     @GetMapping("")
     public String index() {
          return "pages/seller/index";
@@ -382,6 +393,20 @@ public class SellerController {
             if (productUnit == null) {
                 throw new Exception("Không tìm thấy đơn vị sản phẩm");
             }
+            boolean hasRequest = false;
+            for(SellerRequest sellerRequest : sellerRequestService.getSellerRequestByEntityName(ProductUnit.class)){
+                Long unitId = sellerRequestService.getEntityFromContent(sellerRequest.getContent(), ProductUnit.class).getId();
+                if(sellerRequestStatusService.isPendingStatus(sellerRequest)
+                        && sellerRequestTypeService.isDeleteType(sellerRequest)
+                        && unitId.equals(id)){
+                    hasRequest = true;
+                    break;
+                }
+            }
+
+            if (hasRequest) {
+                throw new Exception("Đã có yêu cầu xóa đơn vị sản phẩm này đang chờ xử lý");
+            }
             
             // Check if the product unit is being used by any products
             if (productUnit.getProducts() != null && !productUnit.getProducts().isEmpty()) {
@@ -396,4 +421,125 @@ public class SellerController {
         }
         return "redirect:/seller/product-unit";
     }
+
+    @GetMapping("/create-product-category")
+    public String showCreateCategoryForm(Model model) {
+        CreateCategoryDto createCategoryDto = new CreateCategoryDto();
+        model.addAttribute("categoryDto", createCategoryDto);
+        return "pages/seller/product/create-product-category";
+    }
+
+    @PostMapping("/create-product-category")
+    public String handleCreateCategory(
+            @Valid @ModelAttribute("categoryDto") CreateCategoryDto categoryDto,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes,
+            Principal principal) {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("error", "Vui lòng điền đầy đủ thông tin");
+            return "redirect:/seller/create-product-category";
+        }
+        try {
+            Category category = Category.builder()
+                    .name(categoryDto.getName())
+                    .build();
+            
+            sellerRequestService.saveAddRequest(category, principal.getName());
+            redirectAttributes.addFlashAttribute("success", "Yêu cầu tạo danh mục đã được gửi đến quản lý");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/seller/create-product-category";
+    }
+
+    @GetMapping("/edit-product-category")
+    public String showEditCategoryForm(@RequestParam Long id, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            Category category = categoryService.getCategoryById(id);
+            if (category == null) {
+                redirectAttributes.addFlashAttribute("error", "Không tìm thấy danh mục");
+                return "redirect:/seller/product-category";
+            }
+            
+            UpdateCategoryDto updateCategoryDto = UpdateCategoryDto.builder()
+                    .id(category.getId())
+                    .name(category.getName())
+                    .build();
+                    
+            model.addAttribute("updateCategoryDto", updateCategoryDto);
+            return "pages/seller/product/edit-product-category";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi: " + e.getMessage());
+            return "redirect:/seller/product-category";
+        }
+    }
+
+    @PostMapping("/edit-product-category")
+    public String handleEditCategory(
+            @Valid @ModelAttribute("updateCategoryDto") UpdateCategoryDto updateCategoryDto,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes,
+            Principal principal) {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("error", "Vui lòng điền đầy đủ thông tin");
+            return "redirect:/seller/edit-product-category?id=" + updateCategoryDto.getId();
+        }
+        try {
+            Category oldCategory = categoryService.getCategoryById(updateCategoryDto.getId());
+            if (oldCategory == null) {
+                throw new Exception("Không tìm thấy danh mục");
+            }
+            
+            Category newCategory = Category.builder()
+                    .id(updateCategoryDto.getId())
+                    .name(updateCategoryDto.getName())
+                    .build();
+            
+            sellerRequestService.saveUpdateRequest(oldCategory, newCategory, principal.getName());
+            redirectAttributes.addFlashAttribute("success", "Yêu cầu cập nhật danh mục đã được gửi đến quản lý");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/seller/edit-product-category?id=" + updateCategoryDto.getId();
+        }
+        return "redirect:/seller/product-category";
+    }
+
+    @GetMapping("/delete-product-category")
+    public String deleteCategory(
+            @RequestParam Long id,
+            RedirectAttributes redirectAttributes,
+            Principal principal) {
+        try {
+            Category category = categoryService.getCategoryById(id);
+            if (category == null) {
+                throw new Exception("Không tìm thấy danh mục");
+            }
+            
+            boolean hasRequest = false;
+            for(SellerRequest sellerRequest : sellerRequestService.getSellerRequestByEntityName(Category.class)){
+                Long cateId = sellerRequestService.getEntityFromContent(sellerRequest.getContent(), Category.class).getId();
+                if(sellerRequestStatusService.isPendingStatus(sellerRequest)
+                        && sellerRequestTypeService.isDeleteType(sellerRequest)
+                        && cateId.equals(id)){
+                    hasRequest = true;
+                    break;
+                }
+            }
+
+            if (hasRequest) {
+                throw new Exception("Đã có yêu cầu xóa danh mục này đang chờ xử lý");
+            }
+            if (category.getProducts() != null && !category.getProducts().isEmpty()) {
+                throw new Exception("Không thể xóa danh mục này vì đang được sử dụng bởi " 
+                    + category.getProducts().size() + " sản phẩm");
+            }
+            
+            sellerRequestService.saveDeleteRequest(category, principal.getName());
+            redirectAttributes.addFlashAttribute("success", "Yêu cầu xóa danh mục đã được gửi đến quản lý");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/seller/product-category";
+    }
+    
 }

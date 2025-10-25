@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết yêu cầu danh mục</title>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <style>
+        .table td {
+            vertical-align: middle;
+        }
+
+        .request-info {
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .request-info h5 {
+            margin-bottom: 10px;
+            color: #007bff;
+        }
+
+        .btn-group-action {
+            margin-top: 20px;
+        }
+
+        .btn-group-action button,
+        .btn-group-action a {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-4">
+        <h2 class="mb-4">Chi tiết yêu cầu danh mục</h2>
+
+        <!-- Request Information -->
+        <div class="request-info">
+            <h5>Thông tin yêu cầu</h5>
+            <p><strong>Loại yêu cầu:</strong> <span th:text="${sellerRequest.requestType.name}"></span></p>
+            <p><strong>Trạng thái:</strong> <span th:text="${sellerRequest.status.name}"></span></p>
+            <p><strong>Người yêu cầu:</strong> <span th:text="${sellerRequest.seller.fullname}"></span></p>
+            <p><strong>Ngày tạo:</strong> <span th:text="${#temporals.format(sellerRequest.createdAt, 'dd/MM/yyyy HH:mm:ss')}"></span></p>
+        </div>
+
+        <!-- New Category -->
+        <h4>Danh mục mới</h4>
+        <div class="mb-4">
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Tên danh mục</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:object="${newCategory}">
+                        <td th:text="*{id != null ? id : 'N/A'}"></td>
+                        <td th:text="*{name}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Old Category (only for update requests) -->
+        <div th:if="${oldCategory != null}" class="mb-4">
+            <h4>Danh mục cũ</h4>
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Tên danh mục</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:object="${oldCategory}">
+                        <td th:text="*{id}"></td>
+                        <td th:text="*{name}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="btn-group-action">
+            <form th:action="@{/manager/approve-category-request}" method="post" style="display: inline;">
+                <input type="hidden" name="requestId" th:value="${sellerRequest.id}" />
+                <button type="submit" th:if="${isPending}" class="btn btn-success">
+                    <i class="bi bi-check-circle"></i> Duyệt
+                </button>
+            </form>
+            
+            <form th:action="@{/manager/reject-category-request}" method="post" style="display: inline;">
+                <input type="hidden" name="requestId" th:value="${sellerRequest.id}" />
+                <button type="submit" th:if="${isPending}" class="btn btn-danger">
+                    <i class="bi bi-x-circle"></i> Từ chối
+                </button>
+            </form>
+            
+            <a th:href="@{/manager/all-products-request}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Quay lại
+            </a>
+        </div>
+    </div>
+    
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+
+</html>

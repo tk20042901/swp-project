@@ -46,6 +46,10 @@ public class CategoryService {
         }
     }
 
+    public void delete(Category category) {
+        categoryRepository.delete(category);
+    }
+
     public List<Category> getUniqueCategoriesBaseOnPageOfProduct(List<ViewProductDto> content) {
         List<Long> ids = content.stream().map(ViewProductDto::getId).toList();
         return categoryRepository.findDistinctCategoriesByProductIds(ids);
