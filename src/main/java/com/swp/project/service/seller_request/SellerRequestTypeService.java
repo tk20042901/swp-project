@@ -20,6 +20,19 @@ public class SellerRequestTypeService {
         return sellerRequestTypeRepository.findByName("Cập nhật");
     }
 
+    public SellerRequestType getDeleteType() {
+        SellerRequestType type = sellerRequestTypeRepository.findByName("Xóa bỏ");
+        if(type == null) {
+            type = SellerRequestType.builder().name("Xóa bỏ").build();
+            sellerRequestTypeRepository.save(type);
+        }
+        return type;
+    }
+
+    public boolean isDeleteType(SellerRequest request) {
+        return request.getRequestType().getName().equals("Xóa bỏ");
+    }
+
     public boolean isAddType(SellerRequest request) {
         return request.getRequestType().getName().equals("Thêm mới");
     }

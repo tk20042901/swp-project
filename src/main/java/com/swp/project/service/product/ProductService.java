@@ -279,12 +279,12 @@ public class ProductService {
         return normalized;
     }
 
-    public boolean checkUniqueProductName(long productId,String name) {
+    public boolean checkUniqueProductName(String name) {
         String slugName = toSlugName(name);
         return productRepository
                 .findAll()
                 .stream()
-                .anyMatch(p -> toSlugName(p.getName()).equals(slugName) && p.getId() != productId);
+                .anyMatch(p -> toSlugName(p.getName()).equals(slugName));
     }
 
     private void validateProductDto(CreateProductDto productDto, BindingResult bindingResult) throws Exception {
@@ -293,7 +293,7 @@ public class ProductService {
             String message = fieldError.getField() + ": " + fieldError.getDefaultMessage();
             throw new RuntimeException(message);
         }
-        if (checkUniqueProductName(productDto.getId(),productDto.getName())) {
+        if (checkUniqueProductName(productDto.getName())) {
             throw new Exception("Tên sản phẩm đã tồn tại");
         }
         if (productDto.getImage() == null || productDto.getImage().isEmpty()) {

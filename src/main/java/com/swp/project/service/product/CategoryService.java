@@ -31,6 +31,10 @@ public class CategoryService {
         return categoryRepository.findById(id).orElse(null);
     }
 
+    public Category getReferenceById(Long id){
+        return categoryRepository.getReferenceById(id);
+    }
+
     public void add(Category category) {
         categoryRepository.save(category);
     }
@@ -40,6 +44,10 @@ public class CategoryService {
         for (Product product : savedCategory.getProducts()) {
             eventPublisher.publishEvent(new ProductRelatedUpdateEvent(product));
         }
+    }
+
+    public void delete(Category category) {
+        categoryRepository.delete(category);
     }
 
     public List<Category> getUniqueCategoriesBaseOnPageOfProduct(List<ViewProductDto> content) {

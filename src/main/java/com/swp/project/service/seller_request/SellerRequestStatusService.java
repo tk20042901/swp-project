@@ -21,7 +21,12 @@ public class SellerRequestStatusService {
     }
 
     public SellerRequestStatus getRejectedStatus() {
-        return sellerRequestStatusRepository.findByName("Đã Từ Chối");
+        SellerRequestStatus status = sellerRequestStatusRepository.findByName("Đã Từ Chối");
+        if(status == null) {
+            status = SellerRequestStatus.builder().name("Đã Từ Chối").build();
+            sellerRequestStatusRepository.save(status);
+        }
+        return status;
     }
 
     public boolean isPendingStatus(SellerRequest sellerRequest){
