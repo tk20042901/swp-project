@@ -20,8 +20,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.swp.project.dto.CreateProductDto;
+import com.swp.project.dto.CreateProductUnitDto;
 import com.swp.project.dto.SellerSearchOrderDto;
 import com.swp.project.dto.UpdateProductDto;
+import com.swp.project.dto.UpdateProductUnitDto;
 import com.swp.project.entity.order.Order;
 import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.Product;
@@ -283,5 +285,115 @@ public class SellerController {
         model.addAttribute("categories", categories);
         model.addAttribute("categoryName", categoryName);
         return "pages/seller/product/product-category";
+    }
+
+    @GetMapping("/create-product-unit")
+    public String showCreateProductUnitForm(Model model) {
+        CreateProductUnitDto createProductUnitDto = new CreateProductUnitDto();
+        model.addAttribute("productUnitDto", createProductUnitDto);
+        return "pages/seller/product/create-product-unit";
+    }
+
+    @PostMapping("/create-product-unit")
+    public String handleCreateProductUnit(
+            @Valid @ModelAttribute("productUnitDto") CreateProductUnitDto productUnitDto,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes,
+            Principal principal) {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("error", "Vui lòng điền đầy đủ thông tin");
+            return "redirect:/seller/create-product-unit";
+        }
+        try {
+            ProductUnit productUnit = ProductUnit.builder()
+                    .name(productUnitDto.getName())
+                    .isAllowDecimal(productUnitDto.getIsAllowDecimal())
+                    .build();
+            
+            sellerRequestService.saveAddRequest(productUnit, principal.getName());
+            redirectAttributes.addFlashAttribute("success", "Yêu cầu tạo đơn vị sản phẩm đã được gửi đến quản lý");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/seller/create-product-unit";
+    }
+
+    @GetMapping("/edit-product-unit")
+    public String showEditProductUnitForm(@RequestParam Long id, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            ProductUnit productUnit = productUnitService.getProductUnitById(id);
+            if (productUnit == null) {
+                redirectAttributes.addFlashAttribute("error", "Không tìm thấy đơn vị sản phẩm");
+                return "redirect:/seller/product-unit";
+            }
+            
+            UpdateProductUnitDto updateProductUnitDto = UpdateProductUnitDto.builder()
+                    .id(productUnit.getId())
+                    .name(productUnit.getName())
+                    .isAllowDecimal(productUnit.isAllowDecimal())
+                    .build();
+                    
+            model.addAttribute("updateProductUnitDto", updateProductUnitDto);
+            return "pages/seller/product/edit-product-unit";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi: " + e.getMessage());
+            return "redirect:/seller/product-unit";
+        }
+    }
+
+    @PostMapping("/edit-product-unit")
+    public String handleEditProductUnit(
+            @Valid @ModelAttribute("updateProductUnitDto") UpdateProductUnitDto updateProductUnitDto,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes,
+            Principal principal) {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("error", "Vui lòng điền đầy đủ thông tin");
+            return "redirect:/seller/edit-product-unit?id=" + updateProductUnitDto.getId();
+        }
+        try {
+            ProductUnit oldProductUnit = productUnitService.getProductUnitById(updateProductUnitDto.getId());
+            if (oldProductUnit == null) {
+                throw new Exception("Không tìm thấy đơn vị sản phẩm");
+            }
+            
+            ProductUnit newProductUnit = ProductUnit.builder()
+                    .id(updateProductUnitDto.getId())
+                    .name(updateProductUnitDto.getName())
+                    .isAllowDecimal(updateProductUnitDto.getIsAllowDecimal())
+                    .build();
+            
+            sellerRequestService.saveUpdateRequest(oldProductUnit, newProductUnit, principal.getName());
+            redirectAttributes.addFlashAttribute("success", "Yêu cầu cập nhật đơn vị sản phẩm đã được gửi đến quản lý");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/seller/edit-product-unit?id=" + updateProductUnitDto.getId();
+        }
+        return "redirect:/seller/product-unit";
+    }
+
+    @GetMapping("/delete-product-unit")
+    public String deleteProductUnit(
+            @RequestParam Long id,
+            RedirectAttributes redirectAttributes,
+            Principal principal) {
+        try {
+            ProductUnit productUnit = productUnitService.getProductUnitById(id);
+            if (productUnit == null) {
+                throw new Exception("Không tìm thấy đơn vị sản phẩm");
+            }
+            
+            // Check if the product unit is being used by any products
+            if (productUnit.getProducts() != null && !productUnit.getProducts().isEmpty()) {
+                throw new Exception("Không thể xóa đơn vị sản phẩm này vì đang được sử dụng bởi " 
+                    + productUnit.getProducts().size() + " sản phẩm");
+            }
+            
+            sellerRequestService.saveDeleteRequest(productUnit, principal.getName());
+            redirectAttributes.addFlashAttribute("success", "Yêu cầu xóa đơn vị sản phẩm đã được gửi đến quản lý");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/seller/product-unit";
     }
 }

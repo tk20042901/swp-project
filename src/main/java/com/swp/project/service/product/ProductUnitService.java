@@ -43,4 +43,8 @@ public class ProductUnitService {
     public List<ProductUnit> getUnitsByAllowDecimal(boolean allowDecimal){
         return productUnitRepository.findByIsAllowDecimal(allowDecimal);
     }
+
+    public void delete(ProductUnit productUnit) {
+        productUnitRepository.delete(productUnit);
+    }
 }

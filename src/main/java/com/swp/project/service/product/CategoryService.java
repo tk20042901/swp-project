@@ -31,6 +31,10 @@ public class CategoryService {
         return categoryRepository.findById(id).orElse(null);
     }
 
+    public Category getReferenceById(Long id){
+        return categoryRepository.getReferenceById(id);
+    }
+
     public void add(Category category) {
         categoryRepository.save(category);
     }

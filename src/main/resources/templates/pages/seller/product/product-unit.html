@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -22,7 +23,8 @@
             box-sizing: border-box;
         }
 
-        html, body {
+        html,
+        body {
             height: 100%;
             background: var(--white);
             color: var(--text-dark);
@@ -106,7 +108,8 @@
             border-color: #adb5bd;
         }
 
-        button[type="submit"], .search a {
+        button[type="submit"],
+        .search a {
             background: var(--button-bg);
             border: 1px solid var(--border-color);
             padding: 10px 18px;
@@ -118,7 +121,8 @@
             transition: all 0.2s;
         }
 
-        button[type="submit"]:hover, .search a:hover {
+        button[type="submit"]:hover,
+        .search a:hover {
             background: #d3d6d9;
         }
 
@@ -164,54 +168,79 @@
         }
     </style>
 </head>
+
 <body>
-<div class="layout">
-    <div th:replace="~{fragments/seller-sidebar :: seller-sidebar}"></div>
+    <div class="layout">
+        <div th:replace="~{fragments/seller-sidebar :: seller-sidebar}"></div>
 
-    <div class="main-content">
-        <div class="container">
-            <div class="header">
-                <a th:href="@{/}"><i class="bi bi-arrow-left"></i> Trang chủ</a>
-                <h2><i class="bi bi-box"></i> Quản lý đơn vị</h2>
+        <div class="main-content">
+            <div class="container">
+                <div class="header">
+                    <a th:href="@{/}"><i class="bi bi-arrow-left"></i> Trang chủ</a>
+                    <h2><i class="bi bi-box"></i> Quản lý đơn vị</h2>
+                </div>
+
+                <div class="search">
+                    <form th:action="@{/seller/product-unit}" method="get">
+                        <label>
+                            Cho phép thập phân:
+                            <select name="allowDecimal">
+                                <option value="">-- Tất cả --</option>
+                                <option th:value="true" th:selected="${allowDecimal == true}">Có</option>
+                                <option th:value="false" th:selected="${allowDecimal == false}">Không</option>
+                            </select>
+                        </label>
+                        <button type="submit"><i class="bi bi-search"></i> Tìm kiếm</button>
+                        <a th:if="${allowDecimal != null}" th:href="@{/seller/product-unit}">
+                            <i class="bi bi-x-circle"></i> Xóa bộ lọc
+                        </a>
+                        <a th:href="@{/seller/create-product-unit}"
+                            style="background: #198754; color: white; border-color: #198754;">
+                            <i class="bi bi-plus-circle"></i> Yêu cầu tạo đơn vị mới
+                        </a>
+                    </form>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mã đơn vị</th>
+                            <th>Tên đơn vị</th>
+                            <th>Cho phép thập phân</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="unit : ${productUnits}">
+                            <td th:text="${unit.id}"></td>
+                            <td th:text="${unit.name}"></td>
+                            <td th:text="${unit.allowDecimal ? 'Có' : 'Không'}"></td>
+                            <td>
+                                <a th:href="@{/seller/edit-product-unit(id=${unit.id})}" class="btn btn-sm btn-warning">
+                                    <i class="bi bi-pencil"></i> Sửa
+                                </a>
+                                <a th:href="@{/seller/delete-product-unit(id=${unit.id})}"
+                                    class="btn btn-sm btn-danger delete-unit-btn">
+                                    <i class="bi bi-trash"></i> Xóa
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-
-            <div class="search">
-                <form th:action="@{/seller/product-unit}" method="get">
-                    <label>
-                        Cho phép thập phân:
-                        <select name="allowDecimal">
-                            <option value="">-- Tất cả --</option>
-                            <option th:value="true" th:selected="${allowDecimal == true}">Có</option>
-                            <option th:value="false" th:selected="${allowDecimal == false}">Không</option>
-                        </select>
-                    </label>
-                    <button type="submit"><i class="bi bi-search"></i> Tìm kiếm</button>
-                    <a th:if="${allowDecimal != null}" th:href="@{/seller/product-unit}">
-                        <i class="bi bi-x-circle"></i> Xóa bộ lọc
-                    </a>
-                </form>
-            </div>
-
-            <table>
-                <thead>
-                <tr>
-                    <th>Mã đơn vị</th>
-                    <th>Tên đơn vị</th>
-                    <th>Cho phép thập phân</th>
-                    <th>Thao tác</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="unit : ${productUnits}">
-                    <td th:text="${unit.id}"></td>
-                    <td th:text="${unit.name}"></td>
-                    <td th:text="${unit.allowDecimal ? 'Có' : 'Không'}"></td>
-                    <td>Hẹ Hẹ</td>
-                </tr>
-                </tbody>
-            </table>
         </div>
     </div>
-</div>
+    <script>
+        document.querySelectorAll('.delete-unit-btn').forEach(button => {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+                const confirmed = confirm('Bạn có chắc chắn muốn xóa đơn vị sản phẩm này không?');
+                if (confirmed) {
+                    window.location.href = this.href;
+                }
+            });
+        });
+    </script>
 </body>
+
 </html>

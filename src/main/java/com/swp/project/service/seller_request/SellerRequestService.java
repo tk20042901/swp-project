@@ -2,11 +2,8 @@ package com.swp.project.service.seller_request;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.swp.project.entity.product.Product;
-import com.swp.project.entity.product.ProductUnit;
 import com.swp.project.entity.seller_request.SellerRequest;
 import com.swp.project.repository.seller_request.SellerRequestRepository;
-import com.swp.project.service.product.ProductUnitService;
 import com.swp.project.service.user.SellerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +21,6 @@ public class SellerRequestService {
     private final SellerRequestTypeService sellerRequestTypeService;
     private final SellerRequestStatusService sellerRequestStatusService;
     private final SellerService sellerService;
-    private final ProductUnitService productUnitService;
 
     public List<SellerRequest> getAllSellerRequest() {
         return sellerRequestRepository.findAll();
@@ -40,6 +36,17 @@ public class SellerRequestService {
                 .content(objectMapper.writeValueAsString(entity))
                 .seller(sellerService.getSellerByEmail(sellerEmail))
                 .requestType(sellerRequestTypeService.getAddType())
+                .status(sellerRequestStatusService.getPendingStatus())
+                .createdAt(LocalDateTime.now())
+                .build());
+    }
+
+    public <T> void saveDeleteRequest(T entity, String sellerEmail) throws JsonProcessingException {
+        sellerRequestRepository.save(SellerRequest.builder()
+                .entityName(entity.getClass().getSimpleName())
+                .content(objectMapper.writeValueAsString(entity))
+                .seller(sellerService.getSellerByEmail(sellerEmail))
+                .requestType(sellerRequestTypeService.getDeleteType())
                 .status(sellerRequestStatusService.getPendingStatus())
                 .createdAt(LocalDateTime.now())
                 .build());
@@ -83,6 +90,16 @@ public class SellerRequestService {
         }
         return sellerRequest;
     }
+
+    public <T> void approveDeleteRequest(Long requestId, Class<T> entityClass, Consumer<T> deleteFunction) throws Exception {
+        SellerRequest sellerRequest = getSellerRequestById(requestId);
+        sellerRequest.setStatus(sellerRequestStatusService.getApprovedStatus());
+        sellerRequestRepository.save(sellerRequest);
+        String requestContent = sellerRequest.getContent();
+        T entity = objectMapper.readValue(requestContent, entityClass);
+        deleteFunction.accept(entity);
+    }
+
     public void rejectRequest(Long requestId) {
         SellerRequest sellerRequest = getSellerRequestById(requestId);
         sellerRequest.setStatus(sellerRequestStatusService.getRejectedStatus());
@@ -100,6 +117,7 @@ public class SellerRequestService {
         T entity = objectMapper.readValue(requestContent, clazz);
         updateFunction.accept(entity);
     }
+
 
     public<T> void updateOldContent(T oldProduct, SellerRequest sellerRequest) throws JsonProcessingException {
         sellerRequest.setOldContent(objectMapper.writeValueAsString(oldProduct));
