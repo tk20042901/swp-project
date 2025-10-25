@@ -223,7 +223,7 @@ public class SellerService {
     }
 
     public Page<ProductRevenueDto> getProductRevenue(int page, int size) {
-        Pageable pageable = PageRequest.of(size, page);
+        Pageable pageable = PageRequest.of(page,size);
         Page<Object[]> rawData = productRepository.getProductSalesAndRevenue(pageable);
 
         List<ProductRevenueDto> dtoList = new ArrayList<>();
