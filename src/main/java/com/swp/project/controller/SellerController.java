@@ -7,6 +7,7 @@ import com.swp.project.entity.product.ProductUnit;
 import com.swp.project.entity.product.SubImage;
 import com.swp.project.entity.seller_request.SellerRequest;
 
+import com.swp.project.service.user.SellerService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -61,9 +62,11 @@ public class SellerController {
     private final ProductUnitService productUnitService;
     private final SellerRequestTypeService sellerRequestTypeService;
     private final SellerRequestStatusService sellerRequestStatusService;
+    private final SellerService sellerService;
+
     @GetMapping("")
     public String index() {
-         return "pages/seller/index";
+         return "forward:/seller/statistic-report";
     }
 
     @GetMapping("/all-orders")
@@ -173,6 +176,7 @@ public class SellerController {
         model.addAttribute("unitSold", orderService.getUnitSold());
         model.addAttribute("totalCanceledOrder", orderService.getTotalCancelledOrders());
         model.addAttribute("nearlySoldOutProducts", orderService.getNearlySoldOutProduct());
+        model.addAttribute("top5ProductRevenue",sellerService.getTop5ProductRevenue());
         return "pages/seller/index";
     }
 
@@ -541,5 +545,7 @@ public class SellerController {
         }
         return "redirect:/seller/product-category";
     }
+
+
     
 }
