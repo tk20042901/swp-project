@@ -273,6 +273,40 @@
                     </tbody>
                 </table>
             </div>
+            <div class="section">
+                <h2><i class="bi bi-star"></i> Top doanh thu</h2>
+
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Mã sản phẩm</th>
+                        <th>Sản phẩm</th>
+                        <th>Số lượng đã bán</th>
+                        <th>Doanh thu</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(top5ProductRevenue)}">
+                        <td colspan="4" class="no-data">
+                            <i class="bi bi-check-circle" style="font-size: 24px; color: var(--success);"></i>
+                            <br>Không có sản phẩm để hiển thị
+                        </td>
+                    </tr>
+
+                    <tr th:each="item : ${top5ProductRevenue}">
+                        <td th:text="${item.productId}"></td>
+                        <td>
+                            <div class="product-info">
+                                <img th:src="${item.mainImageUrl}" alt="Product image">
+                                <span th:text="${item.productName}"></span>
+                            </div>
+                        </td>
+                        <td th:text="${item.totalSold}"></td>
+                        <td th:text="${#numbers.formatInteger(item.revenue, 0, 'POINT')} + ' VND'"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

@@ -138,4 +138,69 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Product findFirstByEnabledOrderByIdAsc(boolean enabled);
 
     Product findTopByOrderByIdDesc();
+
+    @Query(value = """
+        SELECT 
+            p.id AS productId,
+            p.name AS productName,
+            p.main_image_url AS mainImageUrl,
+            COALESCE(SUM(
+                CASE 
+                    WHEN o.payment_method_id = 'COD' AND os.name = 'Đã Giao Hàng' 
+                        THEN oi.quantity
+                    WHEN o.payment_method_id = 'QR' AND os.name IN ('Đã Giao Hàng', 'Đang Giao Hàng', 'Đang Chuẩn Bị Hàng') 
+                        THEN oi.quantity
+                    ELSE 0
+                END
+            ), 0) AS totalSold,
+            COALESCE(SUM(
+                CASE 
+                    WHEN o.payment_method_id = 'COD' AND os.name = 'Đã Giao Hàng' 
+                        THEN oi.quantity * p.price
+                    WHEN o.payment_method_id = 'QR' AND os.name IN ('Đã Giao Hàng', 'Đang Giao Hàng', 'Đang Chuẩn Bị Hàng') 
+                        THEN oi.quantity * p.price
+                    ELSE 0
+                END
+            ), 0) AS revenue
+        FROM product p
+        LEFT JOIN order_item oi ON oi.product_id = p.id
+        LEFT JOIN orders o ON oi.order_id = o.id
+        LEFT JOIN order_status os ON o.order_status_id = os.id
+        GROUP BY p.id, p.name, p.main_image_url
+        ORDER BY revenue DESC
+        """, nativeQuery = true)
+    Page<Object[]> getProductSalesAndRevenue(Pageable pageable);
+
+    @Query(value = """
+        SELECT 
+            p.id AS productId,
+            p.name AS productName,
+            p.main_image_url AS mainImageUrl,
+            COALESCE(SUM(
+                CASE 
+                    WHEN o.payment_method_id = 'COD' AND os.name = 'Đã Giao Hàng' 
+                        THEN oi.quantity
+                    WHEN o.payment_method_id = 'QR' AND os.name IN ('Đã Giao Hàng', 'Đang Giao Hàng', 'Đang Chuẩn Bị Hàng') 
+                        THEN oi.quantity
+                    ELSE 0
+                END
+            ), 0) AS totalSold,
+            COALESCE(SUM(
+                CASE 
+                    WHEN o.payment_method_id = 'COD' AND os.name = 'Đã Giao Hàng' 
+                        THEN oi.quantity * p.price
+                    WHEN o.payment_method_id = 'QR' AND os.name IN ('Đã Giao Hàng', 'Đang Giao Hàng', 'Đang Chuẩn Bị Hàng') 
+                        THEN oi.quantity * p.price
+                    ELSE 0
+                END
+            ), 0) AS revenue
+        FROM product p
+        LEFT JOIN order_item oi ON oi.product_id = p.id
+        LEFT JOIN orders o ON oi.order_id = o.id
+        LEFT JOIN order_status os ON o.order_status_id = os.id
+        GROUP BY p.id, p.name, p.main_image_url
+        ORDER BY revenue DESC
+        LIMIT 5
+        """, nativeQuery = true)
+    List<Object[]> getTop5ProductRevenue();
 }
