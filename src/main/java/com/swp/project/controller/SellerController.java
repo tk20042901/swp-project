@@ -1,12 +1,9 @@
 package com.swp.project.controller;
 
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 import com.swp.project.entity.product.ProductUnit;
-import com.swp.project.entity.product.SubImage;
 import com.swp.project.entity.seller_request.SellerRequest;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,11 +16,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.swp.project.dto.CreateCategoryDto;
 import com.swp.project.dto.CreateProductDto;
 import com.swp.project.dto.CreateProductUnitDto;
@@ -37,13 +31,11 @@ import com.swp.project.entity.product.Product;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.order.OrderStatusService;
 import com.swp.project.service.product.CategoryService;
-import com.swp.project.service.product.ImageService;
 import com.swp.project.service.product.ProductService;
 import com.swp.project.service.product.ProductUnitService;
 import com.swp.project.service.seller_request.SellerRequestService;
 import com.swp.project.service.seller_request.SellerRequestStatusService;
 import com.swp.project.service.seller_request.SellerRequestTypeService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -197,45 +189,12 @@ public class SellerController {
             @RequestParam MultipartFile[] subImageFiles,
             Principal principal) {
         if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("error", bindingResult.getAllErrors().get(0).getDefaultMessage());
             return "redirect:/seller/seller-update-product/" + updateProductDto.getId();
         }
         try {
             Product oldProduct = productService.getProductById(updateProductDto.getId());
-            List<Category> categories = new ArrayList<>();
-            List<SubImage> subImages = new ArrayList<>();
-            for (Long catId : updateProductDto.getCategories()) {
-                categories.add(categoryService.getCategoryById(catId));
-            }
-            // if (!updateProductDto.getName().equals(oldProduct.getName())
-            //         && productService.checkUniqueProductName(updateProductDto.getName())) {
-            //     throw new Exception("Tên sản phẩm đã tồn tại");
-            // }
-            Product updateProduct = Product.builder()
-                    .id(updateProductDto.getId())
-                    .name(updateProductDto.getName())
-                    .description(updateProductDto.getDescription())
-                    .price(updateProductDto.getPrice())
-                    .unit(updateProductDto.getUnit())
-                    .enabled(updateProductDto.getEnabled())
-                    .categories(categories)
-                    .build();
-
-            if (imageFile == null || imageFile.isEmpty()) {
-                updateProduct.setMain_image_url(oldProduct.getMain_image_url());
-            } else {
-                updateProduct.setMain_image_url(ImageService.convertToBase64WithPrefix(imageFile));
-            }
-            for (int i = 0; i < subImageFiles.length; i++) {
-                if (subImageFiles[i] == null || subImageFiles[i].isEmpty()) {
-                    subImages.add(oldProduct.getSub_images().get(i));
-                } else {
-                    SubImage sub = new SubImage();
-                    sub.setProduct(updateProduct);
-                    sub.setSub_image_url(ImageService.convertToBase64WithPrefix(subImageFiles[i]));
-                    subImages.add(sub);
-                }
-            }
-            updateProduct.setSub_images(subImages);
+            Product updateProduct = productService.createProductForUpdateRequest(updateProductDto, imageFile, subImageFiles);
             sellerRequestService.saveUpdateRequest(oldProduct, updateProduct, principal.getName());
             redirectAttributes.addFlashAttribute("msg", "Yêu cầu cập nhật sản phẩm đã được gửi đến quản lý");
         } catch (Exception e) {
@@ -262,7 +221,8 @@ public class SellerController {
             Principal principal,
             Model model) {
         try {
-            Product product = productService.createProductForAddRequest(productDto, bindingResult);
+            productService.validateCreateProductDto(productDto, bindingResult);
+            Product product = productService.createProductForAddRequest(productDto);
             sellerRequestService.saveAddRequest(product, principal.getName());
             redirectAttributes.addFlashAttribute("success", "Yêu cầu tạo sản phẩm đã được gửi đến quản lý");
         } catch (Exception e) {
@@ -273,7 +233,7 @@ public class SellerController {
 
     @GetMapping("/product-unit")
     public String getProductUnitList(Model model,
-            @RequestParam(value = "allowDecimal", required = false) Boolean allowDecimal) {
+            @RequestParam(required = false) Boolean allowDecimal) {
         List<ProductUnit> productUnits;
 
         if (allowDecimal != null) {
@@ -289,7 +249,7 @@ public class SellerController {
 
     @GetMapping("/product-category")
     public String getAllProductUnit(Model model,
-            @RequestParam(value = "categoryName", required = false) String categoryName,
+            @RequestParam(required = false) String categoryName,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size) {
         Page<Category> categories = categoryService.searchByCategoryName(categoryName, size, page);
@@ -307,7 +267,7 @@ public class SellerController {
 
     @PostMapping("/create-product-unit")
     public String handleCreateProductUnit(
-            @Valid @ModelAttribute("productUnitDto") CreateProductUnitDto productUnitDto,
+            @Valid @ModelAttribute CreateProductUnitDto productUnitDto,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes,
             Principal principal) {
@@ -354,7 +314,7 @@ public class SellerController {
 
     @PostMapping("/edit-product-unit")
     public String handleEditProductUnit(
-            @Valid @ModelAttribute("updateProductUnitDto") UpdateProductUnitDto updateProductUnitDto,
+            @Valid @ModelAttribute UpdateProductUnitDto updateProductUnitDto,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes,
             Principal principal) {
@@ -431,7 +391,7 @@ public class SellerController {
 
     @PostMapping("/create-product-category")
     public String handleCreateCategory(
-            @Valid @ModelAttribute("categoryDto") CreateCategoryDto categoryDto,
+            @Valid @ModelAttribute CreateCategoryDto categoryDto,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes,
             Principal principal) {
@@ -476,7 +436,7 @@ public class SellerController {
 
     @PostMapping("/edit-product-category")
     public String handleEditCategory(
-            @Valid @ModelAttribute("updateCategoryDto") UpdateCategoryDto updateCategoryDto,
+            @Valid @ModelAttribute UpdateCategoryDto updateCategoryDto,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes,
             Principal principal) {

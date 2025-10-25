@@ -4,7 +4,6 @@ import com.swp.project.dto.*;
 import com.swp.project.entity.user.Manager;
 import com.swp.project.service.AddressService;
 import com.swp.project.service.order.OrderService;
-import com.swp.project.service.product.ProductUnitService;
 import com.swp.project.service.user.ManagerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -51,16 +50,7 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("failed", "Không tìm thấy quản lý.");
             return "redirect:/admin/manage-manager";
         }
-        EditManagerDto editManagerDto = new EditManagerDto();
-        editManagerDto.setId(manager.getId());
-        editManagerDto.setEmail(manager.getEmail());
-        editManagerDto.setFullname(manager.getFullname());
-        editManagerDto.setBirthDate(manager.getBirthDate());
-        editManagerDto.setCId(manager.getCid());
-        editManagerDto.setCommuneWardCode(manager.getCommuneWard().getCode());
-        editManagerDto.setSpecificAddress(manager.getSpecificAddress());
-        editManagerDto.setStatus(manager.isEnabled());
-        editManagerDto.setProvinceCityCode(manager.getCommuneWard().getProvinceCity().getCode());
+        EditManagerDto editManagerDto = new EditManagerDto(manager);
         model.addAttribute("editManagerDto", editManagerDto);
         return "pages/admin/edit-manager";
     }
@@ -80,7 +70,8 @@ public class AdminController {
             RedirectAttributes redirectAttributes,
             Model model) {
         try {
-            managerService.createManager(managerRegisterDto, bindingResult);
+            managerService.validateCreateManager(managerRegisterDto, bindingResult);
+            managerService.createManager(managerRegisterDto);
             redirectAttributes.addFlashAttribute("success", "Tạo quản lý thành công.");
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("failed", e.getMessage());
@@ -149,7 +140,7 @@ public class AdminController {
     }
 
     @GetMapping("/detail-report")
-    public String getDetailReport(Model model){
+    public String getDetailReport(Model model) {
         List<RevenueDto> daysReport = orderService.getDaysRevenue();
         List<RevenueDto> monthsReport = orderService.getMonthsRevenue();
         model.addAttribute("daysReport", daysReport);
@@ -167,7 +158,8 @@ public class AdminController {
 
         return ResponseEntity.ok()
                 .headers(headers)
-                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .contentType(
+                        MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(new InputStreamResource(in));
     }
 
@@ -180,7 +172,8 @@ public class AdminController {
 
         return ResponseEntity.ok()
                 .headers(headers)
-                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .contentType(
+                        MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(new InputStreamResource(in));
     }
 }

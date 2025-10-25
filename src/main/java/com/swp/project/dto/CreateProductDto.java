@@ -6,6 +6,7 @@ import org.hibernate.validator.constraints.Length;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.swp.project.entity.product.Category;
+import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.ProductUnit;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.swp.project.entity.user.Manager;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -16,6 +17,19 @@ import lombok.Setter;
 @Getter
 @Setter
 public class EditManagerDto {
+
+
+    public EditManagerDto(Manager manager){
+        this.id = manager.getId();
+        this.email = manager.getEmail();
+        this.fullname = manager.getFullname();
+        this.birthDate = manager.getBirthDate();
+        this.cId = manager.getCid();
+        this.provinceCityCode = manager.getCommuneWard().getProvinceCity().getCode();
+        this.communeWardCode = manager.getCommuneWard().getCode();
+        this.specificAddress = manager.getSpecificAddress();
+        this.status = manager.isEnabled();
+    }
     private Long id;
     
     @NotBlank(message = "Email không được để trống")
