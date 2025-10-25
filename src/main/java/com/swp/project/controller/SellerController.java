@@ -46,12 +46,11 @@ public class SellerController {
     private final ProductUnitService unitService;
     private final CategoryService categoryService;
     private final SellerRequestService sellerRequestService;
-    private final ImageService imageService;
     private final ProductUnitService productUnitService;
 
     @GetMapping("")
     public String index() {
-        return "forward:/seller/statistic-report";
+         return "pages/seller/index";
     }
 
     @GetMapping("/all-orders")

@@ -41,7 +41,7 @@ public class SecurityConfig {
             "/product-category-display/**" ,// danh mục sản phẩm
             "/product-category-sorting/**" ,  // sắp xếp sản phẩm theo danh mục
             "/api/categories/**",   // api danh mục sản phẩm
-            "/api/products/**"      // api sản phẩm
+            "/api/products/**"  // api sản phẩm
     };
 
     private static final String[] ADMIN_ALLOWED = {
