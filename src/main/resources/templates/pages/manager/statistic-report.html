@@ -167,7 +167,57 @@
         </tr>
         </tbody>
     </table>
-    <a class="detail-link" th:href="@{/admin/detail-report}">Chi tiết thống kê</a>
+    <a class="detail-link" th:href="@{/manager/detail-report}">Chi tiết thống kê</a>
 </div>
+<h2 style="text-align:center;color:#2c3e50;margin:30px 0 10px;">Tăng trưởng (%)</h2>
+<canvas id="growthChart" style="max-width:800px;margin:0 auto;display:block;"></canvas>
 </body>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Vẽ chart (bar) -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const dailyChange   = /*[[${dailyPercentageChange}]]*/ 0.0;
+    const weeklyChange  = /*[[${weeklyPercentageChange}]]*/ 0.0;
+    const monthlyChange = /*[[${monthlyPercentageChange}]]*/ 0.0;
+
+    const gctx = document.getElementById('growthChart').getContext('2d');
+
+    const clean = v => Number.isFinite(v) ? v : 0;
+
+    new Chart(gctx, {
+        type: 'bar', // ĐỔI SANG CỘT
+        data: {
+            labels: ['Hôm nay', 'Tuần này', 'Tháng này'],
+            datasets: [{
+                label: 'Tăng trưởng (%)',
+                data: [clean(dailyChange), clean(weeklyChange), clean(monthlyChange)],
+                borderWidth: 1.5,
+                borderColor: '#667eea',
+                backgroundColor: 'rgba(102, 126, 234, 0.25)',
+                maxBarThickness: 56, // cột gọn gàng
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => ` ${ (ctx.parsed.y ?? 0).toFixed(2) }%`
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { display: false }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: { callback: (v) => v + '%' }
+                }
+            }
+        }
+    });
+    /*]]>*/
+</script>
 </html>
