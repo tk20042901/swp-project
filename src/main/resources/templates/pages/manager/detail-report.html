@@ -133,6 +133,9 @@
         </tbody>
     </table>
     <a class="export-btn" th:href="@{/manager/days/export-excel}">📊 Xuất Excel</a>
+<h2>Doanh thu 7 ngày gần đây</h2>
+    <canvas id="daysChart"></canvas>
+
 
     <h3>Doanh thu 12 tháng gần đây</h3>
     <table>
@@ -151,7 +154,124 @@
         </tr>
         </tbody>
     </table>
+    <h2>Doanh thu 12 tháng gần đây</h2>
+    <canvas id="monthsChart"></canvas>
     <a class="export-btn" th:href="@{/manager/months/export-excel}">📊 Xuất Excel</a>
 </div>
 </body>
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Lấy dữ liệu Thymeleaf & vẽ biểu đồ -->
+<script th:inline="javascript">
+    /* DỮ LIỆU từ server (Thymeleaf sẽ “bơm” vào đây) */
+    const daysRaw   = /*[[${daysReport}]]*/ [];
+    const monthsRaw = /*[[${monthsReport}]]*/ [];
+
+    /* Đảo lại để hiển thị theo thời gian tăng dần (trái -> phải) */
+    const days   = Array.isArray(daysRaw)   ? daysRaw.slice().reverse()   : [];
+    const months = Array.isArray(monthsRaw) ? monthsRaw.slice().reverse() : [];
+
+    /* Helper format tiền VND */
+    const fmtVND = (n) => new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 0 }).format(n) + ' đ';
+
+    /* Chuẩn bị data 7 ngày */
+    const dayLabels   = days.map(d => d.date);
+    const dayRevenue  = days.map(d => d.revenue);
+    const dayGrowth   = days.map(d => d.growthPercent);
+
+    /* Chuẩn bị data 12 tháng */
+    const monthLabels  = months.map(m => m.date);
+    const monthRevenue = months.map(m => m.revenue);
+    const monthGrowth  = months.map(m => m.growthPercent);
+
+    /* Options dùng chung */
+    const commonOpts = {
+        responsive: true,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+            legend: { position: 'top' },
+            tooltip: {
+                callbacks: {
+                    label: (ctx) => {
+                        const dsLabel = ctx.dataset.label || '';
+                        const value = ctx.raw;
+                        if (dsLabel.includes('%')) return `${dsLabel}: ${value ?? '—'}%`;
+                        return `${dsLabel}: ${fmtVND(value)}`;
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { callback: (v) => fmtVND(v) }
+            },
+            y1: {
+                position: 'right',
+                grid: { drawOnChartArea: false },
+                ticks: { callback: (v) => `${v}%` }
+            }
+        }
+    };
+
+    /* Vẽ biểu đồ 7 ngày: Doanh thu (cột) + Tăng trưởng (đường) */
+    const daysCtx = document.getElementById('daysChart');
+    if (daysCtx) {
+        new Chart(daysCtx, {
+            type: 'bar',
+            data: {
+                labels: dayLabels,
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: 'Doanh thu',
+                        data: dayRevenue,
+                        borderWidth: 1
+                    },
+                    {
+                        type: 'line',
+                        label: 'Tăng trưởng (%)',
+                        data: dayGrowth,
+                        yAxisID: 'y1',
+                        tension: 0.3,
+                        borderWidth: 2,
+                        pointRadius: 3
+                    }
+                ]
+            },
+            options: commonOpts
+        });
+    }
+
+    /* Vẽ biểu đồ 12 tháng: Doanh thu (cột) + Tăng trưởng (đường) */
+    const monthsCtx = document.getElementById('monthsChart');
+    if (monthsCtx) {
+        new Chart(monthsCtx, {
+            type: 'bar',
+            data: {
+                labels: monthLabels,
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: 'Doanh thu',
+                        data: monthRevenue,
+                        borderWidth: 1
+                    },
+                    {
+                        type: 'line',
+                        label: 'Tăng trưởng (%)',
+                        data: monthGrowth,
+                        yAxisID: 'y1',
+                        tension: 0.3,
+                        borderWidth: 2,
+                        pointRadius: 3
+                    }
+                ]
+            },
+            options: commonOpts
+        });
+    }
+</script>
+
 </html>

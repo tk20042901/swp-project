@@ -29,25 +29,136 @@
     </style>
 </head>
 <body class="auth-body d-flex align-items-center justify-content-center min-vh-100">
-  <div class="auth-card p-4 col-lg-4 col-md-6 shadow text-center">
-    <!-- Tiêu đề -->
-    <h1 class="h4 mb-4 brand text-primary">Trang quản lý</h1>
+<div class="container">
+    <a th:href="@{/}">← Trang chủ</a>
+    <h1>Tổng quan</h1>
 
-    <!-- Nút đăng xuất -->
-    <form th:action="@{/logout}" method="post" class="mb-3">
-      <button type="submit" class="btn btn-outline-danger w-100">Đăng xuất</button>
-    </form>
-
-    <!-- Liên kết điều hướng -->
-    <div class="d-grid gap-2">
-      <a href="/manager/manage-seller" class="btn btn-primary">Quản lí người bán</a>
-      <a href="/manager/manage-shipper" class="btn btn-success">Quản lí người giao hàng</a>
-      <a th:href="@{/manager/statistic-report}">Thống kê</a>
-      <a href="/manager/bill-list" class="btn btn-outline-secondary">🧾 Hóa đơn</a>
+    <div class="summary">
+        <span th:text="'Số lượng sản phẩm đã bán được: '+ ${totalUnitSold}"></span>
     </div>
-    <a href="/manager/all-products-request" class="btn btn-info mt-3 w-100">Xem yêu cầu sản phẩm</a>
-  </div>
 
-  <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <table>
+        <thead>
+        <tr>
+            <th>Doanh thu cửa hàng</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <span th:text="${'Doanh thu ngày hôm nay: '+ revenueToday + ' VND'}"></span>
+                <small th:text="${'↗ Tăng '+ dailyPercentageChange + '% so với hôm qua'}"></small>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span th:text="${'Doanh thu tuần này: '+ revenueThisWeek + ' VND'}"></span>
+                <small th:text="${'↗ Tăng '+ weeklyPercentageChange +'% so với tuần trước'}"></small>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span th:text="${'Doanh thu tháng này: '+ revenueThisMonth + ' VND'}"></span>
+                <small th:text="${'↗ Tăng '+ monthlyPercentageChange +'% so với tháng trước'}"></small>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <a class="detail-link" th:href="@{/manager/detail-report}">Chi tiết thống kê</a>
+</div>
+<h2 style="text-align:center;color:#2c3e50;margin:30px 0 10px;">Doanh thu & Tăng trưởng</h2>
+<canvas id="growthChart" style="max-width:900px;margin:0 auto;display:block;"></canvas>
 </body>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const dailyChange   = /*[[${dailyPercentageChange}]]*/ 0.0;
+    const weeklyChange  = /*[[${weeklyPercentageChange}]]*/ 0.0;
+    const monthlyChange = /*[[${monthlyPercentageChange}]]*/ 0.0;
+
+    const revenueToday     = /*[[${revenueToday}]]*/ 0;
+    const revenueThisWeek  = /*[[${revenueThisWeek}]]*/ 0;
+    const revenueThisMonth = /*[[${revenueThisMonth}]]*/ 0;
+
+    const safeNum = v => Number.isFinite(v) ? v : 0;
+
+    const labels = ['Hôm nay', 'Tuần này', 'Tháng này'];
+    const revenueData = [ safeNum(revenueToday), safeNum(revenueThisWeek), safeNum(revenueThisMonth) ];
+    const growthData  = [ safeNum(dailyChange), safeNum(weeklyChange), safeNum(monthlyChange) ];
+
+    const ctx = document.getElementById('growthChart');
+
+    const fmtVND = n => {
+        if (n >= 1_000_000_000) return (n / 1_000_000_000).toFixed(1) + 'B';
+        if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
+        if (n >= 1_000) return (n / 1_000).toFixed(0) + 'K';
+        return n.toString();
+    };
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [
+                {
+                    type: 'bar',
+                    label: 'Doanh thu (VND)',
+                    data: revenueData,
+                    yAxisID: 'y',
+                    backgroundColor: 'rgba(102,126,234,0.25)',
+                    borderColor: '#667eea',
+                    borderWidth: 1.5,
+                    maxBarThickness: 60,
+                },
+                {
+                    type: 'line',
+                    label: 'Tăng trưởng (%)',
+                    data: growthData,
+                    yAxisID: 'y1',
+                    tension: 0.3,
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    borderColor: '#764ba2',
+                    backgroundColor: 'rgba(118,75,162,0.1)',
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { position: 'top' },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => {
+                            const isPercent = ctx.dataset.yAxisID === 'y1';
+                            const val = ctx.raw ?? 0;
+                            return `${ctx.dataset.label}: ${isPercent ? val + '%' : val.toLocaleString('vi-VN') + ' ₫'}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: { grid: { display: false } },
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Doanh thu (VNĐ)' },
+                    ticks: {
+                        callback: (value) => fmtVND(value) // chỉ rút gọn K/M/B, không thêm “đ”
+                    }
+                },
+                y1: {
+                    position: 'right',
+                    grid: { drawOnChartArea: false },
+                    title: { display: true, text: 'Tăng trưởng (%)' },
+                    ticks: {
+                        callback: (v) => v + '%'
+                    }
+                }
+            }
+        }
+    });
+    /*]]>*/
+</script>
+
 </html>

@@ -4,64 +4,202 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Danh sách hóa đơn</title>
-    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
-        .main-content {
-            flex: 1;
-            padding: 2rem 0;
+        :root {
+            --white: #ffffff;
+            --light-gray: #f8f9fa;
+            --button-bg: #e9ecef;
+            --border-color: #dee2e6;
+            --text-dark: #212529;
+            --text-muted: #6c757d;
         }
 
-        .page-header {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            background: var(--white);
+            color: var(--text-dark);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            font-size: 14px;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 30px;
+            background: var(--white);
+        }
+
+        .header {
+            background: var(--light-gray);
+            padding: 20px 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+        }
+
+        .header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin: 8px 0;
+        }
+
+        .header a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .header a:hover {
+            color: var(--text-dark);
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 6px;
             margin-bottom: 1.5rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid transparent;
+        }
+
+        .alert-success {
+            background-color: #d1e7dd;
+            border-color: #badbcc;
+            color: #0f5132;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            border-color: #f5c2c7;
+            color: #842029;
         }
 
         .stats-card {
-            border-radius: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
             padding: 1.5rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 24px;
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            color: white;
         }
 
-        .stats-card .stats-number {
+        .stats-number {
             font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 0.25rem;
         }
 
-        .stats-card .stats-label {
+        .stats-label {
             font-size: 1rem;
             opacity: 0.9;
         }
 
-        .data-table-card {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            overflow-x: auto;
+        .card {
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
-        .table thead th {
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .bill-table thead th {
+            background-color: #f8f9fa;
             border-bottom: 2px solid #dee2e6;
             font-weight: 600;
+            color: #495057;
+            padding: 0.75rem;
+            text-align: left;
             white-space: nowrap;
-            background-color: #f8f9fa;
+        }
+
+        .bill-table tbody td {
+            padding: 0.75rem;
             vertical-align: middle;
+            border-bottom: 1px solid rgba(16, 24, 40, 0.06);
         }
 
-        .table tbody tr:hover {
-            background-color: #f8f9fa;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        .bill-table tbody tr:hover {
+            background-color: rgba(13, 110, 253, 0.02);
+            transition: background-color 0.2s ease;
         }
 
-        .action-btn {
-            transition: all 0.2s ease;
+        .shop-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .shop-info i {
+            color: #667eea;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            background: transparent;
+        }
+
+        .btn-primary {
+            background: #0d6efd;
+            border-color: #0d6efd;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0b5ed7;
+            border-color: #0a58ca;
+        }
+
+        .btn-outline-primary {
+            background: transparent;
+            color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+        .btn-outline-primary:hover {
+            background: #0d6efd;
+            color: white;
+        }
+
+        .btn-outline-secondary {
+            background: var(--button-bg);
+            color: var(--text-dark);
+        }
+
+        .btn-outline-secondary:hover {
+            background: #d3d6d9;
+            color: var(--text-dark);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 13px;
         }
 
         .action-btn:hover {
@@ -77,189 +215,122 @@
             margin-top: 1.5rem;
         }
 
-        .shop-info {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .shop-info i {
-            color: #667eea;
+        .no-data {
+            text-align: center;
+            padding: 40px 16px;
+            color: var(--text-muted);
         }
 
         @media (max-width: 768px) {
-            .table {
-                font-size: 0.875rem;
+            .main-content {
+                margin-left: 70px;
+                padding: 16px;
             }
 
-            .stats-card .stats-number {
+            .bill-table thead th,
+            .bill-table tbody td {
+                padding: 0.5rem;
+                font-size: 13px;
+            }
+
+            .stats-number {
                 font-size: 2rem;
             }
         }
     </style>
 </head>
 <body>
-<div class="main-content">
-    <div class="container-fluid">
+<div class="layout">
+    <div th:replace="~{fragments/manager-sidebar :: manager-sidebar}"></div>
+
+    <div class="main-content">
         <!-- Page Header -->
-        <div class="page-header">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <div>
-                    <h1 class="h4 mb-1 brand">
-                        <i class="bi bi-receipt-cutoff text-primary me-2"></i>
-                        Danh sách hóa đơn
-                    </h1>
-                    <p class="text-muted mb-0">Quản lý và theo dõi tất cả hóa đơn thanh toán trong hệ thống</p>
-                </div>
-                <a href="/manager" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-1"></i>
-                    Quay về trang chủ
-                </a>
-            </div>
+        <div class="header">
+            <a th:href="@{/manager}">
+                <i class="bi bi-arrow-left"></i> Trang chủ
+            </a>
+            <h2>
+                <i class="bi bi-receipt"></i> Danh sách hóa đơn
+            </h2>
         </div>
 
         <!-- Alerts -->
-        <div th:if="${msg != null or error != null}" class="mb-3">
-            <div class="alert alert-success alert-dismissible fade show" th:if="${msg != null}">
-                <i class="bi bi-check-circle-fill me-2"></i>
-                <strong>Thành công!</strong> <span th:text="${msg}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            <div class="alert alert-danger alert-dismissible fade show" th:if="${error != null}">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                <strong>Thất bại!</strong> <span th:text="${error}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
+        <div th:if="${msg != null}" class="alert alert-success">
+            <i class="bi bi-check-circle-fill"></i>
+            <strong>Thành công!</strong> <span th:text="${msg}"></span>
+        </div>
+        <div th:if="${error != null}" class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <strong>Thất bại!</strong> <span th:text="${error}"></span>
         </div>
 
         <!-- Statistics Card -->
         <div class="stats-card" th:if="${bills != null}">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <div class="stats-number">
-                        <i class="bi bi-file-earmark-text me-2"></i>
-                        <span th:text="${bills.size()}">0</span>
-                    </div>
-                    <div class="stats-label">Tổng số hóa đơn trong hệ thống</div>
-                </div>
-                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                    <i class="bi bi-graph-up-arrow" style="font-size: 3rem; opacity: 0.3;"></i>
-                </div>
+            <div class="stats-number" th:text="${#lists.size(bills)}">0</div>
+            <div class="stats-label">
+                <i class="bi bi-receipt-cutoff"></i> Tổng số hóa đơn
             </div>
         </div>
 
         <!-- Data Table -->
-        <div class="data-table-card">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
+        <div class="card">
+            <div class="card-body" style="padding: 0;">
+                <div style="padding: 1.5rem; padding-bottom: 0;">
+                    <h5 style="font-weight: 600; margin-bottom: 1.5rem;">
+                        📋 Danh sách chi tiết
+                    </h5>
+                </div>
+
+                <table class="bill-table">
                     <thead>
                     <tr>
-                        <th style="width: 5%;">
-                            <form th:action="@{/manager/bill-list}" method="get" class="d-inline">
-                                <button type="submit" name="sortCriteria" value="id"
-                                        th:class="'btn btn-sm ' + (${sortCriteria.equals('id')} ? 'btn-primary' : 'btn-outline-primary')">
-                                    <i class="bi bi-hash me-1"></i>
-                                    ID <span th:if="${sortCriteria.equals('id')}" th:text="${k == 1 ? '▲' : '▼'}"></span>
-                                </button>
-                            </form>
-                        </th>
-                        <th style="width: 15%;">
-                            <form th:action="@{/manager/bill-list}" method="get" class="d-inline">
-                                <button type="submit" name="sortCriteria" value="paymentTime"
-                                        th:class="'btn btn-sm ' + (${sortCriteria.equals('paymentTime')} ? 'btn-primary' : 'btn-outline-primary')">
-                                    <i class="bi bi-calendar-event me-1"></i>
-                                    Ngày thanh toán <span th:if="${sortCriteria.equals('paymentTime')}" th:text="${k == 1 ? '▲' : '▼'}"></span>
-                                </button>
-                            </form>
-                        </th>
-                        <th style="width: 20%;">
-                            <i class="bi bi-shop text-muted"></i> Tên cửa hàng
-                        </th>
-                        <th style="width: 20%;">
-                            <i class="bi bi-geo-alt text-muted"></i> Địa chỉ
-                        </th>
-                        <th style="width: 15%;">
-                            <i class="bi bi-telephone text-muted"></i> Số điện thoại
-                        </th>
-                        <th style="width: 15%;">
-                            <i class="bi bi-envelope text-muted"></i> Email
-                        </th>
-                        <th class="text-center" style="width: 10%;">
-                            <i class="bi bi-gear text-muted"></i> Hành động
-                        </th>
+                        <th>ID</th>
+                        <th>Tên cửa hàng</th>
+                        <th>Người mua</th>
+                        <th>Ngày tạo</th>
+                        <th>Tổng tiền</th>
+                        <th>Địa chỉ giao hàng</th>
+                        <th>Trạng thái</th>
+                        <th style="text-align: center;">Hành động</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:if="${#lists.isEmpty(bills)}">
-                        <td colspan="7" class="text-center text-muted py-5">
-                            <i class="bi bi-inbox" style="font-size: 3rem; opacity: 0.3;"></i>
-                            <p class="mt-2 mb-0">Không có hóa đơn nào trong hệ thống</p>
+                    <tr th:if="${bills == null || bills.isEmpty()}">
+                        <td colspan="8" class="no-data">
+                            <i class="bi bi-inbox" style="font-size: 3rem; display: block; margin-bottom: 0.5rem;"></i>
+                            Không có hóa đơn nào
                         </td>
                     </tr>
-
-                    <tr th:each="bill : ${bills}">
-                        <td>
-                            <span class="badge bg-primary" th:text="${bill.id}"></span>
-                        </td>
-                        <td>
-                            <i class="bi bi-clock me-1 text-muted"></i>
-                            <span th:text="${billService.getPaidAt(bill)}"></span>
-                        </td>
+                    <tr th:if="${bills != null && !bills.isEmpty()}" th:each="bill : ${bills}">
+                        <td th:text="${bill.id}"></td>
                         <td>
                             <div class="shop-info">
-                                <i class="bi bi-shop-window"></i>
-                                <strong th:text="${bill.shopName}"></strong>
+                                <i class="bi bi-shop"></i>
+                                <span th:text="${bill.shopName}"></span>
                             </div>
                         </td>
-                        <td>
-                            <small class="text-muted" th:text="${bill.shopAddress}"></small>
-                        </td>
-                        <td>
-                            <i class="bi bi-phone me-1 text-muted"></i>
-                            <span th:text="${bill.shopPhone}"></span>
-                        </td>
-                        <td>
-                            <i class="bi bi-envelope me-1 text-muted"></i>
-                            <small th:text="${bill.shopEmail}"></small>
-                        </td>
-                        <td class="text-center">
-                            <a th:href="@{/manager/orders/{id}(id=${bill.id})}" class="text-decoration-none">
-                                <button class="btn btn-outline-primary btn-sm action-btn" style="width: 150px;">
-                                    <i class="bi bi-eye me-1"></i>
-                                    Chi tiết đơn hàng
-                                </button>
+                        <td th:text="${bill.buyerName}"></td>
+                        <td th:text="${#temporals.format(bill.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td th:text="${#numbers.formatDecimal(bill.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
+                        <td th:text="${bill.deliveryAddress}"></td>
+                        <td th:text="${bill.status}"></td>
+                        <td style="text-align: center;">
+                            <a th:href="@{/manager/bill-details(billId=${bill.id})}"
+                               class="btn btn-sm btn-outline-primary action-btn">
+                                <i class="bi bi-eye"></i> Chi tiết
                             </a>
                         </td>
                     </tr>
                     </tbody>
                 </table>
-            </div>
 
-            <!-- Pagination -->
-            <nav th:if="${totalPages > 1}">
-                <div class="pagination-wrapper">
-                    <a th:href="@{/manager/bill-list(page=${page - 1}, size=${size}, sortCriteria=${sortCriteria})}"
-                       th:class="'btn btn-sm ' + (${page == 1} ? 'btn-outline-secondary disabled' : 'btn-outline-primary')">
-                        <i class="bi bi-chevron-left"></i> Trước
-                    </a>
-
-                    <div th:each="i : ${#numbers.sequence(1, totalPages)}" class="d-inline">
-                        <a th:href="@{/manager/bill-list(page=${i}, size=${size}, sortCriteria=${sortCriteria})}"
-                           th:class="'btn btn-sm ' + (${i == page} ? 'btn-primary' : 'btn-outline-primary')"
-                           th:text="${i}">
-                        </a>
-                    </div>
-
-                    <a th:href="@{/manager/bill-list(page=${page + 1}, size=${size}, sortCriteria=${sortCriteria})}"
-                       th:class="'btn btn-sm ' + (${page == totalPages} ? 'btn-outline-secondary disabled' : 'btn-outline-primary')">
-                        Sau <i class="bi bi-chevron-right"></i>
-                    </a>
+                <!-- Pagination -->
+                <div class="pagination-wrapper" th:if="${bills != null && !bills.isEmpty()}">
+                    <button class="btn btn-sm btn-primary">1</button>
                 </div>
-            </nav>
+            </div>
         </div>
     </div>
 </div>
-
-<script src="/js/bootstrap/bootstrap.bundle.min.js"></script>
 </body>
 </html>
