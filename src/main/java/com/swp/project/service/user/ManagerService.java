@@ -88,13 +88,20 @@ public class ManagerService {
 
         managerRepository.save(existingManager);
     }
-
-    public void createManager(ManagerRegisterDto registerDto, BindingResult bindingResult) {
-        if(bindingResult.hasErrors()){
-            FieldError fieldError = bindingResult.getFieldErrors().get(0);
-            String message = fieldError.getField() + ": " + fieldError.getDefaultMessage();
-            throw new RuntimeException(message);
+    public void validateCreateManager(ManagerRegisterDto registerDto, BindingResult bindingResult) throws RuntimeException{
+        if (!registerDto.getConfirmPassword().equals(registerDto.getPassword())) {
+            bindingResult.rejectValue("confirmPassword", "error.confirmPassword", "Mật khẩu và xác nhận mật khẩu không khớp");
         }
+        if (userRepository.existsByEmail(registerDto.getEmail())) {
+            bindingResult.rejectValue("email", "error.email", "Mail đã được sử dụng");
+        }
+        if (bindingResult.hasErrors()) {
+                FieldError fieldError = bindingResult.getFieldErrors().get(0);
+                String message = fieldError.getField() + ": " + fieldError.getDefaultMessage();
+                throw new RuntimeException(message);
+        }
+    }
+    public void createManager(ManagerRegisterDto registerDto) {
         CommuneWard ward = communeWardRepository.findById(registerDto.getCommuneWardCode())
             .orElseThrow(() -> new RuntimeException("Không tìm thấy xã"));
         if (!registerDto.getConfirmPassword().equals(registerDto.getPassword())) {

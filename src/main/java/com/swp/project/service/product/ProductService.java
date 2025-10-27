@@ -2,7 +2,6 @@ package com.swp.project.service.product;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.swp.project.dto.CreateProductDto;
 import com.swp.project.dto.UpdateProductDto;
 import com.swp.project.dto.ViewProductDto;
@@ -24,6 +25,8 @@ import com.swp.project.entity.order.OrderItem;
 import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.SubImage;
+import com.swp.project.entity.seller_request.SellerRequest;
+import com.swp.project.entity.seller_request.SellerRequestStatus;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.listener.event.ProductRelatedUpdateEvent;
 import com.swp.project.repository.order.OrderItemRepository;
@@ -31,6 +34,8 @@ import com.swp.project.repository.order.OrderRepository;
 import com.swp.project.repository.product.ProductRepository;
 import com.swp.project.repository.shopping_cart.ShoppingCartItemRepository;
 import com.swp.project.service.order.OrderStatusService;
+import com.swp.project.service.seller_request.SellerRequestService;
+import com.swp.project.service.seller_request.SellerRequestStatusService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -46,6 +51,8 @@ public class ProductService {
     private final ApplicationEventPublisher eventPublisher;
     private final ImageService imageService;
     private final CategoryService categoryService;
+    private final SellerRequestService sellerRequestService;
+    private final SellerRequestStatusService sellerRequestStatusService;
     private static final Map<String, Sort> SORT_OPTIONS = Map.of(
             "price-asc", Sort.by("price").ascending(),
             "price-desc", Sort.by("price").descending(),
@@ -266,34 +273,33 @@ public class ProductService {
         return productRepository.findTopByOrderByIdDesc();
     }
 
-    public static String toSlugName(String input) {
-        String normalized = Normalizer.normalize(input, Normalizer.Form.NFD)
-                .replaceAll("\\p{M}", "");
-
-        normalized = normalized.toLowerCase();
-
-        normalized = normalized.replaceAll("[^a-z0-9]+", "-");
-
-        normalized = normalized.replaceAll("^-|-$", "");
-
-        return normalized;
-    }
-
-    public boolean checkUniqueProductName(String name) {
-        String slugName = toSlugName(name);
+    public boolean checkUniqueProductName(Long productId, String name) {
+        Long finalProductId = (productId == null) ? -1L : productId;
         return productRepository
                 .findAll()
                 .stream()
-                .anyMatch(p -> toSlugName(p.getName()).equals(slugName));
+                .anyMatch(p -> p.getName().equals(name) && p.getId() != finalProductId);
     }
 
-    private void validateProductDto(CreateProductDto productDto, BindingResult bindingResult) throws Exception {
+    public boolean checkUniqueProductFromSellerRequest(Long productId, String name) throws JsonProcessingException{
+        Long finalProductId = (productId == null) ? -1L : productId;
+        boolean existed = false;
+        for (SellerRequest sellerRequest : sellerRequestService.getSellerRequestByEntityName(Product.class)) {
+            Product p = sellerRequestService.getEntityFromContent(sellerRequest.getContent(), Product.class);
+            if(sellerRequestStatusService.isPendingStatus(sellerRequest) && p.getName().equals(name) && !p.getId().equals(finalProductId)){
+                existed = true;
+            }
+        }
+        return existed;
+    }
+
+    public void validateCreateProductDto(CreateProductDto productDto, BindingResult bindingResult) throws Exception {
         if (bindingResult.hasErrors()) {
             FieldError fieldError = bindingResult.getFieldErrors().get(0);
             String message = fieldError.getField() + ": " + fieldError.getDefaultMessage();
             throw new RuntimeException(message);
         }
-        if (checkUniqueProductName(productDto.getName())) {
+        if (checkUniqueProductName(productDto.getId(), productDto.getName()) && checkUniqueProductFromSellerRequest(productDto.getId(),productDto.getName())) {
             throw new Exception("Tên sản phẩm đã tồn tại");
         }
         if (productDto.getImage() == null || productDto.getImage().isEmpty()) {
@@ -306,9 +312,8 @@ public class ProductService {
         }
     }
 
-    public Product createProductForAddRequest(CreateProductDto productDto, BindingResult bindingResult)
+    public Product createProductForAddRequest(CreateProductDto productDto)
             throws Exception { 
-        validateProductDto(productDto, bindingResult);
         productDto.setCategories(new ArrayList<>());
         for (Long catId : productDto.getCategoryIds()) {
             productDto.getCategories().add(categoryService.getCategoryById(catId));
@@ -354,5 +359,39 @@ public class ProductService {
                 .quantity(product.getQuantity())
                 .build();
         return dto;
+    }
+
+    public Product createProductForUpdateRequest(UpdateProductDto updateProductDto, 
+                                                  MultipartFile imageFile, 
+                                                  MultipartFile[] subImageFiles) throws Exception {
+        Product oldProduct = getProductById(updateProductDto.getId());
+        List<Category> categories = new ArrayList<>();
+        List<SubImage> subImages = new ArrayList<>();
+        
+        for (Long catId : updateProductDto.getCategories()) {
+            categories.add(categoryService.getCategoryById(catId));
+        }
+        updateProductDto.setFinalCategories(categories);
+        if (checkUniqueProductName(updateProductDto.getId(), updateProductDto.getName()) && checkUniqueProductFromSellerRequest(updateProductDto.getId(),updateProductDto.getName())) {
+            throw new Exception("Tên sản phẩm đã tồn tại");
+        }
+        if (imageFile == null || imageFile.isEmpty()) {
+            updateProductDto.setMainImage(oldProduct.getMain_image_url());
+        } else {
+            updateProductDto.setMainImage(ImageService.convertToBase64WithPrefix(imageFile));
+        }
+        Product updateProduct = new Product(updateProductDto);
+        for (int i = 0; i < subImageFiles.length; i++) {
+            if (subImageFiles[i] == null || subImageFiles[i].isEmpty()) {
+                subImages.add(oldProduct.getSub_images().get(i));
+            } else {
+                SubImage sub = new SubImage();
+                sub.setProduct(updateProduct);
+                sub.setSub_image_url(ImageService.convertToBase64WithPrefix(subImageFiles[i]));
+                subImages.add(sub);
+            }
+        }
+        updateProduct.setSub_images(subImages);
+        return updateProduct;
     }
 }

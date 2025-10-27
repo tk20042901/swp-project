@@ -9,203 +9,216 @@
     <link rel="stylesheet" href="/css/create-product.css">
 </head>
 <body>
-    <div class="main-content">
-        <div class="container">
-            <div class="form-card">
-                <h1 class="page-title">
-                    <i class="bi bi-bag-plus-fill text-primary"></i>
-                    Yêu cầu tạo sản phẩm
-                </h1>
+<div class="main-content">
+    <div class="container">
+        <div class="form-card">
+            <h1 class="page-title">
+                <i class="bi bi-bag-plus-fill text-primary"></i>
+                Yêu cầu tạo sản phẩm
+            </h1>
 
-                <!-- Error Message -->
-                <div th:if="${error}" class="error-message">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    <span th:text="${error}"></span>
-                </div>
-                <div th:if="${success}" class="success-message">
-                    <i class="bi bi-check-circle-fill me-2"></i>
-                    <span th:text="${success}"></span>
-                </div>
+            <!-- Error Message -->
+            <div th:if="${error}" class="error-message">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span th:text="${error}"></span>
+            </div>
+            <div th:if="${success}" class="success-message">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <span th:text="${success}"></span>
+            </div>
 
-                <form th:action="@{/seller/seller-create-product}" method="post" th:object="${productDto}"
-                    enctype="multipart/form-data">
+            <form th:action="@{/seller/seller-create-product}" method="post" th:object="${productDto}"
+                  enctype="multipart/form-data">
 
-                    <input type="hidden" th:field="*{id}" />
+                <input type="hidden" th:field="*{id}"/>
 
-                    <!-- Product Information Section -->
-                    <div class="form-section">
-                        <div class="section-title">
-                            <i class="bi bi-box-seam me-2"></i>
-                            Thông tin sản phẩm
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12 mb-3">
-                                <label for="productName" class="form-label">
-                                    Tên sản phẩm<span class="required-mark">*</span>
-                                </label>
-                                <input type="text" class="form-control" th:field="*{name}" id="productName" 
-                                    placeholder="Nhập tên sản phẩm" required />
-                            </div>
-
-                            <div class="col-md-12 mb-3">
-                                <label for="productDescription" class="form-label">
-                                    Mô tả<span class="required-mark">*</span>
-                                </label>
-                                <textarea class="form-control" th:field="*{description}" id="productDescription" 
-                                    placeholder="Nhập mô tả chi tiết về sản phẩm" required></textarea>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="productPrice" class="form-label">
-                                    Giá (VNĐ)<span class="required-mark">*</span>
-                                </label>
-                                <input type="number" class="form-control" th:field="*{price}" id="productPrice" 
-                                    min="0" placeholder="Nhập giá sản phẩm" required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="productUnit" class="form-label">
-                                    Đơn vị<span class="required-mark">*</span>
-                                </label>
-                                <select class="form-select" th:field="*{unit}" id="productUnit" required>
-                                    <option value="" disabled selected>Chọn đơn vị</option>
-                                    <option th:each="u : ${units}" th:value="${u.id}" th:text="${u.name}"></option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="productQuantity" class="form-label">
-                                    Số lượng<span class="required-mark">*</span>
-                                </label>
-                                <input type="number" class="form-control" th:field="*{quantity}" id="productQuantity" 
-                                    min="0" placeholder="Nhập số lượng" required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" th:field="*{enabled}" 
-                                        id="productEnabled" value="true" />
-                                    <label class="form-check-label" for="productEnabled">
-                                        Kích hoạt sản phẩm
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
+                <!-- Product Information Section -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="bi bi-box-seam me-2"></i>
+                        Thông tin sản phẩm
                     </div>
 
-                    <!-- Categories Section -->
-                    <div class="form-section">
-                        <div class="section-title">
-                            <i class="bi bi-tags me-2"></i>
-                            Danh mục sản phẩm
-                        </div>
-
-                        <div class="checkbox-group" id="categoriesGroup">
-                            <div th:each="category : *{categories}" class="checkbox-item">
-                                <input type="checkbox" th:field="*{categoryIds}" th:value="${category.id}"
-                                    th:id="${category.id}" />
-                                <label th:for="${category.id}" th:text="${category.name}"></label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Images Section -->
-                    <div class="form-section">
-                        <div class="section-title">
-                            <i class="bi bi-images me-2"></i>
-                            Hình ảnh sản phẩm
-                        </div>
-
-                        <!-- Main Image Upload -->
-                        <div class="mb-3">
-                            <label for="mainImageFile" class="form-label">
-                                Ảnh chính<span class="required-mark">*</span>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="productName" class="form-label">
+                                Tên sản phẩm<span class="required-mark">*</span>
                             </label>
-                            <input type="file" class="form-control" th:field="*{image}" id="mainImageFile" 
-                                accept="image/*" required />
-                            <small class="file-input-label">
-                                <i class="bi bi-info-circle me-1"></i>
-                                Chọn ảnh chính cho sản phẩm (JPG, PNG)
-                            </small>
-                            <div class="image-preview-container">
-                                <img id="previewMainImage" src="#" alt="Preview Main Image" 
-                                    width="200" height="200" style="display: none;" />
+                            <input type="text" class="form-control" th:field="*{name}" id="productName"
+                                   placeholder="Nhập tên sản phẩm" required/>
+                        </div>
+
+                        <div class="col-md-12 mb-3">
+                            <label for="productDescription" class="form-label">
+                                Mô tả<span class="required-mark">*</span>
+                            </label>
+                            <textarea class="form-control" th:field="*{description}" id="productDescription"
+                                      placeholder="Nhập mô tả chi tiết về sản phẩm" required></textarea>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="productPrice" class="form-label">
+                                Giá (VNĐ)<span class="required-mark">*</span>
+                            </label>
+                            <input type="number" class="form-control" th:field="*{price}" id="productPrice"
+                                   min="0" placeholder="Nhập giá sản phẩm" required/>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="productUnit" class="form-label">
+                                Đơn vị<span class="required-mark">*</span>
+                            </label>
+                            <select class="form-select" th:field="*{unit}" id="productUnit" required>
+                                <option value="" disabled selected>Chọn đơn vị</option>
+                                <option th:each="u : ${units}" th:value="${u.id}" th:text="${u.name}"></option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="productQuantity" class="form-label">
+                                Số lượng<span class="required-mark">*</span>
+                            </label>
+                            <input type="number" class="form-control" th:field="*{quantity}" id="productQuantity"
+                                   min="0" placeholder="Nhập số lượng" required/>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="productQuantity" class="form-label">
+                                Trạng thái sản phẩm<span class="required-mark">*</span>
+                            </label>
+                            <div class="form-check">
+                                <label class="form-check-label" for="productEnabled">
+                                    Hiện sản phẩm
+                                    <input class="form-check-input" type="checkbox" th:field="*{enabled}"
+                                           id="productEnabled" value="true"/>
+                                </label>
                             </div>
-                            <button type="button" class="btn btn-reset" id="mainImageRevertButton">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Categories Section -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="bi bi-tags me-2"></i>
+                        Danh mục sản phẩm
+                    </div>
+
+                    <div class="checkbox-group" id="categoriesGroup">
+                        <div th:each="category : *{categories}" class="checkbox-item">
+                            <label>
+                                <input type="checkbox" th:field="*{categoryIds}" th:value="${category.id}"
+                                       th:id="${category.id}"/>
+                            </label>
+                            <label th:for="${category.id}" th:text="${category.name}"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Images Section -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="bi bi-images me-2"></i>
+                        Hình ảnh sản phẩm
+                    </div>
+
+                    <!-- Main Image Upload -->
+                    <div class="mb-3">
+                        <label for="mainImageFile" class="form-label">
+                            Ảnh chính<span class="required-mark">*</span>
+                        </label>
+                        <input type="file" class="form-control" th:field="*{image}" id="mainImageFile"
+                               accept="image/*" required/>
+                        <small class="file-input-label">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Chọn ảnh chính cho sản phẩm (JPG, PNG)
+                        </small>
+                        <div class="main-image-preview-container">
+                            <img id="previewMainImage" src="#" alt="Preview Main Image" style="display: none;"/>
+                            <button type="button" class="btn btn-reset mt-2" id="mainImageRevertButton"
+                                    style="display: none;">
                                 <i class="bi bi-arrow-counterclockwise me-1"></i>
                                 Reset ảnh
-                            </button> 
-                        </div>
-
-                        <!-- Sub Images Upload -->
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label for="subImageFile1" class="form-label">
-                                    Ảnh phụ 1<span class="required-mark">*</span>
-                                </label>
-                                <input type="file" class="form-control" th:field="*{subImages}" id="subImageFile1" 
-                                    accept="image/*" required/>
-                                <small class="file-input-label">Ảnh phụ thứ nhất</small>
-                                <div class="image-preview-container">
-                                    <img id="previewSubImage1" src="#" alt="Preview Sub Image 1" 
-                                        width="150" height="150" style="display: none;" />
-                                </div> 
-                                <button type="button" class="btn btn-reset" id="subImage1RevertButton">
-                                    <i class="bi bi-arrow-counterclockwise me-1"></i>
-                                    Reset
-                                </button> 
-                            </div>
-
-                            <div class="col-md-4 mb-3">
-                                <label for="subImageFile2" class="form-label">
-                                    Ảnh phụ 2<span class="required-mark">*</span>
-                                </label>
-                                <input type="file" class="form-control" th:field="*{subImages}" id="subImageFile2" 
-                                    accept="image/*" required/>
-                                <small class="file-input-label">Ảnh phụ thứ hai</small>
-                                <div class="image-preview-container">
-                                    <img id="previewSubImage2" src="#" alt="Preview Sub Image 2" 
-                                        width="150" height="150" style="display: none;" />
-                                </div>
-                                <button type="button" class="btn btn-reset" id="subImage2RevertButton">
-                                    <i class="bi bi-arrow-counterclockwise me-1"></i>
-                                    Reset
-                                </button> 
-                            </div>
-
-                            <div class="col-md-4 mb-3">
-                                <label for="subImageFile3" class="form-label">
-                                    Ảnh phụ 3<span class="required-mark">*</span>
-                                </label>
-                                <input type="file" class="form-control" th:field="*{subImages}" id="subImageFile3" 
-                                    accept="image/*" required/>
-                                <small class="file-input-label">Ảnh phụ thứ ba</small>
-                                <div class="image-preview-container">
-                                    <img id="previewSubImage3" src="#" alt="Preview Sub Image 3" 
-                                        width="150" height="150" style="display: none;" />
-                                </div>
-                                <button type="button" class="btn btn-reset" id="subImage3RevertButton">
-                                    <i class="bi bi-arrow-counterclockwise me-1"></i>
-                                    Reset
-                                </button> 
-                            </div>
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Submit Button -->
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-submit">
-                            <i class="bi bi-check-circle me-2"></i>
-                            Gửi yêu cầu tạo sản phẩm
-                        </button>
+                    <!-- Sub Images Upload - Displayed below main image -->
+                    <div class="sub-images-section">
+                        <label class="form-label mb-3">
+                            Ảnh phụ (3 ảnh)<span class="required-mark">*</span>
+                        </label>
+                        <div class="sub-images-grid">
+                            <div class="sub-image-item">
+                                <input type="file" class="form-control" th:field="*{subImages}" id="subImageFile1"
+                                       accept="image/*" required/>
+                                <div class="sub-image-preview">
+                                    <img id="previewSubImage1" src="#" alt="Preview Sub Image 1"
+                                         style="display: none;"/>
+                                    <div class="upload-placeholder" id="placeholder1">
+                                        <i class="bi bi-image"></i>
+                                        <span>Ảnh phụ 1</span>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-reset btn-sm mt-2" id="subImage1RevertButton"
+                                        style="display: none;">
+                                    <i class="bi bi-arrow-counterclockwise me-1"></i>
+                                    Reset
+                                </button>
+                            </div>
+
+                            <div class="sub-image-item">
+                                <input type="file" class="form-control" th:field="*{subImages}" id="subImageFile2"
+                                       accept="image/*" required/>
+                                <div class="sub-image-preview">
+                                    <img id="previewSubImage2" src="#" alt="Preview Sub Image 2"
+                                         style="display: none;"/>
+                                    <div class="upload-placeholder" id="placeholder2">
+                                        <i class="bi bi-image"></i>
+                                        <span>Ảnh phụ 2</span>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-reset btn-sm mt-2" id="subImage2RevertButton"
+                                        style="display: none;">
+                                    <i class="bi bi-arrow-counterclockwise me-1"></i>
+                                    Reset
+                                </button>
+                            </div>
+
+                            <div class="sub-image-item">
+                                <input type="file" class="form-control" th:field="*{subImages}" id="subImageFile3"
+                                       accept="image/*" required/>
+                                <div class="sub-image-preview">
+                                    <img id="previewSubImage3" src="#" alt="Preview Sub Image 3"
+                                         style="display: none;"/>
+                                    <div class="upload-placeholder" id="placeholder3">
+                                        <i class="bi bi-image"></i>
+                                        <span>Ảnh phụ 3</span>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-reset btn-sm mt-2" id="subImage3RevertButton"
+                                        style="display: none;">
+                                    <i class="bi bi-arrow-counterclockwise me-1"></i>
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </form>
-            </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-submit">
+                        <i class="bi bi-check-circle me-2"></i>
+                        Gửi yêu cầu tạo sản phẩm
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
-    <script th:src="@{/js/seller/create-product.js}"></script>
-    <script src="/js/bootstrap/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/seller/create-product.js}"></script>
+<script src="/js/bootstrap/bootstrap.bundle.min.js"></script>
 </body>
 </html>

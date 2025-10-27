@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.CompletableFuture;
+
 @RequiredArgsConstructor
 @Component
 public class ProductRelatedUpdateEventListener {
@@ -14,7 +16,7 @@ public class ProductRelatedUpdateEventListener {
 
     @EventListener
     public void onProductRelatedUpdateEvent(ProductRelatedUpdateEvent event) {
-        customerAiService.saveProductToVectorStore(event.product());
+        CompletableFuture.runAsync(() -> customerAiService.saveProductToVectorStore(event.product()));
     }
 
 }
