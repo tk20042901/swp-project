@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
         body {
             min-height: 100vh;
@@ -79,6 +80,39 @@
             font-size: 5rem;
             color: #dee2e6;
         }
+        /* Checkbox Styling */
+        .form-check-input {
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 3px solid #000000;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-color: #ffffff;
+        }
+
+        .form-check-input:hover {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+            background-color: #f0f8ff;
+        }
+
+        .form-check-input:checked {
+            background-color: #0d6efd;
+            border-color: #000000;
+        }
+
+        .form-check-input:focus {
+            border-color: #000000;
+            box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.15);
+        }
+
+        /* Select All Checkbox - larger with black border */
+        #selectAllCheckbox {
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 3px solid #000000;
+        }
+
     </style>
 </head>
 
@@ -213,8 +247,9 @@
                             <input type="hidden" name="productId" th:value="${item.product.id}">
                             <button type="submit" class="btn btn-outline-danger btn-sm"
                                     onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?')"
-                                    title="Xóa khỏi giỏ hàng">
-                                <i class="bi bi-trash"></i>
+                                    title="Xóa khỏi giỏ hàng" aria-label="Xóa khỏi giỏ hàng">
+                                <i class="bi bi-trash" aria-hidden="true"></i>
+                                <span class="d-none d-sm-inline ms-1">Xóa</span>
                             </button>
                         </form>
                     </div>

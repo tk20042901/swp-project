@@ -1,74 +1,331 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>Quản lý</title>
-  <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
-  <link rel="stylesheet" href="/css/style.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tổng quan quản lý</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
-        /* CSS cho nút Thống kê */
-        a[href*="statistic-report"] {
-            display: block;
-            width: 100%;
-            padding: 10px 0;
-            border-radius: 6px;
-            background-color: #0dcaf0; /* màu info (xanh nhạt Bootstrap) */
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
+        :root {
+            --white: #ffffff;
+            --light-gray: #f8f9fa;
+            --button-bg: #e9ecef;
+            --border-color: #dee2e6;
+            --text-dark: #212529;
+            --text-muted: #6c757d;
         }
 
-        /* Hiệu ứng hover */
-        a[href*="statistic-report"]:hover {
-            background-color: #31d2f2;
-            box-shadow: 0 0 10px rgba(13, 202, 240, 0.5);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            background: var(--white);
+            color: var(--text-dark);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            font-size: 14px;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 30px;
+            background: var(--white);
+        }
+
+        .header {
+            background: var(--light-gray);
+            padding: 20px 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+        }
+
+        .header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin: 8px 0;
+        }
+
+        .header a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .header a:hover {
+            color: var(--text-dark);
+        }
+
+        .stats-overview {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+
+        .stats-overview h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stats-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .revenue-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .revenue-item {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 1.5rem;
+            border-radius: 8px;
+            color: white;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+        }
+
+        .revenue-item:nth-child(2) {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .revenue-item:nth-child(3) {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            box-shadow: 0 4px 15px rgba(67, 233, 123, 0.3);
+        }
+
+        .revenue-label {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .revenue-amount {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .revenue-change {
+            font-size: 0.9rem;
+            opacity: 0.95;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .chart-container {
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto !important;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #0d6efd;
+            border-color: #0d6efd;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0b5ed7;
+            border-color: #0a58ca;
+        }
+
+        .detail-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #0dcaf0 0%, #31d2f2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(13, 202, 240, 0.3);
+        }
+
+        .detail-link:hover {
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(13, 202, 240, 0.5);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 70px;
+                padding: 16px;
+            }
+
+            .stats-number {
+                font-size: 2rem;
+            }
+
+            .revenue-amount {
+                font-size: 1.5rem;
+            }
+
+            .revenue-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
-<body class="auth-body d-flex align-items-center justify-content-center min-vh-100">
-<div class="container">
-    <a th:href="@{/}">← Trang chủ</a>
-    <h1>Tổng quan</h1>
+<body>
+<div class="layout">
+    <div th:replace="~{fragments/manager-sidebar :: manager-sidebar}"></div>
 
-    <div class="summary">
-        <span th:text="'Số lượng sản phẩm đã bán được: '+ ${totalUnitSold}"></span>
+    <div class="main-content">
+        <!-- Page Header -->
+        <div class="header">
+            <a th:href="@{/}">
+                <i class="bi bi-arrow-left"></i> Trang chủ
+            </a>
+            <h2>
+                <i class="bi bi-speedometer2"></i> Tổng quan quản lý
+            </h2>
+        </div>
+
+        <!-- Total Units Sold Card -->
+        <div class="stats-overview">
+            <h3>
+                <i class="bi bi-graph-up-arrow"></i> Tổng quan bán hàng
+            </h3>
+            <div class="stats-number" th:text="${totalUnitSold}">0</div>
+            <div class="stats-label">
+                <i class="bi bi-box-seam"></i> Tổng số sản phẩm đã bán
+            </div>
+        </div>
+
+        <!-- Revenue Statistics Card -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="section-title">
+                    <i class="bi bi-cash-coin"></i> Doanh thu cửa hàng
+                </h5>
+                <div class="revenue-grid">
+                    <!-- Daily Revenue -->
+                    <div class="revenue-item">
+                        <div class="revenue-label">
+                            <i class="bi bi-calendar-day"></i> Doanh thu hôm nay
+                        </div>
+                        <div class="revenue-amount" th:text="${#numbers.formatDecimal(revenueToday, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</div>
+                        <div class="revenue-change">
+                            <i class="bi bi-graph-up-arrow"></i>
+                            <span th:text="'Tăng ' + ${dailyPercentageChange} + '% so với hôm qua'"></span>
+                        </div>
+                    </div>
+
+                    <!-- Weekly Revenue -->
+                    <div class="revenue-item">
+                        <div class="revenue-label">
+                            <i class="bi bi-calendar-week"></i> Doanh thu tuần này
+                        </div>
+                        <div class="revenue-amount" th:text="${#numbers.formatDecimal(revenueThisWeek, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</div>
+                        <div class="revenue-change">
+                            <i class="bi bi-graph-up-arrow"></i>
+                            <span th:text="'Tăng ' + ${weeklyPercentageChange} + '% so với tuần trước'"></span>
+                        </div>
+                    </div>
+
+                    <!-- Monthly Revenue -->
+                    <div class="revenue-item">
+                        <div class="revenue-label">
+                            <i class="bi bi-calendar-month"></i> Doanh thu tháng này
+                        </div>
+                        <div class="revenue-amount" th:text="${#numbers.formatDecimal(revenueThisMonth, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</div>
+                        <div class="revenue-change">
+                            <i class="bi bi-graph-up-arrow"></i>
+                            <span th:text="'Tăng ' + ${monthlyPercentageChange} + '% so với tháng trước'"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail Link -->
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <a class="detail-link" th:href="@{/manager/detail-report}">
+                <i class="bi bi-bar-chart-line"></i> Chi tiết thống kê
+            </a>
+        </div>
+
+        <!-- Growth Chart Card -->
+        <div class="chart-container">
+            <h5 class="section-title">
+                <i class="bi bi-graph-up"></i> Biểu đồ tăng trưởng (%)
+            </h5>
+            <canvas id="growthChart"></canvas>
+        </div>
     </div>
-
-    <table>
-        <thead>
-        <tr>
-            <th>Doanh thu cửa hàng</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>
-                <span th:text="${'Doanh thu ngày hôm nay: '+ revenueToday + ' VND'}"></span>
-                <small th:text="${'↗ Tăng '+ dailyPercentageChange + '% so với hôm qua'}"></small>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <span th:text="${'Doanh thu tuần này: '+ revenueThisWeek + ' VND'}"></span>
-                <small th:text="${'↗ Tăng '+ weeklyPercentageChange +'% so với tuần trước'}"></small>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <span th:text="${'Doanh thu tháng này: '+ revenueThisMonth + ' VND'}"></span>
-                <small th:text="${'↗ Tăng '+ monthlyPercentageChange +'% so với tháng trước'}"></small>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-    <a class="detail-link" th:href="@{/manager/detail-report}">Chi tiết thống kê</a>
 </div>
-<h2 style="text-align:center;color:#2c3e50;margin:30px 0 10px;">Doanh thu & Tăng trưởng</h2>
-<canvas id="growthChart" style="max-width:900px;margin:0 auto;display:block;"></canvas>
-</body>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script th:inline="javascript">
     /*<![CDATA[*/
@@ -76,83 +333,86 @@
     const weeklyChange  = /*[[${weeklyPercentageChange}]]*/ 0.0;
     const monthlyChange = /*[[${monthlyPercentageChange}]]*/ 0.0;
 
-    const revenueToday     = /*[[${revenueToday}]]*/ 0;
-    const revenueThisWeek  = /*[[${revenueThisWeek}]]*/ 0;
-    const revenueThisMonth = /*[[${revenueThisMonth}]]*/ 0;
+    const gctx = document.getElementById('growthChart').getContext('2d');
 
-    const safeNum = v => Number.isFinite(v) ? v : 0;
+    const clean = v => Number.isFinite(v) ? v : 0;
 
-    const labels = ['Hôm nay', 'Tuần này', 'Tháng này'];
-    const revenueData = [ safeNum(revenueToday), safeNum(revenueThisWeek), safeNum(revenueThisMonth) ];
-    const growthData  = [ safeNum(dailyChange), safeNum(weeklyChange), safeNum(monthlyChange) ];
-
-    const ctx = document.getElementById('growthChart');
-
-    const fmtVND = n => {
-        if (n >= 1_000_000_000) return (n / 1_000_000_000).toFixed(1) + 'B';
-        if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
-        if (n >= 1_000) return (n / 1_000).toFixed(0) + 'K';
-        return n.toString();
-    };
-
-    new Chart(ctx, {
+    new Chart(gctx, {
         type: 'bar',
         data: {
-            labels,
-            datasets: [
-                {
-                    type: 'bar',
-                    label: 'Doanh thu (VND)',
-                    data: revenueData,
-                    yAxisID: 'y',
-                    backgroundColor: 'rgba(102,126,234,0.25)',
-                    borderColor: '#667eea',
-                    borderWidth: 1.5,
-                    maxBarThickness: 60,
-                },
-                {
-                    type: 'line',
-                    label: 'Tăng trưởng (%)',
-                    data: growthData,
-                    yAxisID: 'y1',
-                    tension: 0.3,
-                    borderWidth: 2,
-                    pointRadius: 3,
-                    borderColor: '#764ba2',
-                    backgroundColor: 'rgba(118,75,162,0.1)',
-                }
-            ]
+            labels: ['Hôm nay', 'Tuần này', 'Tháng này'],
+            datasets: [{
+                label: 'Tăng trưởng (%)',
+                data: [clean(dailyChange), clean(weeklyChange), clean(monthlyChange)],
+                backgroundColor: [
+                    'rgba(245, 87, 108, 0.8)',
+                    'rgba(79, 172, 254, 0.8)',
+                    'rgba(67, 233, 123, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(245, 87, 108, 1)',
+                    'rgba(79, 172, 254, 1)',
+                    'rgba(67, 233, 123, 1)'
+                ],
+                borderWidth: 2,
+                borderRadius: 8
+            }]
         },
         options: {
             responsive: true,
-            interaction: { mode: 'index', intersect: false },
+            maintainAspectRatio: true,
             plugins: {
-                legend: { position: 'top' },
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    }
+                },
                 tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    titleFont: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        size: 13
+                    },
                     callbacks: {
-                        label: (ctx) => {
-                            const isPercent = ctx.dataset.yAxisID === 'y1';
-                            const val = ctx.raw ?? 0;
-                            return `${ctx.dataset.label}: ${isPercent ? val + '%' : val.toLocaleString('vi-VN') + ' ₫'}`;
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + '%';
                         }
                     }
                 }
             },
             scales: {
-                x: { grid: { display: false } },
                 y: {
                     beginAtZero: true,
-                    title: { display: true, text: 'Doanh thu (VNĐ)' },
                     ticks: {
-                        callback: (value) => fmtVND(value) // chỉ rút gọn K/M/B, không thêm “đ”
+                        callback: function(value) {
+                            return value + '%';
+                        },
+                        font: {
+                            size: 12
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
                     }
                 },
-                y1: {
-                    position: 'right',
-                    grid: { drawOnChartArea: false },
-                    title: { display: true, text: 'Tăng trưởng (%)' },
+                x: {
                     ticks: {
-                        callback: (v) => v + '%'
+                        font: {
+                            size: 12,
+                            weight: 'bold'
+                        }
+                    },
+                    grid: {
+                        display: false
                     }
                 }
             }
@@ -160,5 +420,5 @@
     });
     /*]]>*/
 </script>
-
+</body>
 </html>
