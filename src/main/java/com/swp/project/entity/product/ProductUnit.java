@@ -25,6 +25,8 @@ public class ProductUnit implements Serializable {
     @Column(nullable = false)
     private boolean isAllowDecimal;
 
+    @Column(name = "is_active", nullable = false)
+    private boolean isActive;
     @JsonIgnore
     @OneToMany(mappedBy = "unit", fetch = FetchType.EAGER)
     private List<Product> products;

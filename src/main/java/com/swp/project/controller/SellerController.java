@@ -291,6 +291,7 @@ public class SellerController {
             ProductUnit productUnit = ProductUnit.builder()
                     .name(productUnitDto.getName())
                     .isAllowDecimal(productUnitDto.getIsAllowDecimal())
+                    .isActive(productUnitDto.getIsActive())
                     .build();
             
             sellerRequestService.saveAddRequest(productUnit, principal.getName());
@@ -314,6 +315,7 @@ public class SellerController {
                     .id(productUnit.getId())
                     .name(productUnit.getName())
                     .isAllowDecimal(productUnit.isAllowDecimal())
+                    .isActive(productUnit.isActive())
                     .build();
                     
             model.addAttribute("updateProductUnitDto", updateProductUnitDto);
@@ -344,6 +346,7 @@ public class SellerController {
                     .id(updateProductUnitDto.getId())
                     .name(updateProductUnitDto.getName())
                     .isAllowDecimal(updateProductUnitDto.getIsAllowDecimal())
+                    .isActive(updateProductUnitDto.getIsActive())
                     .build();
             
             sellerRequestService.saveUpdateRequest(oldProductUnit, newProductUnit, principal.getName());

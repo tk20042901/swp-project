@@ -11,4 +11,6 @@ import org.springframework.stereotype.Repository;
 public interface SellerRequestRepository extends JpaRepository<SellerRequest,Long> {
 
     List<SellerRequest> findByEntityName(String simpleName);
+
+    List<SellerRequest> findBySellerEmail(String email);
 }
