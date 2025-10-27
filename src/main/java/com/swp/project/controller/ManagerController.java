@@ -4,7 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import com.swp.project.service.product.ImageService;
+
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import com.swp.project.dto.RevenueDto;
 import com.swp.project.dto.StaffDto;
 import com.swp.project.entity.address.CommuneWard;
@@ -36,6 +37,7 @@ import com.swp.project.service.AddressService;
 import com.swp.project.service.order.BillService;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.product.CategoryService;
+import com.swp.project.service.product.ImageService;
 import com.swp.project.service.product.ProductService;
 import com.swp.project.service.product.ProductUnitService;
 import com.swp.project.service.seller_request.SellerRequestService;
@@ -648,6 +650,9 @@ public class ManagerController {
         }
         if (session.getAttribute("sortCriteria") != null) {
             session.setAttribute("k", (int) session.getAttribute("k") * -1);
+        }
+        if (page < 1) {
+            page = 1;
         }
 
         Page<Bill> bills = billService.getBills(page, size, sortCriteria, (int) session.getAttribute("k"));

@@ -320,24 +320,22 @@ public class CustomerService {
             throw new RuntimeException("Sản phẩm này không cho phép số lượng thập phân");
         }
 
-        if (!unit.isAllowDecimal() && quantity <= 0) {
-            throw new RuntimeException("Số lượng sản phẩm thêm vào phải lớn hơn 0");
-        } else if (unit.isAllowDecimal() && quantity < 0.1) {
-            throw new RuntimeException("Số lượng sản phẩm thêm vào phải lớn hơn hoặc bằng 0.1");
+        ShoppingCartItem existingItem = shoppingCartItemRepository.findByCustomer_EmailAndProduct_Id(principal.getName(), productId);
+
+        if ((existingItem == null && quantity < 1) || (existingItem != null && existingItem.getQuantity() + quantity < 1)) {
+            throw new RuntimeException("Số lượng sản phẩm phải tối thiểu bằng 1");
         } else if (unit.isAllowDecimal() && (Math.round(quantity * 10.0) / 10.0 != quantity)) {
             throw new RuntimeException("Sản phẩm này chỉ cho phép số lượng với 1 chữ số thập phân");
         }
 
-        ShoppingCartItem existingItem = shoppingCartItemRepository.findByCustomer_EmailAndProduct_Id(principal.getName(), productId);
-
         if (existingItem != null) {
             if (existingItem.getQuantity() + quantity > availableQuantity) {
-                throw new RuntimeException("Số lượng sản phẩm trong giỏ hàng chạm mức số lượng tồn kho");
+                throw new RuntimeException("Số lượng sản phẩm có thể thêm không vượt quá " + (availableQuantity - existingItem.getQuantity()));
             }
             updateCartQuantity(principal.getName(), productId, quantity + existingItem.getQuantity());
         } else {
             if (quantity > availableQuantity) {
-                throw new RuntimeException("Số lượng sản phẩm trong giỏ hàng chạm mức số lượng tồn kho");
+                throw new RuntimeException("Số lượng sản phẩm có thể thêm không vượt quá " + availableQuantity);
             }
             ShoppingCartItem newItem = new ShoppingCartItem();
             newItem.setCustomer(customer);
@@ -356,6 +354,17 @@ public class CustomerService {
             return existingItem.getQuantity();
         }
         return 0;
+    }
+
+    public ShoppingCartItem getShoppingCartItemByCustomerEmailAndProductId(Principal principal, Long id) {
+        if (principal == null) {
+            throw new RuntimeException("Bạn phải đăng nhập để thực hiện hành động này");
+        }
+        ShoppingCartItem existingItem = shoppingCartItemRepository.findByCustomer_EmailAndProduct_Id(principal.getName(), id);
+        if (existingItem == null) {
+            throw new RuntimeException("Không tìm thấy sản phẩm trong giỏ hàng");
+        }
+        return existingItem;
     }
 
 }
