@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thống kê sản phẩm</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Use Bootstrap for styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --white: #ffffff;
+            --light-gray: #f8f9fa;
+            --border-color: #dee2e6;
+            --text-dark: #212529;
+            --text-muted: #6c757d;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            height: 100%;
+            background: var(--white);
+            color: var(--text-dark);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            font-size: 14px;
+        }
+
+        .layout { display: flex; min-height: 100vh; }
+
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 24px;
+            background: var(--white);
+        }
+
+        .header {
+            background: var(--light-gray);
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin: 0;
+        }
+
+        .card {
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .card-body { padding: 1.25rem; }
+
+        .card-footer {
+            background: var(--light-gray);
+            border-top: 1px solid var(--border-color);
+            padding: 0.75rem 1.25rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+
+        .report-table thead th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            color: #495057;
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        .report-table tbody td {
+            padding: 0.75rem;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(16,24,40,0.06);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px 16px;
+            color: var(--text-muted);
+        }
+
+        .badge {
+            padding: 0.35rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.813rem;
+            font-weight: 600;
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .page-info {
+            padding: 0.4rem 0.6rem;
+            background-color: var(--white);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Let Bootstrap handle button visuals; keep small spacing adjustments */
+        .btn { font-size: 13px; padding: 6px 10px; }
+
+        @media (max-width: 768px) {
+            .main-content { margin-left: 70px; padding: 16px; }
+            .report-table thead th, .report-table tbody td { padding: 0.5rem; font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <div th:replace="~{fragments/seller-sidebar :: seller-sidebar}"></div>
+
+    <div class="main-content">
+        <div class="header">
+            <h2>Thống kê từng sản phẩm</h2>
+        </div>
+
+        <div class="card">
+            <div class="card-body" style="padding-bottom: 0;">
+                <div style="padding-bottom: 1rem;">
+                    <h5 style="font-weight: 600; margin-bottom: 0.75rem;">
+                        Tổng sản phẩm
+                        <span class="badge bg-primary" th:text="${products.totalElements}">0</span>
+                    </h5>
+                </div>
+
+                <table class="report-table">
+                    <thead>
+                    <tr>
+                        <th>Mã sản phẩm</th>
+                        <th>Tên sản phẩm</th>
+                        <th style="text-align: right;">Số lượng đã bán</th>
+                        <th style="text-align: right;">Doanh thu</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(products)}">
+                        <td colspan="4" class="no-data">Không có sản phẩm để hiển thị</td>
+                    </tr>
+                    <tr th:each="report : ${products}">
+                        <td th:text="${report.productId}"></td>
+                        <td th:text="${report.productName}"></td>
+                        <td style="text-align: right;" th:text="${report.totalSold}"></td>
+                        <td style="text-align: right;" th:text="${#numbers.formatInteger(report.revenue,0,'POINT')} + ' VND'"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card-footer" th:if="${!products.isEmpty()}">
+                <div class="pagination-controls">
+                    <a th:if="${!products.first}"
+                       th:href="@{/seller/product-report(page=0, size=${products.size})}"
+                       class="btn btn-outline-primary">Đầu</a>
+
+                    <a th:if="${products.hasPrevious()}"
+                       th:href="@{/seller/product-report(page=${products.number - 1}, size=${products.size})}"
+                       class="btn btn-outline-primary">‹ Trước</a>
+
+                    <span class="page-info">
+                        Trang <strong th:text="${products.number + 1}">1</strong> /
+                        <strong th:text="${products.totalPages}">1</strong>
+                    </span>
+
+                    <a th:if="${products.hasNext()}"
+                       th:href="@{/seller/product-report(page=${products.number + 1}, size=${products.size})}"
+                       class="btn btn-outline-primary">Sau ›</a>
+
+                    <a th:if="${!products.last}"
+                       th:href="@{/seller/product-report(page=${products.totalPages - 1}, size=${products.size})}"
+                       class="btn btn-outline-primary">Cuối</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

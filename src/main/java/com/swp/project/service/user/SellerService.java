@@ -5,7 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.swp.project.dto.ProductRevenueDto;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -202,5 +207,40 @@ public class SellerService {
         return sellerRepository.findByEmail(email);
     }
 
+    public List<ProductRevenueDto> getTop5ProductRevenue(){
+        List<Object[]> rawData = productRepository.getTop5ProductRevenue();
+        List<ProductRevenueDto> result = new ArrayList<>();
+        for (Object[] row : rawData) {
+            ProductRevenueDto dto = new ProductRevenueDto();
+            dto.setProductId(((Number) row[0]).longValue());
+            dto.setProductName((String) row[1]);
+            dto.setMainImageUrl((String) row[2]);
+            dto.setTotalSold(((Number) row[3]).doubleValue());
+            dto.setRevenue(((Number) row[4]).longValue());
+            result.add(dto);
+        }
+        return result;
+    }
+
+    public Page<ProductRevenueDto> getProductRevenue(int page, int size) {
+        Pageable pageable = PageRequest.of(page,size);
+        Page<Object[]> rawData = productRepository.getProductSalesAndRevenue(pageable);
+
+        List<ProductRevenueDto> dtoList = new ArrayList<>();
+
+        for (Object[] row : rawData.getContent()) {
+            ProductRevenueDto dto = new ProductRevenueDto();
+            dto.setProductId(((Number) row[0]).longValue());
+            dto.setProductName((String) row[1]);
+            dto.setMainImageUrl((String) row[2]);
+            dto.setTotalSold(((Number) row[3]).doubleValue());
+            dto.setRevenue(((Number) row[4]).longValue());
+
+
+            dtoList.add(dto);
+        }
+
+        return new PageImpl<>(dtoList, pageable, rawData.getTotalElements());
+    }
 
 }

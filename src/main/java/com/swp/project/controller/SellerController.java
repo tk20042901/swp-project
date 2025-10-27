@@ -2,8 +2,12 @@ package com.swp.project.controller;
 
 import java.security.Principal;
 import java.util.List;
+
+import com.swp.project.dto.*;
 import com.swp.project.entity.product.ProductUnit;
 import com.swp.project.entity.seller_request.SellerRequest;
+
+import com.swp.project.service.user.SellerService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,13 +22,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import com.swp.project.dto.CreateCategoryDto;
-import com.swp.project.dto.CreateProductDto;
-import com.swp.project.dto.CreateProductUnitDto;
-import com.swp.project.dto.SellerSearchOrderDto;
-import com.swp.project.dto.UpdateCategoryDto;
-import com.swp.project.dto.UpdateProductDto;
-import com.swp.project.dto.UpdateProductUnitDto;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.swp.project.entity.order.Order;
 import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.Product;
@@ -53,9 +52,11 @@ public class SellerController {
     private final ProductUnitService productUnitService;
     private final SellerRequestTypeService sellerRequestTypeService;
     private final SellerRequestStatusService sellerRequestStatusService;
+    private final SellerService sellerService;
+
     @GetMapping("")
     public String index() {
-         return "pages/seller/index";
+         return "forward:/seller/statistic-report";
     }
 
     @GetMapping("/all-orders")
@@ -165,7 +166,18 @@ public class SellerController {
         model.addAttribute("unitSold", orderService.getUnitSold());
         model.addAttribute("totalCanceledOrder", orderService.getTotalCancelledOrders());
         model.addAttribute("nearlySoldOutProducts", orderService.getNearlySoldOutProduct());
+        model.addAttribute("top5ProductRevenue",sellerService.getTop5ProductRevenue());
         return "pages/seller/index";
+    }
+
+    @GetMapping("/product-report")
+    public String getProductRevenueReport(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            Model model) {
+        Page<ProductRevenueDto> productRevenues = sellerService.getProductRevenue(page,size);
+        model.addAttribute("products", productRevenues);
+        return "pages/seller/statistic-report/product-report";
     }
 
     @GetMapping("/seller-update-product/{id}")
@@ -501,5 +513,7 @@ public class SellerController {
         }
         return "redirect:/seller/product-category";
     }
+
+
     
 }
