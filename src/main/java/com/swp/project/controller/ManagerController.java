@@ -69,7 +69,7 @@ public class ManagerController {
 
     @GetMapping("")
     public String index() {
-        return "pages/manager/index";
+        return "forward:/manager/report";
     }
 
     @GetMapping("manage-seller")
@@ -371,6 +371,25 @@ public class ManagerController {
         model.addAttribute("weeklyPercentageChange", weeklyPercentageChange);
         model.addAttribute("monthlyPercentageChange", monthlyPercentageChange);
         return "pages/manager/statistic-report";
+    }
+
+    @GetMapping("/report")
+    public String getManagerReport(Model model) {
+        Long totalUnitSold = orderService.getUnitSold();
+        Long revenueToday = orderService.getRevenueToday();
+        Long revenueThisWeek = orderService.getRevenueThisWeek();
+        Long revenueThisMonth = orderService.getRevenueThisMonth();
+        double dailyPercentageChange = orderService.getDailyPercentageChange();
+        double weeklyPercentageChange = orderService.getWeeklyPercentageChange();
+        double monthlyPercentageChange = orderService.getMonthlyPercentageChange();
+        model.addAttribute("totalUnitSold", totalUnitSold == null ? 0 : totalUnitSold);
+        model.addAttribute("revenueToday", revenueToday == null ? 0 : revenueToday);
+        model.addAttribute("revenueThisWeek", revenueThisWeek == null ? 0 : revenueThisWeek);
+        model.addAttribute("revenueThisMonth", revenueThisMonth == null ? 0 : revenueThisMonth);
+        model.addAttribute("dailyPercentageChange", dailyPercentageChange);
+        model.addAttribute("weeklyPercentageChange", weeklyPercentageChange);
+        model.addAttribute("monthlyPercentageChange", monthlyPercentageChange);
+        return "pages/manager/index";
     }
 
     @GetMapping("/detail-report")
