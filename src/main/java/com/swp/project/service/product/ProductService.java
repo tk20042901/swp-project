@@ -371,27 +371,16 @@ public class ProductService {
         for (Long catId : updateProductDto.getCategories()) {
             categories.add(categoryService.getCategoryById(catId));
         }
-        
+        updateProductDto.setFinalCategories(categories);
         if (checkUniqueProductName(updateProductDto.getId(), updateProductDto.getName()) && checkUniqueProductFromSellerRequest(updateProductDto.getId(),updateProductDto.getName())) {
             throw new Exception("Tên sản phẩm đã tồn tại");
         }
-        
-        Product updateProduct = Product.builder()
-                .id(updateProductDto.getId())
-                .name(updateProductDto.getName())
-                .description(updateProductDto.getDescription())
-                .price(updateProductDto.getPrice())
-                .unit(updateProductDto.getUnit())
-                .enabled(updateProductDto.getEnabled())
-                .categories(categories)
-                .build();
-
         if (imageFile == null || imageFile.isEmpty()) {
-            updateProduct.setMain_image_url(oldProduct.getMain_image_url());
+            updateProductDto.setMainImage(oldProduct.getMain_image_url());
         } else {
-            updateProduct.setMain_image_url(ImageService.convertToBase64WithPrefix(imageFile));
+            updateProductDto.setMainImage(ImageService.convertToBase64WithPrefix(imageFile));
         }
-        
+        Product updateProduct = new Product(updateProductDto);
         for (int i = 0; i < subImageFiles.length; i++) {
             if (subImageFiles[i] == null || subImageFiles[i].isEmpty()) {
                 subImages.add(oldProduct.getSub_images().get(i));
@@ -403,7 +392,6 @@ public class ProductService {
             }
         }
         updateProduct.setSub_images(subImages);
-        
         return updateProduct;
     }
 }

@@ -1,6 +1,7 @@
 package com.swp.project.entity.product;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.swp.project.dto.UpdateProductDto;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,6 +19,18 @@ import org.hibernate.annotations.Formula;
 @EqualsAndHashCode(exclude = {"soldQuantity", "quantity"})
 @Entity
 public class Product implements Serializable{
+
+    public Product(UpdateProductDto dto){
+        this.id = dto.getId();
+        this.name = dto.getName();
+        this.description = dto.getDescription();
+        this.price = dto.getPrice();
+        this.unit = dto.getUnit();
+        this.main_image_url = dto.getMainImage();
+        this.enabled = dto.getEnabled();
+        this.quantity = dto.getQuantity();
+        this.categories = dto.getFinalCategories();
+    }    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -62,4 +75,7 @@ public class Product implements Serializable{
             "INNER JOIN order_status os ON o.order_status_id = os.id " +
             "WHERE oi.product_id = id AND os.name IN ('Đã Giao Hàng','Đang Giao Hàng','Đang Chuẩn Bị Hàng'))")
     private Integer soldQuantity;
+
+          
+
 }
