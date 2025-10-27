@@ -42,7 +42,7 @@
                                                         Tên sản phẩm
                                                     </div>
                                                     <div class="text-muted small cart-item-meta">
-                                                    <span th:text="${'Số lượng: ' + (item.quantity % 1 == 0 ? item.quantity.intValue() : #numbers.formatDecimal(item.quantity, 0, 1)) + ' ' + item.product.unit.name}">1
+                                                    <span th:text="${'Số lượng: ' + (item.quantity % 1 == 0 ? item.quantity.intValue() : #numbers.formatDecimal(item.quantity, 1, 1)) + ' ' + item.product.unit.name}">1
                                                     </span>
                                                         <br>
                                                         <span>
