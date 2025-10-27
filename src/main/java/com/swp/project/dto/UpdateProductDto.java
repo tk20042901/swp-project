@@ -1,7 +1,10 @@
 package com.swp.project.dto;
 
 import java.util.List;
+
+import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.ProductUnit;
+
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -43,4 +46,5 @@ public class UpdateProductDto{
     private String subDisplay2;
     private String subDisplay3;
     private String mainImage; 
+    private List<Category> finalCategories;
 }
