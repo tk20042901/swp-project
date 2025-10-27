@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,7 +22,8 @@
             box-sizing: border-box;
         }
 
-        html, body {
+        html,
+        body {
             height: 100%;
             background: var(--white);
             color: var(--text-dark);
@@ -93,7 +95,8 @@
             display: block;
         }
 
-        .form-control, .form-select {
+        .form-control,
+        .form-select {
             background: var(--white);
             border: 1px solid var(--border-color);
             padding: 10px 14px;
@@ -102,7 +105,8 @@
             width: 100%;
         }
 
-        .form-control:focus, .form-select:focus {
+        .form-control:focus,
+        .form-select:focus {
             border-color: #adb5bd;
             outline: none;
             box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.1);
@@ -222,110 +226,98 @@
         }
     </style>
 </head>
+
 <body>
-<div class="layout">
-    <div th:replace="~{fragments/manager-sidebar :: manager-sidebar}"></div>
+    <div class="layout">
+        <div th:replace="~{fragments/manager-sidebar :: manager-sidebar}"></div>
 
-    <div class="main-content">
-        <!-- Page Header -->
-        <div class="header">
-            <a th:href="@{/manager}">
-                <i class="bi bi-arrow-left"></i> Trang chủ
-            </a>
-            <h2>
-                <i class="bi bi-clipboard-check"></i> Quản lý yêu cầu sản phẩm
-            </h2>
-        </div>
-
-        <!-- Filter Card -->
-        <div class="filter-card">
-            <div class="card-body">
-                <h5 style="font-weight: 600; margin-bottom: 1.5rem;">
-                    <i class="bi bi-funnel"></i> Bộ lọc
-                </h5>
-                <form th:action="@{/manager/all-products-request}" method="get" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
-                    <div style="flex: 1 1 200px;">
-                        <label class="form-label">
-                            <i class="bi bi-filter"></i> Trạng thái
-                        </label>
-                        <select name="status" class="form-select">
-                            <option value="">Tất cả</option>
-                            <option value="PENDING" th:selected="${param.status != null && param.status[0] == 'PENDING'}">Chờ duyệt</option>
-                            <option value="APPROVED" th:selected="${param.status != null && param.status[0] == 'APPROVED'}">Đã duyệt</option>
-                            <option value="REJECTED" th:selected="${param.status != null && param.status[0] == 'REJECTED'}">Từ chối</option>
-                            <option value="PROCESSING" th:selected="${param.status != null && param.status[0] == 'PROCESSING'}">Đang xử lý</option>
-                        </select>
-                    </div>
-
-                    <div style="flex: 0 0 auto;">
-                        <button type="submit" class="btn btn-primary" style="min-width: 120px;">
-                            <i class="bi bi-search"></i> Lọc
-                        </button>
-                    </div>
-                </form>
+        <div class="main-content">
+            <!-- Page Header -->
+            <div class="header">
+                <a th:href="@{/manager}">
+                    <i class="bi bi-arrow-left"></i> Trang chủ
+                </a>
+                <h2>
+                    <i class="bi bi-clipboard-check"></i> Quản lý yêu cầu sản phẩm
+                </h2>
             </div>
-        </div>
 
-        <!-- Results Card -->
-        <div class="card">
-            <div class="card-body" style="padding: 0;">
-                <div style="padding: 1.5rem; padding-bottom: 0;">
+            <!-- Filter Card -->
+            <div class="filter-card">
+                <div class="card-body">
                     <h5 style="font-weight: 600; margin-bottom: 1.5rem;">
-                        📋 Danh sách yêu cầu
+                        <i class="bi bi-funnel"></i> Bộ lọc
                     </h5>
-                </div>
+                    <form th:action="@{/manager/all-products-request}" method="get"
+                        style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+                        <div style="flex: 1 1 200px;">
+                            <label class="form-label">
+                                <i class="bi bi-filter"></i> Trạng thái
+                            </label>
+                            <select name="status" class="form-select">
+                                <option value="">Tất cả</option>
+                                <option value="Đang Chờ Duyệt">Chờ duyệt</option>
+                                <option value="Đã Duyệt">Đã duyệt</option>
+                                <option value="Từ Chối">Từ chối</option>
+                                <option value="Đang Xử Lý">Đang xử lý</option>
+                            </select>
+                        </div>
 
-                <table class="request-table">
-                    <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Người bán</th>
-                        <th>Tên sản phẩm</th>
-                        <th>Loại yêu cầu</th>
-                        <th>Ngày tạo</th>
-                        <th>Trạng thái</th>
-                        <th style="text-align: center;">Hành động</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:if="${requests == null || requests.isEmpty()}">
-                        <td colspan="7" class="no-data">
-                            <i class="bi bi-inbox" style="font-size: 3rem; display: block; margin-bottom: 0.5rem;"></i>
-                            Không có yêu cầu nào
-                        </td>
-                    </tr>
-                    <tr th:if="${requests != null && !requests.isEmpty()}" th:each="request : ${requests}">
-                        <td th:text="${request.id}"></td>
-                        <td th:text="${request.sellerName}"></td>
-                        <td th:text="${request.productName}"></td>
-                        <td th:text="${request.requestType}"></td>
-                        <td th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
-                        <td>
-                            <span th:class="'status-badge ' +
-                                (${request.status == 'PENDING'} ? 'status-pending' :
-                                 ${request.status == 'APPROVED'} ? 'status-approved' :
-                                 ${request.status == 'REJECTED'} ? 'status-rejected' : 'status-processing')">
-                                <i th:class="'bi ' +
-                                    (${request.status == 'PENDING'} ? 'bi-clock-fill' :
-                                     ${request.status == 'APPROVED'} ? 'bi-check-circle-fill' :
-                                     ${request.status == 'REJECTED'} ? 'bi-x-circle-fill' : 'bi-arrow-repeat')"></i>
-                                <span th:text="${request.status == 'PENDING' ? 'Chờ duyệt' :
-                                               ${request.status == 'APPROVED' ? 'Đã duyệt' :
-                                               ${request.status == 'REJECTED' ? 'Từ chối' : 'Đang xử lý'}}}"></span>
-                            </span>
-                        </td>
-                        <td style="text-align: center;">
-                            <a th:href="@{/manager/product-request-details(requestId=${request.id})}"
-                               class="btn btn-sm btn-info">
-                                <i class="bi bi-eye"></i> Chi tiết
-                            </a>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+                        <div style="flex: 0 0 auto;">
+                            <button type="submit" class="btn btn-primary" style="min-width: 120px;">
+                                <i class="bi bi-search"></i> Lọc
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Results Card -->
+            <div class="card">
+                <div class="card-body" style="padding: 0;">
+                    <div style="padding: 1.5rem; padding-bottom: 0;">
+                        <h5 style="font-weight: 600; margin-bottom: 1.5rem;">
+                            📋 Danh sách yêu cầu
+                        </h5>
+                    </div>
+
+                    <table class="request-table">
+                        <thead>
+                            <tr>
+                                <th>Tên thực thể</th>
+                                <th>Loại yêu cầu</th>
+                                <th>Người yêu cầu</th>
+                                <th>Trạng thái</th>
+                                <th>Ngày tạo</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="request : ${sellerRequests}">
+                                <td th:text="${request.entityName}"></td>
+                                <td th:text="${request.requestType.name}"></td>
+                                <td th:text="${request.seller.fullname}"></td>
+                                <td>
+                                    <span
+                                        th:class="${request.status.name == 'Đang Chờ Duyệt' ? 'badge badge-warning' : 
+                                           request.status.name == 'Đã Duyệt' ? 'badge badge-success' : 
+                                           request.status.name == 'Đã Từ Chối' ? 'badge badge-danger' : 'badge badge-secondary'}"
+                                        th:text="${request.status.name}"></span>
+                                </td>
+                                <td th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                                <td>
+                                    <a th:href="@{/manager/product-request-details/{id}(id=${request.id})}"
+                                        class="btn btn-info">
+                                        <i class="bi bi-eye"></i> Xem chi tiết
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
 </body>
+
 </html>

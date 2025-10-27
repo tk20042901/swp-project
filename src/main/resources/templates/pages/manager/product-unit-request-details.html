@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,7 +22,8 @@
             box-sizing: border-box;
         }
 
-        html, body {
+        html,
+        body {
             height: 100%;
             background: var(--white);
             color: var(--text-dark);
@@ -223,109 +225,122 @@
         }
     </style>
 </head>
+
 <body>
-<div class="layout">
-    <div th:replace="~{fragments/manager-sidebar :: manager-sidebar}"></div>
+    <div class="layout">
+        <div th:replace="~{fragments/manager-sidebar :: manager-sidebar}"></div>
 
-    <div class="main-content">
-        <!-- Page Header -->
-        <div class="header">
-            <a th:href="@{/manager/all-products-request}">
-                <i class="bi bi-arrow-left"></i> Danh sách yêu cầu
-            </a>
-            <h2>
-                <i class="bi bi-file-earmark-text"></i> Chi tiết yêu cầu đơn vị sản phẩm
-            </h2>
-        </div>
-
-        <!-- Request Information -->
-        <div class="request-info-card">
-            <h5>
-                <i class="bi bi-info-circle-fill"></i> Thông tin yêu cầu
-            </h5>
-            <p><strong>Loại yêu cầu:</strong> <span th:text="${sellerRequest.requestType.name}"></span></p>
-            <p><strong>Trạng thái:</strong> <span th:text="${sellerRequest.status.name}"></span></p>
-            <p><strong>Người yêu cầu:</strong> <span th:text="${sellerRequest.seller.fullname}"></span></p>
-            <p><strong>Ngày tạo:</strong> <span th:text="${#temporals.format(sellerRequest.createdAt, 'dd/MM/yyyy HH:mm:ss')}"></span></p>
-        </div>
-
-        <!-- New Unit Card -->
-        <div class="card">
-            <div class="card-body" style="padding: 0;">
-                <div style="padding: 1.5rem; padding-bottom: 0;">
-                    <h5 class="section-title">
-                        <i class="bi bi-plus-circle-fill"></i> Đơn vị mới
-                    </h5>
-                </div>
-
-                <table class="unit-table">
-                    <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Tên đơn vị</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:object="${newUnit}">
-                        <td th:text="*{id}"></td>
-                        <td th:text="*{unitName}"></td>
-                    </tr>
-                    </tbody>
-                </table>
+        <div class="main-content">
+            <!-- Page Header -->
+            <div class="header">
+                <a th:href="@{/manager/all-products-request}">
+                    <i class="bi bi-arrow-left"></i> Danh sách yêu cầu
+                </a>
+                <h2>
+                    <i class="bi bi-file-earmark-text"></i> Chi tiết yêu cầu đơn vị sản phẩm
+                </h2>
             </div>
-        </div>
 
-        <!-- Old Unit Card -->
-        <div th:if="${oldUnit != null}" class="card">
-            <div class="card-body" style="padding: 0;">
-                <div style="padding: 1.5rem; padding-bottom: 0;">
-                    <h5 class="section-title">
-                        <i class="bi bi-clock-history"></i> Đơn vị cũ
-                    </h5>
-                </div>
-
-                <table class="unit-table">
-                    <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Tên đơn vị</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:object="${oldUnit}">
-                        <td th:text="*{id}"></td>
-                        <td th:text="*{unitName}"></td>
-                    </tr>
-                    </tbody>
-                </table>
+            <!-- Request Information -->
+            <div class="request-info-card">
+                <h5>
+                    <i class="bi bi-info-circle-fill"></i> Thông tin yêu cầu
+                </h5>
+                <p><strong>Loại yêu cầu:</strong> <span th:text="${sellerRequest.requestType.name}"></span></p>
+                <p><strong>Trạng thái:</strong> <span th:text="${sellerRequest.status.name}"></span></p>
+                <p><strong>Người yêu cầu:</strong> <span th:text="${sellerRequest.seller.fullname}"></span></p>
+                <p><strong>Ngày tạo:</strong> <span
+                        th:text="${#temporals.format(sellerRequest.createdAt, 'dd/MM/yyyy HH:mm:ss')}"></span></p>
             </div>
-        </div>
 
-        <!-- Action Buttons Card -->
-        <div class="card">
-            <div class="card-body">
-                <div class="btn-group-action">
-                    <form th:action="@{/manager/approve-unit-request}" method="post">
-                        <input type="hidden" name="requestId" th:value="${sellerRequest.id}" />
-                        <button type="submit" th:if="${sellerRequest.status.name() == 'PENDING'}" class="btn btn-success">
-                            <i class="bi bi-check-circle"></i> Duyệt yêu cầu
-                        </button>
-                    </form>
+            <!-- New Unit Card -->
+            <div class="card">
+                <div class="card-body" style="padding: 0;">
+                    <div style="padding: 1.5rem; padding-bottom: 0;">
+                        <h5 class="section-title">
+                            <i class="bi bi-plus-circle-fill"></i> Đơn vị mới
+                        </h5>
+                    </div>
 
-                    <form th:action="@{/manager/reject-unit-request}" method="post">
-                        <input type="hidden" name="requestId" th:value="${sellerRequest.id}" />
-                        <button type="submit" th:if="${sellerRequest.status.name() == 'PENDING'}" class="btn btn-danger">
-                            <i class="bi bi-x-circle"></i> Từ chối yêu cầu
-                        </button>
-                    </form>
+                    <table class="unit-table">
+                        <thead>
+                            <tr>
+                                <th>Mã đơn vị</th>
+                                <th>Tên đơn vị</th>
+                                <th>Cho phép thập phân</th>
+                                <th>Kích hoạt</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:object="${newProductUnit}">
+                                <td th:text="*{id != null ? id : 'N/A'}"></td>
+                                <td th:text="*{name}"></td>
+                                <td th:text="*{isAllowDecimal ? 'Có' : 'Không'}"></td>
+                                <td><span th:text="*{isActive ? 'Có' : 'Không'}"></span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-                    <a th:href="@{/manager/all-products-request}" class="btn btn-secondary">
-                        <i class="bi bi-arrow-left"></i> Quay lại danh sách
-                    </a>
+            <!-- Old Unit Card -->
+            <div th:if="${oldProductUnit != null}" class="card">
+                <div class="card-body" style="padding: 0;">
+                    <div style="padding: 1.5rem; padding-bottom: 0;">
+                        <h5 class="section-title">
+                            <i class="bi bi-clock-history"></i> Đơn vị cũ
+                        </h5>
+                    </div>
+
+                    <table class="unit-table">
+                        <thead>
+                            <tr>
+                                <th>Mã đơn vị</th>
+                                <th>Tên đơn vị</th>
+                                <th>Cho phép thập phân</th>
+                                <th>Kích hoạt</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:object="${oldProductUnit}">
+                                <td th:text="*{id}"></td>
+                                <td th:text="*{name}"></td>
+                                <td th:text="*{isAllowDecimal ? 'Có' : 'Không'}"></td>
+                                <td><span th:text="*{isActive ? 'Có' : 'Không'}"></span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Action Buttons Card -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="btn-group-action">
+                        <form th:action="@{/manager/approve-product-unit-request}" method="post"
+                            style="display: inline;">
+                            <input type="hidden" name="requestId" th:value="${sellerRequest.id}" />
+                            <button type="submit" th:if="${isPending}" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> Duyệt yêu cầu
+                            </button>
+                        </form>
+
+                        <form th:action="@{/manager/reject-product-unit-request}" method="post"
+                            style="display: inline;">
+                            <input type="hidden" name="requestId" th:value="${sellerRequest.id}" />
+                            <button type="submit" th:if="${isPending}" class="btn btn-danger">
+                                <i class="bi bi-x-circle"></i> Từ chối yêu cầu
+                            </button>
+                        </form>
+
+                        <a th:href="@{/manager/all-products-request}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Quay lại danh sách
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 </body>
+
 </html>
