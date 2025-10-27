@@ -234,10 +234,12 @@ public class GuestController {
         model.addAttribute("product", product);
         model.addAttribute("subImages", subImages);
 
+        double quantityInCart = customerService.getProductQuantityInCart(principal, id);
+
         if (isAllowDecimal) {
-            model.addAttribute("maxQuantity", productService.getAvailableQuantity(id));
+            model.addAttribute("maxQuantity", productService.getAvailableQuantity(id) - quantityInCart);
         } else {
-            model.addAttribute("maxQuantity", (int) Math.floor(productService.getAvailableQuantity(id)));
+            model.addAttribute("maxQuantity", (int) Math.floor(productService.getAvailableQuantity(id) - quantityInCart));
         }
 
         List<Product> relatedProducts = productService.getRelatedProducts(id, 6);
@@ -254,7 +256,6 @@ public class GuestController {
         List<Category> categories = product.getCategories();
         model.addAttribute("categories", categories);
 
-        double quantityInCart = customerService.getProductQuantityInCart(principal, id);
         model.addAttribute("quantityInCart", quantityInCart);
         model.addAttribute("showSearchBar", true);
         return "pages/guest/product";

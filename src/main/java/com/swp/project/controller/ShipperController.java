@@ -75,6 +75,9 @@ public class ShipperController {
             pageDelivering = 1; // Reset về trang đầu tiên khi có tìm kiếm mới
             session.setAttribute("searchQuery", searchQuery);
         }
+        if (pageDelivering < 1) {
+            pageDelivering = 1;
+        }
         try {
             // Lấy Page<Order> thay vì List<Order>
             Page<Order> deliveringOrders = orderService.getDeliveringOrders(principal, 
@@ -126,6 +129,9 @@ public class ShipperController {
             pageDone = 1; // Reset về trang đầu tiên khi có tìm kiếm mới
             session.setAttribute("searchQuery", searchQuery);
         }
+        if (pageDone < 1) {
+            pageDone = 1;
+        }
         try {
             // Lấy Page<Order> thay vì List<Order>
             Page<Order> doneOrders = orderService.getDoneOrders(principal, 
@@ -137,7 +143,7 @@ public class ShipperController {
             model.addAttribute("doneOrders", doneOrders.getContent());
             model.addAttribute("currentPageDone", pageDone);
             model.addAttribute("totalPagesDone", doneOrders.getTotalPages());
-
+            
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
         }
