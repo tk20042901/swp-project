@@ -274,11 +274,11 @@
                 <i class="bi bi-arrow-left"></i> Danh sách hóa đơn
             </a>
             <h2>
-                <i class="bi bi-file-earmark-text"></i> Chi tiết đơn hàng #<span th:text="${order.id}"></span>
+                <i class="bi bi-file-earmark-text"></i> Chi tiết đơn hàng #<span th:text="${bill.order.id}"></span>
             </h2>
         </div>
 
-        <div th:object="${order}">
+        <div th:object="${bill}">
             <!-- Order Information Card -->
             <div class="order-info-card">
                 <h5>
@@ -286,28 +286,24 @@
                 </h5>
                 <div class="info-grid">
                     <div class="info-item">
-                        <div class="info-label">Mã đơn hàng</div>
-                        <div class="info-value">#<span th:text="*{id}"></span></div>
-                    </div>
-                    <div class="info-item">
                         <div class="info-label">Tên cửa hàng</div>
                         <div class="info-value" th:text="*{shopName}"></div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Người mua</div>
-                        <div class="info-value" th:text="*{buyerName}"></div>
+                        <div class="info-value" th:text="*{order.customer.fullName}"></div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Ngày đặt hàng</div>
-                        <div class="info-value" th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}"></div>
+                        <div class="info-value" th:text="${orderService.getShippedAt(bill.order)}"></div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Địa chỉ giao hàng</div>
-                        <div class="info-value" th:text="*{deliveryAddress}"></div>
+                        <div class="info-value" th:text="*{order.addressString}"></div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Trạng thái</div>
-                        <div class="info-value" th:text="*{status}"></div>
+                        <div class="info-value" th:text="*{order.orderStatus.name}"></div>
                     </div>
                 </div>
             </div>
@@ -332,14 +328,14 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="item : *{orderItemDTOList}">
+                        <tr th:each="item : ${bill.order.orderItem}">
                             <td>
-                                <img th:src="@{${item.productImage}}" alt="Product" class="product-image">
+                                <img th:src="@{${item.product.main_image_url}}" alt="Product" class="product-image">
                             </td>
-                            <td th:text="${item.productName}"></td>
+                            <td th:text="${item.product.name}"></td>
                             <td th:text="${item.quantity}"></td>
-                            <td th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
-                            <td th:text="${#numbers.formatDecimal(item.quantity * item.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
+                            <td th:text="${#numbers.formatDecimal(item.product.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
+                            <td th:text="${#numbers.formatDecimal(item.quantity * item.product.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
                         </tr>
                         </tbody>
                     </table>
@@ -351,7 +347,7 @@
                 <div class="total-label">
                     <i class="bi bi-cash-coin"></i> Tổng giá trị đơn hàng
                 </div>
-                <div class="total-amount" th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></div>
+                <div class="total-amount" th:text="${#numbers.formatDecimal(totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></div>
             </div>
 
             <!-- Back Button -->
