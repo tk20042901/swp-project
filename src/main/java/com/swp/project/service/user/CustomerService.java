@@ -200,27 +200,11 @@ public class CustomerService {
     }
 
     @Transactional
-    public void initCustomer() {
-        for (int i = 1; i < 10; i++){
-            String email = "customer" + i + "@shop.com";
-            if (!userRepository.existsByEmail(email)) {
-                customerRepository.save(Customer.builder()
-                        .email(email)
-                        .password(passwordEncoder.encode("customer"))
-                        .fullName("Hoa Thanh " + i)
-                        .phoneNumber("036363636" + i)
-                        .specificAddress("Thủ đô " + i)
-                        .build());
-            }
-        }
-
-    }
-@Transactional
     public List<ShoppingCartItem> getCart(String customerEmail) {
         return shoppingCartItemRepository.findByCustomerOrderByIdAsc(
                 customerRepository.getByEmail(customerEmail));
     }
-@Transactional
+    @Transactional
     public void removeItem(String email, Long productId) {
         try{
             shoppingCartItemRepository.deleteByCustomerEmailAndProductId(email, productId);

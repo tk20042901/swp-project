@@ -3,7 +3,6 @@ package com.swp.project.service.user;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import com.swp.project.dto.ProductRevenueDto;
 import org.springframework.context.ApplicationEventPublisher;
@@ -47,43 +46,6 @@ public class SellerService {
     private List<Seller> results = new ArrayList<>();
     private final CommuneWardRepository communeWardRepository;
 
-    @Transactional
-    public void initSeller() {
-        try {
-            for (int i = 1; i <= 36; i++) {
-                createSellerIfNotExists(Seller.builder()
-                        .email("seller" + i + "@shop.com")
-                        .password("seller")
-                        .fullname("seller" + i + "@shop.com")
-                        .birthDate(sdf.parse("2001-09-11"))
-                        .cid(UUID.randomUUID().toString())
-                        .specificAddress("123 Đường ABC, Phường XYZ")
-                        .build());
-            }
-            createSellerIfNotExists(Seller.builder()
-                    .email("disabled-seller@shop.com")
-                    .password("seller")
-                    .fullname("seller" + 999 + "@shop.com")
-                    .birthDate(sdf.parse("2001-09-11"))
-                    .cid(UUID.randomUUID().toString())
-                    .specificAddress("123 Đường ABC, Phường XYZ")
-                    .enabled(false)
-                    .build());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-
-    private void createSellerIfNotExists(Seller seller) {
-        if (!userRepository.existsByEmail(seller.getEmail())) {
-            seller.setPassword(passwordEncoder.encode(seller.getPassword()));
-            sellerRepository.save(seller);
-        }
-    }
-
     public void findAll() {
         results = sellerRepository.findAll();
     }
@@ -98,7 +60,7 @@ public class SellerService {
     public void add(StaffDto staffDto) {
         if (staffDto != null) {
             if (staffDto.getId() == 0) {
-                if (existsCid(staffDto.getCid(), staffDto.getId())) {
+                if (existsCid(staffDto.getCid())) {
                     throw new RuntimeException("Mã căn cước công dân đã được dùng");
                 }
                 if (existsEmail(staffDto.getEmail(), staffDto.getId())) {
@@ -183,10 +145,10 @@ public class SellerService {
     }
 
 
-    private boolean existsCid(String cid, long id) {
-        return (sellerRepository.findByCid(cid) != null && sellerRepository.findByCid(cid).getId() != id) ||
-                (shipperRepository.findByCid(cid) != null && shipperRepository.findByCid(cid).getId() != id) ||
-                (managerRepository.findByCid(cid) != null && managerRepository.findByCid(cid).getId() != id);
+    private boolean existsCid(String cid) {
+        return (sellerRepository.findByCid(cid) != null && sellerRepository.findByCid(cid).getId() != 0L) ||
+                (shipperRepository.findByCid(cid) != null && shipperRepository.findByCid(cid).getId() != 0L) ||
+                (managerRepository.findByCid(cid) != null && managerRepository.findByCid(cid).getId() != 0L);
     }
 
     private boolean existsEmail(String email, long id) {
