@@ -228,7 +228,7 @@
                                                th:value="${item.product.unit.isAllowDecimal ?
                                                           #numbers.formatDecimal(item.quantity, 1, 1, 'POINT') :
                                                           T(java.lang.Math).round(item.quantity)}"
-                                               min="1" th:attr="step=${item.product.unit.isAllowDecimal} ? 0.1 : 1"
+                                               th:attr="step=${item.product.unit.isAllowDecimal} ? 0.1 : 1"
                                                class="form-control form-control-sm quantity-input"
                                                onchange="this.form.submit()">
                                     </label>
