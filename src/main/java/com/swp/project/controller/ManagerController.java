@@ -26,7 +26,6 @@ import com.swp.project.dto.StaffDto;
 import com.swp.project.entity.address.CommuneWard;
 import com.swp.project.entity.address.ProvinceCity;
 import com.swp.project.entity.order.Bill;
-import com.swp.project.entity.order.Order;
 import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.ProductUnit;
@@ -673,11 +672,12 @@ public class ManagerController {
             model.addAttribute("error", "Hóa đơn không tồn tại");
             return "pages/manager/bill-list";
         }
-        Order order = bill.getOrder();
-        Long totalAmount = orderService.calculateTotalAmount(order);
-        model.addAttribute("order", order);
-        model.addAttribute("shippedAt", orderService.getShippedAt(order));
+        // Order order = bill.getOrder();
+        Long totalAmount = orderService.calculateTotalAmount(bill.getOrder());
+        model.addAttribute("bill", bill);
+        model.addAttribute("shippedAt", orderService.getShippedAt(bill.getOrder()));
         model.addAttribute("totalAmount", totalAmount);
+        model.addAttribute("orderService", orderService);
         return "pages/manager/order-details";
     }
 

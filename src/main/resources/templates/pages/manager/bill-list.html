@@ -290,7 +290,6 @@
                         <th>Ngày tạo</th>
                         <th>Tổng tiền</th>
                         <th>Địa chỉ giao hàng</th>
-                        <th>Trạng thái</th>
                         <th style="text-align: center;">Hành động</th>
                     </tr>
                     </thead>
@@ -309,13 +308,12 @@
                                 <span th:text="${bill.shopName}"></span>
                             </div>
                         </td>
-                        <td th:text="${bill.buyerName}"></td>
-                        <td th:text="${#temporals.format(bill.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
-                        <td th:text="${#numbers.formatDecimal(bill.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
-                        <td th:text="${bill.deliveryAddress}"></td>
-                        <td th:text="${bill.status}"></td>
+                        <td th:text="${bill.order.customer.fullName}"></td>
+                        <td th:text="${#temporals.format(bill.paymentTime, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td th:text="${#numbers.formatDecimal(bill.order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
+                        <td th:text="${bill.order.addressString}"></td>
                         <td style="text-align: center;">
-                            <a th:href="@{/manager/bill-details(billId=${bill.id})}"
+                            <a th:href="@{/manager/orders/} + ${bill.id}"
                                class="btn btn-sm btn-outline-primary action-btn">
                                 <i class="bi bi-eye"></i> Chi tiết
                             </a>
