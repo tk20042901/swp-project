@@ -81,7 +81,7 @@
                                     <div class="mb-3">
                                         <label for="fullName" class="form-label">Họ và tên</label>
                                         <input id="fullName" type="text" th:field="*{fullName}" class="form-control"
-                                            placeholder="VD: Nguyễn Văn A" required maxlength="255">
+                                            placeholder="VD: Nguyễn Văn A" required maxlength="50">
                                         <div class="invalid-feedback d-block" th:errors="*{fullName}"></div>
                                     </div>
 
@@ -119,14 +119,14 @@
                                             <label for="specificAddress" class="form-label">Địa chỉ chi tiết</label>
                                             <input id="specificAddress" type="text" th:field="*{specificAddress}"
                                                 class="form-control" placeholder="Số nhà, đường, tổ/thôn/xóm..."
-                                                required maxlength="255">
+                                                required maxlength="100">
                                             <div class="invalid-feedback d-block" th:errors="*{specificAddress}">
                                             </div>
                                         </div>
                                         <div class="col-12 col-md-4">
                                             <label for="phone" class="form-label">Số điện thoại</label>
                                             <input id="phone" type="tel" th:field="*{phone}" class="form-control"
-                                                placeholder="VD: 0912345678" required maxlength="20" inputmode="tel">
+                                                placeholder="VD: 0912345678" required minlength="10" maxlength="10" inputmode="tel">
                                             <div class="invalid-feedback d-block" th:errors="*{phone}"></div>
                                         </div>
                                     </div>
@@ -151,9 +151,7 @@
                                                 th:href="@{/customer/shopping-cart}">Hủy</a>
                                         </div>
                                         <div class="col-12 col-sm-6 d-grid">
-                                            <button type="submit" name="confirm" class="btn btn-primary">Xác nhận
-                                                mua
-                                                hàng
+                                            <button type="submit" name="confirm" class="btn btn-primary">Xác nhận mua hàng
                                             </button>
                                         </div>
                                     </div>

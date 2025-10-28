@@ -209,7 +209,7 @@
       <nav>
         <ul class="pagination justify-content-center mb-0">
           <li class="page-item" th:classappend="${currentPageDelivering == 1} ? 'disabled'">
-            <a class="page-link" th:href="@{/shipper/delivering-orders(pageDelivering=${currentPageDelivering - 1}, pageOther=${currentPageOther})}">
+            <a class="page-link" th:href="@{/shipper/delivering-orders(pageDelivering=${currentPageDelivering - 1})}">
               <i class="bi bi-chevron-left"></i>
               Trước
             </a>
@@ -217,10 +217,10 @@
           <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPagesDelivering)}"
               th:classappend="${i == currentPageDelivering} ? 'active'">
             <a class="page-link" th:text="${i}"
-               th:href="@{/shipper/delivering-orders(pageDelivering=${i}, pageOther=${currentPageOther})}"></a>
+               th:href="@{/shipper/delivering-orders(pageDelivering=${i})}"></a>
           </li>
           <li class="page-item" th:classappend="${currentPageDelivering == totalPagesDelivering} ? 'disabled'">
-            <a class="page-link" th:href="@{/shipper/delivering-orders(pageDelivering=${currentPageDelivering + 1}, pageOther=${currentPageOther})}">
+            <a class="page-link" th:href="@{/shipper/delivering-orders(pageDelivering=${currentPageDelivering + 1})}">
               Sau
               <i class="bi bi-chevron-right"></i>
             </a>
