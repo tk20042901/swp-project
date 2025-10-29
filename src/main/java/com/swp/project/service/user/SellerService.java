@@ -4,7 +4,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.swp.project.dto.ProductRevenueDto;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -14,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.swp.project.dto.ProductRevenueDto;
 import com.swp.project.dto.StaffDto;
 import com.swp.project.entity.user.Seller;
 import com.swp.project.listener.event.UserDisabledEvent;
@@ -42,13 +42,7 @@ public class SellerService {
     private final AddressService addressService;
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     private final ProductRepository productRepository;
-
-    private List<Seller> results = new ArrayList<>();
     private final CommuneWardRepository communeWardRepository;
-
-    public void findAll() {
-        results = sellerRepository.findAll();
-    }
 
     public Seller getByEmail(String email) { return sellerRepository.findByEmail(email);
     }
@@ -117,32 +111,32 @@ public class SellerService {
         sellerRepository.save(seller);
     }
 
-    public void sortBy(String columnName, int k) {
-        switch (columnName) {
-            case "id":
-                results.sort((o1, o2) -> k * o1.getId().compareTo(o2.getId()));
-                break;
-            case "email":
-                results.sort((o1, o2) -> k * o1.getUsername().compareTo(o2.getUsername()));
-                break;
-            case "fullname":
-                results.sort((o1, o2) -> k * o1.getFullname().compareTo(o2.getFullname()));
-                break;
-            case "cid":
-                results.sort((o1, o2) -> k * o1.getCid().compareTo(o2.getCid()));
-                break;
-            case "address":
-                results.sort((o1, o2) -> k * o1.getAddress().compareTo(o2.getAddress()));
-                break;
-            case "enabled":
-                results.sort((o1, o2) -> {
-                    int tempO1IsEnabled = o1.isEnabled() ? 1 : 0;
-                    int tempO2IsEnabled = o2.isEnabled() ? 1 : 0;
-                    return k * (tempO1IsEnabled - tempO2IsEnabled);
-                });
-                break;
-        }
-    }
+    // public void sortBy(String columnName, int k) {
+    //     switch (columnName) {
+    //         case "id":
+    //             results.sort((o1, o2) -> k * o1.getId().compareTo(o2.getId()));
+    //             break;
+    //         case "email":
+    //             results.sort((o1, o2) -> k * o1.getUsername().compareTo(o2.getUsername()));
+    //             break;
+    //         case "fullname":
+    //             results.sort((o1, o2) -> k * o1.getFullname().compareTo(o2.getFullname()));
+    //             break;
+    //         case "cid":
+    //             results.sort((o1, o2) -> k * o1.getCid().compareTo(o2.getCid()));
+    //             break;
+    //         case "address":
+    //             results.sort((o1, o2) -> k * o1.getAddress().compareTo(o2.getAddress()));
+    //             break;
+    //         case "enabled":
+    //             results.sort((o1, o2) -> {
+    //                 int tempO1IsEnabled = o1.isEnabled() ? 1 : 0;
+    //                 int tempO2IsEnabled = o2.isEnabled() ? 1 : 0;
+    //                 return k * (tempO1IsEnabled - tempO2IsEnabled);
+    //             });
+    //             break;
+    //     }
+    // }
 
 
     private boolean existsCid(String cid) {
@@ -157,12 +151,83 @@ public class SellerService {
                 (managerRepository.findByEmail(email) != null && managerRepository.findByEmail(email).getId() != id);
     }
 
-    public void findByNameAndCid(String name, String cid) {
-        if ((name == null || name.isEmpty()) && (cid == null || cid.isEmpty())) {
-            results = sellerRepository.findAll();
-        } else {
-            results = sellerRepository.findByFullnameContainsAndCidContains(name, cid);
+    public Page<Seller> getSellers(int page, int size, String searchQuery, String searchCid, String sortCriteria, int k, String sortCriteriaInPage) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        List<Seller> filteredSellers = sellerRepository.findByFullnameContainsAndCidContains(searchQuery, searchCid)
+        .stream()
+        .sorted((o1, o2) -> {
+            int comparison = 0;
+            switch (sortCriteria) {
+                case "id":
+                    comparison = o1.getId().compareTo(o2.getId());
+                    break;
+                case "email":
+                    comparison = o1.getUsername().compareTo(o2.getUsername());
+                    break;
+                case "fullname":
+                    comparison = o1.getFullname().compareTo(o2.getFullname());
+                    break;
+                case "cid":
+                    comparison = o1.getCid().compareTo(o2.getCid());
+                    break;
+                case "address":
+                    comparison = o1.getAddress().compareTo(o2.getAddress());
+                    break;
+                case "enabled":
+                    int tempO1IsEnabled = o1.isEnabled() ? 1 : 0;
+                    int tempO2IsEnabled = o2.isEnabled() ? 1 : 0;
+                    comparison = tempO1IsEnabled - tempO2IsEnabled;
+                    break;
+            }
+            return k * comparison;
+        })
+        .toList();
+
+        if (searchQuery != null && !searchQuery.isEmpty() && searchCid != null && !searchCid.isEmpty()) {
+            filteredSellers = filteredSellers.stream()
+                    .filter(seller -> seller.getFullname().toLowerCase().contains(searchQuery.toLowerCase())
+                            && seller.getCid().toLowerCase().contains(searchCid.toLowerCase()))
+                    .toList();
+        } else if (searchQuery != null && !searchQuery.isEmpty()) {
+            filteredSellers = filteredSellers.stream()
+                    .filter(seller -> seller.getFullname().toLowerCase().contains(searchQuery.toLowerCase()))
+                    .toList();
+        } else if (searchCid != null && !searchCid.isEmpty()) {
+            filteredSellers = filteredSellers.stream()
+                    .filter(seller -> seller.getCid().toLowerCase().contains(searchCid.toLowerCase()))
+                    .toList();
         }
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), filteredSellers.size());
+        
+        List<Seller> pagedSellers = filteredSellers.subList(start, end);
+
+        pagedSellers = pagedSellers
+        .stream()
+        .sorted((o1, o2) -> {
+            int comparison = 0;
+            if (sortCriteriaInPage == null || sortCriteriaInPage.isEmpty()) {
+                return 0;
+            }
+            switch (sortCriteriaInPage) {
+                case "id" -> comparison = o1.getId().compareTo(o2.getId());
+                case "email" -> comparison = o1.getUsername().compareTo(o2.getUsername());
+                case "fullname" -> comparison = o1.getFullname().compareTo(o2.getFullname());
+                case "cid" -> comparison = o1.getCid().compareTo(o2.getCid());
+                case "address" -> comparison = o1.getAddress().compareTo(o2.getAddress());
+                case "enabled" -> {
+                    int tempO1IsEnabled = o1.isEnabled() ? 1 : 0;
+                    int tempO2IsEnabled = o2.isEnabled() ? 1 : 0;
+                    comparison = tempO1IsEnabled - tempO2IsEnabled;
+                }
+            }
+            return k * comparison;
+        })
+        .toList();
+
+        return new PageImpl<>(pagedSellers, pageable, filteredSellers.size());
     }
 
     public Seller getSellerByEmail(String email) {

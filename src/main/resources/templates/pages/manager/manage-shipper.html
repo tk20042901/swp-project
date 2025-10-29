@@ -118,7 +118,6 @@
             padding: 10px 14px;
             border-radius: 6px;
             font-size: 14px;
-            width: 100%;
         }
 
         .form-control:focus, .form-select:focus {
@@ -137,7 +136,6 @@
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
-            background: transparent;
         }
 
         .btn-primary {
@@ -218,8 +216,6 @@
             border-radius: 20px;
             font-size: 0.813rem;
             font-weight: 600;
-            white-space: nowrap;
-            display: inline-block;
         }
 
         .status-active {
@@ -245,6 +241,10 @@
             color: var(--text-muted);
         }
 
+        .mb-3 {
+            margin-bottom: 1rem;
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 margin-left: 70px;
@@ -257,6 +257,15 @@
                 font-size: 13px;
             }
         }
+        .status-badge {
+            padding: 0.35rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.813rem;
+            font-weight: 600;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
     </style>
 </head>
 <body>
@@ -270,7 +279,7 @@
                 <i class="bi bi-arrow-left"></i> Trang chủ
             </a>
             <h2>
-                <i class="bi bi-truck"></i> Quản lý người giao hàng
+                <i class="bi bi-people"></i> Quản lý người giao hàng
             </h2>
         </div>
 
@@ -299,7 +308,7 @@
                         <form th:action="@{/manager/manage-shipper}" method="get">
                             <input name="queryName" th:value="${session.queryName}" hidden>
                             <input name="queryCid" th:value="${session.queryCid}" hidden>
-                            <div th:with="pageNumber=${(session.list.size() / session.numEachPage) + (session.list.size() % session.numEachPage == 0 ? 0 : 1)}">
+                            <div th:with="pageNumber=${totalPages}">
                                 <div class="pagination-wrapper" th:if="${0 < pageNumber && pageNumber <= 10}">
                                     <button th:each="i : ${#numbers.sequence(1, pageNumber)}"
                                             type="submit"
@@ -341,16 +350,34 @@
                     <!-- Search Button -->
                     <div style="flex: 0 0 auto;">
                         <form id="searchForm" th:action="@{/manager/manage-shipper}" method="get" style="margin: 0;">
-                            <button type="submit" name="clickedButton" value="search" class="btn btn-primary" style="min-width: 120px;">
+                            <button type="submit" class="btn btn-primary" style="min-width: 120px;">
                                 <i class="bi bi-search"></i> Tìm kiếm
                             </button>
+                        </form>
+                    </div>
+
+                    <!-- Sort Dropdown -->
+                    <div style="flex: 0 0 auto;">
+                        <label class="form-label">
+                            <i class="bi bi-sort-alpha-down"></i> Sắp xếp theo
+                        </label>
+                        <form th:action="@{/manager/manage-shipper}" method="get">
+                            <select name="sortCriteria" class="form-select" onchange="form.submit()">
+                                <option value="id" th:selected="${session.sortCriteria == 'id'}">ID</option>
+                                <option value="email" th:selected="${session.sortCriteria == 'email'}">Email</option>
+                                <option value="fullname" th:selected="${session.sortCriteria == 'fullname'}">Họ tên</option>
+                                <option value="cid" th:selected="${session.sortCriteria == 'cid'}">CMND/CCCD</option>
+                                <option value="address" th:selected="${session.sortCriteria == 'address'}">Địa chỉ</option>
+                                <option value="enabled" th:selected="${session.sortCriteria == 'enabled'}">Trạng thái</option>
+                            </select>
                         </form>
                     </div>
 
                     <!-- Add Button -->
                     <div style="flex: 0 0 auto;">
                         <form th:action="@{/manager/edit-staff}" method="get" style="margin: 0;">
-                            <button type="submit" name="clickedButton" value="Shipper" class="btn btn-success" style="min-width: 140px;">
+                            <input name="className" value="Shipper" hidden>
+                            <button type="submit" class="btn btn-success" style="min-width: 140px;">
                                 <i class="bi bi-plus-circle"></i> Thêm mới
                             </button>
                         </form>
@@ -364,7 +391,7 @@
             <div class="card-body" style="padding: 0;">
                 <div style="padding: 1.5rem; padding-bottom: 0;">
                     <h5 style="font-weight: 600; margin-bottom: 1.5rem;">
-                        📋 Danh sách người giao hàng
+                        📋 Danh sách người bán
                     </h5>
                 </div>
 
@@ -373,66 +400,66 @@
                     <tr>
                         <th>
                             <form th:action="@{/manager/manage-shipper}" method="get" style="display: inline;">
-                                <input name="queryName" th:value="${queryName}" hidden>
-                                <input name="queryCid" th:value="${queryCid}" hidden>
-                                <button type="submit" name="clickedButton" value="id"
-                                        th:class="${'btn btn-sm ' + (session.sortCriteria.equals('id') ? 'btn-primary' : 'btn-outline-primary')}">
-                                    ID <span th:if="${session.sortCriteria.equals('id')}"
+                                <!-- <input name="queryName" th:value="${queryName}" hidden>
+                                <input name="queryCid" th:value="${queryCid}" hidden> -->
+                                <button type="submit" name="sortCriteriaInPage" value="id"
+                                        th:class="${'btn btn-sm ' + (session.sortCriteriaInPage.equals('id') ? 'btn-primary' : 'btn-outline-primary')}">
+                                    ID <span th:if="${session.sortCriteriaInPage.equals('id')}"
                                              th:text="${session.k == 1 ? '▲' : '▼'}"></span>
                                 </button>
                             </form>
                         </th>
                         <th>
                             <form th:action="@{/manager/manage-shipper}" method="get" style="display: inline;">
-                                <input name="queryName" th:value="${queryName}" hidden>
-                                <input name="queryCid" th:value="${queryCid}" hidden>
-                                <button type="submit" name="clickedButton" value="email"
-                                        th:class="${'btn btn-sm ' + (session.sortCriteria.equals('email') ? 'btn-primary' : 'btn-outline-primary')}">
-                                    Email <span th:if="${session.sortCriteria.equals('email')}"
+                                <!-- <input name="queryName" th:value="${queryName}" hidden>
+                                <input name="queryCid" th:value="${queryCid}" hidden> -->
+                                <button type="submit" name="sortCriteriaInPage" value="email"
+                                        th:class="${'btn btn-sm ' + (session.sortCriteriaInPage.equals('email') ? 'btn-primary' : 'btn-outline-primary')}">
+                                    Email <span th:if="${session.sortCriteriaInPage.equals('email')}"
                                                 th:text="${session.k == 1 ? '▲' : '▼'}"></span>
                                 </button>
                             </form>
                         </th>
                         <th>
                             <form th:action="@{/manager/manage-shipper}" method="get" style="display: inline;">
-                                <input name="queryName" th:value="${queryName}" hidden>
-                                <input name="queryCid" th:value="${queryCid}" hidden>
-                                <button type="submit" name="clickedButton" value="fullname"
-                                        th:class="${'btn btn-sm ' + (session.sortCriteria.equals('fullname') ? 'btn-primary' : 'btn-outline-primary')}">
-                                    Họ tên <span th:if="${session.sortCriteria.equals('fullname')}"
+                                <!-- <input name="queryName" th:value="${queryName}" hidden>
+                                <input name="queryCid" th:value="${queryCid}" hidden> -->
+                                <button type="submit" name="sortCriteriaInPage" value="fullname"
+                                        th:class="${'btn btn-sm ' + (session.sortCriteriaInPage.equals('fullname') ? 'btn-primary' : 'btn-outline-primary')}">
+                                    Họ tên <span th:if="${session.sortCriteriaInPage.equals('fullname')}"
                                                  th:text="${session.k == 1 ? '▲' : '▼'}"></span>
                                 </button>
                             </form>
                         </th>
                         <th>
                             <form th:action="@{/manager/manage-shipper}" method="get" style="display: inline;">
-                                <input name="queryName" th:value="${queryName}" hidden>
-                                <input name="queryCid" th:value="${queryCid}" hidden>
-                                <button type="submit" name="clickedButton" value="cid"
-                                        th:class="${'btn btn-sm ' + (session.sortCriteria.equals('cid') ? 'btn-primary' : 'btn-outline-primary')}">
-                                    CMND/CCCD <span th:if="${session.sortCriteria.equals('cid')}"
+                                <!-- <input name="queryName" th:value="${queryName}" hidden>
+                                <input name="queryCid" th:value="${queryCid}" hidden> -->
+                                <button type="submit" name="sortCriteriaInPage" value="cid"
+                                        th:class="${'btn btn-sm ' + (session.sortCriteriaInPage.equals('cid') ? 'btn-primary' : 'btn-outline-primary')}">
+                                    CMND/CCCD <span th:if="${session.sortCriteriaInPage.equals('cid')}"
                                                     th:text="${session.k == 1 ? '▲' : '▼'}"></span>
                                 </button>
                             </form>
                         </th>
                         <th>
                             <form th:action="@{/manager/manage-shipper}" method="get" style="display: inline;">
-                                <input name="queryName" th:value="${queryName}" hidden>
-                                <input name="queryCid" th:value="${queryCid}" hidden>
-                                <button type="submit" name="clickedButton" value="address"
-                                        th:class="${'btn btn-sm ' + (session.sortCriteria.equals('address') ? 'btn-primary' : 'btn-outline-primary')}">
-                                    Địa chỉ <span th:if="${session.sortCriteria.equals('address')}"
+                                <!-- <input name="queryName" th:value="${queryName}" hidden>
+                                <input name="queryCid" th:value="${queryCid}" hidden> -->
+                                <button type="submit" name="sortCriteriaInPage" value="address"
+                                        th:class="${'btn btn-sm ' + (session.sortCriteriaInPage.equals('address') ? 'btn-primary' : 'btn-outline-primary')}">
+                                    Địa chỉ <span th:if="${session.sortCriteriaInPage.equals('address')}"
                                                   th:text="${session.k == 1 ? '▲' : '▼'}"></span>
                                 </button>
                             </form>
                         </th>
                         <th>
                             <form th:action="@{/manager/manage-shipper}" method="get" style="display: inline;">
-                                <input name="queryName" th:value="${queryName}" hidden>
-                                <input name="queryCid" th:value="${queryCid}" hidden>
-                                <button type="submit" name="clickedButton" value="enabled"
-                                        th:class="${'btn btn-sm ' + (session.sortCriteria.equals('enabled') ? 'btn-primary' : 'btn-outline-primary')}">
-                                    Trạng thái <span th:if="${session.sortCriteria.equals('enabled')}"
+                                <!-- <input name="queryName" th:value="${queryName}" hidden>
+                                <input name="queryCid" th:value="${queryCid}" hidden> -->
+                                <button type="submit" name="sortCriteriaInPage" value="enabled"
+                                        th:class="${'btn btn-sm ' + (session.sortCriteriaInPage.equals('enabled') ? 'btn-primary' : 'btn-outline-primary')}">
+                                    Trạng thái <span th:if="${session.sortCriteriaInPage.equals('enabled')}"
                                                      th:text="${session.k == 1 ? '▲' : '▼'}"></span>
                                 </button>
                             </form>
@@ -441,17 +468,15 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:if="${session.list.isEmpty()}">
+                    <tr th:if="${list.isEmpty()}">
                         <td colspan="7" class="no-data">
                             <i class="bi bi-inbox" style="font-size: 3rem; display: block; margin-bottom: 0.5rem;"></i>
                             Không có dữ liệu
                         </td>
                     </tr>
-                    <tr th:if="${!session.list.isEmpty()}"
-                        th:each="index : ${#numbers.sequence(session.numEachPage * (session.subpageIndex - 1),
-                                         ((session.numEachPage * session.subpageIndex - 1) < session.list.size() ?
-                                         (session.numEachPage * session.subpageIndex - 1) : (session.list.size() - 1)))}"
-                        th:object="${session.list[index]}">
+                    <tr th:if="${!list.isEmpty()}"
+                        th:each="object : ${list}"
+                        th:object="${object}">
                         <td th:text="*{id}"></td>
                         <td th:text="*{email}"></td>
                         <td th:text="*{fullname}"></td>
@@ -466,7 +491,8 @@
                         <td style="text-align: center;">
                             <form th:action="@{/manager/edit-staff}" method="get" style="display: inline;">
                                 <input name="email" th:value="*{email}" hidden>
-                                <button type="submit" name="clickedButton" value="Shipper"
+                                <input name="className" value="Shipper" hidden>
+                                <button type="submit"
                                         class="btn btn-sm btn-outline-primary">
                                     <i class="bi bi-pencil-square"></i> Sửa
                                 </button>
