@@ -734,27 +734,66 @@ public class ManagerController {
     }
 
     @GetMapping("/bill-list")
-    public String getBills(Model model,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "sortCriteria") String sortCriteria,
-            HttpSession session) {
+    public String getBills( @RequestParam(value = "sortCriteria", required = false) String sortCriteria,
+                            @RequestParam(value = "subpageIndex", required = false) Integer subpageIndex,
+                            @RequestParam(value = "queryName", required = false) String queryName,
+                            @RequestParam(value = "sortCriteriaInPage", required = false) String sortCriteriaInPage,
+                            HttpSession session,
+                            Model model) {
+        final int numEachPage = 10;
         if (session.getAttribute("k") == null) {
             session.setAttribute("k", 1);
         }
-        if (session.getAttribute("sortCriteria") != null) {
-            session.setAttribute("k", (int) session.getAttribute("k") * -1);
+        if (session.getAttribute("sortCriteria") == null) {
+            session.setAttribute("sortCriteria", "id");
         }
-        if (page < 1) {
-            page = 1;
+        if (session.getAttribute("sortCriteriaInPage") == null) {
+            session.setAttribute("sortCriteriaInPage", "id");
+        }
+        if (session.getAttribute("subpageIndex") == null) {
+            session.setAttribute("subpageIndex", 1);
+        }
+        if (session.getAttribute("numEachPage") == null) {
+            session.setAttribute("numEachPage", numEachPage);
+        }
+        if (session.getAttribute("queryName") == null) {
+            session.setAttribute("queryName", "");
+        }
+        if (session.getAttribute("queryCid") == null) {
+            session.setAttribute("queryCid", "");
+        }
+        if (queryName != null) {
+            session.setAttribute("queryName", queryName);
+            session.setAttribute("subpageIndex", 1);
+        }
+        if (sortCriteria != null && !sortCriteria.isEmpty()) {
+            session.setAttribute("sortCriteria", sortCriteria);
+        }
+        if (sortCriteriaInPage != null && !sortCriteriaInPage.isEmpty()) {
+            session.setAttribute("sortCriteriaInPage", sortCriteriaInPage);
+            int k = (int) session.getAttribute("k");
+            k = -k;
+            session.setAttribute("k", k);
+        }
+        if (subpageIndex != null) {
+            session.setAttribute("subpageIndex", subpageIndex);
         }
 
-        Page<Bill> bills = billService.getBills(page, size, sortCriteria, (int) session.getAttribute("k"));
+        Page<Bill> bills = billService.getBills(
+                (Integer) session.getAttribute("subpageIndex"),
+                numEachPage,
+                session.getAttribute("queryName").toString(),
+                (String) session.getAttribute("sortCriteria"),
+                (Integer) session.getAttribute("k"),
+                (String) session.getAttribute("sortCriteriaInPage"));
+
         model.addAttribute("k", session.getAttribute("k"));
         model.addAttribute("bills", bills.getContent());
-        model.addAttribute("page", page);
-        model.addAttribute("size", size);
-        model.addAttribute("sortCriteria", sortCriteria);
+        model.addAttribute("subpageIndex", session.getAttribute("subpageIndex"));
+        model.addAttribute("numEachPage", numEachPage);
+        model.addAttribute("sortCriteria", session.getAttribute("sortCriteria"));
+        model.addAttribute("sortCriteriaInPage", session.getAttribute("sortCriteriaInPage"));
+        model.addAttribute("queryName", session.getAttribute("queryName"));
         model.addAttribute("totalPages", bills.getTotalPages());
         model.addAttribute("billService", billService);
         return "pages/manager/bill-list";
