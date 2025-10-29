@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -210,7 +211,6 @@
         }
     </style>
 </head>
-
 <body>
 <div class="main-content">
     <div class="container">
@@ -219,76 +219,81 @@
             <h2><i class="bi bi-clipboard-check"></i> Yêu cầu sản phẩm từ người bán</h2>
         </div>
 
-        <div class="search">
-            <form th:action="@{/manager/all-products-request}" method="get">
-                <label>
-                    Loại yêu cầu:
-                    <select name="requestType">
-                        <option value="">-- Tất cả --</option>
-                        <option value="CREATE_PRODUCT">Tạo sản phẩm</option>
-                        <option value="UPDATE_PRODUCT">Cập nhật sản phẩm</option>
-                        <option value="DELETE_PRODUCT">Xóa sản phẩm</option>
-                        <option value="CREATE_CATEGORY">Tạo danh mục</option>
-                        <option value="UPDATE_CATEGORY">Cập nhật danh mục</option>
-                        <option value="DELETE_CATEGORY">Xóa danh mục</option>
-                        <option value="CREATE_UNIT">Tạo đơn vị</option>
-                        <option value="UPDATE_UNIT">Cập nhật đơn vị</option>
-                        <option value="DELETE_UNIT">Xóa đơn vị</option>
-                    </select>
-                </label>
-                <label>
-                    Trạng thái:
-                    <select name="status">
-                        <option value="">-- Tất cả --</option>
-                        <option value="PENDING">Đang chờ duyệt</option>
-                        <option value="APPROVED">Đã duyệt</option>
-                        <option value="REJECTED">Đã từ chối</option>
-                    </select>
-                </label>
-                <button type="submit"><i class="bi bi-search"></i> Tìm kiếm</button>
-                <a th:href="@{/manager/all-products-request}">
-                    <i class="bi bi-x-circle"></i> Xóa bộ lọc
-                </a>
-            </form>
-        </div>
+            <!-- Filter Card -->
+            <div class="filter-card">
+                <div class="card-body">
+                    <h5 style="font-weight: 600; margin-bottom: 1.5rem;">
+                        <i class="bi bi-funnel"></i> Bộ lọc
+                    </h5>
+                    <form th:action="@{/manager/all-products-request}" method="get"
+                        style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+                        <div style="flex: 1 1 200px;">
+                            <label class="form-label">
+                                <i class="bi bi-filter"></i> Trạng thái
+                            </label>
+                            <select name="status" class="form-select">
+                                <option value="">Tất cả</option>
+                                <option value="Đang Chờ Duyệt">Chờ duyệt</option>
+                                <option value="Đã Duyệt">Đã duyệt</option>
+                                <option value="Từ Chối">Từ chối</option>
+                                <option value="Đang Xử Lý">Đang xử lý</option>
+                            </select>
+                        </div>
 
-        <table>
-            <thead>
-            <tr>
-                <th>Tên thực thể</th>
-                <th>Loại yêu cầu</th>
-                <th>Người yêu cầu</th>
-                <th>Trạng thái</th>
-                <th>Ngày tạo</th>
-                <th>Thao tác</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="request : ${sellerRequests}">
-                <td th:text="${request.entityName}"></td>
-                <td th:text="${request.requestType.name}"></td>
-                <td th:text="${request.seller.fullname}"></td>
-                <td>
-                            <span th:class="${request.status.name == 'Đang Chờ Duyệt' ? 'badge badge-warning' :
-                                           request.status.name == 'Đã Duyệt' ? 'badge badge-success' :
+                        <div style="flex: 0 0 auto;">
+                            <button type="submit" class="btn btn-primary" style="min-width: 120px;">
+                                <i class="bi bi-search"></i> Lọc
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Results Card -->
+            <div class="card">
+                <div class="card-body" style="padding: 0;">
+                    <div style="padding: 1.5rem; padding-bottom: 0;">
+                        <h5 style="font-weight: 600; margin-bottom: 1.5rem;">
+                            📋 Danh sách yêu cầu
+                        </h5>
+                    </div>
+
+                    <table class="request-table">
+                        <thead>
+                            <tr>
+                                <th>Tên thực thể</th>
+                                <th>Loại yêu cầu</th>
+                                <th>Người yêu cầu</th>
+                                <th>Trạng thái</th>
+                                <th>Ngày tạo</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="request : ${sellerRequests}">
+                                <td th:text="${request.entityName}"></td>
+                                <td th:text="${request.requestType.name}"></td>
+                                <td th:text="${request.seller.fullname}"></td>
+                                <td>
+                                    <span
+                                        th:class="${request.status.name == 'Đang Chờ Duyệt' ? 'badge badge-warning' : 
+                                           request.status.name == 'Đã Duyệt' ? 'badge badge-success' : 
                                            request.status.name == 'Đã Từ Chối' ? 'badge badge-danger' : 'badge badge-secondary'}"
-                                  th:text="${request.status.name}"></span>
-                </td>
-                <td th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
-                <td>
-                    <a th:href="@{/manager/product-request-details/{id}(id=${request.id})}" class="btn btn-info">
-                        <i class="bi bi-eye"></i> Xem chi tiết
-                    </a>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+                                        th:text="${request.status.name}"></span>
+                                </td>
+                                <td th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                                <td>
+                                    <a th:href="@{/manager/product-request-details/{id}(id=${request.id})}"
+                                        class="btn btn-info">
+                                        <i class="bi bi-eye"></i> Xem chi tiết
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
-
-<script>
-    // You can add any JavaScript functionality here if needed
-</script>
 </body>
-
 </html>

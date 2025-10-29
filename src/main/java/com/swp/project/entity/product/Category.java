@@ -24,6 +24,8 @@ public class Category implements Serializable{
     @Column(nullable = false, unique = true, length = 50)
     private String name;
 
+    @Column(name = "is_active", nullable = false)
+    private boolean isActive;
     @JsonIgnore
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "categories")
     private List<Product> products;

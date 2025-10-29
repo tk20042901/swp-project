@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.swp.project.dto.CreateProductDto;
 import com.swp.project.dto.UpdateProductDto;
@@ -26,7 +25,6 @@ import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.SubImage;
 import com.swp.project.entity.seller_request.SellerRequest;
-import com.swp.project.entity.seller_request.SellerRequestStatus;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.listener.event.ProductRelatedUpdateEvent;
 import com.swp.project.repository.order.OrderItemRepository;
@@ -342,24 +340,7 @@ public class ProductService {
         return product;
     }
 
-    public UpdateProductDto mappingProductDtoFromProduct(Product product) {
-        UpdateProductDto dto = UpdateProductDto
-                .builder()
-                .id(product.getId())
-                .name(product.getName())
-                .description(product.getDescription())
-                .price(product.getPrice())
-                .unit(product.getUnit())
-                .enabled(product.isEnabled())
-                .categories(product.getCategories().stream().map(Category::getId).toList())
-                .mainImage(product.getMain_image_url())
-                .subDisplay1(product.getSub_images().get(0).getSub_image_url())
-                .subDisplay2(product.getSub_images().get(1).getSub_image_url())
-                .subDisplay3(product.getSub_images().get(2).getSub_image_url())
-                .quantity(product.getQuantity())
-                .build();
-        return dto;
-    }
+    
 
     public Product createProductForUpdateRequest(UpdateProductDto updateProductDto, 
                                                   MultipartFile imageFile, 

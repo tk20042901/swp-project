@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Yêu cầu của tôi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --white: #ffffff;
+            --light-gray: #f8f9fa;
+            --button-bg: #e9ecef;
+            --border-color: #dee2e6;
+            --text-dark: #212529;
+            --text-muted: #6c757d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            background: var(--white);
+            color: var(--text-dark);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 30px;
+            background: var(--white);
+        }
+
+        .request-table thead th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            color: #495057;
+            padding: 1rem 0.75rem;
+        }
+
+        .request-table tbody td {
+            padding: 1rem 0.75rem;
+            vertical-align: middle;
+        }
+
+        .request-table tbody tr {
+            border-bottom: 1px solid rgba(16, 24, 40, 0.06);
+            transition: background-color 0.2s ease;
+        }
+
+        .request-table tbody tr:hover {
+            background-color: rgba(13, 110, 253, 0.02);
+        }
+
+        .status-badge {
+            padding: 0.4rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.813rem;
+            font-weight: 600;
+        }
+
+        .filter-card {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+        }
+
+        .header {
+            background: var(--light-gray);
+            padding: 20px 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+        }
+
+        .header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin: 8px 0;
+        }
+
+        .header a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .header a:hover {
+            color: var(--text-dark);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .form-control, .form-select {
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #adb5bd;
+            box-shadow: none;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-primary {
+            background: #0d6efd;
+            border-color: #0d6efd;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0b5ed7;
+            border-color: #0a58ca;
+        }
+
+        .btn-outline-secondary {
+            background: var(--button-bg);
+            color: var(--text-dark);
+        }
+
+        .btn-outline-secondary:hover {
+            background: #d3d6d9;
+            color: var(--text-dark);
+        }
+
+        .btn-outline-primary {
+            background: transparent;
+            color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+        .btn-outline-primary:hover {
+            background: #0d6efd;
+            color: white;
+        }
+
+        .card {
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .card-footer {
+            background: var(--light-gray);
+            border-top: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .badge {
+            padding: 0.4rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.813rem;
+            font-weight: 600;
+        }
+
+        .bg-warning {
+            background-color: #ffc107 !important;
+            color: #000;
+        }
+
+        .bg-success {
+            background-color: #198754 !important;
+            color: white;
+        }
+
+        .bg-danger {
+            background-color: #dc3545 !important;
+            color: white;
+        }
+
+        .bg-primary {
+            background-color: #0d6efd !important;
+            color: white;
+        }
+
+        .bg-info {
+            background-color: #0dcaf0 !important;
+            color: #000;
+        }
+
+        .bg-secondary {
+            background-color: #6c757d !important;
+            color: white;
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .page-info {
+            padding: 0.5rem 0.75rem;
+            background-color: var(--white);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            border: 1px solid var(--border-color);
+        }
+
+        .entity-badge {
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background-color: #e7f5ff;
+            color: #1971c2;
+            display: inline-block;
+        }
+
+        .content-preview {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .date-text {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 1024px) {
+            .filter-card form > div {
+                flex-wrap: wrap;
+            }
+
+            .filter-card form > div > div {
+                flex: 1 1 calc(50% - 0.5rem);
+                min-width: 200px;
+            }
+
+            .filter-card .btn {
+                flex: 1 1 calc(50% - 0.5rem);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filter-card form > div > div,
+            .filter-card .btn {
+                flex: 1 1 100%;
+            }
+
+            .main-content {
+                margin-left: 70px;
+                padding: 16px;
+            }
+
+            table {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <div th:replace="~{fragments/seller-sidebar :: seller-sidebar}"></div>
+
+    <div class="main-content">
+        <!-- Page Header -->
+        <div class="header">
+            <a th:href="@{/}"><i class="bi bi-arrow-left"></i> Trang chủ</a>
+            <h2>
+                <i class="bi bi-inbox"></i> Yêu cầu của tôi
+            </h2>
+        </div>
+
+        <!-- Filter Card -->
+        <div class="filter-card">
+            <div class="card-body">
+                <h5 style="font-weight: 600; margin-bottom: 1.5rem;">
+                    <i class="bi bi-funnel"></i> Bộ lọc tìm kiếm
+                </h5>
+                <form th:action="@{/seller/my-requests}" method="get">
+                    <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+                        <div style="flex: 0 0 200px;">
+                            <label class="form-label"><i class="bi bi-file-earmark"></i> Loại đối tượng</label>
+                            <select class="form-select" name="entityName">
+                                <option th:value="''">Tất cả</option>
+                                <option value="Product" th:selected="${entityName == 'Product'}">Sản phẩm</option>
+                                <option value="ProductUnit" th:selected="${entityName == 'ProductUnit'}">Đơn vị sản phẩm</option>
+                                <option value="Category" th:selected="${entityName == 'Category'}">Danh mục</option>
+                            </select>
+                        </div>
+                        <div style="flex: 0 0 200px;">
+                            <label class="form-label"><i class="bi bi-clipboard-check"></i> Trạng thái</label>
+                            <select class="form-select" name="statusId">
+                                <option th:value="''">Tất cả</option>
+                                <option value="1" th:selected="${statusId == 1}">Chờ xử lý</option>
+                                <option value="2" th:selected="${statusId == 2}">Đã chấp nhận</option>
+                                <option value="3" th:selected="${statusId == 3}">Đã từ chối</option>
+                            </select>
+                        </div>
+                        <div style="flex: 0 0 200px;">
+                            <label class="form-label"><i class="bi bi-tag"></i> Loại yêu cầu</label>
+                            <select class="form-select" name="typeId">
+                                <option th:value="''">Tất cả</option>
+                                <option value="1" th:selected="${typeId == 1}">Thêm mới</option>
+                                <option value="2" th:selected="${typeId == 2}">Cập nhật</option>
+                                <option value="3" th:selected="${typeId == 3}">Xóa</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="min-width: 120px;">
+                            <i class="bi bi-search"></i> Tìm kiếm
+                        </button>
+                    </div>
+                </form>
+                <div th:if="${(entityName != null and !#strings.isEmpty(entityName)) or statusId != null or typeId != null}"
+                     style="margin-top: 1rem;">
+                    <a th:href="@{/seller/my-requests}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Xóa bộ lọc
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Card -->
+        <div class="card">
+            <div class="card-body" style="padding: 0;">
+                <div style="padding: 1.5rem; padding-bottom: 0;">
+                    <h5 style="font-weight: 600; margin-bottom: 1.5rem;">
+                        📋 Danh sách yêu cầu
+                        <span class="badge bg-primary" th:text="${totalElements}">0</span>
+                    </h5>
+                </div>
+
+                <table class="request-table">
+                    <thead>
+                    <tr>
+                        <th>Mã YC</th>
+                        <th>Loại đối tượng</th>
+                        <th>Loại yêu cầu</th>
+                        <th>Ngày tạo</th>
+                        <th style="text-align: center;">Trạng thái</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(requests)}">
+                        <td colspan="5" style="text-align: center; padding: 40px 16px; color: var(--text-muted);">
+                            <i class="bi bi-inbox" style="font-size: 48px; opacity: 0.3;"></i>
+                            <br><br>
+                            Không có yêu cầu nào
+                        </td>
+                    </tr>
+                    <tr th:each="request : ${requests}">
+                        <td>
+                            <span style="font-weight: 600; color: #0d6efd;" th:text="'#' + ${request.id}">#123</span>
+                        </td>
+                        <td>
+                            <span class="entity-badge" th:text="${request.entityName}">Product</span>
+                        </td>
+                        <td>
+                            <span th:if="${request.requestType.name == 'Thêm mới'}" style="color: #198754;">
+                                <i class="bi bi-plus-circle"></i> Thêm mới
+                            </span>
+                            <span th:if="${request.requestType.name == 'Cập nhật'}" style="color: #0d6efd;">
+                                <i class="bi bi-pencil-square"></i> Cập nhật
+                            </span>
+                        </td>
+                        <td>
+                            <div class="date-text">
+                                <i class="bi bi-calendar"></i>
+                                <span th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:30</span>
+                            </div>
+                        </td>
+                        <td style="text-align: center;">
+                            <span class="badge status-badge"
+                                  th:classappend="${request.status.name == 'Đang Chờ Duyệt'} ? 'bg-warning' : (${request.status.name == 'Đã Duyệt'} ? 'bg-success' : 'bg-danger')"
+                                  th:text="${request.status.name == 'Đang Chờ Duyệt'} ? 'Đang Chờ Duyệt' : (${request.status.name == 'Đã Duyệt'} ? 'Đã chấp nhận' : 'Đã từ chối')">
+                                Chờ xử lý
+                            </span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination Footer -->
+            <div class="card-footer" th:if="!${#lists.isEmpty(requests)}">
+                <div class="pagination-controls">
+                    <a th:if="!${isFirst}"
+                       th:href="@{/seller/my-requests(page=0, size=${size}, entityName=${entityName}, statusId=${statusId}, typeId=${typeId})}"
+                       class="btn btn-outline-primary" style="font-size: 13px; padding: 6px 12px;">
+                        Đầu
+                    </a>
+                    <a th:if="${hasPrevious}"
+                       th:href="@{/seller/my-requests(page=${currentPage - 1}, size=${size}, entityName=${entityName}, statusId=${statusId}, typeId=${typeId})}"
+                       class="btn btn-outline-primary" style="font-size: 13px; padding: 6px 12px;">
+                        ‹ Trước
+                    </a>
+                    <span class="page-info">
+                        Trang <strong th:text="${currentPage + 1}">1</strong> / <strong th:text="${totalPages}">10</strong>
+                    </span>
+                    <a th:if="${hasNext}"
+                       th:href="@{/seller/my-requests(page=${currentPage + 1}, size=${size}, entityName=${entityName}, statusId=${statusId}, typeId=${typeId})}"
+                       class="btn btn-outline-primary" style="font-size: 13px; padding: 6px 12px;">
+                        Sau ›
+                    </a>
+                    <a th:if="!${isLast}"
+                       th:href="@{/seller/my-requests(page=${totalPages - 1}, size=${size}, entityName=${entityName}, statusId=${statusId}, typeId=${typeId})}"
+                       class="btn btn-outline-primary" style="font-size: 13px; padding: 6px 12px;">
+                        Cuối
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

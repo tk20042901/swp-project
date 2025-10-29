@@ -188,7 +188,7 @@ public class SellerController {
         model.addAttribute("units", unitService.getAllUnits());
         model.addAttribute("categories", categoryService.getAllCategories());
         model.addAttribute("products", productService.getAllProducts());
-        model.addAttribute("updateProductDto", productService.mappingProductDtoFromProduct(product));
+        model.addAttribute("updateProductDto", new UpdateProductDto(product));
         return "pages/seller/product/update-product";
     }
 
@@ -200,7 +200,7 @@ public class SellerController {
             @RequestParam MultipartFile imageFile,
             @RequestParam MultipartFile[] subImageFiles,
             Principal principal) {
-        if (bindingResult.hasErrors()) {
+            if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("error", bindingResult.getAllErrors().get(0).getDefaultMessage());
             return "redirect:/seller/seller-update-product/" + updateProductDto.getId();
         }
@@ -291,6 +291,7 @@ public class SellerController {
             ProductUnit productUnit = ProductUnit.builder()
                     .name(productUnitDto.getName())
                     .isAllowDecimal(productUnitDto.getIsAllowDecimal())
+                    .isActive(productUnitDto.getIsActive())
                     .build();
             
             sellerRequestService.saveAddRequest(productUnit, principal.getName());
@@ -314,6 +315,7 @@ public class SellerController {
                     .id(productUnit.getId())
                     .name(productUnit.getName())
                     .isAllowDecimal(productUnit.isAllowDecimal())
+                    .isActive(productUnit.isActive())
                     .build();
                     
             model.addAttribute("updateProductUnitDto", updateProductUnitDto);
@@ -344,6 +346,7 @@ public class SellerController {
                     .id(updateProductUnitDto.getId())
                     .name(updateProductUnitDto.getName())
                     .isAllowDecimal(updateProductUnitDto.getIsAllowDecimal())
+                    .isActive(updateProductUnitDto.getIsActive())
                     .build();
             
             sellerRequestService.saveUpdateRequest(oldProductUnit, newProductUnit, principal.getName());
@@ -436,6 +439,7 @@ public class SellerController {
             UpdateCategoryDto updateCategoryDto = UpdateCategoryDto.builder()
                     .id(category.getId())
                     .name(category.getName())
+                    .isActive(category.isActive())
                     .build();
                     
             model.addAttribute("updateCategoryDto", updateCategoryDto);
@@ -465,6 +469,7 @@ public class SellerController {
             Category newCategory = Category.builder()
                     .id(updateCategoryDto.getId())
                     .name(updateCategoryDto.getName())
+                    .isActive(updateCategoryDto.getIsActive())
                     .build();
             
             sellerRequestService.saveUpdateRequest(oldCategory, newCategory, principal.getName());
@@ -476,44 +481,63 @@ public class SellerController {
         return "redirect:/seller/product-category";
     }
 
-    @GetMapping("/delete-product-category")
-    public String deleteCategory(
-            @RequestParam Long id,
-            RedirectAttributes redirectAttributes,
-            Principal principal) {
-        try {
-            Category category = categoryService.getCategoryById(id);
-            if (category == null) {
-                throw new Exception("Không tìm thấy danh mục");
-            }
-            
-            boolean hasRequest = false;
-            for(SellerRequest sellerRequest : sellerRequestService.getSellerRequestByEntityName(Category.class)){
-                Long cateId = sellerRequestService.getEntityFromContent(sellerRequest.getContent(), Category.class).getId();
-                if(sellerRequestStatusService.isPendingStatus(sellerRequest)
-                        && sellerRequestTypeService.isDeleteType(sellerRequest)
-                        && cateId.equals(id)){
-                    hasRequest = true;
-                    break;
-                }
-            }
 
-            if (hasRequest) {
-                throw new Exception("Đã có yêu cầu xóa danh mục này đang chờ xử lý");
-            }
-            if (category.getProducts() != null && !category.getProducts().isEmpty()) {
-                throw new Exception("Không thể xóa danh mục này vì đang được sử dụng bởi " 
-                    + category.getProducts().size() + " sản phẩm");
-            }
-            
-            sellerRequestService.saveDeleteRequest(category, principal.getName());
-            redirectAttributes.addFlashAttribute("success", "Yêu cầu xóa danh mục đã được gửi đến quản lý");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+    @GetMapping("/my-requests")
+    public String getMyRequests(
+            @RequestParam(required = false) String entityName,
+            @RequestParam(required = false) Long statusId,
+            @RequestParam(required = false) Long typeId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Principal principal,
+            Model model) {
+        
+        List<SellerRequest> allRequests = sellerRequestService.getSellerRequestBySellerEmail(principal.getName());
+        
+        // Filter requests
+        if (entityName != null && !entityName.isEmpty()) {
+            allRequests = allRequests.stream()
+                    .filter(req -> req.getEntityName().equals(entityName))
+                    .toList();
         }
-        return "redirect:/seller/product-category";
+        
+        if (statusId != null) {
+            allRequests = allRequests.stream()
+                    .filter(req -> req.getStatus().getId().equals(statusId))
+                    .toList();
+        }
+        
+        if (typeId != null) {
+            allRequests = allRequests.stream()
+                    .filter(req -> req.getRequestType().getId().equals(typeId))
+                    .toList();
+        }
+        
+        // Sort by createdAt descending (newest first)
+        allRequests = allRequests.stream()
+                .sorted((r1, r2) -> r2.getCreatedAt().compareTo(r1.getCreatedAt()))
+                .toList();
+        
+        // Pagination
+        int start = page * size;
+        int end = Math.min(start + size, allRequests.size());
+        List<SellerRequest> paginatedRequests = allRequests.subList(start, end);
+        
+        model.addAttribute("requests", paginatedRequests);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", (int) Math.ceil((double) allRequests.size() / size));
+        model.addAttribute("totalElements", allRequests.size());
+        model.addAttribute("size", size);
+        model.addAttribute("entityName", entityName);
+        model.addAttribute("statusId", statusId);
+        model.addAttribute("typeId", typeId);
+        model.addAttribute("hasNext", end < allRequests.size());
+        model.addAttribute("hasPrevious", page > 0);
+        model.addAttribute("isFirst", page == 0);
+        model.addAttribute("isLast", end >= allRequests.size());
+        
+        return "pages/seller/seller-requests";
     }
-
 
     
 }

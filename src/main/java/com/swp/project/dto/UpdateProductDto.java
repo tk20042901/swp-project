@@ -3,22 +3,36 @@ package com.swp.project.dto;
 import java.util.List;
 
 import com.swp.project.entity.product.Category;
+import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.ProductUnit;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-@Builder
 public class UpdateProductDto{
-    private Long id;
+    
+    public UpdateProductDto(Product product) {
+        this.id = product.getId();
+        this.name = product.getName();
+        this.description = product.getDescription();
+        this.price = product.getPrice();
+        this.unit = product.getUnit();  
+        this.enabled = product.isEnabled();
+        this.categories = product.getCategories().stream().map(Category::getId).toList();
+        this.mainImage = product.getMain_image_url();
+        this.subDisplay1 = product.getSub_images().get(0).getSub_image_url();
+        this.subDisplay2 = product.getSub_images().get(1).getSub_image_url();
+        this.subDisplay3 = product.getSub_images().get(2).getSub_image_url();
+        this.quantity = product.getAvailableQuantity();
+    }
 
+    private Long id;
     @NotBlank(message = "Tên sản phẩm không được để trống")
     @Size(max = 50, message = "Tên sản phẩm không được vượt quá 50 ký tự")
     private String name;

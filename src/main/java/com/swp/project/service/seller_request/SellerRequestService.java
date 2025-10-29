@@ -30,6 +30,10 @@ public class SellerRequestService {
         return sellerRequestRepository.findByEntityName(entityClass.getSimpleName());
     }
 
+    public List<SellerRequest> getSellerRequestBySellerEmail(String email) {
+        return sellerRequestRepository.findBySellerEmail(email);
+    }
+
     public SellerRequest getSellerRequestById(Long id) {
         return sellerRequestRepository.findById(id).orElse(null);
     }

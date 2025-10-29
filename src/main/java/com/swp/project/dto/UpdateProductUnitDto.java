@@ -25,4 +25,7 @@ public class UpdateProductUnitDto {
 
     @NotNull(message = "Trường cho phép thập phân không được để trống")
     private Boolean isAllowDecimal;
+
+    @NotNull(message = "Trường trạng thái không được để trống")
+    private Boolean isActive;
 }
