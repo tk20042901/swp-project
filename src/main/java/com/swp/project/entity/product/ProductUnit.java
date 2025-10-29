@@ -1,11 +1,16 @@
 package com.swp.project.entity.product;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.swp.project.dto.CreateProductUnitDto;
+import com.swp.project.dto.UpdateProductUnitDto;
+
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
 import java.util.List;
+
+import org.hibernate.sql.Update;
 
 @Getter
 @Setter
@@ -30,4 +35,18 @@ public class ProductUnit implements Serializable {
     @JsonIgnore
     @OneToMany(mappedBy = "unit", fetch = FetchType.EAGER)
     private List<Product> products;
+
+
+    public ProductUnit(CreateProductUnitDto dto) {
+        this.name = dto.getName();
+        this.isAllowDecimal = dto.getIsAllowDecimal();
+        this.isActive = true;
+    }
+
+    public ProductUnit(UpdateProductUnitDto dto) {
+        this.id = dto.getId();  
+        this.name = dto.getName();
+        this.isAllowDecimal = dto.getIsAllowDecimal();
+        this.isActive = dto.getIsActive();
+    }
 }

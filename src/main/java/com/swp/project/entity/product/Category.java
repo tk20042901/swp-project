@@ -1,6 +1,8 @@
 package com.swp.project.entity.product;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.swp.project.dto.CreateCategoryDto;
+import com.swp.project.dto.UpdateCategoryDto;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -29,4 +31,15 @@ public class Category implements Serializable{
     @JsonIgnore
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "categories")
     private List<Product> products;
+
+    public Category(CreateCategoryDto dto) {
+        this.name = dto.getName();
+        this.isActive = dto.getIsActive();
+    }
+
+    public Category(UpdateCategoryDto dto) {
+        this.id = dto.getId();
+        this.name = dto.getName();
+        this.isActive = dto.getIsActive();
+    }
 }
