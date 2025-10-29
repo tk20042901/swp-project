@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.swp.project.dto.CreateProductDto;
 import com.swp.project.dto.UpdateProductDto;
@@ -26,7 +25,6 @@ import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.SubImage;
 import com.swp.project.entity.seller_request.SellerRequest;
-import com.swp.project.entity.seller_request.SellerRequestStatus;
 import com.swp.project.entity.shopping_cart.ShoppingCartItem;
 import com.swp.project.listener.event.ProductRelatedUpdateEvent;
 import com.swp.project.repository.order.OrderItemRepository;

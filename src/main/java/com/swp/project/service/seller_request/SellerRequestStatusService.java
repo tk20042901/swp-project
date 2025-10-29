@@ -22,10 +22,6 @@ public class SellerRequestStatusService {
 
     public SellerRequestStatus getRejectedStatus() {
         SellerRequestStatus status = sellerRequestStatusRepository.findByName("Đã Từ Chối");
-        if(status == null) {
-            status = SellerRequestStatus.builder().name("Đã Từ Chối").build();
-            sellerRequestStatusRepository.save(status);
-        }
         return status;
     }
 

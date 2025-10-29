@@ -1,10 +1,6 @@
 const productContainer = document.getElementById('productCategoryContainer')
 const categoryContainer = document.getElementById('category');
 
-
-
-
-
 async function loadAllCategory() {
     categoryContainer.innerHTML = '';
     const loadingOption = document.createElement('option');

@@ -22,4 +22,7 @@ public class UpdateCategoryDto {
     @NotBlank(message = "Tên danh mục không được để trống")
     @Length(max = 50, message = "Tên danh mục không được vượt quá 50 ký tự")
     private String name;
+
+    @NotNull(message = "Trạng thái hoạt động của danh mục không được để trống")
+    private Boolean isActive;
 }

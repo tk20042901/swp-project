@@ -263,14 +263,21 @@
                     <tr>
                         <th>ID</th>
                         <th>Tên danh mục</th>
-                        <th>Mô tả</th>
+                        <th>Trạng thái</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr th:object="${newCategory}">
                         <td th:text="*{id}"></td>
-                        <td th:text="*{categoryName}"></td>
-                        <td th:text="*{categoryDescription}"></td>
+                        <td th:text="*{name}"></td>
+                        <td>
+                            <span th:if="*{isActive}" style="color: #198754; font-weight: 500;">
+                                <i class="bi bi-check-circle-fill"></i> Hoạt động
+                            </span>
+                            <span th:unless="*{isActive}" style="color: #dc3545; font-weight: 500;">
+                                <i class="bi bi-x-circle-fill"></i> Không hoạt động
+                            </span>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
@@ -291,14 +298,21 @@
                     <tr>
                         <th>ID</th>
                         <th>Tên danh mục</th>
-                        <th>Mô tả</th>
+                        <th>Trạng thái</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr th:object="${oldCategory}">
                         <td th:text="*{id}"></td>
-                        <td th:text="*{categoryName}"></td>
-                        <td th:text="*{categoryDescription}"></td>
+                        <td th:text="*{name}"></td>
+                        <td>
+                            <span th:if="*{isActive}" style="color: #198754; font-weight: 500;">
+                                <i class="bi bi-check-circle-fill"></i> Hoạt động
+                            </span>
+                            <span th:unless="*{isActive}" style="color: #dc3545; font-weight: 500;">
+                                <i class="bi bi-x-circle-fill"></i> Không hoạt động
+                            </span>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
@@ -311,14 +325,14 @@
                 <div class="btn-group-action">
                     <form th:action="@{/manager/approve-category-request}" method="post">
                         <input type="hidden" name="requestId" th:value="${sellerRequest.id}" />
-                        <button type="submit" th:if="${sellerRequest.status.name() == 'PENDING'}" class="btn btn-success">
+                        <button type="submit" th:if="${sellerRequest.status.name == 'Đang Chờ Duyệt'}" class="btn btn-success">
                             <i class="bi bi-check-circle-fill"></i> Phê duyệt
                         </button>
                     </form>
 
                     <form th:action="@{/manager/reject-category-request}" method="post">
                         <input type="hidden" name="requestId" th:value="${sellerRequest.id}" />
-                        <button type="submit" th:if="${sellerRequest.status.name() == 'PENDING'}" class="btn btn-danger">
+                        <button type="submit" th:if="${sellerRequest.status.name == 'Đang Chờ Duyệt'}" class="btn btn-danger">
                             <i class="bi bi-x-circle-fill"></i> Từ chối
                         </button>
                     </form>
