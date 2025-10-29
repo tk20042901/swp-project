@@ -188,7 +188,7 @@ public class SellerController {
         model.addAttribute("units", unitService.getAllUnits());
         model.addAttribute("categories", categoryService.getAllCategories());
         model.addAttribute("products", productService.getAllProducts());
-        model.addAttribute("updateProductDto", productService.mappingProductDtoFromProduct(product));
+        model.addAttribute("updateProductDto", new UpdateProductDto(product));
         return "pages/seller/product/update-product";
     }
 
@@ -200,7 +200,7 @@ public class SellerController {
             @RequestParam MultipartFile imageFile,
             @RequestParam MultipartFile[] subImageFiles,
             Principal principal) {
-        if (bindingResult.hasErrors()) {
+            if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("error", bindingResult.getAllErrors().get(0).getDefaultMessage());
             return "redirect:/seller/seller-update-product/" + updateProductDto.getId();
         }

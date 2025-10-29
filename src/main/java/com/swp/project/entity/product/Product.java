@@ -76,6 +76,12 @@ public class Product implements Serializable{
             "WHERE oi.product_id = id AND os.name IN ('Đã Giao Hàng','Đang Giao Hàng','Đang Chuẩn Bị Hàng'))")
     private Integer soldQuantity;
 
-          
+    // Formula tính available quantity trong DB - số lượng còn lại sau khi trừ đi số lượng đang chờ thanh toán
+    @Formula("(quantity - COALESCE((SELECT SUM(oi.quantity) " +
+            "FROM order_item oi " +
+            "INNER JOIN orders o ON o.id = oi.order_id " +
+            "INNER JOIN order_status os ON o.order_status_id = os.id " +
+            "WHERE oi.product_id = id AND os.name = 'Chờ Thanh Toán'), 0))")
+    private Double availableQuantity;
 
 }

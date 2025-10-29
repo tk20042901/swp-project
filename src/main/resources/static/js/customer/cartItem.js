@@ -7,7 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return response.text();
         })
         .then(data => {
-            document.getElementById('cartNumber').textContent = data
+            const cartElement = document.getElementById('cartNumber');
+            if(cartElement != null){
+                cartElement.textContent = data
+            }
         })
         .catch(err => console.error(err));
 })
