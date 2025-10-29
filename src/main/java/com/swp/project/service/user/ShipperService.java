@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -56,42 +55,8 @@ public class ShipperService {
     public Shipper getByEmail(String email) { return shipperRepository.findByEmail(email);
     }
 
-    @Transactional
-    public void initShipper() {
-        try {
-            for (int i = 1; i <= 36; i++) {
-                createShipperIfNotExists(Shipper.builder()
-                        .email("shipper" + i + "@shop.com")
-                        .password("shipper")
-                        .fullname("shipper" + i + "@shop.com")
-                        .birthDate(sdf.parse("2001-09-11"))
-                        .cid(UUID.randomUUID().toString())
-                        .specificAddress("123 Đường ABC, Phường XYZ")
-                        .build());
-            }
-            createShipperIfNotExists(Shipper.builder()
-                    .email("disabled-shipper@shop.com")
-                    .password("shipper")
-                    .fullname("seller" + 999 + "@shop.com")
-                    .birthDate(sdf.parse("2001-09-11"))
-                    .cid(UUID.randomUUID().toString())
-                    .specificAddress("123 Đường ABC, Phường XYZ")
-                    .enabled(false)
-                    .build());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    private void createShipperIfNotExists(Shipper shipper) {
-        if (!userRepository.existsByEmail(shipper.getEmail())) {
-            shipper.setPassword(passwordEncoder.encode(shipper.getPassword()));
-            shipperRepository.save(shipper);
-        }
-    }
-
-    public void save(Shipper shipper) { shipperRepository.save(shipper);
+    public void save(Shipper shipper) {
+        shipperRepository.save(shipper);
     }
 
 

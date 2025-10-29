@@ -12,12 +12,10 @@ import com.swp.project.repository.user.SellerRepository;
 import com.swp.project.repository.user.ShipperRepository;
 import com.swp.project.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
-import java.time.LocalDate;
 import java.util.List;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 
@@ -33,31 +31,6 @@ public class ManagerService {
     private final ShipperRepository shipperRepository;
     public Manager getManagerById(Long id) {
         return managerRepository.findById(id).orElse(null);
-    }
-
-    @Transactional
-    public void initManager() {
-        List<CommuneWard> wards = communeWardRepository.findAll();
-        CommuneWard ward = wards.isEmpty() ? null : wards.get(0);
-        
-        for (int i = 1; i <= 4; i++) {
-            createManagerIfNotExists(Manager.builder()
-                    .fullname("Manager " + i)
-                    .email("manager" + i + "@shop.com")
-                    .password("manager")
-                    .communeWard(ward)
-                    .specificAddress("123 Main St, City " + i)
-                    .birthDate(LocalDate.of(2000, 1, i))
-                    .cid("ID" + i)
-                    .build());
-        }
-    }
-
-    private void createManagerIfNotExists(Manager manager) {
-        if (!userRepository.existsByEmail(manager.getEmail())) {
-            manager.setPassword(passwordEncoder.encode(manager.getPassword()));
-            managerRepository.save(manager);
-        }
     }
 
     public void updateManager(Long id, EditManagerDto updatedManager) {

@@ -1,10 +1,13 @@
 package com.swp.project.service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -21,6 +24,7 @@ import org.springframework.ai.template.st.StTemplateRenderer;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vertexai.gemini.VertexAiGeminiChatModel;
 import org.springframework.ai.vertexai.gemini.VertexAiGeminiChatOptions;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -132,12 +136,12 @@ public class CustomerAiService {
                 .builder(VertexAiGeminiChatModel.builder()
                         .defaultOptions(VertexAiGeminiChatOptions.builder()
                                 .model("gemini-2.5-flash")
-                                .maxOutputTokens(128)
+                                .maxOutputTokens(1024)
                                 .temperature(0.0)
                                 .build())
                         .vertexAI(new VertexAI("gen-lang-client-0228656505","asia-southeast1"))
                         .build())
-                .defaultUser("Hãy xác định và trả về tên trái cây trong hình ảnh này bằng tiếng Việt, không thêm bất kỳ giải thích nào. Nếu không phải là trái cây, hãy trả về \"Không phải trái cây\".")
+                .defaultUser("Hãy xác định và trả về tên trái cây trong hình ảnh này bằng tiếng Việt, không thêm bất kỳ giải thích nào. Nếu có trên 1 loại trái cây, hãy trả về tất cả và ngăn cách bằng dấu phẩy. Nếu không phải là trái cây, hãy trả về \"Không phải trái cây\".")
                 .build();
     }
 
@@ -203,11 +207,25 @@ public class CustomerAiService {
         } else {
             String contentType = image.getContentType();
             if (contentType != null && contentType.startsWith("image")) {
-                imageAsk(conversationId, q, image.getResource(), contentType, conversation);
+                try {
+                    imageAsk(conversationId, q, resizeImage(image), contentType, conversation);
+                } catch (Exception e) {
+                    throw new RuntimeException("Lỗi xử lý hình ảnh: " + e.getMessage());
+                }
             } else {
                 throw new RuntimeException("Hệ thống chỉ hỗ trợ hình ảnh có định dạng PNG, JPG, JPEG, WEBP");
             }
         }
+    }
+
+    public static Resource resizeImage(MultipartFile multipartFile) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Thumbnails.of(multipartFile.getInputStream())
+                .outputFormat("jpg")
+                .outputQuality(0.85)
+                .size(2048, 2048)
+                .toOutputStream(outputStream);
+        return new ByteArrayResource(outputStream.toByteArray());
     }
 
     private void textAsk(String conversationId, String q, List<AiMessageDto> conversation) {
@@ -231,6 +249,7 @@ public class CustomerAiService {
                 .user(u -> u
                         .media(MimeTypeUtils.parseMimeType(contentType), media))
                 .call().content();
+        System.out.println(fruitName);
         String answer = chatClient.prompt()
                 .user(u -> u
                         .text(q + " (Hình ảnh đính kèm : "+ fruitName +" )"))
