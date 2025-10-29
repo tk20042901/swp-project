@@ -8,6 +8,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -184,5 +188,83 @@ public class ShipperService {
         order.setShipper(assignedShipper);
     }
 
+    public Page<Shipper> getShippers(int page, int size, String searchQuery, String searchCid, String sortCriteria, int k, String sortCriteriaInPage) {
+        Pageable pageable = PageRequest.of(page - 1, size);
 
+        List<Shipper> filteredShippers = shipperRepository.findByFullnameContainsAndCidContains(searchQuery, searchCid)
+        .stream()
+        .sorted((o1, o2) -> {
+            int comparison = 0;
+            switch (sortCriteria) {
+                case "id":
+                    comparison = o1.getId().compareTo(o2.getId());
+                    break;
+                case "email":
+                    comparison = o1.getEmail().compareTo(o2.getEmail());
+                    break;
+                case "fullname":
+                    comparison = o1.getFullname().compareTo(o2.getFullname());
+                    break;
+                case "cid":
+                    comparison = o1.getCid().compareTo(o2.getCid());
+                    break;
+                case "address":
+                    comparison = o1.getAddress().compareTo(o2.getAddress());
+                    break;
+                case "enabled":
+                    int tempO1IsEnabled = o1.isEnabled() ? 1 : 0;
+                    int tempO2IsEnabled = o2.isEnabled() ? 1 : 0;
+                    comparison = tempO1IsEnabled - tempO2IsEnabled;
+                    break;
+            }
+            return k * comparison;
+        })
+        .toList();
+
+        // Optional: filter again if needed (like SellerService)
+        if (searchQuery != null && !searchQuery.isEmpty() && searchCid != null && !searchCid.isEmpty()) {
+            filteredShippers = filteredShippers.stream()
+                    .filter(shipper -> shipper.getFullname().toLowerCase().contains(searchQuery.toLowerCase())
+                            && shipper.getCid().toLowerCase().contains(searchCid.toLowerCase()))
+                    .toList();
+        } else if (searchQuery != null && !searchQuery.isEmpty()) {
+            filteredShippers = filteredShippers.stream()
+                    .filter(shipper -> shipper.getFullname().toLowerCase().contains(searchQuery.toLowerCase()))
+                    .toList();
+        } else if (searchCid != null && !searchCid.isEmpty()) {
+            filteredShippers = filteredShippers.stream()
+                    .filter(shipper -> shipper.getCid().toLowerCase().contains(searchCid.toLowerCase()))
+                    .toList();
+        }
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), filteredShippers.size());
+
+        List<Shipper> pagedShippers = filteredShippers.subList(start, end);
+
+        pagedShippers = pagedShippers
+        .stream()
+        .sorted((o1, o2) -> {
+            int comparison = 0;
+            if (sortCriteriaInPage == null || sortCriteriaInPage.isEmpty()) {
+                return 0;
+            }
+            switch (sortCriteriaInPage) {
+                case "id" -> comparison = o1.getId().compareTo(o2.getId());
+                case "email" -> comparison = o1.getEmail().compareTo(o2.getEmail());
+                case "fullname" -> comparison = o1.getFullname().compareTo(o2.getFullname());
+                case "cid" -> comparison = o1.getCid().compareTo(o2.getCid());
+                case "address" -> comparison = o1.getAddress().compareTo(o2.getAddress());
+                case "enabled" -> {
+                    int tempO1IsEnabled = o1.isEnabled() ? 1 : 0;
+                    int tempO2IsEnabled = o2.isEnabled() ? 1 : 0;
+                    comparison = tempO1IsEnabled - tempO2IsEnabled;
+                }
+            }
+            return k * comparison;
+        })
+        .toList();
+
+        return new PageImpl<>(pagedShippers, pageable, filteredShippers.size());
+    }
 }
