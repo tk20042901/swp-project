@@ -38,7 +38,7 @@ import com.swp.project.entity.product.Product;
 import com.swp.project.service.product.ProductService;
 
 @Service
-public class CustomerAiService {
+public class AiService {
     private final static String systemPrompt = """
     Bạn là "FruitShop AI Chatbot" của một cửa hàng hoa quả tươi online có tên là FruitShop, với sứ mệnh mang lại trải nghiệm mua sắm thông minh và tiện lợi nhất cho khách hàng.
 
@@ -97,9 +97,9 @@ public class CustomerAiService {
     private final VectorStore vectorStore;
     private final ProductService productService;
 
-    public CustomerAiService(ChatModel chatModel,
-                             VectorStore vectorStore,
-                             ProductService productService) {
+    public AiService(ChatModel chatModel,
+                     VectorStore vectorStore,
+                     ProductService productService) {
         this.productService = productService;
 
         this.vectorStore = vectorStore;
