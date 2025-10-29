@@ -142,16 +142,6 @@
             border-color: #0a58ca;
         }
 
-        .btn-outline-secondary {
-            background: var(--button-bg);
-            color: var(--text-dark);
-        }
-
-        .btn-outline-secondary:hover {
-            background: #d3d6d9;
-            color: var(--text-dark);
-        }
-
         .btn-outline-primary {
             background: transparent;
             color: #0d6efd;
@@ -297,7 +287,7 @@
                     <i class="bi bi-funnel"></i> Bộ lọc tìm kiếm
                 </h5>
                 <form th:action="@{/seller/all-orders}" method="get" th:object="${sellerSearchOrderDto}">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                    <div style="display: grid; grid-template-columns: 3fr 2fr 2fr 2fr">
                         <div>
                             <label class="form-label" for="customerEmail">
                                 <i class="bi bi-envelope"></i> Email khách hàng
@@ -343,7 +333,7 @@
         <!-- Results Card -->
         <div class="card">
             <div class="card-body" style="padding: 0;">
-                <div style="padding: 1.5rem; padding-bottom: 0;">
+                <div style="padding: 1.5rem 1.5rem 0;">
                     <h5 style="font-weight: 600; margin-bottom: 1.5rem;">
                         <i class="bi bi-list-ul"></i> Danh sách đơn hàng
                         <span class="badge bg-primary" th:text="${orders.totalElements}">0</span>
@@ -404,7 +394,7 @@
                     <input type="hidden" th:field="*{toDate}"/>
                     <input type="hidden" th:field="*{goToPage}" id="goToPageHidden">
 
-                    <button th:disabled="${orders.first}"
+                    <button th:if="${!orders.first}"
                             type="submit"
                             th:value="1"
                             onclick="setGoToPageFromBtn(this.value)"
@@ -412,7 +402,7 @@
                         Đầu
                     </button>
 
-                    <button th:disabled="${!orders.hasPrevious()}"
+                    <button th:if="${orders.hasPrevious()}"
                             type="submit"
                             onclick="setGoToPageFromBtn(this.value)"
                             th:value="${orders.number}"
@@ -424,7 +414,7 @@
                         Trang <strong th:text="${orders.number + 1}">1</strong> / <strong th:text="${orders.totalPages}">10</strong>
                     </span>
 
-                    <button th:disabled="${!orders.hasNext()}"
+                    <button th:if="${orders.hasNext()}"
                             type="submit"
                             onclick="setGoToPageFromBtn(this.value)"
                             th:value="${orders.number + 2}"
@@ -432,7 +422,7 @@
                         Sau ›
                     </button>
 
-                    <button th:disabled="${orders.last}"
+                    <button th:if="${!orders.last}"
                             type="submit"
                             onclick="setGoToPageFromBtn(this.value)"
                             th:value="${orders.totalPages}"

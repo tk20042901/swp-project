@@ -2,9 +2,7 @@ package com.swp.project.controller;
 
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +26,7 @@ import com.swp.project.dto.ViewProductDto;
 import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.Product;
 import com.swp.project.entity.product.SubImage;
-import com.swp.project.service.CustomerAiService;
+import com.swp.project.service.AiService;
 import com.swp.project.service.product.CategoryService;
 import com.swp.project.service.product.ProductService;
 import com.swp.project.service.user.CustomerService;
@@ -43,7 +41,7 @@ public class GuestController {
 
     private final ProductService productService;
     private final CategoryService categoryService;
-    private final CustomerAiService customerAiService;
+    private final AiService aiService;
     private final CustomerService customerService;
     private final static int PAGE_SIZE = 9;
 
@@ -270,7 +268,7 @@ public class GuestController {
         session.removeAttribute("conversation");
         List<AiMessageDto> conversation = new ArrayList<>();
         session.setAttribute("conversation", conversation);
-        customerAiService.initChat(conversationId,conversation);
+        aiService.initChat(conversationId,conversation);
         model.addAttribute("conversation", conversation);
         return "pages/guest/ai";
     }
@@ -283,7 +281,7 @@ public class GuestController {
             Model model) {
         List<AiMessageDto> conversation = (List<AiMessageDto>) session.getAttribute("conversation");
         try {
-            customerAiService.ask(conversationId, q, image, conversation);
+            aiService.ask(conversationId, q, image, conversation);
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
         }
