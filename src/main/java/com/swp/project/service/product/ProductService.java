@@ -343,12 +343,10 @@ public class ProductService {
     
 
     public Product createProductForUpdateRequest(UpdateProductDto updateProductDto, 
-                                                  MultipartFile imageFile, 
+                                                  Product oldProduct, MultipartFile imageFile, 
                                                   MultipartFile[] subImageFiles) throws Exception {
-        Product oldProduct = getProductById(updateProductDto.getId());
         List<Category> categories = new ArrayList<>();
         List<SubImage> subImages = new ArrayList<>();
-        
         for (Long catId : updateProductDto.getCategories()) {
             categories.add(categoryService.getCategoryById(catId));
         }

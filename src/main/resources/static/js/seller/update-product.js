@@ -60,8 +60,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedText = select.options[selectedValue].text;
         if(selectedText === "Kg"){
             productQuantity.setAttribute('step','0.01');
+            document.getElementById('productQuantity').value = "0.00";
         }else{
             productQuantity.removeAttribute('step');
+            document.getElementById('productQuantity').value = "0";
         }
     });
 })

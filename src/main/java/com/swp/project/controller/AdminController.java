@@ -146,7 +146,6 @@ public class AdminController {
         model.addAttribute("daysReport", daysReport);
         model.addAttribute("monthsReport", monthsReport);
         return "pages/manager/detail-report";
-
     }
 
     @GetMapping("/days/export-excel")

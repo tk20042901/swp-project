@@ -2,11 +2,9 @@ package com.swp.project.controller;
 
 import java.security.Principal;
 import java.util.List;
-
 import com.swp.project.dto.*;
 import com.swp.project.entity.product.ProductUnit;
 import com.swp.project.entity.seller_request.SellerRequest;
-
 import com.swp.project.service.user.SellerService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,8 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.swp.project.entity.order.Order;
 import com.swp.project.entity.product.Category;
 import com.swp.project.entity.product.Product;
@@ -33,8 +29,6 @@ import com.swp.project.service.product.CategoryService;
 import com.swp.project.service.product.ProductService;
 import com.swp.project.service.product.ProductUnitService;
 import com.swp.project.service.seller_request.SellerRequestService;
-import com.swp.project.service.seller_request.SellerRequestStatusService;
-import com.swp.project.service.seller_request.SellerRequestTypeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -50,8 +44,6 @@ public class SellerController {
     private final CategoryService categoryService;
     private final SellerRequestService sellerRequestService;
     private final ProductUnitService productUnitService;
-    private final SellerRequestTypeService sellerRequestTypeService;
-    private final SellerRequestStatusService sellerRequestStatusService;
     private final SellerService sellerService;
 
     @GetMapping("")
@@ -200,13 +192,13 @@ public class SellerController {
             @RequestParam MultipartFile imageFile,
             @RequestParam MultipartFile[] subImageFiles,
             Principal principal) {
-            if (bindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("error", bindingResult.getAllErrors().get(0).getDefaultMessage());
             return "redirect:/seller/seller-update-product/" + updateProductDto.getId();
         }
         try {
             Product oldProduct = productService.getProductById(updateProductDto.getId());
-            Product updateProduct = productService.createProductForUpdateRequest(updateProductDto, imageFile, subImageFiles);
+            Product updateProduct = productService.createProductForUpdateRequest(updateProductDto,oldProduct, imageFile, subImageFiles);
             sellerRequestService.saveUpdateRequest(oldProduct, updateProduct, principal.getName());
             redirectAttributes.addFlashAttribute("msg", "Yêu cầu cập nhật sản phẩm đã được gửi đến quản lý");
         } catch (Exception e) {
@@ -244,18 +236,9 @@ public class SellerController {
     }
 
     @GetMapping("/product-unit")
-    public String getProductUnitList(Model model,
-            @RequestParam(required = false) Boolean allowDecimal) {
-        List<ProductUnit> productUnits;
-
-        if (allowDecimal != null) {
-            productUnits = productUnitService.getUnitsByAllowDecimal(allowDecimal);
-        } else {
-            productUnits = productUnitService.getAllProductUnit();
-        }
-
+    public String getProductUnitList(Model model) {
+        List<ProductUnit> productUnits = productUnitService.getAllProductUnit();
         model.addAttribute("productUnits", productUnits);
-        model.addAttribute("allowDecimal", allowDecimal);
         return "pages/seller/product/product-unit";
     }
 
@@ -288,12 +271,7 @@ public class SellerController {
             return "redirect:/seller/create-product-unit";
         }
         try {
-            ProductUnit productUnit = ProductUnit.builder()
-                    .name(productUnitDto.getName())
-                    .isAllowDecimal(productUnitDto.getIsAllowDecimal())
-                    .isActive(productUnitDto.getIsActive())
-                    .build();
-            
+            ProductUnit productUnit = new ProductUnit(productUnitDto);
             sellerRequestService.saveAddRequest(productUnit, principal.getName());
             redirectAttributes.addFlashAttribute("success", "Yêu cầu tạo đơn vị sản phẩm đã được gửi đến quản lý");
         } catch (Exception e) {
@@ -310,14 +288,7 @@ public class SellerController {
                 redirectAttributes.addFlashAttribute("error", "Không tìm thấy đơn vị sản phẩm");
                 return "redirect:/seller/product-unit";
             }
-            
-            UpdateProductUnitDto updateProductUnitDto = UpdateProductUnitDto.builder()
-                    .id(productUnit.getId())
-                    .name(productUnit.getName())
-                    .isAllowDecimal(productUnit.isAllowDecimal())
-                    .isActive(productUnit.isActive())
-                    .build();
-                    
+            UpdateProductUnitDto updateProductUnitDto = new UpdateProductUnitDto(productUnit);
             model.addAttribute("updateProductUnitDto", updateProductUnitDto);
             return "pages/seller/product/edit-product-unit";
         } catch (Exception e) {
@@ -341,14 +312,7 @@ public class SellerController {
             if (oldProductUnit == null) {
                 throw new Exception("Không tìm thấy đơn vị sản phẩm");
             }
-            
-            ProductUnit newProductUnit = ProductUnit.builder()
-                    .id(updateProductUnitDto.getId())
-                    .name(updateProductUnitDto.getName())
-                    .isAllowDecimal(updateProductUnitDto.getIsAllowDecimal())
-                    .isActive(updateProductUnitDto.getIsActive())
-                    .build();
-            
+            ProductUnit newProductUnit = new ProductUnit(updateProductUnitDto);
             sellerRequestService.saveUpdateRequest(oldProductUnit, newProductUnit, principal.getName());
             redirectAttributes.addFlashAttribute("success", "Yêu cầu cập nhật đơn vị sản phẩm đã được gửi đến quản lý");
         } catch (Exception e) {
@@ -357,46 +321,6 @@ public class SellerController {
         }
         return "redirect:/seller/product-unit";
     }
-
-    @GetMapping("/delete-product-unit")
-    public String deleteProductUnit(
-            @RequestParam Long id,
-            RedirectAttributes redirectAttributes,
-            Principal principal) {
-        try {
-            ProductUnit productUnit = productUnitService.getProductUnitById(id);
-            if (productUnit == null) {
-                throw new Exception("Không tìm thấy đơn vị sản phẩm");
-            }
-            boolean hasRequest = false;
-            for(SellerRequest sellerRequest : sellerRequestService.getSellerRequestByEntityName(ProductUnit.class)){
-                Long unitId = sellerRequestService.getEntityFromContent(sellerRequest.getContent(), ProductUnit.class).getId();
-                if(sellerRequestStatusService.isPendingStatus(sellerRequest)
-                        && sellerRequestTypeService.isDeleteType(sellerRequest)
-                        && unitId.equals(id)){
-                    hasRequest = true;
-                    break;
-                }
-            }
-
-            if (hasRequest) {
-                throw new Exception("Đã có yêu cầu xóa đơn vị sản phẩm này đang chờ xử lý");
-            }
-            
-            // Check if the product unit is being used by any products
-            if (productUnit.getProducts() != null && !productUnit.getProducts().isEmpty()) {
-                throw new Exception("Không thể xóa đơn vị sản phẩm này vì đang được sử dụng bởi " 
-                    + productUnit.getProducts().size() + " sản phẩm");
-            }
-            
-            sellerRequestService.saveDeleteRequest(productUnit, principal.getName());
-            redirectAttributes.addFlashAttribute("success", "Yêu cầu xóa đơn vị sản phẩm đã được gửi đến quản lý");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-        }
-        return "redirect:/seller/product-unit";
-    }
-
     @GetMapping("/create-product-category")
     public String showCreateCategoryForm(Model model) {
         CreateCategoryDto createCategoryDto = new CreateCategoryDto();
@@ -415,10 +339,7 @@ public class SellerController {
             return "redirect:/seller/create-product-category";
         }
         try {
-            Category category = Category.builder()
-                    .name(categoryDto.getName())
-                    .build();
-            
+            Category category = new Category(categoryDto);
             sellerRequestService.saveAddRequest(category, principal.getName());
             redirectAttributes.addFlashAttribute("success", "Yêu cầu tạo danh mục đã được gửi đến quản lý");
         } catch (Exception e) {
@@ -436,11 +357,7 @@ public class SellerController {
                 return "redirect:/seller/product-category";
             }
             
-            UpdateCategoryDto updateCategoryDto = UpdateCategoryDto.builder()
-                    .id(category.getId())
-                    .name(category.getName())
-                    .isActive(category.isActive())
-                    .build();
+            UpdateCategoryDto updateCategoryDto = new UpdateCategoryDto(category);
                     
             model.addAttribute("updateCategoryDto", updateCategoryDto);
             return "pages/seller/product/edit-product-category";
@@ -465,13 +382,7 @@ public class SellerController {
             if (oldCategory == null) {
                 throw new Exception("Không tìm thấy danh mục");
             }
-            
-            Category newCategory = Category.builder()
-                    .id(updateCategoryDto.getId())
-                    .name(updateCategoryDto.getName())
-                    .isActive(updateCategoryDto.getIsActive())
-                    .build();
-            
+            Category newCategory = new Category(updateCategoryDto);
             sellerRequestService.saveUpdateRequest(oldCategory, newCategory, principal.getName());
             redirectAttributes.addFlashAttribute("success", "Yêu cầu cập nhật danh mục đã được gửi đến quản lý");
         } catch (Exception e) {
@@ -535,9 +446,6 @@ public class SellerController {
         model.addAttribute("hasPrevious", page > 0);
         model.addAttribute("isFirst", page == 0);
         model.addAttribute("isLast", end >= allRequests.size());
-        
         return "pages/seller/seller-requests";
     }
-
-    
 }
