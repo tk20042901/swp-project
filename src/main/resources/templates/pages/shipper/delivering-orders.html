@@ -92,27 +92,49 @@
 
   <!-- Search Card -->
   <div class="card shadow-sm search-card mb-4">
-    <div class="card-body p-3 p-sm-4">
-      <h5 class="fw-bold mb-3">
-        <i class="bi bi-search text-primary me-2"></i>
-        Tìm kiếm đơn hàng
-      </h5>
-      <form th:action="@{/shipper/delivering-orders}" method="get">
-        <div class="input-group">
-          <span class="input-group-text">
-            <i class="bi bi-envelope"></i>
-          </span>
-            <label>
-                <input type="text" class="form-control" placeholder="Nhập email khách hàng..."
-                       name="searchQuery" th:value="${searchQuery}">
+    <div class="card-body p-3 p-sm-4 row">
+      <div class="col-6">
+        <h5 class="fw-bold mb-3">
+          <i class="bi bi-search text-primary me-2"></i>
+          Tìm kiếm đơn hàng
+        </h5>
+        <form th:action="@{/shipper/delivering-orders}" method="get">
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="bi bi-envelope"></i>
+            </span>
+              <label>
+                  <input type="text" class="form-control" placeholder="Nhập email khách hàng..."
+                        name="searchQuery" th:value="${searchQuery}">
+              </label>
+              <button class="btn btn-primary" type="submit">
+              <i class="bi bi-search me-1"></i>
+              Tìm kiếm
+            </button>
+          </div>
+        </form>
+      </div>
+      <div class="col-6">
+        <h5 class="fw-bold mb-3">
+          <i class="bi bi-funnel text-primary me-2"></i>
+          Sắp xếp đơn hàng
+        </h5>
+        <form th:action="@{/shipper/delivering-orders}" method="get">
+          <!-- <input type="hidden" name="searchQuery" th:value="${searchQuery}"> -->
+          <div class="input-group">
+            <label class="input-group-text" for="sortCriteria">
+              <i class="bi bi-sort-alpha-down"></i>
             </label>
-            <button class="btn btn-primary" type="submit">
-            <i class="bi bi-search me-1"></i>
-            Tìm kiếm
-          </button>
-        </div>
-      </form>
+            <select class="form-select" id="sortCriteria" name="sortCriteria" onchange="form.submit()">
+              <option value="id" th:selected="${sortCriteria.equals('id')}">Mã đơn hàng</option>
+              <option value="email" th:selected="${sortCriteria.equals('email')}">Email khách hàng</option>
+              <option value="status" th:selected="${sortCriteria.equals('status')}">Trạng thái</option>
+            </select>
+          </div>
+        </form>
+      </div>
     </div>
+
   </div>
 
   <!-- Results Card -->
@@ -133,34 +155,34 @@
             <tr>
               <th scope="col-3">
                 <form th:action="@{/shipper/delivering-orders}" method="get" class="d-inline">
-                  <input type="hidden" name="searchQuery" th:value="${searchQuery}">
-                  <button type="submit" name="sortCriteria" value="id"
-                          th:class="'btn btn-sm ' + (${sortCriteria.equals('id')} ? 'btn-primary' : 'btn-outline-primary')">
+                  <!-- <input type="hidden" name="searchQuery" th:value="${searchQuery}"> -->
+                  <button type="submit" name="sortCriteriaInPage" value="id"
+                          th:class="'btn btn-sm ' + (${sortCriteriaInPage.equals('id')} ? 'btn-primary' : 'btn-outline-primary')">
                     <i class="bi bi-hash me-1"></i>
                     Mã đơn hàng
-                    <span th:if="${sortCriteria.equals('id')}" th:text="${k == 1 ? '▲' : '▼'}"></span>
+                    <span th:if="${sortCriteriaInPage.equals('id')}" th:text="${k == 1 ? '▲' : '▼'}"></span>
                   </button>
                 </form>
               </th>
               <th scope="col-5">
                 <form th:action="@{/shipper/delivering-orders}" method="get" class="d-inline">
-                  <input type="hidden" name="searchQuery" th:value="${searchQuery}">
-                  <button type="submit" name="sortCriteria" value="email"
-                          th:class="'btn btn-sm ' + (${sortCriteria.equals('email')} ? 'btn-primary' : 'btn-outline-primary')">
+                  <!-- <input type="hidden" name="searchQuery" th:value="${searchQuery}"> -->
+                  <button type="submit" name="sortCriteriaInPage" value="email"
+                          th:class="'btn btn-sm ' + (${sortCriteriaInPage.equals('email')} ? 'btn-primary' : 'btn-outline-primary')">
                     <i class="bi bi-envelope me-1"></i>
                     Email khách hàng
-                    <span th:if="${sortCriteria.equals('email')}" th:text="${k == 1 ? '▲' : '▼'}"></span>
+                    <span th:if="${sortCriteriaInPage.equals('email')}" th:text="${k == 1 ? '▲' : '▼'}"></span>
                   </button>
                 </form>
               </th>
               <th scope="col-2">
                 <form th:action="@{/shipper/delivering-orders}" method="get" class="d-inline">
-                  <input type="hidden" name="searchQuery" th:value="${searchQuery}">
-                  <button type="submit" name="sortCriteria" value="status"
-                          th:class="'btn btn-sm ' + (${sortCriteria.equals('status')} ? 'btn-primary' : 'btn-outline-primary')">
+                  <!-- <input type="hidden" name="searchQuery" th:value="${searchQuery}"> -->
+                  <button type="submit" name="sortCriteriaInPage" value="status"
+                          th:class="'btn btn-sm ' + (${sortCriteriaInPage.equals('status')} ? 'btn-primary' : 'btn-outline-primary')">
                     <i class="bi bi-flag me-1"></i>
                     Trạng thái
-                    <span th:if="${sortCriteria.equals('status')}" th:text="${k == 1 ? '▲' : '▼'}"></span>
+                    <span th:if="${sortCriteriaInPage.equals('status')}" th:text="${k == 1 ? '▲' : '▼'}"></span>
                   </button>
                 </form>
               </th>

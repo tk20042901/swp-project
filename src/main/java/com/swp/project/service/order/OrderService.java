@@ -489,7 +489,7 @@ public class OrderService {
         return (int) (((double) (currentDayCount - previousDayCount) / previousDayCount) * 100);
     }
 
-    public Page<Order> getDeliveringOrders(Principal principal, int page, int size, String searchQuery, String sortCriteria, int k) {
+    public Page<Order> getDeliveringOrders(Principal principal, int page, int size, String searchQuery, String sortCriteria, int k, String sortCriteriaInPage) {
         if (principal == null) {
             throw new RuntimeException("Người giao hàng không xác định");
         }
@@ -502,10 +502,10 @@ public class OrderService {
             .sorted((o1, o2) -> {
                 if (sortCriteria == null) return 0;
                 return switch (sortCriteria) {
-                    case "id" -> k * o1.getId().compareTo(o2.getId());
-                    case "email" -> k * o1.getCustomer().getEmail().compareTo(o2.getCustomer().getEmail());
+                    case "id" -> o1.getId().compareTo(o2.getId());
+                    case "email" -> o1.getCustomer().getEmail().compareTo(o2.getCustomer().getEmail());
                     case "status" ->
-                            k * o1.getCurrentShippingStatus().getId().compareTo(o2.getCurrentShippingStatus().getId());
+                            o1.getCurrentShippingStatus().getId().compareTo(o2.getCurrentShippingStatus().getId());
                     default -> 0;
                 };
             })
@@ -520,31 +520,42 @@ public class OrderService {
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), allOrders.size());
         List<Order> pagedOrders = allOrders.subList(start, end);
+
+        pagedOrders = pagedOrders.stream()
+            .sorted((o1, o2) -> {
+                if (sortCriteriaInPage == null) return 0;
+                return switch (sortCriteriaInPage) {
+                    case "id" -> k * o1.getId().compareTo(o2.getId());
+                    case "email" -> k * o1.getCustomer().getEmail().compareTo(o2.getCustomer().getEmail());
+                    case "status" ->
+                            k * o1.getCurrentShippingStatus().getId().compareTo(o2.getCurrentShippingStatus().getId());
+                    default -> 0;
+                };
+            })
+            .toList();
 
         return new PageImpl<>(pagedOrders, pageable, allOrders.size());
     }
 
-    public Page<Order> getDoneOrders(Principal principal, int pageDone, int size, String searchQuery, String sortCriteria, int k) {
+    public Page<Order> getDoneOrders(Principal principal, int page, int size, String searchQuery, String sortCriteria, int k, String sortCriteriaInPage) {
         if (principal == null) {
             throw new RuntimeException("Người giao hàng không xác định");
         }
-        Pageable pageable = PageRequest.of(pageDone - 1, size);
+        Pageable pageable = PageRequest.of(page - 1, size);
 
-        // Nếu repository chưa có query riêng thì vẫn phải filter trong memory
         List<Order> allOrders = orderRepository.findByShipper_Email(principal.getName())
-            .stream()
-            .filter(orderStatusService::isDeliveredStatus)
-            .sorted((o1, o2) -> {
-                if (sortCriteria == null) return 0;
-                return switch (sortCriteria) {
-                    case "id" -> k * o1.getId().compareTo(o2.getId());
-                    case "email" -> k * o1.getCustomer().getEmail().compareTo(o2.getCustomer().getEmail());
-                    case "status" ->
-                            k * o1.getCurrentShippingStatus().getId().compareTo(o2.getCurrentShippingStatus().getId());
-                    default -> 0;
-                };
-            })
-            .toList();
+        .stream()
+        .filter(orderStatusService::isDeliveredStatus)
+        .sorted((o1, o2) -> {
+            if (sortCriteria == null) return 0;
+            return switch (sortCriteria) {
+                case "id" -> o1.getId().compareTo(o2.getId());
+                case "email" -> o1.getCustomer().getEmail().compareTo(o2.getCustomer().getEmail());
+                case "status" -> o1.getCurrentShippingStatus().getId().compareTo(o2.getCurrentShippingStatus().getId());
+                default -> 0;
+            };
+        })
+        .toList();
 
         if (searchQuery != null && !searchQuery.trim().isEmpty()) {
             allOrders = allOrders.stream()
@@ -555,6 +566,18 @@ public class OrderService {
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), allOrders.size());
         List<Order> pagedOrders = allOrders.subList(start, end);
+
+        pagedOrders = pagedOrders.stream()
+        .sorted((o1, o2) -> {
+            if (sortCriteriaInPage == null) return 0;
+            return switch (sortCriteriaInPage) {
+                case "id" -> k * o1.getId().compareTo(o2.getId());
+                case "email" -> k * o1.getCustomer().getEmail().compareTo(o2.getCustomer().getEmail());
+                case "status" -> k * o1.getCurrentShippingStatus().getId().compareTo(o2.getCurrentShippingStatus().getId());
+                default -> 0;
+            };
+        })
+        .toList();
 
         return new PageImpl<>(pagedOrders, pageable, allOrders.size());
     }
@@ -628,7 +651,7 @@ public class OrderService {
             } else {
                 long thisMonth = result.get(i).getRevenue();
                 long lastMonth = result.get(i + 1).getRevenue();
-                if (lastMonth == 0 && thisMonth ==0) {
+                if (lastMonth == 0 && thisMonth == 0) {
                     result.get(i).setGrowthPercent(0.0);
                 }
                 else if(lastMonth == 0){
