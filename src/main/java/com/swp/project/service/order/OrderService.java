@@ -67,7 +67,7 @@ public class OrderService {
     private List<Order> results = List.of();
 
     public Page<Order> getAllOrder() {
-        Pageable pageable = PageRequest.of(0,10, Sort.by("orderAt").descending());
+        Pageable pageable = PageRequest.of(0,5, Sort.by("orderAt").descending());
         return orderRepository.findAll(pageable);
     }
 
@@ -78,7 +78,7 @@ public class OrderService {
     public Page<Order> searchOrder(SellerSearchOrderDto sellerSearchOrderDto) {
         Pageable pageable = PageRequest.of(
                 Integer.parseInt(sellerSearchOrderDto.getGoToPage()) - 1,
-                10,
+                5,
                 Sort.by("orderAt").descending());
         if (sellerSearchOrderDto.getStatusId() == null || sellerSearchOrderDto.getStatusId() == 0) {
             return orderRepository.searchByCustomer_EmailContainsAndOrderAtBetween(
