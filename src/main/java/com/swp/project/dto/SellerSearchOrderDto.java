@@ -14,6 +14,8 @@ import java.time.LocalDate;
 public class SellerSearchOrderDto {
     private Long statusId;
 
+    private String sortBy = "orderDateNewest";
+
     @Size(max = 255, message = "Email không được vượt quá 255 ký tự")
     private String customerEmail;
 
@@ -28,6 +30,7 @@ public class SellerSearchOrderDto {
 
     public boolean isEmpty() {
         return statusId == null
+                && sortBy.equals("orderDateNewest")
                 && (customerEmail == null || customerEmail.isBlank())
                 && fromDate == null
                 && toDate == null
