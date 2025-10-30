@@ -126,14 +126,18 @@ public class SellerController {
     @GetMapping("/all-products")
     public String getAllProductList(@RequestParam(required = false) String name,
             @RequestParam(required = false) Boolean enabled,
+            @RequestParam(required = false) Long minPrice,
+            @RequestParam(required = false) Long maxPrice,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
             Model model) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Product> products = productService.searchProductForSeller(name, enabled, pageable);
+        Page<Product> products = productService.searchProductForSeller(name, enabled,minPrice,maxPrice, pageable);
         model.addAttribute("products", products);
         model.addAttribute("name", name);
         model.addAttribute("enabled", enabled);
+        model.addAttribute("minPrice", minPrice);
+        model.addAttribute("maxPrice", maxPrice);
         return "pages/seller/product/all-products";
     }
 

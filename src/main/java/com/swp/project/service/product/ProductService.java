@@ -252,12 +252,15 @@ public class ProductService {
         return productRepository.findAll(pageable);
     }
 
-    public Page<Product> searchProductForSeller(String name, Boolean enabled, Pageable pageable) {
+    public Page<Product> searchProductForSeller(String name, Boolean enabled,
+                                                Long minPrice, Long maxPrice, Pageable pageable) {
         boolean hasName = name != null && !name.trim().isEmpty();
         boolean hasEnabled = enabled != null;
+        boolean hasMinPrice = minPrice != null;
+        boolean hasMaxPrice = maxPrice != null;
 
-        if (hasName || hasEnabled) {
-            return productRepository.findByNameContainingIgnoreCaseAndEnabled(name, enabled, pageable);
+        if (hasName || hasEnabled || hasMinPrice || hasMaxPrice) {
+            return productRepository.findByNameContainingIgnoreCaseAndEnabledAndPrice(name, enabled,minPrice,maxPrice, pageable);
         } else {
             return productRepository.findAll(pageable);
         }
