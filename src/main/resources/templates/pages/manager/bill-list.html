@@ -273,7 +273,7 @@
                 <!-- Search And Sort -->
                 <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
                                 <!-- Pagination -->
-                    <div style="flex: 0 0 auto;">
+                    <div style="flex: 0 0 200px;">
                         <label class="form-label">
                             <i class="bi bi-list-ol"></i> Trang
                         </label>
@@ -300,16 +300,16 @@
                             </div>
                         </form>
                     </div>
-                    <div style="flex: 0 0 500px;">
+                    <div style="flex: 1; min-width: 400px;">
                         <form th:action="@{/manager/bill-list}" method="get" style="display: flex; gap: 0.5rem;">
                             <input type="text" name="queryName" placeholder="Tìm kiếm theo tên người mua" th:value="${session.queryName}"
-                                class="form-control" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color);">
-                            <button type="submit" class="btn btn-primary">
+                                class="form-control" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); width: 100%;">
+                            <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
                                 <i class="bi bi-search"></i> Tìm kiếm
                             </button>
                         </form>
                     </div>
-                    <div style="flex: 0 0 auto;">
+                    <div style="flex: 0 0 250px;">
                         <label class="form-label">
                             <i class="bi bi-sort-alpha-down"></i> Sắp xếp theo
                         </label>
@@ -369,9 +369,9 @@
                         </th>
                         <th>
                             <form th:action="@{/manager/bill-list}" method="get" style="display: inline;">
-                                <button type="submit" name="sortCriteriaInPage" value="createdAt"
-                                        th:class="${'btn btn-sm ' + (session.sortCriteriaInPage.equals('createdAt') ? 'btn-primary' : 'btn-outline-primary')}">
-                                    Ngày tạo <span th:if="${session.sortCriteriaInPage.equals('createdAt')}"
+                                <button type="submit" name="sortCriteriaInPage" value="paymentTime"
+                                        th:class="${'btn btn-sm ' + (session.sortCriteriaInPage.equals('paymentTime') ? 'btn-primary' : 'btn-outline-primary')}">
+                                    Ngày tạo <span th:if="${session.sortCriteriaInPage.equals('paymentTime')}"
                                           th:text="${session.k == 1 ? '▲' : '▼'}"></span>
                                 </button>
                             </form>

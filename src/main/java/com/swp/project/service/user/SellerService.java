@@ -111,34 +111,6 @@ public class SellerService {
         sellerRepository.save(seller);
     }
 
-    // public void sortBy(String columnName, int k) {
-    //     switch (columnName) {
-    //         case "id":
-    //             results.sort((o1, o2) -> k * o1.getId().compareTo(o2.getId()));
-    //             break;
-    //         case "email":
-    //             results.sort((o1, o2) -> k * o1.getUsername().compareTo(o2.getUsername()));
-    //             break;
-    //         case "fullname":
-    //             results.sort((o1, o2) -> k * o1.getFullname().compareTo(o2.getFullname()));
-    //             break;
-    //         case "cid":
-    //             results.sort((o1, o2) -> k * o1.getCid().compareTo(o2.getCid()));
-    //             break;
-    //         case "address":
-    //             results.sort((o1, o2) -> k * o1.getAddress().compareTo(o2.getAddress()));
-    //             break;
-    //         case "enabled":
-    //             results.sort((o1, o2) -> {
-    //                 int tempO1IsEnabled = o1.isEnabled() ? 1 : 0;
-    //                 int tempO2IsEnabled = o2.isEnabled() ? 1 : 0;
-    //                 return k * (tempO1IsEnabled - tempO2IsEnabled);
-    //             });
-    //             break;
-    //     }
-    // }
-
-
     private boolean existsCid(String cid) {
         return (sellerRepository.findByCid(cid) != null && sellerRepository.findByCid(cid).getId() != 0L) ||
                 (shipperRepository.findByCid(cid) != null && shipperRepository.findByCid(cid).getId() != 0L) ||

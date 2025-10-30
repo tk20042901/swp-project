@@ -76,7 +76,7 @@ public class ManagerController {
     @GetMapping("/manage-seller")
     public String manageSeller(
             @RequestParam(value = "sortCriteria", required = false) String sortCriteria,
-            @RequestParam(value = "subpageIndex", required = false) Integer subpageIndex,
+            @RequestParam(value = "subpageIndex", required = false, defaultValue = "1") Integer subpageIndex,
             @RequestParam(value = "queryName", required = false) String queryName,
             @RequestParam(value = "queryCid", required = false) String queryCid,
             @RequestParam(value = "sortCriteriaInPage", required = false) String sortCriteriaInPage,
@@ -144,7 +144,7 @@ public class ManagerController {
     @GetMapping("/manage-shipper")
     public String manageShipper(
             @RequestParam(value = "sortCriteria", required = false) String sortCriteria,
-            @RequestParam(value = "subpageIndex", required = false) Integer subpageIndex,
+            @RequestParam(value = "subpageIndex", required = false, defaultValue = "1") Integer subpageIndex,
             @RequestParam(value = "queryName", required = false) String queryName,
             @RequestParam(value = "queryCid", required = false) String queryCid,
             @RequestParam(value = "sortCriteriaInPage", required = false) String sortCriteriaInPage,
@@ -651,7 +651,7 @@ public class ManagerController {
 
     @GetMapping("/bill-list")
     public String getBills( @RequestParam(value = "sortCriteria", required = false) String sortCriteria,
-                            @RequestParam(value = "subpageIndex", required = false) Integer subpageIndex,
+                            @RequestParam(value = "subpageIndex", required = false, defaultValue= "1") Integer subpageIndex,
                             @RequestParam(value = "queryName", required = false) String queryName,
                             @RequestParam(value = "sortCriteriaInPage", required = false) String sortCriteriaInPage,
                             HttpSession session,
