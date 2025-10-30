@@ -1,11 +1,363 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Product Category</title>
+    <title>Quản lý danh mục</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" th:href="css/product-category">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #10b981;
+            --success-hover: #059669;
+            --warning: #fbbf24;
+            --warning-hover: #f59e0b;
+            --danger: #ef4444;
+            --white: #ffffff;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-900: #111827;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            background: var(--gray-50);
+            color: var(--gray-900);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 32px;
+            background: var(--gray-50);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, #1e40af 100%);
+            padding: 28px 32px;
+            border-radius: 12px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .header a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header a:hover {
+            color: var(--white);
+        }
+
+        .header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--white);
+            margin: 12px 0 0 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Search Card */
+        .search {
+            background: var(--white);
+            border-radius: 12px;
+            border: 1px solid var(--gray-200);
+            box-shadow: var(--shadow-md);
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+
+        .search form {
+            display: grid;
+            grid-template-columns: auto 1fr auto auto auto;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .search span {
+            font-weight: 600;
+            color: var(--gray-700);
+            white-space: nowrap;
+        }
+
+        .search input[type="text"] {
+            background: var(--white);
+            border: 2px solid var(--gray-300);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+            color: var(--gray-900);
+        }
+
+        .search input[type="text"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            outline: none;
+        }
+
+        .search input[type="text"]::placeholder {
+            color: var(--gray-400);
+        }
+
+        .search button, .search a {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            white-space: nowrap;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .search button {
+            background: var(--primary);
+            color: white;
+        }
+
+        .search button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .search a {
+            background: var(--gray-100);
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+        }
+
+        .search a:hover {
+            background: var(--gray-200);
+            border-color: var(--gray-400);
+        }
+
+        .search a[href*="create"] {
+            background: var(--success);
+            color: white;
+            border: none;
+        }
+
+        .search a[href*="create"]:hover {
+            background: var(--success-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Error Message */
+        .error-message {
+            background: #fee2e2;
+            border: 2px solid #fecaca;
+            color: #991b1b;
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        /* Table Card */
+        .table-card {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--gray-50);
+            border-bottom: 2px solid var(--gray-200);
+        }
+
+        thead th {
+            font-weight: 700;
+            color: var(--gray-700);
+            padding: 16px 20px;
+            text-align: left;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tbody td {
+            padding: 16px 20px;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        tbody tr {
+            transition: all 0.2s;
+        }
+
+        tbody tr:hover {
+            background: var(--gray-50);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .empty-row td {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray-400);
+            font-style: italic;
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        tbody td:nth-child(2) {
+            font-weight: 500;
+        }
+
+        /* Action Buttons */
+        tbody a {
+            background: var(--warning);
+            color: #000;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-sm);
+        }
+
+        tbody a:hover {
+            background: var(--warning-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+
+        .pagination a {
+            padding: 8px 16px;
+            background: var(--white);
+            border: 2px solid var(--gray-300);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-700);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .pagination a:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .pagination span {
+            padding: 8px 16px;
+            background: var(--gray-50);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .main-content {
+                padding: 20px;
+            }
+
+            .search form {
+                grid-template-columns: 1fr;
+            }
+
+            .search span {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 70px;
+                padding: 16px;
+            }
+
+            .header h2 {
+                font-size: 22px;
+            }
+
+            table {
+                font-size: 13px;
+            }
+
+            thead th, tbody td {
+                padding: 12px 10px;
+            }
+        }
+    </style>
 </head>
 <body>
 <div class="layout">
@@ -13,59 +365,83 @@
 
     <div class="main-content">
         <div class="container">
+            <!-- Header -->
             <div class="header">
-                <a th:href="@{/}">← Trang chủ</a>
-                <h2>Quản lý danh mục</h2>
+                <a th:href="@{/}"><i class="bi bi-arrow-left"></i> Trang chủ</a>
+                <h2><i class="bi bi-folder"></i> Quản lý danh mục</h2>
             </div>
 
+            <!-- Search -->
             <div class="search">
                 <form th:action="@{/seller/product-category}" method="get">
                     <span>Nhập từ khóa:</span>
                     <input type="text" name="categoryName" placeholder="Tìm kiếm danh mục..." th:value="${categoryName}">
-                    <button type="submit">Tìm kiếm</button>
+                    <button type="submit">
+                        <i class="bi bi-search"></i> Tìm kiếm
+                    </button>
                     <a th:if="${categoryName != null && !#strings.isEmpty(categoryName)}"
-                       th:href="@{/seller/product-category}">Xóa bộ lọc</a>
-                    <a th:href="@{/seller/create-product-category}"
-                       style="background: #198754; color: white; border-color: #198754;">
+                       th:href="@{/seller/product-category}">
+                        <i class="bi bi-x-circle"></i> Xóa bộ lọc
+                    </a>
+                    <a th:href="@{/seller/create-product-category}">
                         <i class="bi bi-plus-circle"></i> Yêu cầu tạo danh mục mới
                     </a>
                 </form>
             </div>
-            <div th:if="${error}" class="error-message" style="color: red; margin-bottom: 16px;">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+            <!-- Error Message -->
+            <div th:if="${error}" class="error-message">
+                <i class="bi bi-exclamation-triangle-fill"></i>
                 <span th:text="${error}"></span>
             </div>
-            <table>
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Tên danh mục</th>
-                    <th>Thao tác</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:if="${categories.isEmpty()}" class="empty-row">
-                    <td colspan="3">Không tìm thấy danh mục nào</td>
-                </tr>
-                <tr th:each="category : ${categories}">
-                    <td th:text="${category.id}"></td>
-                    <td th:text="${category.name}"></td>
-                    <td>
-                        <a th:href="@{/seller/edit-product-category(id=${category.id})}" 
-                           style="background: #ffc107; color: #000; border-color: #ffc107; text-decoration: none; padding: 6px 12px; border-radius: 6px; display: inline-block; margin-right: 5px;">
-                            <i class="bi bi-pencil"></i> Sửa
-                        </a>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
 
+            <!-- Table -->
+            <div class="table-card">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tên danh mục</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${categories.isEmpty()}" class="empty-row">
+                        <td colspan="3">
+                            <i class="bi bi-inbox" style="font-size: 48px; color: var(--gray-300); display: block; margin-bottom: 12px;"></i>
+                            Không tìm thấy danh mục nào
+                        </td>
+                    </tr>
+                    <tr th:each="category : ${categories}">
+                        <td th:text="${category.id}"></td>
+                        <td th:text="${category.name}"></td>
+                        <td>
+                            <a th:href="@{/seller/edit-product-category(id=${category.id})}">
+                                <i class="bi bi-pencil"></i> Sửa
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
             <div th:if="${!categories.isEmpty()}" class="pagination">
-                <a th:if="${!categories.first}" th:href="@{/seller/product-category(page=0,categoryName=${categoryName})}">Đầu</a>
-                <a th:if="${categories.hasPrevious()}" th:href="@{/seller/product-category(page=${categories.number-1},categoryName=${categoryName})}">‹</a>
-                <span>Trang <strong th:text="${categories.number+1}"></strong> / <strong th:text="${categories.totalPages}"></strong></span>
-                <a th:if="${categories.hasNext()}" th:href="@{/seller/product-category(page=${categories.number+1},categoryName=${categoryName})}">›</a>
-                <a th:if="${!categories.last}" th:href="@{/seller/product-category(page=${categories.totalPages-1},categoryName=${categoryName})}">Cuối</a>
+                <a th:if="${!categories.first}" th:href="@{/seller/product-category(page=0,categoryName=${categoryName})}">
+                    Đầu
+                </a>
+                <a th:if="${categories.hasPrevious()}" th:href="@{/seller/product-category(page=${categories.number-1},categoryName=${categoryName})}">
+                    ‹ Trước
+                </a>
+                <span>
+                    Trang <strong th:text="${categories.number+1}">1</strong> / <strong th:text="${categories.totalPages}">10</strong>
+                </span>
+                <a th:if="${categories.hasNext()}" th:href="@{/seller/product-category(page=${categories.number+1},categoryName=${categoryName})}">
+                    Sau ›
+                </a>
+                <a th:if="${!categories.last}" th:href="@{/seller/product-category(page=${categories.totalPages-1},categoryName=${categoryName})}">
+                    Cuối
+                </a>
             </div>
         </div>
     </div>
