@@ -77,6 +77,74 @@
             margin-bottom: 24px;
         }
 
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+            align-items: end;
+        }
+
+        .filter-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: end;
+        }
+
+        .btn-search {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-width: 120px;
+        }
+
+        .btn-reset {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-width: 120px;
+            background: var(--white);
+        }
+
+        .btn-reset:hover {
+            background: var(--light-gray);
+            border-color: #adb5bd;
+        }
+
+        .btn-outline-secondary {
+            color: #6c757d;
+            border-color: #6c757d;
+        }
+
+        .btn-outline-secondary:hover {
+            color: #5c636a;
+            border-color: #5c636a;
+        }
+
+        @media (max-width: 1200px) {
+            .filter-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-actions {
+                grid-column: 1;
+            }
+        }
+
         .header {
             background: var(--light-gray);
             padding: 20px 24px;
@@ -287,8 +355,8 @@
                     <i class="bi bi-funnel"></i> Bộ lọc tìm kiếm
                 </h5>
                 <form th:action="@{/seller/all-orders}" method="get" th:object="${sellerSearchOrderDto}">
-                    <div style="display: grid; grid-template-columns: 3fr 2fr 2fr 2fr">
-                        <div>
+                    <div class="filter-grid">
+                        <div class="filter-field">
                             <label class="form-label" for="customerEmail">
                                 <i class="bi bi-envelope"></i> Email khách hàng
                             </label>
@@ -298,23 +366,23 @@
                                    maxlength="255">
                             <span class="invalid-feedback" th:errors="*{customerEmail}">Email không hợp lệ</span>
                         </div>
-                        <div>
+                        <div class="filter-field">
                             <label class="form-label" for="fromDate">
                                 <i class="bi bi-calendar-check"></i> Từ ngày
                             </label>
                             <input id="fromDate" type="date" class="form-control" th:field="*{fromDate}">
                         </div>
-                        <div>
+                        <div class="filter-field">
                             <label class="form-label" for="toDate">
                                 <i class="bi bi-calendar-x"></i> Đến ngày
                             </label>
                             <input id="toDate" type="date" class="form-control" th:field="*{toDate}">
                         </div>
-                        <div>
+                        <div class="filter-field">
                             <label class="form-label" for="statusId">
                                 <i class="bi bi-flag"></i> Trạng thái
                             </label>
-                            <select id="statusId" class="form-select" th:field="*{statusId}">
+                            <select id="statusId" class="form-select" th:field="*{statusId}" onchange="submit()">
                                 <option th:value="0">Tất cả</option>
                                 <option th:each="orderType : ${orderStatusService.getAllStatus()}"
                                         th:value="${orderType.id}"
@@ -322,10 +390,28 @@
                                 </option>
                             </select>
                         </div>
+                        <div class="filter-field">
+                            <label class="form-label" for="sortBy">
+                                <i class="bi bi-sort-down"></i> Sắp xếp theo
+                            </label>
+                            <select id="sortBy" class="form-select" th:field="*{sortBy}" onchange="submit()">
+                                <option th:value="orderDateNewest">Thời gian đặt hàng (Mới nhất)</option>
+                                <option th:value="orderDateOldest">Thời gian đặt hàng (Cũ nhất)</option>
+                                <option th:value="emailAZ">Email (A-Z)</option>
+                                <option th:value="emailZA">Email (Z-A)</option>
+                                <option th:value="orderCodeAsc">Mã đơn hàng (Tăng dần)</option>
+                                <option th:value="orderCodeDesc">Mã đơn hàng (Giảm dần)</option>
+                            </select>
+                        </div>
+                        <div class="filter-actions">
+                            <button type="submit" class="btn btn-primary btn-search">
+                                <i class="bi bi-search"></i> Tìm kiếm
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-reset" onclick="resetForm()">
+                                <i class="bi bi-arrow-counterclockwise"></i> Đặt lại
+                            </button>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-search"></i> Tìm kiếm
-                    </button>
                 </form>
             </div>
         </div>
@@ -336,7 +422,6 @@
                 <div style="padding: 1.5rem 1.5rem 0;">
                     <h5 style="font-weight: 600; margin-bottom: 1.5rem;">
                         <i class="bi bi-list-ul"></i> Danh sách đơn hàng
-                        <span class="badge bg-primary" th:text="${orders.totalElements}">0</span>
                     </h5>
                 </div>
 
@@ -392,6 +477,7 @@
                     <input type="hidden" th:field="*{customerEmail}"/>
                     <input type="hidden" th:field="*{fromDate}"/>
                     <input type="hidden" th:field="*{toDate}"/>
+                    <input type="hidden" th:field="*{sortBy}"/>
                     <input type="hidden" th:field="*{goToPage}" id="goToPageHidden">
 
                     <button th:if="${!orders.first}"
@@ -469,6 +555,14 @@
 
     function setGoToPageFromInput() {
         document.getElementById("goToPageHidden").value = document.getElementById("goToPageInput").value;
+    }
+
+    function resetForm() {
+        document.getElementById("customerEmail").value = "";
+        document.getElementById("fromDate").value = "";
+        document.getElementById("toDate").value = "";
+        document.getElementById("statusId").value = "0";
+        document.getElementById("sortBy").value = "orderDateNewest";
     }
 </script>
 </body>

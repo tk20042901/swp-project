@@ -76,10 +76,17 @@ public class OrderService {
     }
 
     public Page<Order> searchOrder(SellerSearchOrderDto sellerSearchOrderDto) {
+        Sort sortBy = switch (sellerSearchOrderDto.getSortBy()) {
+            case "orderDateNewest" -> Sort.by("orderAt").descending();
+            case "orderDateOldest" -> Sort.by("orderAt").ascending();
+            case "emailZA" -> Sort.by("customer.email").descending();
+            case "emailAZ" -> Sort.by("customer.email").ascending();
+            case "orderCodeAsc" -> Sort.by("id").ascending();
+            default -> Sort.by("id").descending();
+        };
         Pageable pageable = PageRequest.of(
                 Integer.parseInt(sellerSearchOrderDto.getGoToPage()) - 1,
-                5,
-                Sort.by("orderAt").descending());
+                5, sortBy);
         if (sellerSearchOrderDto.getStatusId() == null || sellerSearchOrderDto.getStatusId() == 0) {
             return orderRepository.searchByCustomer_EmailContainsAndOrderAtBetween(
                     sellerSearchOrderDto.getCustomerEmail() == null
