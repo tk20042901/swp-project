@@ -238,6 +238,18 @@
                     <h3><i class="bi bi-x-circle"></i> Đơn hàng đã hủy</h3>
                     <div class="value" th:text="${totalCanceledOrder}">0</div>
                 </div>
+                <div class="stat-card">
+                    <h3><i class="bi bi-x-circle"></i> Đơn hàng đang chờ xác nhận</h3>
+                    <div class="value" th:text="${processingOrder}">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3><i class="bi bi-x-circle"></i> Đơn hàng đã giao</h3>
+                    <div class="value" th:text="${deliverOrder}">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3><i class="bi bi-x-circle"></i> Đơn hàng đang chờ chuẩn bị</h3>
+                    <div class="value" th:text="${processingOrder}">0</div>
+                </div>
             </div>
 
             <div class="section">

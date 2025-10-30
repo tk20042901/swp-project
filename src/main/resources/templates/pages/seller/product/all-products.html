@@ -349,6 +349,7 @@
                     <tr>
                         <th>Mã SP</th>
                         <th>Sản phẩm</th>
+                        <th>Đơn giá</th>
                         <th style="text-align: center;">Trạng thái</th>
                         <th style="text-align: right;">Thao tác</th>
                     </tr>
@@ -368,6 +369,12 @@
                                 <img th:src="@{${product.main_image_url}}" alt="Ảnh sản phẩm" class="product-img">
                                 <span style="font-weight: 600;" th:text="${product.name}">Tên sản phẩm</span>
                             </div>
+                        </td>
+                        <td>
+                            <span style="font-weight: 600; color: #198754;"
+                                  th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 2, 'POINT')} + ' ₫'">
+                                100,000 ₫
+                            </span>
                         </td>
                         <td style="text-align: center;">
                             <span class="badge status-badge"

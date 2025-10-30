@@ -155,6 +155,10 @@ public class SellerController {
     }
     @GetMapping("/statistic-report")
     public String getSellerReport(Model model) {
+        model.addAttribute("totalOrder",orderService.getTotalOrders());
+        model.addAttribute("deliverOrder",orderService.getTotalDeliveredOrders());
+        model.addAttribute("processingOrder",orderService.getTotalProcessingOrders());
+        model.addAttribute("pendingOrder",orderService.getTotalPendingOrders());
         model.addAttribute("unitSold", orderService.getUnitSold());
         model.addAttribute("totalCanceledOrder", orderService.getTotalCancelledOrders());
         model.addAttribute("nearlySoldOutProducts", orderService.getNearlySoldOutProduct());
