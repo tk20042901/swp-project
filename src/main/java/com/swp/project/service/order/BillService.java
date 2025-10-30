@@ -30,8 +30,7 @@ public class BillService {
                 case "id" -> o1.getId().compareTo(o2.getId());
                 case "shopName" -> o1.getShopName().compareTo(o2.getShopName());
                 case "customer" -> o1.getOrder().getCustomer().getFullName().compareTo(o2.getOrder().getCustomer().getFullName());
-                case "paymentTime" ->
-                        o1.getOrder().getCurrentShippingStatus().getId().compareTo(o2.getOrder().getCurrentShippingStatus().getId());
+                case "paymentTime" -> o1.getPaymentTime().compareTo(o2.getPaymentTime());
                 case "totalAmount" -> orderService.calculateTotalAmount(o1.getOrder())
                         .compareTo(orderService.calculateTotalAmount(o2.getOrder()));
                 case "address" -> o1.getOrder().getAddressString().compareTo(o2.getOrder().getAddressString());
@@ -58,7 +57,7 @@ public class BillService {
                 case "id" -> k * o1.getId().compareTo(o2.getId());
                 case "shopName" -> k * o1.getShopName().compareTo(o2.getShopName());
                 case "customer" -> k * o1.getOrder().getCustomer().getFullName().compareTo(o2.getOrder().getCustomer().getFullName());
-                case "paymentTime" -> k * o1.getOrder().getCurrentShippingStatus().getId().compareTo(o2.getOrder().getCurrentShippingStatus().getId());
+                case "paymentTime" -> k * o1.getPaymentTime().compareTo(o2.getPaymentTime());
                 case "totalAmount" -> k * orderService.calculateTotalAmount(o1.getOrder())
                         .compareTo(orderService.calculateTotalAmount(o2.getOrder()));
                 case "address" -> k * o1.getOrder().getAddressString().compareTo(o2.getOrder().getAddressString());
