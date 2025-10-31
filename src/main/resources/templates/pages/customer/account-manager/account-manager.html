@@ -52,24 +52,9 @@
                                     <i class="bi bi-geo-alt-fill text-primary me-2" aria-hidden="true"></i>
                                     Cập nhật thông tin giao hàng
                                 </div>
-                                <!-- Delivery summary -->
-                                <div class="row g-1 small">
-                                    <div class="col-12">
-                                        <span class="text-secondary">Tên người nhận:</span>
-                                        <span class="fw-medium ms-sm-1" th:text="${customer.fullName}"></span>
-                                    </div>
-                                    <div class="col-12">
-                                        <span class="text-secondary">SĐT:</span>
-                                        <span class="fw-medium ms-sm-1" th:text="${customer.phoneNumber}"></span>
-                                    </div>
-                                    <div class="col-12">
-                                        <span class="text-secondary">Địa chỉ:</span>
-                                        <span class="fw-medium ms-0 mt-1"
-                                              th:text="${(customer.specificAddress != null ? customer.specificAddress + ', ' : '')
-                                              + (customer.communeWard != null ? customer.communeWard.name + ', ' : '')
-                                              + (customer.communeWard != null ? customer.communeWard.provinceCity.name : '')}"></span>
-                                    </div>
-                                </div>
+                                <span class="text-muted small">
+                                    Cập nhật địa chỉ giao hàng để mua hàng nhanh chóng hơn
+                                </span>
                             </div>
                             <span class="text-secondary ms-2 align-self-center" aria-hidden="true">
                                     <i class="bi bi-chevron-right"></i>
@@ -83,6 +68,9 @@
                                     <i class="bi bi-shield-lock-fill text-warning me-2" aria-hidden="true"></i>
                                     Đổi mật khẩu
                                 </div>
+                                <span class="text-muted small">
+                                    Đổi mật khẩu thường xuyên để bảo mật tài khoản
+                                </span>
                             </div>
                             <span class="text-secondary ms-2" aria-hidden="true">
                                     <i class="bi bi-chevron-right"></i>
