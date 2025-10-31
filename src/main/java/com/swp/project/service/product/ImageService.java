@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class ImageService {
-    public static final String IMAGES_FINAL_PATH = "src/main/resources/static/images/products/";
+    public static final String IMAGES_FINAL_PATH = "images/products/";
     public static final String DISPLAY_FINAL_PATH = "/images/products/";
 
     public static String convertToBase64WithPrefix(MultipartFile file) throws IOException {
@@ -51,6 +51,7 @@ public class ImageService {
     @Async
     public CompletableFuture<String> convertFromDisplayPathToBase64(String stringPath) throws IOException {
         String result = stringPath.replace(DISPLAY_FINAL_PATH, IMAGES_FINAL_PATH);
+        // Convert relative path to absolute path from project root
         File imageFile = new File(result);
 
         // Đọc ảnh

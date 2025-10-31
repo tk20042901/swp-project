@@ -79,13 +79,14 @@ public class ProductService {
         product.getSub_images().get(1).setSub_image_url("");
         product.getSub_images().get(2).setSub_image_url("");
         Product savedProduct = productRepository.save(product);
+        // Create directory: images/{product-id} at project root level
         String savedDir = ImageService.IMAGES_FINAL_PATH + savedProduct.getId();
         try {
             Files.createDirectories(Path.of(savedDir));
             imageService.base64ToFileNIO(mainImagePath, savedDir + "/1.jpg");
-            imageService.base64ToFileNIO(firstSubImage, savedDir+"/2.jpg");
-            imageService.base64ToFileNIO(secondSubImage, savedDir+"/3.jpg");
-            imageService.base64ToFileNIO(thirdSubImage, savedDir+"/4.jpg");
+            imageService.base64ToFileNIO(firstSubImage, savedDir + "/2.jpg");
+            imageService.base64ToFileNIO(secondSubImage, savedDir + "/3.jpg");
+            imageService.base64ToFileNIO(thirdSubImage, savedDir + "/4.jpg");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -104,16 +105,18 @@ public class ProductService {
 
     public void update(Product product) throws Exception {
         if (product.getMain_image_url() != null && product.getMain_image_url().contains("base64")) {
-            imageService.base64ToFileNIO(product.getMain_image_url(), ImageService.IMAGES_FINAL_PATH + product.getId() + "/"+"1.jpg");
-            product.setMain_image_url(ImageService.DISPLAY_FINAL_PATH + product.getId() + "/"+"1.jpg");
+            // Save to images/{product-id}/1.jpg at project root
+            imageService.base64ToFileNIO(product.getMain_image_url(), ImageService.IMAGES_FINAL_PATH + product.getId() + "/" + "1.jpg");
+            product.setMain_image_url(ImageService.DISPLAY_FINAL_PATH + product.getId() + "/" + "1.jpg");
         }
         if (product.getSub_images() != null) {
             for (int i = 0; i < product.getSub_images().size(); i++) {
                 SubImage subImage = product.getSub_images().get(i);
                 
                 if (subImage.getSub_image_url() != null && subImage.getSub_image_url().contains("base64")) {
-                    imageService.base64ToFileNIO(subImage.getSub_image_url(), ImageService.IMAGES_FINAL_PATH + product.getId() + "/"+(i+2)+".jpg");
-                    subImage.setSub_image_url(ImageService.DISPLAY_FINAL_PATH+ product.getId() + "/"+(i+2)+".jpg");
+                    // Save to images/{product-id}/{i+2}.jpg at project root
+                    imageService.base64ToFileNIO(subImage.getSub_image_url(), ImageService.IMAGES_FINAL_PATH + product.getId() + "/" + (i + 2) + ".jpg");
+                    subImage.setSub_image_url(ImageService.DISPLAY_FINAL_PATH + product.getId() + "/" + (i + 2) + ".jpg");
                 }
             }
         }
