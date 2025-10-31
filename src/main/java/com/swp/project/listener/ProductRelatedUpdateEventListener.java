@@ -1,7 +1,7 @@
 package com.swp.project.listener;
 
 import com.swp.project.listener.event.ProductRelatedUpdateEvent;
-import com.swp.project.service.CustomerAiService;
+import com.swp.project.service.AiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -12,11 +12,11 @@ import java.util.concurrent.CompletableFuture;
 @Component
 public class ProductRelatedUpdateEventListener {
 
-    private final CustomerAiService customerAiService;
+    private final AiService aiService;
 
     @EventListener
     public void onProductRelatedUpdateEvent(ProductRelatedUpdateEvent event) {
-        CompletableFuture.runAsync(() -> customerAiService.saveProductToVectorStore(event.product()));
+        CompletableFuture.runAsync(() -> aiService.saveProductToVectorStore(event.product()));
     }
 
 }

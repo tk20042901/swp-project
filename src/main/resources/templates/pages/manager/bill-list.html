@@ -264,11 +264,67 @@
             <strong>Thất bại!</strong> <span th:text="${error}"></span>
         </div>
 
-        <!-- Statistics Card -->
-        <div class="stats-card" th:if="${bills != null}">
-            <div class="stats-number" th:text="${#lists.size(bills)}">0</div>
-            <div class="stats-label">
-                <i class="bi bi-receipt-cutoff"></i> Tổng số hóa đơn
+        <!-- Filter Card -->
+        <div class="filter-card">
+            <div class="card-body">
+                <h5 style="font-weight: 600; margin-bottom: 1.5rem;">
+                    <i class="bi bi-funnel"></i> Bộ lọc và tìm kiếm
+                </h5>
+                <!-- Search And Sort -->
+                <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+                                <!-- Pagination -->
+                    <div style="flex: 0 0 200px;">
+                        <label class="form-label">
+                            <i class="bi bi-list-ol"></i> Trang
+                        </label>
+                        <form th:action="@{/manager/bill-list}" method="get">
+                            <input name="queryName" th:value="${session.queryName}" hidden>
+                            <input name="queryCid" th:value="${session.queryCid}" hidden>
+                            <div th:with="pageNumber=${totalPages}">
+                                <div class="pagination-wrapper" th:if="${0 < pageNumber && pageNumber <= 10}">
+                                    <button th:each="i : ${#numbers.sequence(1, pageNumber)}"
+                                            type="submit"
+                                            name="subpageIndex"
+                                            th:value="${i}"
+                                            th:class="${'btn btn-sm ' + (i == session.subpageIndex ? 'btn-primary' : 'btn-outline-secondary')}"
+                                            th:text="${i}">1</button>
+                                </div>
+                                <div th:if="${pageNumber > 10}">
+                                    <select name="subpageIndex" class="form-select" onchange="this.form.submit()">
+                                        <option th:each="i : ${#numbers.sequence(1, pageNumber)}"
+                                                th:value="${i}"
+                                                th:selected="${i == session.subpageIndex}"
+                                                th:text="${i}">1</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div style="flex: 1; min-width: 400px;">
+                        <form th:action="@{/manager/bill-list}" method="get" style="display: flex; gap: 0.5rem;">
+                            <input type="text" name="queryName" placeholder="Tìm kiếm theo tên người mua" th:value="${session.queryName}"
+                                class="form-control" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); width: 100%;">
+                            <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
+                                <i class="bi bi-search"></i> Tìm kiếm
+                            </button>
+                        </form>
+                    </div>
+                    <div style="flex: 0 0 250px;">
+                        <label class="form-label">
+                            <i class="bi bi-sort-alpha-down"></i> Sắp xếp theo
+                        </label>
+                        <form th:action="@{/manager/bill-list}" method="get">
+                            <select name="sortCriteria" class="form-select" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color);" onchange="form.submit()">
+                                <option th:value="id" th:selected="${sortCriteria == 'id'}">ID</option>
+                                <option th:value="shopName" th:selected="${sortCriteria == 'shopName'}">Tên cửa hàng</option>
+                                <option th:value="customer" th:selected="${sortCriteria == 'customer'}">Khách hàng</option>
+                                <option th:value="paymentTime" th:selected="${sortCriteria == 'paymentTime'}">Ngày tạo</option>
+                                <option th:value="totalAmount" th:selected="${sortCriteria == 'totalAmount'}">Tổng tiền</option>
+                                <option th:value="address" th:selected="${sortCriteria == 'address'}">Địa chỉ giao hàng</option>
+                            </select>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -284,12 +340,60 @@
                 <table class="bill-table">
                     <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Tên cửa hàng</th>
-                        <th>Người mua</th>
-                        <th>Ngày tạo</th>
-                        <th>Tổng tiền</th>
-                        <th>Địa chỉ giao hàng</th>
+                        <th>
+                            <form th:action="@{/manager/bill-list}" method="get" style="display: inline;">
+                                <button type="submit" name="sortCriteriaInPage" value="id"
+                                        th:class="${'btn btn-sm ' + (session.sortCriteriaInPage.equals('id') ? 'btn-primary' : 'btn-outline-primary')}">
+                                    ID <span th:if="${session.sortCriteriaInPage.equals('id')}"
+                                                     th:text="${session.k == 1 ? '▲' : '▼'}"></span>
+                                </button>
+                            </form>
+                        </th>
+                        <th>
+                            <form th:action="@{/manager/bill-list}" method="get" style="display: inline;">
+                                <button type="submit" name="sortCriteriaInPage" value="shopName"
+                                        th:class="${'btn btn-sm ' + (session.sortCriteriaInPage.equals('shopName') ? 'btn-primary' : 'btn-outline-primary')}">
+                                    Tên cửa hàng <span th:if="${session.sortCriteriaInPage.equals('shopName')}"
+                                          th:text="${session.k == 1 ? '▲' : '▼'}"></span>
+                                </button>
+                            </form>
+                        </th>
+                        <th>
+                            <form th:action="@{/manager/bill-list}" method="get" style="display: inline;">
+                                <button type="submit" name="sortCriteriaInPage" value="customer"
+                                        th:class="${'btn btn-sm ' + (session.sortCriteriaInPage.equals('customer') ? 'btn-primary' : 'btn-outline-primary')}">
+                                    Khách hàng <span th:if="${session.sortCriteriaInPage.equals('customer')}"
+                                          th:text="${session.k == 1 ? '▲' : '▼'}"></span>
+                                </button>
+                            </form>
+                        </th>
+                        <th>
+                            <form th:action="@{/manager/bill-list}" method="get" style="display: inline;">
+                                <button type="submit" name="sortCriteriaInPage" value="paymentTime"
+                                        th:class="${'btn btn-sm ' + (session.sortCriteriaInPage.equals('paymentTime') ? 'btn-primary' : 'btn-outline-primary')}">
+                                    Ngày tạo <span th:if="${session.sortCriteriaInPage.equals('paymentTime')}"
+                                          th:text="${session.k == 1 ? '▲' : '▼'}"></span>
+                                </button>
+                            </form>
+                        </th>
+                        <th>
+                            <form th:action="@{/manager/bill-list}" method="get" style="display: inline;">
+                                <button type="submit" name="sortCriteriaInPage" value="totalAmount"
+                                        th:class="${'btn btn-sm ' + (session.sortCriteriaInPage.equals('totalAmount') ? 'btn-primary' : 'btn-outline-primary')}">
+                                    Tổng tiền <span th:if="${session.sortCriteriaInPage.equals('totalAmount')}"
+                                          th:text="${session.k == 1 ? '▲' : '▼'}"></span>
+                                </button>
+                            </form>
+                        </th>
+                        <th>
+                            <form th:action="@{/manager/bill-list}" method="get" style="display: inline;">
+                                <button type="submit" name="sortCriteriaInPage" value="shippingAddress"
+                                        th:class="${'btn btn-sm ' + (session.sortCriteriaInPage.equals('shippingAddress') ? 'btn-primary' : 'btn-outline-primary')}">
+                                    Địa chỉ giao hàng <span th:if="${session.sortCriteriaInPage.equals('shippingAddress')}"
+                                          th:text="${session.k == 1 ? '▲' : '▼'}"></span>
+                                </button>
+                            </form>
+                        </th>
                         <th style="text-align: center;">Hành động</th>
                     </tr>
                     </thead>
@@ -321,11 +425,6 @@
                     </tr>
                     </tbody>
                 </table>
-
-                <!-- Pagination -->
-                <div class="pagination-wrapper" th:if="${bills != null && !bills.isEmpty()}">
-                    <button class="btn btn-sm btn-primary">1</button>
-                </div>
             </div>
         </div>
     </div>

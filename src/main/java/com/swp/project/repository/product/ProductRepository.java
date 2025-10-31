@@ -126,6 +126,17 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
           LIKE LOWER(FUNCTION('unaccent', CONCAT('%', :name, '%')))
     """)
     Page<Product> findByNameContainingIgnoreCaseAndEnabled(String name, Boolean enabled, Pageable pageable);
+
+    @Query("""
+    SELECT p
+    FROM Product p
+    WHERE (:enabled IS NULL OR p.enabled = :enabled)
+      AND LOWER(FUNCTION('unaccent', p.name )) 
+          LIKE LOWER(FUNCTION('unaccent', CONCAT('%', :name, '%')))
+              AND (:minPrice IS NULL OR p.price >= :minPrice)
+              AND (:maxPrice IS NULL OR p.price <= :maxPrice)
+    """)
+    Page<Product> findByNameContainingIgnoreCaseAndEnabledAndPrice(String name, Boolean enabled,Long minPrice, Long maxPrice, Pageable pageable);
     @Query("""
     SELECT p 
     FROM Product p

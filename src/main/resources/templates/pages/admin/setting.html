@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cài đặt cửa hàng</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 28px;
+        }
+
+        .message {
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .failed {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group span {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 14px;
+            background: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 10px;
+        }
+
+        button[type="submit"]:hover {
+            background: #357abd;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+        }
+
+        button[type="submit"]:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Thông tin cửa hàng</h2>
+
+    <p th:if="${success}" th:text="${success}" class="message success"></p>
+    <p th:if="${failed}" th:text="${failed}" class="message failed"></p>
+
+    <form th:action="@{/admin/updateSetting}" method="post">
+        <div class="form-group">
+            <span>Tên cửa hàng</span>
+            <input type="text" id="shopName" name="shopName" th:value="${shopName}" required/>
+        </div>
+
+        <div class="form-group">
+            <span>Địa chỉ cửa hàng</span>
+            <input type="text" id="shopAddress" name="shopAddress" th:value="${shopAddress}" required/>
+        </div>
+
+        <div class="form-group">
+            <span>Số điện thoại cửa hàng</span>
+            <input type="text" id="shopPhone" name="shopPhone" th:value="${shopPhone}" required/>
+        </div>
+
+        <div class="form-group">
+            <span>Email của cửa hàng</span>
+            <input type="email" id="shopEmail" name="shopEmail" th:value="${shopEmail}" required/>
+        </div>
+
+        <div class="form-group">
+            <span>Slogan của cửa hàng</span>
+            <input type="text" id="shopSlogan" name="shopSlogan" th:value="${shopSlogan}"/>
+        </div>
+
+        <button type="submit">Cập nhật thông tin</button>
+    </form>
+</div>
+</body>
+</html>

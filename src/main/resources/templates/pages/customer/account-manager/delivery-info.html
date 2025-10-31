@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Thông tin giao hàng</title>
     <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/css/style.css">
     <style>
         body {
@@ -18,80 +19,80 @@
 </head>
 
 <body class="auth-body">
-    <div th:replace="~{fragments/header :: header}"></div>
-    <div class="container d-flex align-items-center justify-content-center">
-        <div class="row justify-content-center w-100">
-            <div class="col-12 col-md-10 col-lg-8 col-xl-7">
-                <div class="auth-card bg-white p-4 p-md-5">
-                    <div class="mb-4 text-center">
-                        <h2 class="mb-1">Thông tin giao hàng</h2>
-                        <p class="text-muted mb-0">Cập nhật địa chỉ để nhận hàng nhanh chóng và chính xác.</p>
+<div th:replace="~{fragments/header :: header}"></div>
+<div class="container d-flex align-items-center justify-content-center">
+    <div class="row justify-content-center w-100">
+        <div class="col-12 col-md-10 col-lg-8 col-xl-7">
+            <div class="auth-card bg-white p-4 p-md-5">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <a class="btn btn-outline-secondary btn-sm" th:href="@{/customer/account-manager}" role="button">
+                        <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>
+                        Quay lại
+                    </a>
+                </div>
+                <div class="mb-4 text-center">
+                    <h2 class="mb-1">Thông tin giao hàng</h2>
+                    <p class="text-muted mb-0">Cập nhật địa chỉ giao hàng để mua hàng nhanh chóng hơn</p>
+                </div>
+
+                <form th:action="@{/customer/delivery-info}" th:object="${deliveryInfoDto}" method="post"
+                      autocomplete="off">
+                    <div class="mb-3">
+                        <label for="fullName" class="form-label">Họ và tên</label>
+                        <input id="fullName" type="text" class="form-control" th:field="*{fullName}"
+                               placeholder="VD: Nguyễn Văn A" required maxlength="50">
+                        <div class="invalid-feedback d-block" th:errors="*{fullName}"></div>
                     </div>
 
-                    <form th:action="@{/customer/delivery-info}" th:object="${deliveryInfoDto}" method="post"
-                        autocomplete="off">
-                        <div class="mb-3">
-                            <label for="fullName" class="form-label">Họ và tên</label>
-                            <input id="fullName" type="text" class="form-control" th:field="*{fullName}"
-                                placeholder="VD: Nguyễn Văn A" required maxlength="50">
-                            <div class="invalid-feedback d-block" th:errors="*{fullName}"></div>
-                        </div>
-
-                        <div class="row g-3">
-                            <div class="col-12 col-md-6">
-                                <label for="provinceCityCode" class="form-label">Tỉnh/Thành phố</label>
-                                <select id="provinceCityCode" class="form-select" required onchange="this.form.submit()"
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <label for="provinceCityCode" class="form-label">Tỉnh/Thành phố</label>
+                            <select id="provinceCityCode" class="form-select" required onchange="this.form.submit()"
                                     th:field="*{provinceCityCode}">
-                                    <option value="">Chọn Tỉnh/Thành phố</option>
-                                    <option th:each="province : ${provinceCities}" th:value="${province.code}"
+                                <option value="">Chọn Tỉnh/Thành phố</option>
+                                <option th:each="province : ${provinceCities}" th:value="${province.code}"
                                         th:text="${province.name}">
-                                    </option>
-                                </select>
-                                <div class="invalid-feedback d-block" th:errors="*{provinceCityCode}"></div>
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <label for="communeWardCode" class="form-label">Xã/Phường</label>
-                                <select id="communeWardCode" class="form-select" th:field="*{communeWardCode}" required>
-                                    <option value="">Chọn Xã/Phường</option>
-                                    <option th:each="ward : ${wards}" th:value="${ward.code}" th:text="${ward.name}">
-                                    </option>
-                                </select>
-                                <div class="invalid-feedback d-block" th:errors="*{communeWardCode}"></div>
-                            </div>
+                                </option>
+                            </select>
+                            <div class="invalid-feedback d-block" th:errors="*{provinceCityCode}"></div>
                         </div>
+                        <div class="col-12 col-md-6">
+                            <label for="communeWardCode" class="form-label">Xã/Phường</label>
+                            <select id="communeWardCode" class="form-select" th:field="*{communeWardCode}" required>
+                                <option value="">Chọn Xã/Phường</option>
+                                <option th:each="ward : ${wards}" th:value="${ward.code}" th:text="${ward.name}">
+                                </option>
+                            </select>
+                            <div class="invalid-feedback d-block" th:errors="*{communeWardCode}"></div>
+                        </div>
+                    </div>
 
-                        <div class="row g-3 mt-1">
-                            <div class="col-12 col-md-7">
-                                <label for="specificAddress" class="form-label">Địa chỉ chi tiết</label>
-                                <input id="specificAddress" type="text" class="form-control"
-                                    th:field="*{specificAddress}" placeholder="Số nhà, đường, tổ/thôn/xóm..." required
-                                    maxlength="100">
-                                <div class="invalid-feedback d-block" th:errors="*{specificAddress}"></div>
-                            </div>
-                            <div class="col-12 col-md-5">
-                                <label for="phone" class="form-label">Số điện thoại</label>
-                                <input id="phone" type="tel" class="form-control" th:field="*{phone}"
-                                    placeholder="VD: 0912345678" required minlength="10" maxlength="10" inputmode="tel">
-                                <div class="invalid-feedback d-block" th:errors="*{phone}"></div>
-                            </div>
+                    <div class="row g-3 mt-1">
+                        <div class="col-12 col-md-7">
+                            <label for="specificAddress" class="form-label">Địa chỉ chi tiết</label>
+                            <input id="specificAddress" type="text" class="form-control"
+                                   th:field="*{specificAddress}" placeholder="Số nhà, đường, tổ/thôn/xóm..." required
+                                   maxlength="100">
+                            <div class="invalid-feedback d-block" th:errors="*{specificAddress}"></div>
                         </div>
+                        <div class="col-12 col-md-5">
+                            <label for="phone" class="form-label">Số điện thoại</label>
+                            <input id="phone" type="tel" class="form-control" th:field="*{phone}"
+                                   placeholder="VD: 0123456789" required maxlength="15">
+                            <div class="invalid-feedback d-block" th:errors="*{phone}"></div>
+                        </div>
+                    </div>
 
-                        <div class="row g-2 mt-4">
-                            <div class="col-12 col-sm-6">
-                                <a class="btn btn-outline-secondary w-100" th:href="@{/customer/account-manager}">Quay
-                                    lại</a>
-                            </div>
-                            <div class="col-12 col-sm-6 d-grid">
-                                <button type="submit" name="update" class="btn btn-primary">Cập nhật</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+                    <div class="d-grid mt-4">
+                        <button type="submit" name="update" class="btn btn-primary">Cập nhật</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-    <div th:replace="~{fragments/footer :: footer}"></div>
-    <script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
 </body>
 
 </html>

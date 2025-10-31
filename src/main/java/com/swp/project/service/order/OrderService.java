@@ -67,7 +67,7 @@ public class OrderService {
     private List<Order> results = List.of();
 
     public Page<Order> getAllOrder() {
-        Pageable pageable = PageRequest.of(0,10, Sort.by("orderAt").descending());
+        Pageable pageable = PageRequest.of(0,5, Sort.by("orderAt").descending());
         return orderRepository.findAll(pageable);
     }
 
@@ -76,10 +76,17 @@ public class OrderService {
     }
 
     public Page<Order> searchOrder(SellerSearchOrderDto sellerSearchOrderDto) {
+        Sort sortBy = switch (sellerSearchOrderDto.getSortBy()) {
+            case "orderDateNewest" -> Sort.by("orderAt").descending();
+            case "orderDateOldest" -> Sort.by("orderAt").ascending();
+            case "emailZA" -> Sort.by("customer.email").descending();
+            case "emailAZ" -> Sort.by("customer.email").ascending();
+            case "orderCodeAsc" -> Sort.by("id").ascending();
+            default -> Sort.by("id").descending();
+        };
         Pageable pageable = PageRequest.of(
                 Integer.parseInt(sellerSearchOrderDto.getGoToPage()) - 1,
-                10,
-                Sort.by("orderAt").descending());
+                5, sortBy);
         if (sellerSearchOrderDto.getStatusId() == null || sellerSearchOrderDto.getStatusId() == 0) {
             return orderRepository.searchByCustomer_EmailContainsAndOrderAtBetween(
                     sellerSearchOrderDto.getCustomerEmail() == null
@@ -380,9 +387,6 @@ public class OrderService {
         }
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Đơn hàng không tồn tại"));
-        if (!shippingStatusService.isAwaitingPickupStatus(order.getCurrentShippingStatus())) {
-            throw new RuntimeException("Đơn hàng không ở trạng thái đang lấy hàng");
-        }
 
         try {
             // Update shipping status to picked up
@@ -401,9 +405,6 @@ public class OrderService {
         }
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Đơn hàng không tồn tại"));
-        if (!shippingStatusService.isPickedUpStatus(order.getCurrentShippingStatus())) {
-            throw new RuntimeException("Đơn hàng không ở trạng thái đã lấy hàng");
-        }
 
         try {
             // Update shipping status to shipping
@@ -422,9 +423,6 @@ public class OrderService {
         }
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Đơn hàng không tồn tại"));
-        if (!shippingStatusService.isShippingStatus(order.getCurrentShippingStatus())) {
-            throw new RuntimeException("Đơn hàng không ở trạng thái đang giao");
-        }
 
         try {
             // Update order status to deliver directly instead of calling OrderService
