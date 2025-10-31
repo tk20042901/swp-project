@@ -3,6 +3,7 @@ package com.swp.project.controller;
 import com.swp.project.dto.*;
 import com.swp.project.entity.user.Manager;
 import com.swp.project.service.AddressService;
+import com.swp.project.service.SettingService;
 import com.swp.project.service.order.OrderService;
 import com.swp.project.service.user.ManagerService;
 import jakarta.validation.Valid;
@@ -28,6 +29,7 @@ public class AdminController {
     private final ManagerService managerService;
     private final OrderService orderService;
     private final AddressService addressService;
+    private final SettingService settingService;
 
     @GetMapping("")
     public String showAdminMainPage(Model model) {
@@ -174,5 +176,28 @@ public class AdminController {
                 .contentType(
                         MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(new InputStreamResource(in));
+    }
+
+    @GetMapping("/setting")
+    public String getAdminSettingPage(Model model) {
+        model.addAttribute("shopName", settingService.getShopName());
+        model.addAttribute("shopAddress", settingService.getShopAddress());
+        model.addAttribute("shopPhone", settingService.getShopPhone());
+        model.addAttribute("shopEmail", settingService.getShopEmail());
+        model.addAttribute("shopSlogan", settingService.getShopSlogan());
+        return "pages/admin/setting";
+    }
+
+    @PostMapping("/updateSetting")
+    public String updateAdminSetting(@Valid @ModelAttribute AdminSettingDto adminSettingDto,
+                                     BindingResult bindingResult,
+                                     RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("failed", "Cập nhật cài đặt thất bại. Vui lòng kiểm tra lại dữ liệu.");
+            return "redirect:/admin/setting";
+        }
+        settingService.updateSetting(adminSettingDto);
+        redirectAttributes.addFlashAttribute("success", "Cập nhật cài đặt thành công.");
+        return "redirect:/admin/setting";
     }
 }
