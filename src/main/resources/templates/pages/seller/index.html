@@ -239,15 +239,15 @@
                     <div class="value" th:text="${totalCanceledOrder}">0</div>
                 </div>
                 <div class="stat-card">
-                    <h3><i class="bi bi-x-circle"></i> Đơn hàng đang chờ xác nhận</h3>
-                    <div class="value" th:text="${processingOrder}">0</div>
+                    <h3><i class="bi bi-clock-history"></i> Đơn hàng đang chờ xác nhận</h3>
+                    <div class="value" th:text="${pendingOrder}">0</div>
                 </div>
                 <div class="stat-card">
-                    <h3><i class="bi bi-x-circle"></i> Đơn hàng đã giao</h3>
+                    <h3><i class="bi bi-check-circle"></i> Đơn hàng đã giao</h3>
                     <div class="value" th:text="${deliverOrder}">0</div>
                 </div>
                 <div class="stat-card">
-                    <h3><i class="bi bi-x-circle"></i> Đơn hàng đang chờ chuẩn bị</h3>
+                    <h3><i class="bi bi-hourglass-split"></i> Đơn hàng đang chờ chuẩn bị</h3>
                     <div class="value" th:text="${processingOrder}">0</div>
                 </div>
             </div>
@@ -271,15 +271,15 @@
                     </tr>
 
                     <tr th:each="item : ${nearlySoldOutProducts}">
-                        <td th:text="${item.product.id}">001</td>
+                        <td th:text="${item.id}">001</td>
                         <td>
                             <div class="product-info">
-                                <img th:src="${item.product.main_image_url}" alt="Product image">
-                                <span th:text="${item.product.name}">Tên sản phẩm</span>
+                                <img th:src="${item.main_image_url}" alt="Product image">
+                                <span th:text="${item.name}">Tên sản phẩm</span>
                             </div>
                         </td>
                         <td style="text-align: center;">
-                            <span class="quantity-badge" th:text="${item.product.quantity}">10</span>
+                            <span class="quantity-badge" th:text="${item.quantity}">10</span>
                         </td>
                     </tr>
                     </tbody>
