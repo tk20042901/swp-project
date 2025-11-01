@@ -397,7 +397,7 @@ public class CustomerController {
                     .getAllCommuneWardByProvinceCityCode(deliveryInfoDto.getProvinceCityCode()));
             model.addAttribute("totalAmount", shoppingCartItems.stream().mapToDouble(
                     (item -> item.getProduct().getPrice() * item.getQuantity())).sum());
-            return "/pages/customer/order/order-info";
+            return "pages/customer/order/order-info";
         }
 
         if(paymentMethodId == null || paymentMethodId.isEmpty()){
